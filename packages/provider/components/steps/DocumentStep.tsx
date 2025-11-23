@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StepProps, DocType, ProviderDocument } from '../../types';
 import { Button } from '../Button';
 import { analyzeIdCard, checkSelfie } from '../../services/gemini';
@@ -112,11 +112,20 @@ const FileUploadCard: React.FC<{
 };
 
 export const DocumentStep: React.FC<StepProps> = ({ data, updateData, onNext, onBack }) => {
-  const [analyzing, setAnalyzing] = useState(false);
+  const [isAnalyzing, setAnalyzing] = useState(false);
+  const [isUploading, setUploading] = useState(false);
   const [showDigiLocker, setShowDigiLocker] = useState(false);
   const toast = useToast();
 
+  useEffect(() => {
+    if (!data.phoneNumber) {
+        toast.error("Phone number not provided. Please go back.");
+        onBack();
+    }
+  }, [data.phoneNumber, onBack, toast]);
+
   const handleUpload = async (type: DocType, file: File) => {
+    setUploading(true);
     // 1. Set local state to uploading
     updateData({
       documents: {
@@ -132,8 +141,8 @@ export const DocumentStep: React.FC<StepProps> = ({ data, updateData, onNext, on
     });
 
     try {
-        // 2. Upload to backend (simulated)
-        const path = `providers/${data.phoneNumber}/${type.toLowerCase()}`;
+        // 2. Upload to backend
+        const path = `providers/${data.phoneNumber}/${type.toLowerCase()}-${file.name}`;
         const { url, error } = await backend.storage.upload(file, path);
 
         if (error) throw error;
@@ -152,18 +161,26 @@ export const DocumentStep: React.FC<StepProps> = ({ data, updateData, onNext, on
           });
           toast.success("Document uploaded securely.");
 
-    } catch (e) {
-        toast.error("Upload failed. Please try again.");
+    } catch (e: any) {
+        let errorMessage = "Upload failed. Please try again.";
+        if (e.message.includes('size')) {
+            errorMessage = "File is too large. Please upload a file smaller than 10MB.";
+        } else if (e.message.includes('type')) {
+            errorMessage = "Invalid file type. Please upload an image.";
+        }
+        toast.error(errorMessage);
         updateData({
             documents: {
               ...data.documents,
               [type]: {
                 ...data.documents[type],
                 status: 'error',
-                error: 'Upload failed'
+                error: errorMessage
               }
             }
           });
+    } finally {
+        setUploading(false);
     }
   };
 
@@ -172,26 +189,19 @@ export const DocumentStep: React.FC<StepProps> = ({ data, updateData, onNext, on
     if (!doc.file) return;
 
     setAnalyzing(true);
-    updateData({
-        documents: {
-            ...data.documents,
-            [type]: { ...doc, status: 'analyzing' }
-        }
-    });
+    const newData = { ...data };
+    newData.documents[type] = { ...doc, status: 'analyzing' };
+    updateData(newData);
 
     try {
         let result: any = {};
         if (type === DocType.GovtID) {
             result = await analyzeIdCard(doc.file);
             if (result.isValidId) {
-                updateData({
-                    fullName: result.fullName || data.fullName,
-                    dob: result.dob || data.dob,
-                    documents: {
-                        ...data.documents,
-                        [type]: { ...doc, status: 'verified', extractedData: result }
-                    }
-                });
+                newData.fullName = result.fullName || data.fullName;
+                newData.dob = result.dob || data.dob;
+                newData.documents[type] = { ...doc, status: 'verified', extractedData: result, previewUrl: doc.previewUrl };
+                updateData(newData);
                 toast.success("ID verified successfully via AI!");
             } else {
                 throw new Error("Could not verify ID card. Please ensure it is a valid Govt ID.");
@@ -199,12 +209,8 @@ export const DocumentStep: React.FC<StepProps> = ({ data, updateData, onNext, on
         } else if (type === DocType.Selfie) {
             result = await checkSelfie(doc.file);
              if (result.isClearSelfie) {
-                updateData({
-                    documents: {
-                        ...data.documents,
-                        [type]: { ...doc, status: 'verified', extractedData: result }
-                    }
-                });
+                newData.documents[type] = { ...doc, status: 'verified', extractedData: result, previewUrl: doc.previewUrl };
+                updateData(newData);
                 toast.success("Selfie verified!");
             } else {
                  throw new Error(result.description || "Selfie not clear.");
@@ -213,12 +219,8 @@ export const DocumentStep: React.FC<StepProps> = ({ data, updateData, onNext, on
 
     } catch (e: any) {
         toast.error(e.message || "Analysis failed");
-        updateData({
-            documents: {
-                ...data.documents,
-                [type]: { ...doc, status: 'error', error: e.message || "Analysis failed" }
-            }
-        });
+        newData.documents[type] = { ...doc, status: 'error', error: e.message || "Analysis failed", previewUrl: doc.previewUrl };
+        updateData(newData);
     } finally {
         setAnalyzing(false);
     }
@@ -272,6 +274,7 @@ export const DocumentStep: React.FC<StepProps> = ({ data, updateData, onNext, on
     (data.documents[DocType.Selfie].status === 'verified' || data.documents[DocType.Selfie].previewUrl);
 
   const isDigiLockerVerified = data.documents[DocType.GovtID].source === 'digilocker';
+  const isLoading = isUploading || isAnalyzing;
 
   return (
     <div className="space-y-6 animate-in slide-in-from-right-8 fade-in duration-300">
@@ -352,11 +355,11 @@ export const DocumentStep: React.FC<StepProps> = ({ data, updateData, onNext, on
       </div>
 
       <div className="flex gap-3 pt-4">
-        <Button variant="outline" className="flex-1" onClick={onBack} disabled={analyzing}>
+        <Button variant="outline" className="flex-1" onClick={onBack} disabled={isLoading}>
           Back
         </Button>
-        <Button className="flex-1" onClick={onNext} disabled={!canProceed || analyzing}>
-          {analyzing ? 'Analyzing...' : 'Continue'}
+        <Button className="flex-1" onClick={onNext} disabled={!canProceed || isLoading}>
+          {isUploading ? 'Uploading...' : isAnalyzing ? 'Analyzing...' : 'Continue'}
         </Button>
       </div>
     </div>

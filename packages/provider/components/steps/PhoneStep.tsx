@@ -29,7 +29,7 @@ export const PhoneStep: React.FC<StepProps> = ({ data, updateData, onNext }) => 
     }
     setLoading(true);
     try {
-        const { error } = await signInWithPhone(phone);
+        const { error } = await signInWithPhone(`+91${phone}`);
         if (error) throw error;
         
         setOtpSent(true);
@@ -46,7 +46,7 @@ export const PhoneStep: React.FC<StepProps> = ({ data, updateData, onNext }) => 
     if (otp.length !== 4) return;
     setLoading(true);
     try {
-        const { error } = await verifyOtp(phone, otp);
+        const { error } = await verifyOtp(`+91${phone}`, otp);
         if (error) throw error;
 
         updateData({ phoneNumber: phone, isPhoneVerified: true });
