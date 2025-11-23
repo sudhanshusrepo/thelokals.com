@@ -1,7 +1,6 @@
 
 import { supabase } from './supabase';
 import { WorkerProfile, WorkerCategory, WorkerStatus } from '../types';
-import { MOCK_WORKERS } from '../constants';
 
 export const workerService = {
   async getWorkers(): Promise<WorkerProfile[]> {
@@ -11,13 +10,8 @@ export const workerService = {
         .select('*');
 
       if (error) {
-        console.warn("Error fetching workers from DB, using mocks:", error.message);
-        return MOCK_WORKERS;
-      }
-
-      if (!data || data.length === 0) {
-        // If DB is empty, return mocks (in a real app, you might seed the DB)
-        return MOCK_WORKERS;
+        console.error("Error fetching workers from DB:", error.message);
+        throw error;
       }
 
       // Transform DB structure to frontend structure if needed
@@ -36,7 +30,7 @@ export const workerService = {
       }));
     } catch (e) {
       console.error("Worker service error", e);
-      return MOCK_WORKERS;
+      return [];
     }
   },
 
@@ -52,15 +46,9 @@ export const workerService = {
             .update({ status })
             .eq('id', workerId);
         
-        // Update local mock if DB fails or is empty (for demo persistence in session)
-        const mockIndex = MOCK_WORKERS.findIndex(w => w.id === workerId);
-        if (mockIndex >= 0) {
-            MOCK_WORKERS[mockIndex].status = status;
-        }
-        
         if (error) throw error;
     } catch (e) {
-        console.warn("Failed to update status in DB (expected in demo mode w/o write policies), updating local mock:", e);
+        console.warn("Failed to update status in DB:", e);
     }
   },
 
@@ -79,20 +67,9 @@ export const workerService = {
             .update(dbPayload)
             .eq('id', workerId);
 
-        // Update local mock for immediate feedback in demo/offline mode
-        const mockIndex = MOCK_WORKERS.findIndex(w => w.id === workerId);
-        if (mockIndex >= 0) {
-            MOCK_WORKERS[mockIndex] = { ...MOCK_WORKERS[mockIndex], ...updates };
-        }
-
         if (error) throw error;
     } catch (e) {
-         console.warn("Failed to update profile in DB (expected in demo mode), updating local mock:", e);
-         // Fallback update local mock again just in case
-         const mockIndex = MOCK_WORKERS.findIndex(w => w.id === workerId);
-         if (mockIndex >= 0) {
-             MOCK_WORKERS[mockIndex] = { ...MOCK_WORKERS[mockIndex], ...updates };
-         }
+         console.warn("Failed to update profile in DB:", e);
     }
   }
 };
