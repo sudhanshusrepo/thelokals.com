@@ -4,7 +4,6 @@ import { WorkerCard } from './components/WorkerCard';
 import { BookingModal } from './components/BookingModal';
 import { AuthModal } from './components/AuthModal';
 import { UserDashboard } from './components/UserDashboard';
-import { WorkerDashboard } from './components/WorkerDashboard';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { CATEGORY_ICONS, ICONS, DEFAULT_CENTER } from './constants';
 import { WorkerCategory, WorkerProfile, Coordinates } from './types';
@@ -30,7 +29,7 @@ function deg2rad(deg: number) {
 }
 
 const MainLayout: React.FC = () => {
-  const [view, setView] = useState<'home' | 'results' | 'dashboard' | 'worker-dashboard'>('home');
+  const [view, setView] = useState<'home' | 'results' | 'dashboard'>('home');
   const [userLocation, setUserLocation] = useState<Coordinates | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
@@ -196,7 +195,6 @@ const MainLayout: React.FC = () => {
 
   // Determine header title
   const getHeaderTitle = () => {
-    if (view === 'worker-dashboard') return 'Professional Portal';
     if (view === 'dashboard') return 'Dashboard';
     if (view === 'results') return selectedCategory ? `${selectedCategory}s Nearby` : 'Search Results';
     return 'thelocals.co';
@@ -227,7 +225,6 @@ const MainLayout: React.FC = () => {
         title={getHeaderTitle()}
         onSignInClick={() => setShowAuthModal(true)}
         onDashboardClick={() => setView('dashboard')}
-        onProfessionalClick={() => setView('worker-dashboard')}
       />
 
       {/* Main Content */}
@@ -380,10 +377,6 @@ const MainLayout: React.FC = () => {
 
         {view === 'dashboard' && (
             <UserDashboard />
-        )}
-
-        {view === 'worker-dashboard' && (
-            <WorkerDashboard />
         )}
       </main>
     </div>
