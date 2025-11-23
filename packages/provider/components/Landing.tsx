@@ -9,7 +9,10 @@ export const Landing: React.FC<LandingProps> = ({ onStart }) => {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <header className="px-6 py-4 flex justify-between items-center border-b border-slate-100 sticky top-0 bg-white/90 backdrop-blur-md z-50">
-        <div className="text-2xl font-black text-brand-600 tracking-tighter">TheLocals<span className="text-slate-900">.</span></div>
+        <button className="flex items-center gap-2">
+            <span className="text-3xl">🏡</span>
+            <span className="text-xl font-bold text-gray-900 dark:text-white tracking-tighter">thelocals.co</span>
+        </button>
         <button className="text-sm font-medium text-slate-600 hover:text-brand-600">Login</button>
       </header>
 
