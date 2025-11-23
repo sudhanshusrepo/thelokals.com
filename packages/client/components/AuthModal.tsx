@@ -32,7 +32,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
           password,
           options: {
             data: {
-              full_name: fullName,
+              fullName: fullName,
             },
             emailRedirectTo: `${window.location.origin}/dashboard`,
           },
