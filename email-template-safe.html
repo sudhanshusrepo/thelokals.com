@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Confirm Your Email – thelocals.co</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f7f8fa; margin: 0; padding: 20px;">
+  <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; border-collapse: collapse;">
+    <tr>
+      <td align="center" bgcolor="#ffffff" style="padding: 40px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+        
+        <!-- Header -->
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse;">
+          <tr>
+            <td>
+              <h2 style="color: #2c3e50; margin: 0 0 16px 0;">Welcome to thelocals.co! 🌟</h2>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p style="color: #555; font-size: 16px; line-height: 1.5; margin: 0;">
+                Thanks for signing up! To complete your registration, please confirm your email address.
+              </p>
+            </td>
+          </tr>
+        </table>
+
+        <!-- Confirmation Button -->
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse; margin: 30px 0;">
+          <tr>
+            <td align="center">
+              <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse;">
+                <tr>
+                  <td align="center" bgcolor="#1abc9c" style="border-radius: 6px;">
+                    <a href="{{ .ConfirmationURL }}" target="_blank" style="color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-size: 16px; display: inline-block;">
+                      Confirm Your Email
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+
+        <!-- Fallback Link -->
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse;">
+           <tr>
+            <td style="color: #777; font-size: 14px; line-height: 1.4;">
+                If the button doesn’t work, copy and paste this link into your browser:
+            </td>
+           </tr>
+           <tr>
+            <td style="padding-top: 8px; word-break: break-all;">
+                <a href="{{ .ConfirmationURL }}" style="color: #1abc9c;">{{ .ConfirmationURL }}</a>
+            </td>
+           </tr>
+        </table>
+        
+        <!-- Footer -->
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e1e1e1;">
+          <tr>
+            <td style="color: #777; font-size: 14px;">
+              <p style="margin: 0;">If you didn’t sign up, just ignore this email.</p>
+
+              <!-- Trust Footer -->
+              <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse; margin-top: 30px;">
+                  <tr>
+                      <td style="padding: 20px; background-color: #f8f9fa; border-radius: 6px; text-align: center; border: 1px solid #eef0f2;">
+                          <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse;">
+                              <tr>
+                                  <!-- Item 1: Verified -->
+                                  <td width="33.33%" style="padding: 0 5px;">
+                                      <p style="margin:0; font-size: 20px;">✅</p>
+                                      <p style="margin:5px 0 0; color: #333; font-size: 12px; line-height: 1.4; font-weight: bold;">
+                                          Verified Experts
+                                      </p>
+                                  </td>
+                                  <!-- Item 2: Secure -->
+                                  <td width="33.33%" style="padding: 0 5px;">
+                                      <p style="margin:0; font-size: 20px;">🛡️</p>
+                                      <p style="margin:5px 0 0; color: #333; font-size: 12px; line-height: 1.4; font-weight: bold;">
+                                          Secure Payments
+                                      </p>
+                                  </td>
+                                  <!-- Item 3: Local -->
+                                  <td width="33.33%" style="padding: 0 5px;">
+                                      <p style="margin:0; font-size: 20px;">📍</p>
+                                      <p style="margin:5px 0 0; color: #333; font-size: 12px; line-height: 1.4; font-weight: bold;">
+                                          Truly Local
+                                      </p>
+                                  </td>
+                              </tr>
+                          </table>
+                      </td>
+                  </tr>
+              </table>
+
+              <p style="margin-top: 30px;">
+                Cheers,<br />
+                <strong>thelocals.co Team</strong>
+              </p>
+            </td>
+          </tr>
+        </table>
+
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
