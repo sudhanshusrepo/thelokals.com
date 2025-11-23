@@ -46,6 +46,11 @@ const MainLayout: React.FC = () => {
   
   // Initialize Location and Fetch Workers
   useEffect(() => {
+    // Handle auth redirect
+    if (window.location.hash.includes('&type=signup')) {
+        setView('dashboard');
+    }
+
     const initData = async () => {
         const workers = await workerService.getWorkers();
         setAllWorkers(workers);

@@ -34,6 +34,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
             data: {
               full_name: fullName,
             },
+            emailRedirectTo: `${window.location.origin}/dashboard`,
           },
         });
 
@@ -135,7 +136,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
 
             <div className="mt-6 text-center">
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {isLogin ? "Don't have an account?" : "Already have an account?"}{' '}
+                    {isLogin ? "Don't have an account?" : "Already have an account?"}{' ' Meticulously-crafted UIs' content=''''}
                     <button 
                         onClick={() => setIsLogin(!isLogin)}
                         className="text-indigo-600 dark:text-indigo-400 font-semibold hover:text-indigo-700 dark:hover:text-indigo-300"
