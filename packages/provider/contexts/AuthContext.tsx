@@ -1,17 +1,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
-import { GoTrueClient } from '@supabase/gotrue-js';
 import { supabase } from '../services/supabase';
-
-// Create a single GoTrueClient instance
-export const goTrueClient = new GoTrueClient({
-  url: `https://gdnltvvxiychrsdzenia.supabase.co/auth/v1`,
-  headers: {
-    Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdkbmx0dnZ4aXljaHJzZHplbmlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MjM2NzIsImV4cCI6MjA3OTM5OTY3Mn0.LKYscrC9N4320dv0KimqqS83WKHJXQgN5Hyinw2Rua8`,
-    apikey: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdkbmx0dnZ4aXljaHJzZHplbmlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MjM2NzIsImV4cCI6MjA3OTM5OTY3Mn0.LKYscrC9N4320dv0KimqqS83WKHJXQgN5Hyinw2Rua8`,
-  },
-});
 
 interface AuthContextType {
   session: Session | null;
@@ -67,13 +57,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signInWithPhone = async (phone: string) => {
-    return goTrueClient.signInWithOtp({
+    return supabase.auth.signInWithOtp({
       phone,
     });
   };
 
   const verifyOtp = async (phone: string, token: string) => {
-    return goTrueClient.verifyOtp({
+    return supabase.auth.verifyOtp({
         phone,
         token,
         type: 'sms'
