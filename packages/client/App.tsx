@@ -164,7 +164,7 @@ const MainLayout: React.FC = () => {
               {Object.values(SERVICE_GROUPS).map((group) => (
                 <div key={group.name} className="rounded-2xl shadow-sm border dark:border-gray-700 bg-white dark:bg-gray-800 p-4">
                   <h2 className="font-bold text-lg dark:text-white mb-4">{group.name}</h2>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                     {group.categories.map((cat) => (
                       <button 
                         key={cat}
