@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { supabase } from '../services/supabase';
+import { supabase } from '../../core/services/supabase';
 
 interface AuthModalProps {
   onClose: () => void;

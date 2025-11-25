@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { WorkerProfile } from '../types';
+import { WorkerProfile } from '../../core/types';
 import { useAuth } from '../contexts/AuthContext';
-import { bookingService } from '../services/bookingService';
+import { bookingService } from '../../core/services/bookingService';
 
 interface BookingModalProps {
   worker: WorkerProfile | null;

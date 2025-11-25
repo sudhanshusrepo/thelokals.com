@@ -9,8 +9,8 @@ import { AuthModal } from './components/AuthModal';
 import { UserDashboard, DashboardView } from './components/UserDashboard';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { CATEGORY_ICONS, DEFAULT_CENTER, SERVICE_GROUPS } from './constants';
-import { WorkerCategory, WorkerProfile, Coordinates } from './types';
-import { workerService } from './services/workerService';
+import { WorkerCategory, WorkerProfile, Coordinates } from '@core/types';
+import { workerService } from '@core/services/workerService';
 import { HomeSkeleton, SearchResultsSkeleton, BookingSkeleton, ProfileSkeleton } from './components/Skeleton';
 import { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css'

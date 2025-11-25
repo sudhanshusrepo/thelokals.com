@@ -45,17 +45,3 @@ export interface StepProps {
     onNext: () => void;
     onBack?: () => void;
 }
-
-export type BookingStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed';
-
-export interface Booking {
-  id: string;
-  worker_id: string;
-  user_id: string;
-  date: string; // Or Date object, depending on how you handle it
-  status: BookingStatus;
-  note?: string;
-  created_at: string;
-  total_price: number;
-  payment_status: 'paid' | 'unpaid';
-}

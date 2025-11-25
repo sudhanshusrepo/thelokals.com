@@ -1,6 +1,6 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
-import { WorkerProfile, WorkerStatus } from '../types';
+import { WorkerProfile, WorkerStatus } from '../../core/types';
 import { ICONS } from '../constants';
 import { ProviderStructuredData } from './StructuredData';
 

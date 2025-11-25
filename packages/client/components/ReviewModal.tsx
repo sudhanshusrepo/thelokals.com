@@ -1,8 +1,8 @@
 
 import React, { useState } from 'react';
 import { ICONS } from '../constants';
-import { Booking } from '../types';
-import { bookingService } from '../services/bookingService';
+import { Booking } from '../../core/types';
+import { bookingService } from '../../core/services/bookingService';
 
 interface ReviewModalProps {
   booking: Booking;

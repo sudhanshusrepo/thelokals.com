@@ -1,8 +1,8 @@
 
 import React, { useEffect, useState } from 'react';
-import { supabase } from '../services/supabase';
-import { bookingService } from '../services/bookingService';
-import { Booking, BookingStatus } from '../types';
+import { supabase } from '../../core/services/supabase';
+import { bookingService } from '../../core/services/bookingService';
+import { Booking, BookingStatus } from '../../core/types';
 import { ReviewModal } from './ReviewModal';
 import { PaymentModal } from './PaymentModal';
 import { Profile } from './Profile';

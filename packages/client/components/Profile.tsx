@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../services/supabase';
+import { supabase } from '../../core/services/supabase';
 import { User } from '@supabase/supabase-js';
 
 export const Profile: React.FC = () => {

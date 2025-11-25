@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { bookingService } from '../services/bookingService';
-import { Booking, BookingStatus } from '../../client/types'; // Adjust path as needed
-import { supabase } from '../../client/services/supabase'; // Adjust path as needed
+import { Booking, BookingStatus } from '../../core/types';
+import { supabase } from '../../core/services/supabase';
 
 type Tab = 'Upcoming' | 'Active' | 'Past' | 'Pending';
 
