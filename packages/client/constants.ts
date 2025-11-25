@@ -39,7 +39,7 @@ export const CATEGORY_ICONS: Record<WorkerCategory, string> = {
   [WorkerCategory.DOCTOR_NURSE]: '🧑‍⚕️',
   [WorkerCategory.TIFFIN_SERVICE]: '🍱',
   [WorkerCategory.BEAUTICIAN]: '💅',
-  [WorkerCode.BABYSITTER]: '👶',
+  [WorkerCategory.BABYSITTER]: '👶',
   [WorkerCategory.PET_SITTER]: '🐾',
   [WorkerCategory.COOK]: '👩‍🍳',
 
@@ -61,7 +61,7 @@ type ServiceGroup = {
     name: string;
     color: string;
     icon: string;
-    categories: (keyof typeof WorkerCategory)[];
+    categories: WorkerCategory[];
     helperText: string;
 }
 
@@ -73,14 +73,14 @@ export const SERVICE_GROUPS: Record<string, ServiceGroup> = {
     color: "blue",
     helperText: "Fix, maintain, and improve your home with trusted professionals.",
     categories: [
-      'PLUMBER', 
-      'ELECTRICIAN', 
-      'CARPENTER', 
-      'PAINTER', 
-      'APPLIANCE_REPAIR', 
-      'LOCKSMITH', 
-      'PEST_CONTROL',
-      'GARDENER',
+      WorkerCategory.PLUMBER, 
+      WorkerCategory.ELECTRICIAN, 
+      WorkerCategory.CARPENTER, 
+      WorkerCategory.PAINTER, 
+      WorkerCategory.APPLIANCE_REPAIR, 
+      WorkerCategory.LOCKSMITH, 
+      WorkerCategory.PEST_CONTROL,
+      WorkerCategory.GARDENER,
     ]
   },
   "Cleaning & Logistics": {
@@ -89,11 +89,11 @@ export const SERVICE_GROUPS: Record<string, ServiceGroup> = {
       color: "orange",
       helperText: "Keep your space spotless and manage moves with ease.",
       categories: [
-        'MAID',
-        'HOUSE_CLEANING',
-        'LAUNDRY_SERVICE',
-        'PACKERS_AND_MOVERS', 
-        'CAR_WASHING',
+        WorkerCategory.MAID,
+        WorkerCategory.HOUSE_CLEANING,
+        WorkerCategory.LAUNDRY_SERVICE,
+        WorkerCategory.PACKERS_AND_MOVERS, 
+        WorkerCategory.CAR_WASHING,
       ]
   },
   "Auto & Transportation": {
@@ -102,10 +102,10 @@ export const SERVICE_GROUPS: Record<string, ServiceGroup> = {
     color: "green",
     helperText: "Keep your vehicles running smoothly and get where you need to go.",
     categories: [
-      'MECHANIC', 
-      'DRIVER', 
-      'BIKE_REPAIR', 
-      'ROADSIDE_ASSISTANCE',
+      WorkerCategory.MECHANIC, 
+      WorkerCategory.DRIVER, 
+      WorkerCategory.BIKE_REPAIR, 
+      WorkerCategory.ROADSIDE_ASSISTANCE,
     ]
   },
   "Personal & Family Care": {
@@ -114,12 +114,12 @@ export const SERVICE_GROUPS: Record<string, ServiceGroup> = {
     color: "purple",
     helperText: "Care for your loved ones and yourself with our dedicated experts.",
     categories: [
-      'TUTOR', 
-      'FITNESS_TRAINER', 
-      'DOCTOR_NURSE', 
-      'BEAUTICIAN', 
-      'BABYSITTER', 
-      'PET_SITTER',
+      WorkerCategory.TUTOR, 
+      WorkerCategory.FITNESS_TRAINER, 
+      WorkerCategory.DOCTOR_NURSE, 
+      WorkerCategory.BEAUTICIAN, 
+      WorkerCategory.BABYSITTER, 
+      WorkerCategory.PET_SITTER,
     ]
   },
   "Food & Errands": {
@@ -128,10 +128,10 @@ export const SERVICE_GROUPS: Record<string, ServiceGroup> = {
       color: "red",
       helperText: "Delicious meals and convenient help for your daily tasks.",
       categories: [
-        'COOK', 
-        'TIFFIN_SERVICE',
-        'CATERING',
-        'ERRAND_RUNNER',
+        WorkerCategory.COOK, 
+        WorkerCategory.TIFFIN_SERVICE,
+        WorkerCategory.CATERING,
+        WorkerCategory.ERRAND_RUNNER,
       ]
   },
   "Professional & Creative": {
@@ -140,12 +140,12 @@ export const SERVICE_GROUPS: Record<string, ServiceGroup> = {
     color: "yellow",
     helperText: "Specialized services for your business, events, and technical needs.",
     categories: [
-      'TECH_SUPPORT',
-      'PHOTOGRAPHY',
-      'VIDEOGRAPHY',
-      'DOCUMENTATION_ASSISTANCE',
-      'SECURITY',
-      'OTHER'
+      WorkerCategory.TECH_SUPPORT,
+      WorkerCategory.PHOTOGRAPHY,
+      WorkerCategory.VIDEOGRAPHY,
+      WorkerCategory.DOCUMENTATION_ASSISTANCE,
+      WorkerCategory.SECURITY,
+      WorkerCategory.OTHER
     ]
   }
 }
