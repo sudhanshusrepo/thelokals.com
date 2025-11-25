@@ -64,10 +64,6 @@ const MainLayout: React.FC = () => {
       try {
         const workers = await workerService.getWorkers();
         setAllWorkers(workers);
-        navigator.geolocation.getCurrentPosition(
-            (pos) => setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-            () => setUserLocation(DEFAULT_CENTER) 
-        );
       } catch (error) {
         console.error("Failed to initialize app data:", error);
       } finally {
@@ -77,16 +73,38 @@ const MainLayout: React.FC = () => {
     initialize();
   }, []);
 
+  const requestLocationAndProceed = (callback: () => void) => {
+    setIsLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setIsLoading(false);
+        callback();
+      },
+      (error) => {
+        console.error("Geolocation error:", error);
+        alert("Location access was denied. Showing results from a default location. For more accurate results, please enable location services for this site.");
+        setUserLocation(DEFAULT_CENTER);
+        setIsLoading(false);
+        callback();
+      }
+    );
+  };
+
   const handleSearch = (query: string, category: WorkerCategory | null) => {
-    setSearchQuery(query);
-    setSelectedCategory(category);
-    setView('results');
+    requestLocationAndProceed(() => {
+      setSearchQuery(query);
+      setSelectedCategory(category);
+      setView('results');
+    });
   };
 
   const handleCategoryClick = (category: WorkerCategory) => {
-    setSearchQuery('');
-    setSelectedCategory(category);
-    setView('results');
+    requestLocationAndProceed(() => {
+      setSearchQuery('');
+      setSelectedCategory(category);
+      setView('results');
+    });
   };
 
   const handleBottomNavClick = (newView: View, dashView: DashboardView = 'Bookings') => {
