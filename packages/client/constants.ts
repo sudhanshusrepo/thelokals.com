@@ -8,28 +8,51 @@ export const ICONS = {
   LOCATION: "M15 10.5a3 3 0 11-6 0 3 3 0 016 0z M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z",
 };
 
-// Updated to match the new WorkerCategory enum in types.ts
+// Merged and complete icon list for all categories
 export const CATEGORY_ICONS: Record<WorkerCategory, string> = {
-  [WorkerCategory.Cleaning]: "🧹",
-  [WorkerCategory.Plumbing]: "🔧",
-  [WorkerCategory.Electrical]: "⚡",
-  [WorkerCategory.Handyman]: "🛠️",
-  [WorkerCategory.Painting]: "🎨",
-  [WorkerCategory.Gardening]: "🌱",
-  [WorkerCategory.Moving]: "📦",
-  [WorkerCategory.Assembly]: "🔨",
-  [WorkerCategory.Tutoring]: "📚",
-  [WorkerCategory.PetCare]: "🐾",
-  [WorkerCategory.Landscaping]: "🌳",
-  [WorkerCategory.HVAC]: "❄️",
-  [WorkerCategory.PestControl]: "🦟",
-  [WorkerCategory.Security]: "🛡️",
-  [WorkerCategory.TechSupport]: "💻",
-  [WorkerCategory.Catering]: "🍱",
-  [WorkerCategory.Beauty]: "💅",
-  [WorkerCategory.Fitness]: "💪",
-  [WorkerCategory.Photography]: "📷",
-  [WorkerCategory.Videography]: "🎥",
+  // Original Home Services
+  [WorkerCategory.PLUMBER]: "🔧",
+  [WorkerCategory.ELECTRICIAN]: "⚡",
+  [WorkerCategory.MAID]: "🧹",
+  [WorkerCategory.CARPENTER]: "🔨",
+  [WorkerCategory.PAINTER]: "🎨",
+  [WorkerCategory.GARDENER]: "🌱",
+  [WorkerCategory.HOUSE_CLEANING]: '🏠',
+  [WorkerCategory.LAUNDRY_SERVICE]: '🧺',
+  [WorkerCategory.PEST_CONTROL]: '🦟',
+  [WorkerCategory.APPLIANCE_REPAIR]: '🛠️',
+  [WorkerCategory.LOCKSMITH]: '🔑',
+  [WorkerCategory.PACKERS_AND_MOVERS]: '📦',
+
+  // Original Auto & Transportation
+  [WorkerCategory.MECHANIC]: "🚗",
+  [WorkerCategory.CAR_WASHING]: '🧼',
+  [WorkerCategory.DRIVER]: "🚖",
+  [WorkerCategory.BIKE_REPAIR]: '🚲',
+  [WorkerCategory.ROADSIDE_ASSISTANCE]: '🆘',
+
+  // Original Personal & Family
+  [WorkerCategory.TUTOR]: "📚",
+  [WorkerCategory.FITNESS_TRAINER]: "💪",
+  [WorkerCategory.DOCTOR_NURSE]: '🧑‍⚕️',
+  [WorkerCategory.TIFFIN_SERVICE]: '🍱',
+  [WorkerCategory.BEAUTICIAN]: '💅',
+  [WorkerCategory.BABYSITTER]: '👶',
+  [WorkerCategory.PET_SITTER]: '🐾',
+  [WorkerCategory.COOK]: '👩‍🍳',
+
+  // Original Other Essentials
+  [WorkerCategory.ERRAND_RUNNER]: '🏃‍♂️',
+  [WorkerCategory.DOCUMENTATION_ASSISTANCE]: '📄',
+
+  // Newly Added Categories
+  [WorkerCategory.TECH_SUPPORT]: '💻',
+  [WorkerCategory.PHOTOGRAPHY]: '📷',
+  [WorkerCategory.VIDEOGRAPHY]: '🎥',
+  [WorkerCategory.SECURITY]: '🛡️',
+  [WorkerCategory.CATERING]: '🍲',
+  
+  [WorkerCategory.OTHER]: "🔍",
 };
 
 type ServiceGroup = {
@@ -39,32 +62,83 @@ type ServiceGroup = {
     categories: WorkerCategory[];
 }
 
-// Updated to use the new WorkerCategory enum and logical groupings
+// Reorganized service groups to logically contain all categories
 export const SERVICE_GROUPS: Record<string, ServiceGroup> = {
-  "Home Services": {
-    name: "Home Services",
+  "Home Care & Repair": {
+    name: "Home Care & Repair",
     icon: "🏠",
     color: "blue",
-    categories: [WorkerCategory.Cleaning, WorkerCategory.Plumbing, WorkerCategory.Electrical, WorkerCategory.Handyman, WorkerCategory.Painting, WorkerCategory.PestControl, WorkerCategory.HVAC]
+    categories: [
+      WorkerCategory.PLUMBER, 
+      WorkerCategory.ELECTRICIAN, 
+      WorkerCategory.CARPENTER, 
+      WorkerCategory.PAINTER, 
+      WorkerCategory.APPLIANCE_REPAIR, 
+      WorkerCategory.LOCKSMITH, 
+      WorkerCategory.PEST_CONTROL,
+      WorkerCategory.GARDENER,
+    ]
   },
-  "Outdoor & Moving": {
-    name: "Outdoor & Moving",
-    icon: "🌳",
+  "Cleaning & Logistics": {
+      name: "Cleaning & Logistics",
+      icon: "📦",
+      color: "orange",
+      categories: [
+        WorkerCategory.MAID,
+        WorkerCategory.HOUSE_CLEANING,
+        WorkerCategory.LAUNDRY_SERVICE,
+        WorkerCategory.PACKERS_AND_MOVERS, 
+        WorkerCategory.CAR_WASHING,
+      ]
+  },
+  "Auto & Transportation": {
+    name: "Auto & Transportation",
+    icon: "🚗",
     color: "green",
-    categories: [WorkerCategory.Gardening, WorkerCategory.Landscaping, WorkerCategory.Moving, WorkerCategory.Assembly]
+    categories: [
+      WorkerCategory.MECHANIC, 
+      WorkerCategory.DRIVER, 
+      WorkerCategory.BIKE_REPAIR, 
+      WorkerCategory.ROADSIDE_ASSISTANCE,
+    ]
   },
-  "Lifestyle & Care": {
-      name: "Lifestyle & Care",
-      icon: "❤️",
-      color: "purple",
-      categories: [WorkerCategory.PetCare, WorkerCategory.Catering, WorkerCategory.Beauty, WorkerCategory.Fitness]
+  "Personal & Family Care": {
+    name: "Personal & Family Care",
+    icon: "🤝",
+    color: "purple",
+    categories: [
+      WorkerCategory.TUTOR, 
+      WorkerCategory.FITNESS_TRAINER, 
+      WorkerCategory.DOCTOR_NURSE, 
+      WorkerCategory.BEAUTICIAN, 
+      WorkerCategory.BABYSITTER, 
+      WorkerCategory.PET_SITTER,
+    ]
   },
-  "Professional & Tech": {
-    name: "Professional & Tech",
+  "Food & Errands": {
+      name: "Food & Errands",
+      icon: "🍱",
+      color: "red",
+      categories: [
+        WorkerCategory.COOK, 
+        WorkerCategory.TIFFIN_SERVICE,
+        WorkerCategory.CATERING,
+        WorkerCategory.ERRAND_RUNNER,
+      ]
+  },
+  "Professional & Creative": {
+    name: "Professional & Creative",
     icon: "💼",
-    color: "red",
-    categories: [WorkerCategory.Tutoring, WorkerCategory.Security, WorkerCategory.TechSupport, WorkerCategory.Photography, WorkerCategory.Videography]
-  },
+    color: "yellow",
+    categories: [
+      WorkerCategory.TECH_SUPPORT,
+      WorkerCategory.PHOTOGRAPHY,
+      WorkerCategory.VIDEOGRAPHY,
+      WorkerCategory.DOCUMENTATION_ASSISTANCE,
+      WorkerCategory.SECURITY,
+      WorkerCategory.OTHER
+    ]
+  }
 }
 
 // Default start location (if geo fails)

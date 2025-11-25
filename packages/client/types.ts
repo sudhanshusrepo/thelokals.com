@@ -1,88 +1,72 @@
 
+// This enum now includes both the original and new service categories,
+// ensuring no services are missing.
 export enum WorkerCategory {
-    Cleaning = 'Cleaning',
-    Plumbing = 'Plumbing',
-    Electrical = 'Electrical',
-    Handyman = 'Handyman',
-    Painting = 'Painting',
-    Gardening = 'Gardening',
-    Moving = 'Moving',
-    Assembly = 'Assembly',
-    Tutoring = 'Tutoring',
-    PetCare = 'PetCare',
-    Landscaping = 'Landscaping',
-    HVAC = 'HVAC',
-    PestControl = 'PestControl',
-    Security = 'Security',
-    TechSupport = 'TechSupport',
-    Catering = 'Catering',
-    Beauty = 'Beauty',
-    Fitness = 'Fitness',
-    Photography = 'Photography',
-    Videography = 'Videography'
+  // Original Home Services
+  PLUMBER = 'Plumber',
+  ELECTRICIAN = 'Electrician',
+  MAID = 'Maid Service',
+  CARPENTER = 'Carpenter',
+  PAINTER = 'Painter',
+  GARDENER = 'Gardener',
+  HOUSE_CLEANING = 'House Cleaning',
+  LAUNDRY_SERVICE = 'Laundry Service',
+  PEST_CONTROL = 'Pest Control',
+  APPLIANCE_REPAIR = 'Appliance Repair',
+  LOCKSMITH = 'Locksmith',
+  PACKERS_AND_MOVERS = 'Packers & Movers',
+
+  // Original Auto & Transportation
+  MECHANIC = 'Mechanic',
+  CAR_WASHING = 'Car Washing',
+  DRIVER = 'Driver',
+  BIKE_REPAIR = 'Bike Repair',
+  ROADSIDE_ASSISTANCE = 'Roadside Assistance',
+
+  // Original Personal & Family
+  TUTOR = 'Tutor',
+  FITNESS_TRAINER = 'Fitness Trainer',
+  DOCTOR_NURSE = 'Doctor/Nurse',
+  TIFFIN_SERVICE = 'Tiffin Service',
+  BEAUTICIAN = 'Beautician',
+  BABYSITTER = 'Babysitter',
+  PET_SITTER = 'Pet Sitter',
+  COOK = 'Cook',
+
+  // Original Other Essentials
+  ERRAND_RUNNER = 'Errand Runner',
+  DOCUMENTATION_ASSISTANCE = 'Documentation',
+
+  // Newly Added Categories
+  TECH_SUPPORT = 'Tech Support',
+  PHOTOGRAPHY = 'Photography',
+  VIDEOGRAPHY = 'Videography',
+  SECURITY = 'Security',
+  CATERING = 'Catering',
+
+  OTHER = 'Other',
 }
+
+export type Coordinates = {
+  lat: number;
+  lng: number;
+};
 
 export type WorkerStatus = 'AVAILABLE' | 'BUSY' | 'OFFLINE';
 
+// This type remains aligned with the database schema.
 export interface WorkerProfile {
   id: string;
   name: string;
   category: WorkerCategory;
-  rating: number;
-  reviewCount: number; // Note: This field is not in the database and will be defaulted.
-  price: number; // Mapped from price_per_hour
-  priceUnit: 'hr'; // Hardcoded to 'hr' as per the new schema
-  expertise: string[];
   description: string;
-  imageUrl: string; // from profiles.avatar_url
-  location: {
-    lat: number;
-    lng: number;
-  };
-  isVerified: boolean; // Note: This field is not in the database and will be defaulted.
-  status: WorkerStatus;
-}
-
-export type BookingStatus = 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
-
-export interface Booking {
-  id: string;
-  user_id: string;
-  worker_id: string;
-  worker?: WorkerProfile; // Joined data
-  status: BookingStatus;
-  note: string;
-  total_price: number;
-  payment_status?: 'pending' | 'paid';
-  date: string;
-  created_at: string;
-}
-
-export interface Review {
-  id: string;
-  booking_id: string;
-  worker_id: string;
-  user_id: string;
+  price: number;
+  priceUnit: 'hr' | 'visit' | 'service';
   rating: number;
-  comment: string;
-  created_at: string;
-}
-
-export interface SearchIntent {
-  category: WorkerCategory | null;
-  keywords: string[];
-  sortBy: 'rating' | 'price' | 'distance' | 'relevance';
-  urgency: 'high' | 'normal';
-}
-
-export interface Coordinates {
-  lat: number;
-  lng: number;
-}
-
-export interface CustomerProfile {
-  id: string;
-  full_name: string;
-  email: string;
-  created_at: string;
+  status: WorkerStatus;
+  imageUrl: string;
+  expertise: string[];
+  reviewCount: number;
+  isVerified: boolean;
+  location: Coordinates;
 }
