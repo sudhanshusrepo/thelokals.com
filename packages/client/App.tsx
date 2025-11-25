@@ -11,7 +11,6 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { CATEGORY_ICONS, DEFAULT_CENTER, SERVICE_GROUPS } from './constants';
 import { WorkerCategory, WorkerProfile, Coordinates } from './types';
 import { workerService } from './services/workerService';
-import SearchBar from './components/SearchBar';
 import { HomeSkeleton, SearchResultsSkeleton, BookingSkeleton, ProfileSkeleton } from './components/Skeleton';
 import { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css'
@@ -61,10 +60,9 @@ const EmergencyBanner: React.FC = () => (
 );
 
 const HomePage: React.FC<{ 
-    handleSearch: (query: string, category: WorkerCategory | null) => void, 
     handleCategorySelect: (category: WorkerCategory) => void,
     isLoading: boolean 
-}> = ({ handleSearch, handleCategorySelect, isLoading }) => {
+}> = ({ handleCategorySelect, isLoading }) => {
     const [collapsedCategories, setCollapsedCategories] = useState<Record<string, boolean>>({});
 
     useEffect(() => {
@@ -89,7 +87,6 @@ const HomePage: React.FC<{
                 <title>Thelokals.com - Find and Book Local Services</title>
                 <meta name="description" content="Thelokals.com is your one-stop platform to find, book, and manage services from skilled local professionals. From cleaning to repairs, we connect you with the best experts in your neighborhood." />
             </Helmet>
-            <SearchBar onSearch={handleSearch} />
             <div className="space-y-4">
                 {Object.values(SERVICE_GROUPS).map((group) => (
                     <div key={group.name} className="rounded-2xl shadow-sm border dark:border-gray-700 bg-white dark:bg-gray-800 p-4 transition-all duration-300">
@@ -303,11 +300,12 @@ const MainLayout: React.FC = () => {
                     isHome={location.pathname === '/'}
                     title={getHeaderTitle()}
                     onSignInClick={() => setShowAuthModal(true)}
+                    onSearch={(query) => handleSearch(query, null)}
                 />
 
                 <main className="max-w-5xl mx-auto px-4 pt-6">
                     <Routes>
-                        <Route path="/" element={<HomePage handleSearch={handleSearch} handleCategorySelect={handleCategorySelect} isLoading={isLoading}/>} />
+                        <Route path="/" element={<HomePage handleCategorySelect={handleCategorySelect} isLoading={isLoading}/>} />
                         <Route path="/category/:category" element={<ResultsPage allWorkers={allWorkers} userLocation={userLocation} isLoading={isResultsPageLoading} setSelectedWorker={setSelectedWorker} />} />
                         <Route path="/search" element={<ResultsPage allWorkers={allWorkers} userLocation={userLocation} isLoading={isResultsPageLoading} setSelectedWorker={setSelectedWorker} />} />
                         <Route path="/dashboard/:view" element={<DashboardPage isLoading={isLoading}/>} />
