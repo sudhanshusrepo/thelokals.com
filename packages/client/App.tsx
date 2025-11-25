@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
 import { BrowserRouter, Routes, Route, useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import { Header } from './components/Header';
@@ -60,7 +60,11 @@ const EmergencyBanner: React.FC = () => (
     </div>
 );
 
-const HomePage: React.FC<{ handleSearch: (query: string, category: WorkerCategory | null) => void, isLoading: boolean }> = ({ handleSearch, isLoading }) => {
+const HomePage: React.FC<{ 
+    handleSearch: (query: string, category: WorkerCategory | null) => void, 
+    handleCategorySelect: (category: WorkerCategory) => void,
+    isLoading: boolean 
+}> = ({ handleSearch, handleCategorySelect, isLoading }) => {
     const [collapsedCategories, setCollapsedCategories] = useState<Record<string, boolean>>({});
 
     useEffect(() => {
@@ -85,10 +89,6 @@ const HomePage: React.FC<{ handleSearch: (query: string, category: WorkerCategor
                 <title>Thelokals.com - Find and Book Local Services</title>
                 <meta name="description" content="Thelokals.com is your one-stop platform to find, book, and manage services from skilled local professionals. From cleaning to repairs, we connect you with the best experts in your neighborhood." />
             </Helmet>
-            <div className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900 py-4">
-                <OfferBanner />
-                <EmergencyBanner />
-            </div>
             <SearchBar onSearch={handleSearch} />
             <div className="space-y-4">
                 {Object.values(SERVICE_GROUPS).map((group) => (
@@ -100,18 +100,22 @@ const HomePage: React.FC<{ handleSearch: (query: string, category: WorkerCategor
                         <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{group.helperText}</p>
                         <div className={`grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 transition-all duration-300 overflow-hidden ${collapsedCategories[group.name] ? 'max-h-0' : 'max-h-full'}`}>
                             {group.categories.map((cat) => (
-                                <Link
-                                    to={`/category/${cat.toLowerCase()}`}
+                                <button
+                                    onClick={() => handleCategorySelect(cat as WorkerCategory)}
                                     key={cat}
                                     className="flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-700 p-2 rounded-xl hover:bg-indigo-100 dark:hover:bg-indigo-600/50 transition-all h-24 group"
                                 >
                                     <span className="text-2xl mb-1">{CATEGORY_ICONS[cat]}</span>
                                     <span className="text-xs font-bold text-center text-gray-600 dark:text-gray-300 group-hover:text-indigo-600">{cat}</span>
-                                </Link>
+                                </button>
                             ))}
                         </div>
                     </div>
                 ))}
+            </div>
+            <div className="py-4">
+                <OfferBanner />
+                <EmergencyBanner />
             </div>
         </div>
     );
@@ -226,6 +230,7 @@ const MainLayout: React.FC = () => {
 
     const [allWorkers, setAllWorkers] = useState<WorkerProfile[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isLocationLoading, setIsLocationLoading] = useState(false);
 
     const [userLocation, setUserLocation] = useState<Coordinates>(DEFAULT_CENTER);
     const [selectedWorker, setSelectedWorker] = useState<WorkerProfile | null>(null);
@@ -234,7 +239,6 @@ const MainLayout: React.FC = () => {
     useEffect(() => {
         const initialize = async () => {
             setIsLoading(true);
-            await new Promise(resolve => setTimeout(resolve, 2000));
             try {
                 const workers = await workerService.getWorkers();
                 setAllWorkers(workers);
@@ -247,28 +251,35 @@ const MainLayout: React.FC = () => {
         initialize();
     }, []);
 
-    const requestLocationAndProceed = (callback: () => void) => {
-        setIsLoading(true);
+    const requestLocationAndProceed = useCallback((callback: (location: Coordinates) => void) => {
+        setIsLocationLoading(true);
         navigator.geolocation.getCurrentPosition(
             (pos) => {
-                setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-                setIsLoading(false);
-                callback();
+                const newLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+                setUserLocation(newLocation);
+                setIsLocationLoading(false);
+                callback(newLocation);
             },
             (error) => {
                 console.error("Geolocation error:", error);
                 alert("Location access was denied. Showing results from a default location. For more accurate results, please enable location services for this site.");
                 setUserLocation(DEFAULT_CENTER);
-                setIsLoading(false);
-                callback();
+                setIsLocationLoading(false);
+                callback(DEFAULT_CENTER);
             }
         );
-    };
+    }, []);
 
     const handleSearch = (query: string, category: WorkerCategory | null) => {
         requestLocationAndProceed(() => {
             const path = category ? `/category/${category.toLowerCase()}` : '/search';
             navigate(`${path}?q=${query}`);
+        });
+    };
+
+    const handleCategorySelect = (category: WorkerCategory) => {
+        requestLocationAndProceed(() => {
+            navigate(`/category/${category.toLowerCase()}`);
         });
     };
 
@@ -279,6 +290,8 @@ const MainLayout: React.FC = () => {
         if (path.startsWith('/search')) return 'Search Results';
         return 'Thelokals.com';
     }
+
+    const isResultsPageLoading = isLoading || isLocationLoading;
 
     return (
         <SkeletonTheme baseColor="#202020" highlightColor="#444">
@@ -294,9 +307,9 @@ const MainLayout: React.FC = () => {
 
                 <main className="max-w-5xl mx-auto px-4 pt-6">
                     <Routes>
-                        <Route path="/" element={<HomePage handleSearch={handleSearch} isLoading={isLoading}/>} />
-                        <Route path="/category/:category" element={<ResultsPage allWorkers={allWorkers} userLocation={userLocation} isLoading={isLoading} setSelectedWorker={setSelectedWorker} />} />
-                        <Route path="/search" element={<ResultsPage allWorkers={allWorkers} userLocation={userLocation} isLoading={isLoading} setSelectedWorker={setSelectedWorker} />} />
+                        <Route path="/" element={<HomePage handleSearch={handleSearch} handleCategorySelect={handleCategorySelect} isLoading={isLoading}/>} />
+                        <Route path="/category/:category" element={<ResultsPage allWorkers={allWorkers} userLocation={userLocation} isLoading={isResultsPageLoading} setSelectedWorker={setSelectedWorker} />} />
+                        <Route path="/search" element={<ResultsPage allWorkers={allWorkers} userLocation={userLocation} isLoading={isResultsPageLoading} setSelectedWorker={setSelectedWorker} />} />
                         <Route path="/dashboard/:view" element={<DashboardPage isLoading={isLoading}/>} />
                         <Route path="*" element={<NotFound />} />
                     </Routes>
