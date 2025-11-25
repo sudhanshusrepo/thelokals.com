@@ -95,7 +95,7 @@ const HomePage: React.FC<{
                             <span className={`transform transition-transform duration-300 ${!collapsedCategories[group.name] ? 'rotate-180' : ''}`}>▼</span>
                         </button>
                         <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{group.helperText}</p>
-                        <div className={`grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 transition-all duration-300 overflow-hidden ${collapsedCategories[group.name] ? 'max-h-0' : 'max-h-full'}`}>\
+                        <div className={`grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 transition-all duration-300 overflow-hidden ${collapsedCategories[group.name] ? 'max-h-0' : 'max-h-full'}`}>
                             {group.categories.map((cat) => (
                                 <button
                                     onClick={() => handleCategorySelect(cat as WorkerCategory)}
@@ -121,12 +121,11 @@ const HomePage: React.FC<{
 const ResultsPage: React.FC<{ allWorkers: WorkerProfile[], userLocation: Coordinates, isLoading: boolean, setSelectedWorker: (worker: WorkerProfile) => void }> = ({ allWorkers, userLocation, isLoading, setSelectedWorker }) => {
     const { category } = useParams<{ category: WorkerCategory }>();
     const location = useLocation();
-    const [searchParams] = new URLSearchParams(location.search);
+    const searchParams = new URLSearchParams(location.search);
     const searchQuery = searchParams.get('q') || '';
     const [sortBy, setSortBy] = useState('relevance');
 
     const selectedCategory = category;
-    console.log('ResultsPage props:', { allWorkers, userLocation, isLoading, selectedCategory });
 
     const filteredAndSortedWorkers = useMemo(() => {
         const workersWithDistance = allWorkers.map(worker => ({
@@ -165,7 +164,7 @@ const ResultsPage: React.FC<{ allWorkers: WorkerProfile[], userLocation: Coordin
             };
             return getScore(a) - getScore(b);
         });
-        console.log('Filtered and sorted workers:', filtered);
+
         return filtered;
     }, [allWorkers, userLocation, selectedCategory, searchQuery, sortBy]);
 
@@ -248,12 +247,10 @@ const MainLayout: React.FC = () => {
     }, []);
 
     const requestLocationAndProceed = useCallback((callback: (location: Coordinates) => void) => {
-        console.log('Requesting location...');
         setIsLocationLoading(true);
         navigator.geolocation.getCurrentPosition(
             (pos) => {
                 const newLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-                console.log('Geolocation success:', newLocation);
                 setUserLocation(newLocation);
                 setIsLocationLoading(false);
                 callback(newLocation);
@@ -276,8 +273,6 @@ const MainLayout: React.FC = () => {
     };
 
     const handleCategorySelect = (category: WorkerCategory) => {
-        console.log('Category selected:', category);
-        console.log('Navigating to category page...');
         requestLocationAndProceed(() => {
             navigate(`/category/${category.toLowerCase()}`);
         });
@@ -341,7 +336,7 @@ const NavLink: React.FC<{ to: string, label: string }> = ({ to, label }) => {
     return (
         <Link
             to={to}
-            className={`flex flex-col items-center justify-center flex-1 p-3 text-sm font-semibold transition-colors ${isActive ? 'text-indigo-600' : 'text-gray-500'}`}>\
+            className={`flex flex-col items-center justify-center flex-1 p-3 text-sm font-semibold transition-colors ${isActive ? 'text-indigo-600' : 'text-gray-500'}`}>
             {label}
         </Link>
     )
