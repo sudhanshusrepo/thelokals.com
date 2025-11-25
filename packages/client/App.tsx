@@ -119,18 +119,24 @@ const MainLayout: React.FC = () => {
   }
 
   const filteredAndSortedWorkers = useMemo(() => {
-    // This calculation is expensive, so it's memoized.
     const workersWithDistance = allWorkers.map(worker => ({
       ...worker,
       distanceKm: getDistanceFromLatLonInKm(userLocation.lat, userLocation.lng, worker.location.lat, worker.location.lng)
     }));
 
     const filtered = workersWithDistance.filter(worker => {
-      if (selectedCategory && worker.category !== selectedCategory) return false;
+      const categoryMatch = selectedCategory ? worker.category.toLowerCase() === selectedCategory.toLowerCase() : true;
+      if (!categoryMatch) return false;
+
       if (searchQuery) {
-          const query = searchQuery.toLowerCase();
-          const searchableText = [worker.name, worker.description, ...worker.expertise].join(' ').toLowerCase();
-          if (!searchableText.includes(query)) return false;
+        const query = searchQuery.toLowerCase();
+        const searchableText = [
+          worker.name,
+          worker.description,
+          worker.category,
+          ...worker.expertise
+        ].join(' ').toLowerCase();
+        return searchableText.includes(query);
       }
       return true;
     });
@@ -139,7 +145,7 @@ const MainLayout: React.FC = () => {
       if (sortBy === 'price') return a.price - b.price;
       if (sortBy === 'rating') return b.rating - a.rating;
       if (sortBy === 'distance') return a.distanceKm - b.distanceKm;
-      
+
       const getScore = (w: typeof a) => {
           let score = w.distanceKm * 0.5;
           score -= w.rating * 2;
@@ -193,7 +199,7 @@ const MainLayout: React.FC = () => {
                          <span className="text-xs font-bold text-center text-gray-600 dark:text-gray-300 group-hover:text-indigo-600">{cat}</span>
                       </button>
                     ))}
-                  </div>
+.                  </div>
                 </div>
               ))}
             </div>
