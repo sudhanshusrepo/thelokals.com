@@ -2,44 +2,93 @@
 import { supabase } from './supabase';
 import { WorkerProfile, WorkerCategory, WorkerStatus } from '../types';
 
+const selectQuery = `
+    id, 
+    name, 
+    category, 
+    description, 
+    price, 
+    price_unit,
+    rating,
+    status,
+    image_url,
+    expertise,
+    review_count,
+    experience_years,
+    is_verified,
+    location_lat,
+    location_lng
+`;
+
+// Helper to transform worker data from DB to frontend structure
+const transformWorker = (worker: any): WorkerProfile => ({
+  id: worker.id,
+  name: worker.name,
+  category: worker.category,
+  description: worker.description,
+  price: worker.price,
+  priceUnit: worker.price_unit,
+  rating: worker.rating,
+  status: worker.status || 'OFFLINE',
+  imageUrl: worker.image_url,
+  expertise: worker.expertise,
+  reviewCount: worker.review_count,
+  experienceYears: worker.experience_years,
+  isVerified: worker.is_verified,
+  location: {
+    lat: worker.location_lat,
+    lng: worker.location_lng,
+  },
+});
+
 export const workerService = {
   async getWorkers(): Promise<WorkerProfile[]> {
     try {
       const { data, error } = await supabase
         .from('workers')
-        .select('*');
+        .select(selectQuery);
 
       if (error) {
         console.error("Error fetching workers from DB:", error.message);
         throw error;
       }
 
-      // Transform DB structure to frontend structure if needed
-      return data.map((w: any) => ({
-        ...w,
-        reviewCount: w.review_count,
-        experienceYears: w.experience_years,
-        priceUnit: w.price_unit,
-        imageUrl: w.image_url,
-        isVerified: w.is_verified,
-        status: w.status || 'OFFLINE', // Default if missing
-        location: {
-            lat: w.location_lat,
-            lng: w.location_lng
-        }
-      }));
+      return data.map(transformWorker);
     } catch (e) {
       console.error("Worker service error", e);
       return [];
     }
   },
 
-  async getWorkerById(id: string): Promise<WorkerProfile | undefined> {
-    const workers = await this.getWorkers();
-    return workers.find(w => w.id === id);
+  async getWorkerById(id: string): Promise<WorkerProfile | null> {
+    try {
+      const { data, error } = await supabase
+        .from('workers')
+        .select(selectQuery)
+        .eq('id', id)
+        .single();
+
+      if (error) {
+        if (error.code === 'PGRST116') {
+            console.log(`Worker with id ${id} not found.`);
+            return null;
+        }
+        console.error(`Error fetching worker with id ${id} from DB:`, error.message);
+        throw error;
+      }
+      
+      return data ? transformWorker(data) : null;
+    } catch (e) {
+      console.error("Worker service error", e);
+      return null;
+    }
   },
 
   async updateWorkerStatus(workerId: string, status: WorkerStatus) {
+    if (!workerId || !status) {
+        throw new Error("workerId and status are required.");
+    }
+
     try {
         const { error } = await supabase
             .from('workers')
@@ -48,19 +97,31 @@ export const workerService = {
         
         if (error) throw error;
     } catch (e) {
-        console.warn("Failed to update status in DB:", e);
+        console.error("Failed to update status in DB:", e);
+        throw e;
     }
   },
 
   async updateWorkerProfile(workerId: string, updates: Partial<WorkerProfile>) {
-    // Map frontend keys to DB snake_case keys
+    if (!workerId || !updates) {
+        throw new Error("workerId and updates are required.");
+    }
+      
     const dbPayload: any = {};
     if (updates.name !== undefined) dbPayload.name = updates.name;
     if (updates.category !== undefined) dbPayload.category = updates.category;
     if (updates.price !== undefined) dbPayload.price = updates.price;
     if (updates.priceUnit !== undefined) dbPayload.price_unit = updates.priceUnit;
     if (updates.description !== undefined) dbPayload.description = updates.description;
-    
+    if (updates.location !== undefined) {
+        dbPayload.location_lat = updates.location.lat;
+        dbPayload.location_lng = updates.location.lng;
+    }
+    if (updates.imageUrl !== undefined) dbPayload.image_url = updates.imageUrl;
+    if (updates.expertise !== undefined) dbPayload.expertise = updates.expertise;
+    if (updates.experienceYears !== undefined) dbPayload.experience_years = updates.experienceYears;
+    if (updates.isVerified !== undefined) dbPayload.is_verified = updates.isVerified;
+
     try {
         const { error } = await supabase
             .from('workers')
@@ -69,7 +130,8 @@ export const workerService = {
 
         if (error) throw error;
     } catch (e) {
-         console.warn("Failed to update profile in DB:", e);
+         console.error("Failed to update profile in DB:", e);
+         throw e;
     }
   }
 };

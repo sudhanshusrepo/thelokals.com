@@ -56,8 +56,8 @@ export const DigiLockerModal: React.FC<DigiLockerModalProps> = ({ isOpen, onClos
       setTimeout(() => {
         onSuccess({
             verified: true,
-            name: "Rahul Sharma", // Mock data mimicking the provided user flow context
-            dob: "1995-05-15",
+            name: "Test User", // Mock data mimicking the provided user flow context
+            dob: "1990-01-01",
             aadhaarLast4: aadhaar.slice(-4),
             pan: "ABCDE1234F"
         });

@@ -1,8 +1,8 @@
 CREATE TABLE public.profiles (
   id uuid NOT NULL DEFAULT auth.uid(),
-  phone_number text NULL,
+  phone_number text NOT NULL,
   is_phone_verified boolean NULL,
-  full_name text NULL,
+  full_name text NOT NULL,
   dob date NULL,
   gender text NULL,
   city text NULL,
