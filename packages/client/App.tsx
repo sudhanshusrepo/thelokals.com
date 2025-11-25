@@ -195,31 +195,8 @@ const MainLayout: React.FC = () => {
     }
   };
 
-  const handleCategoryClick = async (cat: WorkerCategory) => {
-    setSelectedCategory(cat);
-    setSearchQuery('');
-    setIsSearching(true);
-    
-    const center = await requestLocation();
-
-    // Simulating search delay for UX
-    setTimeout(() => {
-        const filtered = allWorkers.map(w => ({
-            ...w,
-            _distance: getDistanceFromLatLonInKm(center.lat, center.lng, w.location.lat, w.location.lng)
-        })).filter(w => w.category === cat);
-        
-        // Sort with availability boost
-        filtered.sort((a, b) => {
-             const scoreA = a._distance - (a.status === 'AVAILABLE' ? 10 : 0);
-             const scoreB = b._distance - (b.status === 'AVAILABLE' ? 10 : 0);
-             return scoreA - scoreB;
-        });
-        
-        setSearchResults(filtered);
-        setIsSearching(false);
-        setView('results');
-    }, 600);
+  const handleCategoryClick = (cat: WorkerCategory) => {
+    handleSearch('', cat);
   };
 
   const sortedResultsWithDistance = useMemo(() => {
