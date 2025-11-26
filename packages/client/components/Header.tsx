@@ -73,6 +73,7 @@ export const Header: React.FC<HeaderProps> = ({
               ) : (
                   <Link to="/" className="flex items-center gap-2">
                       <img src={logo} alt="The Lokals Logo" className="h-10 w-auto" />
+                      <span className="text-xl font-bold text-slate-900 dark:text-white tracking-tighter">thelokals.com</span>
                   </Link>
               )}
             </div>
