@@ -8,7 +8,7 @@ import { BookingModal } from './components/BookingModal';
 import { AuthModal } from './components/AuthModal';
 import { UserDashboard, DashboardView } from './components/UserDashboard';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { CATEGORY_ICONS, DEFAULT_CENTER, SERVICE_GROUPS } from './constants';
+import { CATEGORY_ICONS, DEFAULT_CENTER, SERVICE_GROUPS, CATEGORY_DISPLAY_NAMES, LOWERCASE_TO_WORKER_CATEGORY } from './constants';
 import { WorkerCategory, WorkerProfile, Coordinates } from '@core/types';
 import { workerService } from '@core/services/workerService';
 import { HomeSkeleton, SearchResultsSkeleton, BookingSkeleton, ProfileSkeleton } from './components/Skeleton';
@@ -59,9 +59,9 @@ const EmergencyBanner: React.FC = () => (
     </div>
 );
 
-const HomePage: React.FC<{ 
+const HomePage: React.FC<{
     handleCategorySelect: (category: WorkerCategory) => void,
-    isLoading: boolean 
+    isLoading: boolean
 }> = ({ handleCategorySelect, isLoading }) => {
     const [collapsedCategories, setCollapsedCategories] = useState<Record<string, boolean>>({});
 
@@ -89,13 +89,13 @@ const HomePage: React.FC<{
             </Helmet>
             <div className="space-y-4">
                 {Object.values(SERVICE_GROUPS).map((group) => (
-                    <div key={group.name} className="rounded-2xl shadow-sm border dark:border-slate-700 bg-white dark:bg-slate-800 p-4 transition-all duration-300">
+                    <div key={group.name} className="rounded-2xl shadow-sm border dark:border-slate-700 bg-white dark:bg-slate-800 p-3 transition-all duration-300">
                         <button onClick={() => toggleCategory(group.name)} className="w-full flex justify-between items-center">
                             <h2 className="font-bold text-lg dark:text-white">{group.name}</h2>
                             <span className={`transform transition-transform duration-300 ${!collapsedCategories[group.name] ? 'rotate-180' : ''}`}>▼</span>
                         </button>
                         <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">{group.helperText}</p>
-                        <div className={`grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 transition-all duration-300 overflow-hidden ${collapsedCategories[group.name] ? 'max-h-0' : 'max-h-full'}`}>
+                        <div className={`grid grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-3 transition-all duration-300 overflow-hidden ${collapsedCategories[group.name] ? 'max-h-0' : 'max-h-full'}`}>
                             {group.categories.map((cat) => (
                                 <button
                                     onClick={() => handleCategorySelect(cat as WorkerCategory)}
@@ -103,7 +103,7 @@ const HomePage: React.FC<{
                                     className="flex flex-col items-center justify-center bg-slate-100 dark:bg-slate-700 p-2 rounded-xl hover:bg-teal-100 dark:hover:bg-teal-600/50 transition-all h-24 group"
                                 >
                                     <span className="text-2xl mb-1">{CATEGORY_ICONS[cat]}</span>
-                                    <span className="text-xs font-bold text-center text-slate-600 dark:text-slate-300 group-hover:text-teal-600">{cat}</span>
+                                    <span className="text-xs font-bold text-center text-slate-600 dark:text-slate-300 group-hover:text-teal-600">{CATEGORY_DISPLAY_NAMES[cat]}</span>
                                 </button>
                             ))}
                         </div>
@@ -119,13 +119,14 @@ const HomePage: React.FC<{
 };
 
 const ResultsPage: React.FC<{ allWorkers: WorkerProfile[], userLocation: Coordinates, isLoading: boolean, setSelectedWorker: (worker: WorkerProfile) => void }> = ({ allWorkers, userLocation, isLoading, setSelectedWorker }) => {
-    const { category } = useParams<{ category: WorkerCategory }>();
+    const { category } = useParams<{ category: string }>();
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
     const searchQuery = searchParams.get('q') || '';
     const [sortBy, setSortBy] = useState('relevance');
 
-    const selectedCategory = category;
+    const selectedCategory = category ? LOWERCASE_TO_WORKER_CATEGORY[category.toLowerCase()] : undefined;
+    const categoryDisplayName = selectedCategory ? CATEGORY_DISPLAY_NAMES[selectedCategory] : 'Services';
 
     const filteredAndSortedWorkers = useMemo(() => {
         const workersWithDistance = allWorkers.map(worker => ({
@@ -134,7 +135,7 @@ const ResultsPage: React.FC<{ allWorkers: WorkerProfile[], userLocation: Coordin
         }));
 
         const filtered = workersWithDistance.filter(worker => {
-            const categoryMatch = selectedCategory ? worker.category.toLowerCase() === selectedCategory.toLowerCase() : true;
+            const categoryMatch = selectedCategory ? worker.category === selectedCategory : true;
             if (!categoryMatch) return false;
 
             if (searchQuery) {
@@ -175,10 +176,10 @@ const ResultsPage: React.FC<{ allWorkers: WorkerProfile[], userLocation: Coordin
     return (
         <div className="animate-fade-in">
             <Helmet>
-                <title>Thelokals.com | {selectedCategory || 'Services'}</title>
-                <meta name="description" content={`Find and book the best ${selectedCategory || 'local service providers'} in your area. Quick, reliable, and verified professionals.`} />
+                <title>Thelokals.com | {categoryDisplayName}</title>
+                <meta name="description" content={`Find and book the best ${categoryDisplayName} in your area. Quick, reliable, and verified professionals.`} />
             </Helmet>
-            <ServiceStructuredData name={selectedCategory || 'Thelokals.com Services'} description={`Find the best ${selectedCategory} in your area.`} url={window.location.href} />
+            <ServiceStructuredData name={categoryDisplayName} description={`Find the best ${categoryDisplayName} in your area.`} url={window.location.href} />
             <div className="flex overflow-x-auto pb-4 gap-3 no-scrollbar">
                 {['relevance', 'rating', 'distance', 'price'].map(sortType => (
                     <button
@@ -191,7 +192,7 @@ const ResultsPage: React.FC<{ allWorkers: WorkerProfile[], userLocation: Coordin
                 ))}
             </div>
             <p className="text-slate-500 text-sm my-4 font-medium">{filteredAndSortedWorkers.length} experts found</p>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {filteredAndSortedWorkers.map(worker => (
                     <WorkerCard key={worker.id} worker={worker} distanceKm={worker.distanceKm} onConnect={setSelectedWorker} />
                 ))}
@@ -283,7 +284,11 @@ const MainLayout: React.FC = () => {
         const pathParts = path.split('/');
 
         if (path.startsWith('/category/') && pathParts.length >= 3) {
-            return pathParts[2].toUpperCase();
+            const categoryKey = pathParts[2];
+            const workerCategory = LOWERCASE_TO_WORKER_CATEGORY[categoryKey];
+            if (workerCategory) {
+                return CATEGORY_DISPLAY_NAMES[workerCategory];
+            }
         }
         if (path.startsWith('/dashboard/') && pathParts.length >= 3) {
             return pathParts[2].toUpperCase();
@@ -309,7 +314,7 @@ const MainLayout: React.FC = () => {
                     onSearch={(query) => handleSearch(query, null)}
                 />
 
-                <main className="max-w-5xl mx-auto px-4 pt-6">
+                <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                     <Routes>
                         <Route path="/" element={<HomePage handleCategorySelect={handleCategorySelect} isLoading={isLoading}/>} />
                         <Route path="/category/:category" element={<ResultsPage allWorkers={allWorkers} userLocation={userLocation} isLoading={isResultsPageLoading} setSelectedWorker={setSelectedWorker} />} />
@@ -319,7 +324,7 @@ const MainLayout: React.FC = () => {
                     </Routes>
                 </main>
 
-                <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t dark:border-slate-700 flex justify-around max-w-5xl mx-auto rounded-t-2xl shadow-lg">
+                <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t dark:border-slate-700 flex justify-around max-w-7xl mx-auto rounded-t-2xl shadow-lg">
                     <NavLink to="/" label="Home" />
                     <NavLink to="/dashboard/bookings" label="Bookings" />
                     <NavLink to="/dashboard/profile" label="Profile" />

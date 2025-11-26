@@ -30,7 +30,7 @@ export const CATEGORY_ICONS: Record<WorkerCategory, string> = {
   [WorkerCategory.MECHANIC]: "🚗",
   [WorkerCategory.CAR_WASHING]: '🧼',
   [WorkerCategory.DRIVER]: "🚖",
-  [WorkerCategory.BIKE_REPAIR]: '🚲',
+  [WorkerCategory.BIKE_wahin]: '🚲',
   [WorkerCategory.ROADSIDE_ASSISTANCE]: '🆘',
 
   // Original Personal & Family
@@ -56,6 +56,46 @@ export const CATEGORY_ICONS: Record<WorkerCategory, string> = {
   
   [WorkerCategory.OTHER]: "🔍",
 };
+
+export const CATEGORY_DISPLAY_NAMES: Record<WorkerCategory, string> = {
+  [WorkerCategory.PLUMBER]: 'Plumber',
+  [WorkerCategory.ELECTRICIAN]: 'Electrician',
+  [WorkerCategory.MAID]: 'Maid Service',
+  [WorkerCategory.CARPENTER]: 'Carpenter',
+  [WorkerCategory.PAINTER]: 'Painter',
+  [WorkerCategory.GARDENER]: 'Gardener',
+  [WorkerCategory.HOUSE_CLEANING]: 'House Cleaning',
+  [WorkerCategory.LAUNDRY_SERVICE]: 'Laundry Service',
+  [WorkerCategory.PEST_CONTROL]: 'Pest Control',
+  [WorkerCategory.APPLIANCE_REPAIR]: 'Appliance Repair',
+  [WorkerCategory.LOCKSMITH]: 'Locksmith',
+  [WorkerCategory.PACKERS_AND_MOVERS]: 'Packers & Movers',
+  [WorkerCategory.MECHANIC]: 'Mechanic',
+  [WorkerCategory.CAR_WASHING]: 'Car Washing',
+  [WorkerCategory.DRIVER]: 'Driver',
+  [WorkerCategory.BIKE_wahin]: 'Bike Repair',
+  [WorkerCategory.ROADSIDE_ASSISTANCE]: 'Roadside Assistance',
+  [WorkerCategory.TUTOR]: 'Tutor',
+  [WorkerCategory.FITNESS_TRAINER]: 'Fitness Trainer',
+  [WorkerCategory.DOCTOR_NURSE]: 'Doctor/Nurse',
+  [WorkerCategory.TIFFIN_SERVICE]: 'Tiffin Service',
+  [WorkerCategory.BEAUTICIAN]: 'Beautician',
+  [WorkerCategory.BABYSITTER]: 'Babysitter',
+  [WorkerCategory.PET_SITTER]: 'Pet Sitter',
+  [WorkerCategory.COOK]: 'Cook',
+  [WorkerCategory.ERRAND_RUNNER]: 'Errand Runner',
+  [WorkerCategory.DOCUMENTATION_ASSISTANCE]: 'Documentation',
+  [WorkerCategory.TECH_SUPPORT]: 'Tech Support',
+  [WorkerCategory.PHOTOGRAPHY]: 'Photography',
+  [WorkerCategory.VIDEOGRAPHY]: 'Videography',
+  [WorkerCategory.SECURITY]: 'Security',
+  [WorkerCategory.CATERING]: 'Catering',
+  [WorkerCategory.OTHER]: 'Other',
+};
+
+export const LOWERCASE_TO_WORKER_CATEGORY = Object.fromEntries(
+    Object.values(WorkerCategory).map(v => [v.toLowerCase(), v])
+) as Record<string, WorkerCategory>;
 
 type ServiceGroup = {
     name: string;
@@ -104,7 +144,7 @@ export const SERVICE_GROUPS: Record<string, ServiceGroup> = {
     categories: [
       WorkerCategory.MECHANIC, 
       WorkerCategory.DRIVER, 
-      WorkerCategory.BIKE_REPAIR, 
+      WorkerCategory.BIKE_wahin, 
       WorkerCategory.ROADSIDE_ASSISTANCE,
     ]
   },
