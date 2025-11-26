@@ -9,6 +9,7 @@ import { Profile } from './Profile';
 import { TermsAndConditions } from './TermsAndConditions';
 import { Support } from './Support';
 import { User } from '@supabase/supabase-js';
+import { ICONS } from '../constants';
 
 export type DashboardView = 'Bookings' | 'Profile' | 'Terms & Conditions' | 'Support';
 type Tab = 'Upcoming' | 'Active' | 'Past';
@@ -80,15 +81,37 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ initialView = 'Boo
   const activeBookings = bookings.filter(b => b.status === 'in_progress');
   const pastBookings = bookings.filter(b => b.status === 'completed' || b.status === 'cancelled');
 
-  const renderBookingsList = (bookingList: Booking[]) => {
-    if (bookingList.length === 0) {
-      return (
-        <div className="bg-white dark:bg-slate-800 rounded-2xl p-12 text-center border border-slate-100 dark:border-slate-700 shadow-sm">
-            <div className="text-6xl mb-4">📭</div>
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">No requests here</h3>
-            <p className="text-slate-500 dark:text-slate-400 mt-2">Your active bookings will appear here.</p>
+  const getEmptyState = (tab: Tab) => {
+    const messages = {
+      Upcoming: {
+        icon: '📅',
+        title: 'No upcoming bookings',
+        text: 'When you book a service, it will show up here.'
+      },
+      Active: {
+        icon: '🏃',
+        title: 'No active jobs',
+        text: 'Services that are currently in progress will be displayed here.'
+      },
+      Past: {
+        icon: '🗂️',
+        title: 'No past bookings',
+        text: 'Your completed or cancelled bookings will be listed in this section.'
+      }
+    }
+    const {icon, title, text} = messages[tab];
+    return (
+       <div className="bg-white dark:bg-slate-800 rounded-2xl p-12 text-center border border-slate-100 dark:border-slate-700 shadow-sm">
+            <div className="text-6xl mb-4">{icon}</div>
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{title}</h3>
+            <p className="text-slate-500 dark:text-slate-400 mt-2">{text}</p>
         </div>
-      );
+    );
+  };
+
+  const renderBookingsList = (bookingList: Booking[], tab: Tab) => {
+    if (bookingList.length === 0) {
+      return getEmptyState(tab);
     }
     return (
         <div className="space-y-4">
@@ -112,9 +135,9 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ initialView = 'Boo
             </div>
 
             <div className="mt-6">
-                {activeTab === 'Upcoming' && renderBookingsList(upcomingBookings)}
-                {activeTab === 'Active' && renderBookingsList(activeBookings)}
-                {activeTab === 'Past' && renderBookingsList(pastBookings)}
+                {activeTab === 'Upcoming' && renderBookingsList(upcomingBookings, 'Upcoming')}
+                {activeTab === 'Active' && renderBookingsList(activeBookings, 'Active')}
+                {activeTab === 'Past' && renderBookingsList(pastBookings, 'Past')}
             </div>
       </div>
       )
@@ -220,7 +243,8 @@ const BookingCard: React.FC<{booking: Booking, setPaymentBooking: (b: Booking) =
                     )}
                      {(booking.status === 'confirmed' || booking.status === 'in_progress') && (
                         <button className="text-sm font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 px-4 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors flex items-center gap-2">
-                            <span>📞</span> Call Expert
+                            <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg> 
+                            Call Expert
                         </button>
                     )}
                 </div>
