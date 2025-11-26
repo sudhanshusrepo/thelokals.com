@@ -55,7 +55,7 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <>
       <header className="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg shadow-sm">
-        <div className="max-w-5xl mx-auto px-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             
             <div className="flex-shrink-0">
@@ -71,7 +71,7 @@ export const Header: React.FC<HeaderProps> = ({
                   </Link>
               ) : (
                   <Link to="/" className="flex items-center gap-2">
-                       <span className="text-3xl">🏡</span>
+                      <img src="/logo.svg" alt="The Lokals Logo" className="h-8 w-auto" />
                       <span className="text-xl font-bold text-slate-900 dark:text-white tracking-tighter">thelokals.com</span>
                   </Link>
               )}
