@@ -17,6 +17,7 @@ import 'react-loading-skeleton/dist/skeleton.css'
 import NoData from './components/NoData';
 import { ServiceStructuredData } from './components/StructuredData';
 import NotFound from './components/NotFound';
+import LiveBooking from './components/LiveBooking';
 
 function getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon2: number) {
     if (!lat1 || !lon1 || !lat2 || !lon2) return Infinity;
@@ -61,8 +62,9 @@ const EmergencyBanner: React.FC = () => (
 
 const HomePage: React.FC<{
     handleCategorySelect: (category: WorkerCategory) => void,
-    isLoading: boolean
-}> = ({ handleCategorySelect, isLoading }) => {
+    isLoading: boolean,
+    setShowLiveBooking: (show: boolean) => void
+}> = ({ handleCategorySelect, isLoading, setShowLiveBooking }) => {
     const [collapsedCategories, setCollapsedCategories] = useState<Record<string, boolean>>({});
 
     useEffect(() => {
@@ -110,6 +112,7 @@ const HomePage: React.FC<{
                     </div>
                 ))}
             </div>
+            <button onClick={() => setShowLiveBooking(true)}>Live Booking</button>
             <div className="py-4">
                 <OfferBanner />
                 <EmergencyBanner />
@@ -231,6 +234,7 @@ const MainLayout: React.FC = () => {
     const [userLocation, setUserLocation] = useState<Coordinates>(DEFAULT_CENTER);
     const [selectedWorker, setSelectedWorker] = useState<WorkerProfile | null>(null);
     const [showAuthModal, setShowAuthModal] = useState(false);
+    const [showLiveBooking, setShowLiveBooking] = useState(false);
 
     useEffect(() => {
         const initialize = async () => {
@@ -301,6 +305,10 @@ const MainLayout: React.FC = () => {
 
     const isResultsPageLoading = isLoading || isLocationLoading;
 
+    if (showLiveBooking) {
+        return <LiveBooking />;
+    }
+
     return (
         <SkeletonTheme baseColor="#dcfce7" highlightColor="#bbf7d0">
             <div className="min-h-screen bg-slate-50 dark:bg-slate-900 font-sans pb-20">
@@ -322,7 +330,7 @@ const MainLayout: React.FC = () => {
 
                 <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                     <Routes>
-                        <Route path="/" element={<HomePage handleCategorySelect={handleCategorySelect} isLoading={isLoading}/>} />
+                        <Route path="/" element={<HomePage handleCategorySelect={handleCategorySelect} isLoading={isLoading} setShowLiveBooking={setShowLiveBooking} />} />
                         <Route path="/category/:category" element={<ResultsPage allWorkers={allWorkers} userLocation={userLocation} isLoading={isResultsPageLoading} setSelectedWorker={setSelectedWorker} />} />
                         <Route path="/search" element={<ResultsPage allWorkers={allWorkers} userLocation={userLocation} isLoading={isResultsPageLoading} setSelectedWorker={setSelectedWorker} />} />
                         <Route path="/dashboard/:view" element={<DashboardPage isLoading={isLoading}/>} />

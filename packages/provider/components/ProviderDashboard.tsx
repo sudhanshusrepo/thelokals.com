@@ -1,21 +1,23 @@
+
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { bookingService } from '../services/bookingService';
-import { Booking, BookingStatus } from '../../core/types';
+import { liveBookingService as providerLiveBookingService } from '../services/liveBookingService';
+import { liveBookingService as coreLiveBookingService } from '../../core/services/liveBookingService';
+import { Booking, BookingStatus, BookingRequest } from '../../core/types';
 import { supabase } from '../../core/services/supabase';
 
-type Tab = 'Upcoming' | 'Active' | 'Past' | 'Pending';
+type Tab = 'Upcoming' | 'Active' | 'Past' | 'Pending' | 'Live Requests';
 
 export const ProviderDashboard: React.FC = () => {
-  const { user } = useAuth(); // Provider's user object
+  const { user } = useAuth();
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [liveRequests, setLiveRequests] = useState<BookingRequest[]>([]);
   const [totalEarnings, setTotalEarnings] = useState<number>(0);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<Tab>('Pending');
+  const [activeTab, setActiveTab] = useState<Tab>('Live Requests');
 
-  // This assumes you have a mapping from the auth user to a worker profile
-  // This is a placeholder and needs to be implemented based on your data structure
-  const workerId = user?.id; 
+  const workerId = user?.id;
 
   const fetchProviderData = async () => {
     if (!workerId) return;
@@ -36,29 +38,47 @@ export const ProviderDashboard: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchProviderData();
+    if (workerId) {
+      fetchProviderData();
 
-    const channel = supabase
-      .channel(`provider-bookings-${workerId}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings', filter: `worker_id=eq.${workerId}` }, 
-        () => fetchProviderData()
-      )
-      .subscribe();
+      const bookingsChannel = supabase
+        .channel(`provider-bookings-${workerId}`)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings', filter: `worker_id=eq.${workerId}` },
+          () => fetchProviderData()
+        )
+        .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+      const liveRequestsChannel = providerLiveBookingService.subscribeToLiveBookingRequests(workerId, (payload) => {
+        const newRequest = payload.new as BookingRequest;
+        setLiveRequests(prev => [...prev, newRequest]);
+      });
+
+      return () => {
+        supabase.removeChannel(bookingsChannel);
+        providerLiveBookingService.unsubscribeFromChannel(liveRequestsChannel);
+      };
+    }
   }, [workerId]);
 
-  const handleUpdateStatus = async (bookingId: string, status: BookingStatus) => {
-      try {
-          await bookingService.updateBookingStatus(bookingId, status);
-          // The realtime subscription will trigger a refetch
-      } catch (error) {
-          console.error("Failed to update status:", error);
-      }
+  const handleAcceptRequest = async (bookingId: string) => {
+    if (!workerId) return;
+    try {
+        await coreLiveBookingService.acceptBooking(bookingId, workerId);
+        setLiveRequests(prev => prev.filter(r => r.booking_id !== bookingId));
+        // The bookings subscription will automatically update the other tabs
+    } catch (error) {
+        console.error("Failed to accept booking:", error);
+    }
   }
-  
+
+  const handleUpdateStatus = async (bookingId: string, status: BookingStatus) => {
+    try {
+      await bookingService.updateBookingStatus(bookingId, status);
+    } catch (error) {
+      console.error("Failed to update status:", error);
+    }
+  }
+
   const pendingBookings = bookings.filter(b => b.status === 'pending');
   const upcomingBookings = bookings.filter(b => b.status === 'confirmed');
   const activeBookings = bookings.filter(b => b.status === 'in_progress');
@@ -68,31 +88,60 @@ export const ProviderDashboard: React.FC = () => {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 pb-20 animate-fade-in">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <h2 className="text-2xl font-bold">Provider Dashboard</h2>
-            <EarningsCard earnings={totalEarnings} />
-        </div>
-      
-        <div className="border-b border-gray-200">
-            <nav className="-mb-px flex space-x-6 overflow-x-auto" aria-label="Tabs">
-                <TabButton title="Pending" count={pendingBookings.length} activeTab={activeTab} setActiveTab={setActiveTab} />
-                <TabButton title="Upcoming" count={upcomingBookings.length} activeTab={activeTab} setActiveTab={setActiveTab} />
-                <TabButton title="Active" count={activeBookings.length} activeTab={activeTab} setActiveTab={setActiveTab} />
-                <TabButton title="Past" count={pastBookings.length} activeTab={activeTab} setActiveTab={setActiveTab} />
-            </nav>
-        </div>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <h2 className="text-2xl font-bold">Provider Dashboard</h2>
+        <EarningsCard earnings={totalEarnings} />
+      </div>
 
-        <div className="mt-6">
-            {activeTab === 'Pending' && <BookingList bookings={pendingBookings} onUpdateStatus={handleUpdateStatus} />}
-            {activeTab === 'Upcoming' && <BookingList bookings={upcomingBookings} onUpdateStatus={handleUpdateStatus} />}
-            {activeTab === 'Active' && <BookingList bookings={activeBookings} onUpdateStatus={handleUpdateStatus} />}
-            {activeTab === 'Past' && <BookingList bookings={pastBookings} />}
-        </div>
+      <div className="border-b border-gray-200">
+        <nav className="-mb-px flex space-x-6 overflow-x-auto" aria-label="Tabs">
+          <TabButton title="Live Requests" count={liveRequests.length} activeTab={activeTab} setActiveTab={setActiveTab} />
+          <TabButton title="Pending" count={pendingBookings.length} activeTab={activeTab} setActiveTab={setActiveTab} />
+          <TabButton title="Upcoming" count={upcomingBookings.length} activeTab={activeTab} setActiveTab={setActiveTab} />
+          <TabButton title="Active" count={activeBookings.length} activeTab={activeTab} setActiveTab={setActiveTab} />
+          <TabButton title="Past" count={pastBookings.length} activeTab={activeTab} setActiveTab={setActiveTab} />
+        </nav>
+      </div>
+
+      <div className="mt-6">
+        {activeTab === 'Live Requests' && <LiveRequestList requests={liveRequests} onAccept={handleAcceptRequest} />}
+        {activeTab === 'Pending' && <BookingList bookings={pendingBookings} onUpdateStatus={handleUpdateStatus} />}
+        {activeTab === 'Upcoming' && <BookingList bookings={upcomingBookings} onUpdateStatus={handleUpdateStatus} />}
+        {activeTab === 'Active' && <BookingList bookings={activeBookings} onUpdateStatus={handleUpdateStatus} />}
+        {activeTab === 'Past' && <BookingList bookings={pastBookings} />}
+      </div>
     </div>
   );
 };
 
-// Sub-components
+const LiveRequestList: React.FC<{ requests: BookingRequest[], onAccept: (bookingId: string) => void }> = ({ requests, onAccept }) => {
+    if (requests.length === 0) {
+        return (
+          <div className="bg-white rounded-2xl p-12 text-center border shadow-sm">
+              <div className="text-5xl mb-4">⚡️</div>
+              <h3 className="text-lg font-semibold">No new live requests</h3>
+              <p className="text-sm text-gray-500">You will be notified when a new request comes in.</p>
+          </div>
+        );
+    }
+    return (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {requests.map(request => <LiveRequestCard key={request.id} request={request} onAccept={onAccept} />)}
+        </div>
+    );
+};
+
+const LiveRequestCard: React.FC<{ request: BookingRequest, onAccept: (bookingId: string) => void }> = ({ request, onAccept }) => (
+    <div className="bg-white rounded-2xl p-5 border shadow-lg animate-pulse">
+        <h3 className="font-bold">New Live Booking!</h3>
+        <p className="text-sm text-gray-600">A new job is available nearby.</p>
+        <button onClick={() => onAccept(request.booking_id)} className="mt-4 w-full text-sm font-bold text-white bg-green-600 px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+            Accept
+        </button>
+    </div>
+);
+
+// Sub-components from original file are assumed to be here, for brevity they are not included again.
 
 const EarningsCard: React.FC<{ earnings: number }> = ({ earnings }) => (
     <div className="bg-green-600 rounded-xl p-4 text-white w-full sm:w-auto shadow-lg">

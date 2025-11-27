@@ -1,8 +1,5 @@
 
-// This enum now includes both the original and new service categories,
-// ensuring no services are missing.
 export enum WorkerCategory {
-  // Original Home Services
   PLUMBER = 'Plumber',
   ELECTRICIAN = 'Electrician',
   MAID = 'MaidService',
@@ -15,15 +12,11 @@ export enum WorkerCategory {
   APPLIANCE_REPAIR = 'ApplianceRepair',
   LOCKSMITH = 'Locksmith',
   PACKERS_AND_MOVERS = 'Packers&Movers',
-
-  // Original Auto & Transportation
   MECHANIC = 'Mechanic',
   CAR_WASHING = 'CarWashing',
   DRIVER = 'Driver',
-  BIKE_wahin = 'BikeRepair',
+  BIKE_REPAIR = 'BikeRepair',
   ROADSIDE_ASSISTANCE = 'RoadsideAssistance',
-
-  // Original Personal & Family
   TUTOR = 'Tutor',
   FITNESS_TRAINER = 'FitnessTrainer',
   DOCTOR_NURSE = 'Doctor/Nurse',
@@ -32,18 +25,13 @@ export enum WorkerCategory {
   BABYSITTER = 'Babysitter',
   PET_SITTER = 'PetSitter',
   COOK = 'Cook',
-
-  // Original Other Essentials
   ERRAND_RUNNER = 'ErrandRunner',
   DOCUMENTATION_ASSISTANCE = 'Documentation',
-
-  // Newly Added Categories
   TECH_SUPPORT = 'TechSupport',
   PHOTOGRAPHY = 'Photography',
   VIDEOGRAPHY = 'Videography',
   SECURITY = 'Security',
   CATERING = 'Catering',
-
   OTHER = 'Other',
 }
 
@@ -54,7 +42,6 @@ export type Coordinates = {
 
 export type WorkerStatus = 'AVAILABLE' | 'BUSY' | 'OFFLINE';
 
-// This type remains aligned with the database schema.
 export interface WorkerProfile {
   id: string;
   name: string;
@@ -71,7 +58,7 @@ export interface WorkerProfile {
   location: Coordinates;
 }
 
-export type BookingStatus = | 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
+export type BookingStatus = 'PENDING' | 'CONFIRMED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
 
 export type UserProfile = {
   id: string;
@@ -80,7 +67,7 @@ export type UserProfile = {
 };
 
 export interface Booking {
-  id: string;
+  id:string;
   user_id: string;
   worker_id: string;
   date: string;
@@ -91,6 +78,15 @@ export interface Booking {
   user?: UserProfile;
   worker?: WorkerProfile;
   review?: Review;
+  // New fields for live booking
+  serviceId?: string;
+  clientId?: string;
+  providerId?: string;
+  requirements?: any;
+  otp?: string;
+  acceptedAt?: any;
+  startedAt?: any;
+  completedAt?: any;
 }
 
 export interface Review {
@@ -101,4 +97,56 @@ export interface Review {
   rating: number;
   comment?: string;
   created_at: string;
+}
+
+
+// NEW LIVE BOOKING SYSTEM TYPES
+
+export interface Service {
+  id: string;
+  name: string;
+  formSchema: {
+    requiredFields: string[];
+  };
+  isActive: boolean;
+}
+
+export interface User {
+  userId: string;
+  role: 'client' | 'provider';
+  name: string;
+  phone: string;
+  location: Coordinates;
+}
+
+export interface Provider {
+  providerId: string;
+  services: string[];
+  isOnline: boolean;
+  location: Coordinates;
+}
+
+export type LiveBookingStatus = 'REQUESTED' | 'ACCEPTED' | 'OTP_SENT' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+
+export interface LiveBooking {
+  id: string;
+  serviceId: string;
+  clientId: string;
+  providerId: string | null;
+  status: LiveBookingStatus;
+  requirements: {
+    [key: string]: any;
+  };
+  otp: string;
+  createdAt: any; // serverTimestamp
+  acceptedAt: any | null;
+  startedAt: any | null;
+  completedAt: any | null;
+}
+
+export interface BookingRequest {
+  requestId: string;
+  bookingId: string;
+  providerId: string;
+  status: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'EXPIRED';
 }

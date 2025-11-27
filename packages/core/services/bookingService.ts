@@ -1,6 +1,6 @@
 
 import { supabase } from './supabase';
-import { Booking, BookingStatus } from '../types';
+import { Booking, BookingStatus, LiveBooking, LiveBookingStatus, Service } from '../types';
 import { logger } from './logger';
 
 /**
@@ -61,16 +61,16 @@ export const bookingService = {
     // Map the nested worker data to match WorkerProfile structure
     return data.map((b: any) => ({
         ...b,
-        worker: b.worker ? {
-            ...b.worker,
-            reviewCount: b.worker.review_count,
-            experienceYears: b.worker.experience_years,
-            priceUnit: b.worker.price_unit,
-            imageUrl: b.worker.image_url,
-            isVerified: b.worker.is_verified,
+        worker: b.workers ? {
+            ...b.workers,
+            reviewCount: b.workers.review_count,
+            experienceYears: b.workers.experience_years,
+            priceUnit: b.workers.price_unit,
+            imageUrl: b.workers.image_url,
+            isVerified: b.workers.is_verified,
             location: {
-                lat: b.worker.location_lat,
-                lng: b.worker.location_lng
+                lat: b.workers.location_lat,
+                lng: b.workers.location_lng
             }
         } : undefined
     }));
@@ -115,23 +115,6 @@ export const bookingService = {
   },
 
   /**
-   * Marks a booking's payment status as 'paid'.
-   * @param {string} bookingId - The ID of the booking to update.
-   * @throws {Error} If the database update fails.
-   */
-  async processPayment(bookingId: string) {
-    const { error } = await supabase
-        .from('bookings')
-        .update({ payment_status: 'paid' })
-        .eq('id', bookingId);
-
-    if (error) {
-      logger.error('Error processing payment', { error, bookingId });
-      throw error;
-    }
-  },
-
-  /**
    * Submits a review for a booking.
    * @param {string} bookingId - The ID of the booking being reviewed.
    * @param {string} workerId - The ID of the worker being reviewed.
@@ -158,5 +141,99 @@ export const bookingService = {
 
       // Ensure booking is marked as completed if it wasn't already (though flow usually ensures this)
       await this.updateBookingStatus(bookingId, 'completed');
+  },
+
+  // NEW LIVE BOOKING SYSTEM FUNCTIONS
+
+  /**
+   * Finds nearby providers for a given service and location.
+   * @param {string} serviceId - The ID of the service.
+   * @param {number} lat - The latitude of the user's location.
+   * @param {number} lng - The longitude of the user's location.
+   * @param {number} distance - The search radius in meters.
+   * @returns {Promise<any[]>} A list of nearby providers.
+   * @throws {Error} If the database query fails.
+   */
+  async findNearbyProviders(serviceId: string, lat: number, lng: number, distance: number): Promise<any[]> {
+    const { data, error } = await supabase
+      .rpc('find_nearby_providers', {
+        service_id: serviceId,
+        lat: lat,
+        lng: lng,
+        max_distance: distance,
+      });
+
+    if (error) {
+      logger.error('Error finding nearby providers', { error, serviceId, lat, lng,.distance });
+      throw error;
+    }
+    return data;
+  },
+
+  /**
+   * Creates a new live booking request.
+   * @param {Service} service - The service being requested.
+   * @param {string} clientId - The ID of the client making the request.
+   * @param {object} requirements - The service-specific requirements.
+   * @returns {Promise<LiveBooking>} The newly created live booking object.
+   * @throws {Error} If the booking creation fails.
+   */
+  async createLiveBooking(service: Service, clientId: string, requirements: object): Promise<LiveBooking> {
+    const { data, error } = await supabase
+      .from('bookings') // Note: Using a single 'bookings' table for simplicity
+      .insert({
+        serviceId: service.id,
+        clientId: clientId,
+        status: 'REQUESTED',
+        requirements: requirements,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      logger.error('Error creating live booking', { error, service, clientId });
+      throw error;
+    }
+    return data;
+  },
+
+  /**
+   * Accepts a live booking.
+   * @param {string} bookingId - The ID of the booking to accept.
+   * @param {string} providerId - The ID of the provider accepting the booking.
+   * @returns {Promise<LiveBooking>} The updated live booking object.
+   * @throws {Error} If the booking acceptance fails.
+   */
+  async acceptLiveBooking(bookingId: string, providerId: string): Promise<LiveBooking> {
+    const { data, error } = await supabase
+      .rpc('accept_booking', { booking_id: bookingId, provider_id: providerId })
+
+    if (error) {
+      logger.error('Error accepting live booking', { error, bookingId, providerId });
+      throw error;
+    }
+    return data;
+  },
+
+  /**
+   * Updates the status of a live booking.
+   * @param {string} bookingId - The ID of the booking to update.
+   * @param {LiveBookingStatus} status - The new status of the booking.
+   * @returns {Promise<LiveBooking>} The updated live booking object.
+   * @throws {Error} If the booking status update fails.
+   */
+  async updateLiveBookingStatus(bookingId: string, status: LiveBookingStatus): Promise<LiveBooking> {
+    const { data, error } = await supabase
+      .from('bookings')
+      .update({ status: status })
+      .eq('id', bookingId)
+      .select()
+      .single();
+
+    if (error) {
+      logger.error('Error updating live booking status', { error, bookingId, status });
+      throw error;
+    }
+    return data;
   }
 };
