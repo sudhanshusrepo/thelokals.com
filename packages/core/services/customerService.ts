@@ -1,9 +1,9 @@
 
 import { supabase } from './supabase';
-import { CustomerProfile } from '../types';
+import { UserProfile } from '../types';
 
 export const customerService = {
-  async createCustomer(customerData: Partial<CustomerProfile>) {
+  async createCustomer(customerData: Partial<UserProfile>) {
     const { data, error } = await supabase
       .from('customers')
       .insert(customerData)
@@ -14,7 +14,7 @@ export const customerService = {
     return data;
   },
 
-  async getCustomerById(id: string): Promise<CustomerProfile | undefined> {
+  async getCustomerById(id: string): Promise<UserProfile | undefined> {
     try {
       const { data, error } = await supabase
         .from('customers')
@@ -34,7 +34,7 @@ export const customerService = {
     }
   },
 
-  async updateCustomerProfile(customerId: string, updates: Partial<CustomerProfile>) {
+  async updateCustomerProfile(customerId: string, updates: Partial<UserProfile>) {
     const { error } = await supabase
       .from('customers')
       .update(updates)
