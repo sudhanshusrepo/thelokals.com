@@ -1,0 +1,133 @@
+name: CI / CD
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main", "develop" ]
+
+jobs:
+  # 1) CI: run tests on every commit / PR
+  test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x] # you can keep 22.x if you actually support it
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'          # change to 'yarn' if you use yarn
+
+      - name: Install dependencies
+        run: npm ci             # or: yarn install --frozen-lockfile
+
+      # Optional: build step (for web / shared libs)
+      - name: Build (if applicable)
+        run: npm run build --if-present
+
+      - name: Run tests
+        run: npm test           # or: npm run test:ci / yarn test
+
+      # Optional: lint / typecheck if you have scripts
+      # - name: Lint
+      #   run: npm run lint
+
+      # - name: Type check
+      #   run: npm run typecheck
+
+  # 2) CD: deploy to STAGING when develop branch is updated
+  deploy_staging:
+    name: Deploy to STAGING
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop'
+    environment: staging
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # ---- Supabase: apply migrations to STAGING ----
+      - name: Install Supabase CLI
+        run: |
+          curl -sL https://github.com/supabase/cli/releases/latest/download/supabase_linux_amd64.tar.gz \
+          | tar -xz -C /usr/local/bin
+
+      - name: Run Supabase migrations (staging)
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          # Adjust this command to match your Supabase setup
+          supabase db push --db-url "$SUPABASE_DB_URL"
+
+      # ---- Mobile app: build & upload STAGING build (placeholder) ----
+      # Uncomment and customize based on how you build:
+      #
+      # - name: Build staging mobile app
+      #   run: npm run build:staging   # e.g. your RN build script
+      #
+      # - name: Upload to store / EAS / etc.
+      #   env:
+      #     STORE_TOKEN: ${{ secrets.STORE_TOKEN }}
+      #   run: npm run deploy:staging  # your custom deploy command
+
+  # 3) CD: deploy to PRODUCTION when main branch is updated
+  deploy_production:
+    name: Deploy to PRODUCTION
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    environment: production
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # ---- Supabase: apply migrations to PRODUCTION ----
+      - name: Install Supabase CLI
+        run: |
+          curl -sL https://github.com/supabase/cli/releases/latest/download/supabase_linux_amd64.tar.gz \
+          | tar -xz -C /usr/local/bin
+
+      - name: Run Supabase migrations (production)
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          supabase db push --db-url "$SUPABASE_DB_URL"
+
+      # ---- Mobile app: build & upload PRODUCTION build (placeholder) ----
+      # - name: Build production mobile app
+      #   run: npm run build:prod
+      #
+      # - name: Upload to App Store / Play Store
+      #   env:
+      #     STORE_TOKEN: ${{ secrets.STORE_TOKEN }}
+      #   run: npm run deploy:prod
