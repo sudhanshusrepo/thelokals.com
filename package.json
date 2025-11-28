@@ -11,6 +11,8 @@
     "build:provider": "npm run build --workspace=packages/provider",
     "build": "npm run build:client",
     "test": "jest",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
     "db:migrate": "supabase db push"
   },
   "devDependencies": {

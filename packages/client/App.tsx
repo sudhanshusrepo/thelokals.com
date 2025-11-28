@@ -18,6 +18,8 @@ import NoData from './components/NoData';
 import { ServiceStructuredData } from './components/StructuredData';
 import NotFound from './components/NotFound';
 import LiveBooking from './components/LiveBooking';
+import { HowItWorks } from './components/HowItWorks';
+import { Features } from './components/Features';
 
 function getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon2: number) {
     if (!lat1 || !lon1 || !lat2 || !lon2) return Infinity;
@@ -97,14 +99,14 @@ const HomePage: React.FC<{
                             <span className={`transform transition-transform duration-300 ${!collapsedCategories[group.name] ? 'rotate-180' : ''}`}>▼</span>
                         </button>
                         <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">{group.helperText}</p>
-                        <div className={`grid grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-3 transition-all duration-300 overflow-hidden ${collapsedCategories[group.name] ? 'max-h-0' : 'max-h-full'}`}>
+                        <div className={`grid grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-4 transition-all duration-300 overflow-hidden ${collapsedCategories[group.name] ? 'max-h-0' : 'max-h-full'}`}>
                             {group.categories.map((cat) => (
                                 <button
                                     onClick={() => handleCategorySelect(cat as WorkerCategory)}
                                     key={cat}
-                                    className="flex flex-col items-center justify-center bg-slate-100 dark:bg-slate-700 p-2 rounded-xl hover:bg-teal-100 dark:hover:bg-teal-600/50 transition-all h-24 group"
+                                    className="flex flex-col items-center justify-center bg-white dark:bg-slate-700 p-2 rounded-xl hover:bg-teal-50 dark:hover:bg-teal-600/50 transition-all duration-300 h-28 group shadow-[0_10px_20px_rgba(0,0,0,0.05)] hover:shadow-[0_14px_28px_rgba(0,0,0,0.1)] hover:-translate-y-1 border border-slate-100 dark:border-slate-600"
                                 >
-                                    <span className="text-2xl mb-1">{CATEGORY_ICONS[cat]}</span>
+                                    <span className="text-3xl mb-2 transform group-hover:scale-110 transition-transform duration-300">{CATEGORY_ICONS[cat]}</span>
                                     <span className="text-xs font-bold text-center text-slate-600 dark:text-slate-300 group-hover:text-teal-600">{CATEGORY_DISPLAY_NAMES[cat]}</span>
                                 </button>
                             ))}
@@ -112,10 +114,20 @@ const HomePage: React.FC<{
                     </div>
                 ))}
             </div>
-            <button onClick={() => setShowLiveBooking(true)}>Live Booking</button>
-            <div className="py-4">
-                <OfferBanner />
-                <EmergencyBanner />
+            <div className="py-8">
+                <HowItWorks />
+                <div className="my-8">
+                    <OfferBanner />
+                </div>
+                <Features />
+                <div className="my-8">
+                    <EmergencyBanner />
+                </div>
+            </div>
+            <div className="flex justify-center pb-8">
+                <button onClick={() => setShowLiveBooking(true)} className="px-8 py-3 bg-teal-600 text-white font-bold rounded-full shadow-lg hover:bg-teal-700 transition-colors hover:shadow-xl transform hover:-translate-y-0.5">
+                    Try Live Booking
+                </button>
             </div>
         </div>
     );
@@ -207,12 +219,12 @@ const ResultsPage: React.FC<{ allWorkers: WorkerProfile[], userLocation: Coordin
     );
 };
 
-const DashboardPage: React.FC<{isLoading: boolean}> = ({isLoading}) => {
+const DashboardPage: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
     const { view } = useParams<{ view: DashboardView }>();
     const { user } = useAuth();
     const [showAuthModal, setShowAuthModal] = useState(false);
 
-    if(isLoading){
+    if (isLoading) {
         return view === 'Bookings' ? <BookingSkeleton /> : <ProfileSkeleton />;
     }
 
@@ -311,7 +323,7 @@ const MainLayout: React.FC = () => {
 
     return (
         <SkeletonTheme baseColor="#dcfce7" highlightColor="#bbf7d0">
-            <div className="min-h-screen bg-slate-50 dark:bg-slate-900 font-sans pb-20">
+            <div className="min-h-screen bg-[#f0fdf4] dark:bg-slate-900 font-sans pb-20">
                 <Helmet>
                     <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png" />
                     <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png" />
@@ -333,7 +345,7 @@ const MainLayout: React.FC = () => {
                         <Route path="/" element={<HomePage handleCategorySelect={handleCategorySelect} isLoading={isLoading} setShowLiveBooking={setShowLiveBooking} />} />
                         <Route path="/category/:category" element={<ResultsPage allWorkers={allWorkers} userLocation={userLocation} isLoading={isResultsPageLoading} setSelectedWorker={setSelectedWorker} />} />
                         <Route path="/search" element={<ResultsPage allWorkers={allWorkers} userLocation={userLocation} isLoading={isResultsPageLoading} setSelectedWorker={setSelectedWorker} />} />
-                        <Route path="/dashboard/:view" element={<DashboardPage isLoading={isLoading}/>} />
+                        <Route path="/dashboard/:view" element={<DashboardPage isLoading={isLoading} />} />
                         <Route path="*" element={<NotFound />} />
                     </Routes>
                 </main>

@@ -6,8 +6,24 @@ import { supabase } from './supabase';
 jest.mock('./supabase', () => ({
   supabase: {
     from: jest.fn(() => ({
-      select: jest.fn(),
+      select: jest.fn(() => ({
+        order: jest.fn(() => ({
+          limit: jest.fn(),
+        })),
+      })),
     })),
+  },
+}));
+
+jest.mock('./logger', () => ({
+  logger: {
+    error: jest.fn(),
+  },
+}));
+
+jest.mock('./bookingService', () => ({
+  bookingService: {
+    findNearbyProviders: jest.fn(),
   },
 }));
 
@@ -16,35 +32,40 @@ describe('workerService', () => {
     jest.clearAllMocks();
   });
 
-  describe('getWorkers', () => {
-    it('should return a list of workers', async () => {
+  describe('getTopWorkers', () => {
+    it('should return a list of top workers', async () => {
       const mockWorkers: any[] = [
         {
           id: '1',
           name: 'Test Worker 1',
           category: WorkerCategory.PLUMBER,
           description: 'A test worker',
-          price: 100,
-          priceUnit: 'hr',
+          price_per_hour: 100,
+          price_unit: 'hr',
           rating: 4.5,
           status: 'AVAILABLE',
-          imageUrl: 'http://example.com/worker1.png',
+          image_url: 'http://example.com/worker1.png',
           expertise: ['plumbing'],
-          reviewCount: 10,
-          isVerified: true,
+          review_count: 10,
+          is_verified: true,
           location_lat: 12.34,
           location_lng: 56.78,
         },
       ];
 
-      const selectMock = jest.fn().mockResolvedValue({ data: mockWorkers, error: null });
+      const limitMock = jest.fn().mockResolvedValue({ data: mockWorkers, error: null });
+      const orderMock = jest.fn(() => ({ limit: limitMock }));
+      const selectMock = jest.fn(() => ({ order: orderMock }));
       (supabase.from as jest.Mock).mockReturnValue({ select: selectMock });
 
-      const workers = await workerService.getWorkers();
+      const workers = await workerService.getTopWorkers();
 
       expect(supabase.from).toHaveBeenCalledWith('workers');
       expect(selectMock).toHaveBeenCalledWith('*');
-      expect(workers).toEqual(mockWorkers.map((w: any) => ({ ...w, location: { lat: w.location_lat, lng: w.location_lng } })));
+      expect(orderMock).toHaveBeenCalledWith('rating', { ascending: false });
+      expect(limitMock).toHaveBeenCalledWith(20);
+      expect(workers).toHaveLength(1);
+      expect(workers[0].name).toBe('Test Worker 1');
     });
   });
 });

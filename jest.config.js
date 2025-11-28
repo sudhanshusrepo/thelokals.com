@@ -11,8 +11,10 @@ module.exports = {
   testPathIgnorePatterns: [
     '/node_modules/',
     '/dist/',
-    '/packages/client/tests/',
+    '/packages/client/tests/', // E2E tests
     '/packages/app/',
-    '/tests/',
+    '/tests/', // E2E tests
+    '\\.spec\\.ts$', // Playwright spec files
+    '\\.spec\\.tsx$', // Playwright spec files
   ],
 };

@@ -10,6 +10,7 @@ import { ProviderProfile, RegistrationStatus, DocType } from './types';
 import { backend } from './services/backend';
 import { ToastProvider, useToast } from './components/Toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { Header } from './components/Header';
 
 const initialData: ProviderProfile = {
   phoneNumber: '',
@@ -43,14 +44,14 @@ const MainApp = () => {
       const draft = await backend.db.getDraft();
       if (draft) {
         setFormData(prev => ({
-           ...prev,
-           ...draft,
-           // Ensure document objects are merged correctly if schema changed
-           documents: { ...prev.documents, ...draft.documents } 
+          ...prev,
+          ...draft,
+          // Ensure document objects are merged correctly if schema changed
+          documents: { ...prev.documents, ...draft.documents }
         }));
         if (draft.isPhoneVerified) {
-            setStarted(true);
-            setStep(2); // Jump to next step if logged in
+          setStarted(true);
+          setStep(2); // Jump to next step if logged in
         }
       }
       setIsRestoring(false);
@@ -61,7 +62,7 @@ const MainApp = () => {
   // Auto-save draft
   useEffect(() => {
     if (!started || isRestoring) return;
-    
+
     const timeout = setTimeout(() => {
       backend.db.saveDraft(formData);
     }, 1000);
@@ -77,14 +78,14 @@ const MainApp = () => {
   const prevStep = () => setStep(s => Math.max(s - 1, 1));
 
   if (isRestoring || auth.loading) {
-      return (
-          <div className="min-h-screen bg-white flex items-center justify-center">
-              <div className="animate-pulse flex flex-col items-center">
-                  <div className="h-12 w-12 bg-slate-200 rounded-full mb-4"></div>
-                  <div className="h-4 w-32 bg-slate-200 rounded"></div>
-              </div>
-          </div>
-      );
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="animate-pulse flex flex-col items-center">
+          <div className="h-12 w-12 bg-slate-200 rounded-full mb-4"></div>
+          <div className="h-4 w-32 bg-slate-200 rounded"></div>
+        </div>
+      </div>
+    );
   }
 
   if (!started) {
@@ -92,23 +93,10 @@ const MainApp = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center py-6 sm:py-12">
+    <div className="min-h-screen bg-[#f0fdf4] flex flex-col items-center py-6 sm:py-12">
       <div className="w-full max-w-lg bg-white sm:rounded-2xl sm:shadow-xl overflow-hidden min-h-screen sm:min-h-[600px] flex flex-col">
-        
-        {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-100 bg-white sticky top-0 z-20 flex justify-between items-center">
-            <div className="flex items-center gap-2">
-                <img src="/logo.png" alt="The Lokals Logo" className="h-10 w-auto" />
-                <h1 className="text-lg font-bold text-slate-800">Registration</h1>
-            </div>
-             <div className="flex items-center gap-2">
-                 <span className="flex h-2 w-2 relative">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                 </span>
-                 <span className="text-xs text-slate-400 font-medium">Auto-saving</span>
-             </div>
-        </div>
+
+        <Header title="Registration" showAutoSaving={true} />
 
         <div className="p-6 flex-1 flex flex-col">
           <Stepper currentStep={step} totalSteps={5} />
@@ -121,9 +109,9 @@ const MainApp = () => {
             {step === 5 && <ReviewStep data={formData} updateData={updateData} onNext={nextStep} onBack={prevStep} />}
           </div>
         </div>
-        
+
         <div className="bg-slate-50 px-6 py-3 text-center text-xs text-slate-400 border-t border-slate-100">
-           Step {step} of 5 • Secure 256-bit Connection
+          Step {step} of 5 • Secure 256-bit Connection
         </div>
       </div>
     </div>
@@ -131,11 +119,11 @@ const MainApp = () => {
 }
 
 export default function App() {
-    return (
-      <ToastProvider>
-        <AuthProvider>
-          <MainApp />
-        </AuthProvider>
-      </ToastProvider>
-    );
+  return (
+    <ToastProvider>
+      <AuthProvider>
+        <MainApp />
+      </AuthProvider>
+    </ToastProvider>
+  );
 }
