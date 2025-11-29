@@ -1,87 +1,177 @@
 import { defineConfig, devices } from '@playwright/test';
 
 /**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// import dotenv from 'dotenv';
-// import path from 'path';
-// dotenv.config({ path: path.resolve(__dirname, '.env') });
-
-/**
- * See https://playwright.dev/docs/test-configuration.
+ * Playwright Configuration - Enhanced
+ * See https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({
   testDir: './tests',
+
+  /* Maximum time one test can run for */
+  timeout: 30 * 1000,
+
+  /* Test timeout for expect() assertions */
+  expect: {
+    timeout: 10000,
+  },
+
   /* Run tests in files in parallel */
   fullyParallel: true,
-  /* Fail the build on CI if you accidentally left test.only in the source code. */
+
+  /* Fail the build on CI if you accidentally left test.only in the source code */
   forbidOnly: !!process.env.CI,
+
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
-  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
-  /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
-  use: {
-    /* Base URL to use in actions like `await page.goto('')`. */
-    // baseURL: 'http://localhost:3000',
 
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
+  /* Opt out of parallel tests on CI */
+  workers: process.env.CI ? 1 : undefined,
+
+  /* Reporter to use */
+  reporter: [
+    ['html'],
+    ['json', { outputFile: 'test-results/results.json' }],
+    ['junit', { outputFile: 'test-results/junit.xml' }],
+    ['list'],
+  ],
+
+  /* Shared settings for all the projects below */
+  use: {
+    /* Base URL to use in actions like `await page.goto('/')` */
+    baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000',
+
+    /* Collect trace when retrying the failed test */
     trace: 'on-first-retry',
+
+    /* Screenshot on failure */
+    screenshot: 'only-on-failure',
+
+    /* Video on failure */
+    video: 'retain-on-failure',
+
+    /* Maximum time each action can take */
+    actionTimeout: 10000,
+
+    /* Navigation timeout */
+    navigationTimeout: 30000,
+
+    /* Viewport size */
+    viewport: { width: 1280, height: 720 },
+
+    /* Ignore HTTPS errors */
+    ignoreHTTPSErrors: true,
+
+    /* Locale */
+    locale: 'en-US',
+
+    /* Timezone */
+    timezoneId: 'America/New_York',
   },
 
   /* Configure projects for major browsers */
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        launchOptions: {
+          args: ['--disable-web-security'],
+        },
+      },
     },
+
     {
       name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
+      use: {
+        ...devices['Desktop Firefox'],
+      },
     },
+
     {
       name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
-    /* Regression Suite Environments */
-    {
-      name: 'st',
       use: {
-        ...devices['Desktop Chrome'],
-        baseURL: process.env.VITE_API_URL || 'https://st-api.thelokals.com',
+        ...devices['Desktop Safari'],
       },
     },
+
+    /* Mobile viewports */
     {
-      name: 'uat',
+      name: 'mobile-chrome',
       use: {
-        ...devices['Desktop Chrome'],
-        baseURL: process.env.VITE_API_URL || 'https://uat-api.thelokals.com',
+        ...devices['Pixel 5'],
       },
     },
+
     {
-      name: 'preprod',
+      name: 'mobile-safari',
       use: {
-        ...devices['Desktop Chrome'],
-        baseURL: process.env.VITE_API_URL || 'https://preprod-api.thelokals.com',
+        ...devices['iPhone 13'],
       },
     },
-    /* Performance Testing */
+
+    /* Tablet viewports */
+    {
+      name: 'tablet',
+      use: {
+        ...devices['iPad Pro'],
+      },
+    },
+
+    /* Accessibility tests */
+    {
+      name: 'accessibility',
+      use: {
+        ...devices['Desktop Chrome'],
+      },
+      testMatch: '**/accessibility/**/*.spec.ts',
+    },
+
+    /* Performance tests */
     {
       name: 'performance',
       use: {
         ...devices['Desktop Chrome'],
       },
-      testMatch: '**/performance/*.spec.ts',
+      testMatch: '**/performance/**/*.spec.ts',
+    },
+
+    /* API tests */
+    {
+      name: 'api',
+      use: {
+        baseURL: process.env.API_BASE_URL || 'http://localhost:3000',
+      },
+      testMatch: '**/integration/**/*.spec.ts',
+    },
+
+    /* Environment-specific projects */
+    {
+      name: 'staging',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: process.env.STAGING_URL || 'https://staging.thelokals.com',
+      },
+    },
+
+    {
+      name: 'production',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: process.env.PRODUCTION_URL || 'https://thelokals.com',
+      },
     },
   ],
 
+  /* Folder for test artifacts such as screenshots, videos, traces, etc. */
+  outputDir: 'test-results/',
+
   /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: 'npm run start',
-  //   url: 'http://localhost:3000',
-  //   reuseExistingServer: !process.env.CI,
-  // },
+  webServer: {
+    command: 'npm run dev:client',
+    url: 'http://localhost:3000',
+    reuseExistingServer: !process.env.CI,
+    timeout: 120 * 1000,
+    stdout: 'ignore',
+    stderr: 'pipe',
+  },
 });

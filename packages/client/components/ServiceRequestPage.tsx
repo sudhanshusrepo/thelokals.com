@@ -8,6 +8,7 @@ import { CATEGORY_DISPLAY_NAMES, LOWERCASE_TO_WORKER_CATEGORY, SERVICE_TYPES_BY_
 import { useGeolocation } from '../hooks/useGeolocation';
 import { ChatInput } from './ChatInput';
 import { mediaUploadService } from '../services/mediaUploadService';
+import { AuthModal } from './AuthModal';
 
 export const ServiceRequestPage: React.FC = () => {
     const { category } = useParams<{ category: string }>();
@@ -22,6 +23,7 @@ export const ServiceRequestPage: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [statusMessage, setStatusMessage] = useState('');
     const [isBooking, setIsBooking] = useState(false);
+    const [showAuthModal, setShowAuthModal] = useState(false);
 
     // Checklist state
     const [checkedItems, setCheckedItems] = useState<Record<number, boolean>>({});
@@ -93,10 +95,12 @@ export const ServiceRequestPage: React.FC = () => {
     };
 
     const handleBook = async () => {
-        if (!user || !analysis || !selectedCategory) {
-            // Should show auth modal if not logged in
-            // For now, just alert
-            alert("Please sign in to book.");
+        if (!user) {
+            setShowAuthModal(true);
+            return;
+        }
+
+        if (!analysis || !selectedCategory) {
             return;
         }
 
