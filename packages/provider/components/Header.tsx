@@ -16,7 +16,7 @@ export const Header: React.FC<HeaderProps> = ({ title = "Registration", showAuto
 
                     <div className="flex-shrink-0">
                         <Link to="/" className="flex items-center gap-2">
-                            <img src={logo} alt="The Lokals Logo" className="h-7 sm:h-8 w-auto" />
+                            <img src={logo} alt="thelokals logo" className="h-7 sm:h-8 w-auto" />
                             <span className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tighter">
                                 thelokals.com
                             </span>

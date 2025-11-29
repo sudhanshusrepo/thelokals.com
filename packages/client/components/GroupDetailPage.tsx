@@ -5,6 +5,8 @@ import { SERVICE_GROUPS, CATEGORY_ICONS, CATEGORY_DISPLAY_NAMES } from '../const
 import { WorkerCategory } from '../types';
 import NotFound from './NotFound';
 
+import { Helmet } from 'react-helmet';
+
 export const GroupDetailPage: React.FC = () => {
     const { groupId } = useParams<{ groupId: string }>();
     const navigate = useNavigate();
@@ -16,6 +18,11 @@ export const GroupDetailPage: React.FC = () => {
 
     return (
         <div className="animate-fade-in-up px-4" data-testid="group-detail-page">
+            <Helmet>
+                <title>{group.name} Services - thelokals.com</title>
+                <meta name="description" content={`Find top-rated ${group.name.toLowerCase()} professionals. ${group.categories.map(c => CATEGORY_DISPLAY_NAMES[c as WorkerCategory]).join(', ')}. Book instantly with AI on thelokals.com.`} />
+                <meta name="keywords" content={`${group.name.toLowerCase()}, ${group.categories.map(c => CATEGORY_DISPLAY_NAMES[c as WorkerCategory].toLowerCase()).join(', ')}, local services, thelokals`} />
+            </Helmet>
             <div className="text-center py-4 sm:py-8">
                 <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white mb-2 sm:mb-4">
                     {group.name}

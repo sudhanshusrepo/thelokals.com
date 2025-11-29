@@ -21,8 +21,10 @@ export const HomePage: React.FC = () => {
     return (
         <div className="space-y-6 animate-fade-in-up">
             <Helmet>
-                <title>Thelokals.com - Find and Book Local Services</title>
-                <meta name="description" content="Thelokals.com is your one-stop platform to find, book, and manage services from skilled local professionals." />
+                <title>thelokals.com - AI-Powered Local Service Booking</title>
+                <meta name="description" content="Find and book trusted local professionals instantly with thelokals.com. Our AI-powered platform matches you with top-rated cleaners, plumbers, electricians, and more in your area." />
+                <meta name="keywords" content="local services, book cleaners, find plumbers, electrician near me, AI booking, home services, thelokals, trusted professionals, instant booking" />
+                <link rel="canonical" href="https://thelokals.com/" />
             </Helmet>
 
             {/* Service Groups Grid - 3 per row with larger cards */}

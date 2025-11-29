@@ -120,12 +120,12 @@ export class ServiceRequestPage {
     constructor(page: Page) {
         this.page = page;
         this.categorySelect = page.locator('select[name="category"]');
-        this.descriptionInput = page.locator('textarea[name="description"], textarea[name="requirements"]');
+        this.descriptionInput = page.locator('textarea[name="description"], textarea[data-testid="chat-input-textarea"]');
         this.locationInput = page.locator('input[name="location"]');
-        this.submitButton = page.locator('button:has-text("Get AI Estimate"), button:has-text("Submit")');
-        this.aiChecklistSection = page.locator('.ai-checklist, [data-testid="ai-checklist"]');
+        this.submitButton = page.locator('button[data-testid="chat-send-button"], button:has-text("Get AI Estimate"), button:has-text("Submit")');
+        this.aiChecklistSection = page.locator('.ai-checklist, [data-testid="ai-checklist"], [data-testid="ai-checklist-section"]');
         this.estimatedCostDisplay = page.locator('.estimated-cost, [data-testid="estimated-cost"]');
-        this.confirmButton = page.locator('button:has-text("Confirm")');
+        this.confirmButton = page.locator('button[data-testid="book-now-button"], button:has-text("Book Now"), button:has-text("Confirm")');
     }
 
     async goto(category?: string) {
@@ -146,6 +146,9 @@ export class ServiceRequestPage {
             await this.categorySelect.selectOption(data.category);
         }
 
+        // Wait for chat input to be visible
+        await this.descriptionInput.waitFor({ state: 'visible', timeout: 5000 });
+
         if (await this.descriptionInput.count() > 0) {
             await this.descriptionInput.fill(data.description);
         }
@@ -156,8 +159,11 @@ export class ServiceRequestPage {
     }
 
     async submitRequest() {
+        // Wait for button to be enabled (text must be entered)
+        await this.page.waitForTimeout(500);
         await this.submitButton.first().click();
-        await this.page.waitForLoadState('networkidle');
+        // Wait for AI analysis to complete
+        await this.page.waitForTimeout(2000);
     }
 
     async isAIChecklistVisible() {
@@ -165,8 +171,10 @@ export class ServiceRequestPage {
     }
 
     async getEstimatedCost() {
-        if (await this.estimatedCostDisplay.isVisible()) {
-            const text = await this.estimatedCostDisplay.textContent();
+        // Look for the cost in the AI checklist section
+        const costElement = this.page.locator('[data-testid="ai-checklist-section"] .text-3xl, .estimated-cost');
+        if (await costElement.count() > 0) {
+            const text = await costElement.first().textContent();
             return text?.match(/\d+/)?.[0];
         }
         return null;
@@ -174,7 +182,7 @@ export class ServiceRequestPage {
 
     async confirmBooking() {
         await this.confirmButton.click();
-        await this.page.waitForLoadState('networkidle');
+        await this.page.waitForTimeout(1000);
     }
 }
 

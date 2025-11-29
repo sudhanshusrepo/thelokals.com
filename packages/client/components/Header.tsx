@@ -73,8 +73,8 @@ export const Header: React.FC<HeaderProps> = ({
                   <span className="hidden sm:inline">Back</span>
                 </Link>
               ) : (
-                <Link to="/" className="flex items-center gap-2" aria-label="The Lokals Homepage">
-                  <img src="/logo.svg" alt="The Lokals Logo" className="h-7 sm:h-8 w-auto" />
+                <Link to="/" className="flex items-center gap-2" aria-label="thelokals homepage">
+                  <img src="/logo.svg" alt="thelokals logo" className="h-7 sm:h-8 w-auto" />
                   <span className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tighter">thelokals.com</span>
                 </Link>
               )}

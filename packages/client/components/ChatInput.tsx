@@ -207,6 +207,8 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend, isLoading = false,
                 <div className="flex-1 relative">
                     <textarea
                         ref={textareaRef}
+                        name="description"
+                        data-testid="chat-input-textarea"
                         value={text}
                         onChange={(e) => setText(e.target.value)}
                         onKeyDown={(e) => {
@@ -226,6 +228,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend, isLoading = false,
                 <button
                     onClick={handleSendText}
                     disabled={!text.trim() || isLoading}
+                    data-testid="chat-send-button"
                     className={`
             p-3 rounded-full transition-all duration-200
             ${text.trim() && !isLoading

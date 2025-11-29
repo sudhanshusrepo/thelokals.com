@@ -87,7 +87,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
             <div className="text-center mb-8">
               <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{isLogin ? 'Welcome Back' : 'Create Account'}</h2>
               <p className="text-slate-500 dark:text-slate-400 text-sm mt-2">
-                {isLogin ? 'Enter your details to sign in' : 'Join the lokals to connect with experts'}
+                {isLogin ? 'Enter your details to sign in' : 'Join thelokals to connect with experts'}
               </p>
             </div>
 

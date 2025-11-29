@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 import { useAuth } from '../contexts/AuthContext';
 import { estimateService, AIAnalysisResult } from '@core/services/geminiService';
 import { bookingService } from '@core/services/bookingService';
@@ -37,6 +38,19 @@ export const ServiceRequestPage: React.FC = () => {
         if (!selectedCategory || !serviceTypeId) return null;
         return SERVICE_TYPES_BY_CATEGORY[selectedCategory]?.find(s => s.id === serviceTypeId);
     }, [selectedCategory, serviceTypeId]);
+
+    // SEO Content
+    const pageTitle = serviceType
+        ? `Book ${serviceType.name} - thelokals.com`
+        : selectedCategory
+            ? `Book ${CATEGORY_DISPLAY_NAMES[selectedCategory]} - thelokals.com`
+            : 'Service Request - thelokals.com';
+
+    const pageDescription = serviceType
+        ? `Get instant AI quotes for ${serviceType.name.toLowerCase()}. Book trusted professionals on thelokals.com.`
+        : selectedCategory
+            ? `Find top-rated ${CATEGORY_DISPLAY_NAMES[selectedCategory].toLowerCase()} professionals near you. AI-powered booking on thelokals.com.`
+            : 'Describe your service needs and get matched with local professionals instantly using our AI booking system.';
 
     // Calculate dynamic price based on checked items
     const currentPrice = useMemo(() => {
@@ -144,24 +158,23 @@ export const ServiceRequestPage: React.FC = () => {
             return;
         }
 
+        // Check if location is available, if not, try to get it
+        let bookingLocation = location;
+        if (!bookingLocation) {
+            try {
+                bookingLocation = await getLocationPromise();
+            } catch (error) {
+                console.error("Failed to get location:", error);
+                showToast("We need your location to find nearby providers. Please allow location access.", "warning");
+                return;
+            }
+        }
+
         // Check if at least one item is selected
         const hasSelectedItems = Object.values(checkedItems).some(Boolean);
         if (!hasSelectedItems) {
             showToast('Please select at least one service from the checklist.', 'warning');
             return;
-        }
-
-        // Get location if not already available
-        let bookingLocation = location;
-        if (!bookingLocation) {
-            try {
-                showToast("Requesting location access to find nearby professionals...", "info");
-                bookingLocation = await getLocationPromise();
-            } catch (error) {
-                console.error("Location request failed:", error);
-                showToast("Location access is required to book a service. Please enable it in your browser settings.", "warning");
-                return;
-            }
         }
 
         setIsBooking(true);
@@ -208,6 +221,11 @@ export const ServiceRequestPage: React.FC = () => {
 
     return (
         <div className="min-h-screen pb-32" data-testid="service-request-page">
+            <Helmet>
+                <title>{pageTitle}</title>
+                <meta name="description" content={pageDescription} />
+                <meta name="keywords" content={`${selectedCategory ? CATEGORY_DISPLAY_NAMES[selectedCategory].toLowerCase() : 'service'}, book online, AI quote, thelokals`} />
+            </Helmet>
             {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
             <div className="max-w-2xl mx-auto p-4 sm:p-8 animate-fade-in-up">
                 <div className="text-center mb-8">
@@ -317,7 +335,6 @@ export const ServiceRequestPage: React.FC = () => {
                 )}
             </div>
 
-            {/* Footer Chat Input - Only show if not yet analyzed */}
             {/* Footer Chat Input - Only show if not yet analyzed */}
             {!analysis && (
                 <StickyChatCta
