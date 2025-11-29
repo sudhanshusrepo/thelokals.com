@@ -1,5 +1,5 @@
-import { test, expect, TestHelpers } from '../fixtures/test-fixtures';
-import { HomePage, ServiceRequestPage, DashboardPage, BookingDetailsPage } from '../page-objects/pages';
+import { test, expect, TestHelpers } from '../../fixtures/test-fixtures';
+import { HomePage, ServiceRequestPage, DashboardPage, BookingDetailsPage } from '../../page-objects/pages';
 
 test.describe('Booking Flow - Enhanced', () => {
     let homePage: HomePage;

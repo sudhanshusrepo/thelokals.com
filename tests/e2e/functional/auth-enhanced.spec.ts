@@ -1,5 +1,5 @@
-import { test, expect } from '../fixtures/test-fixtures';
-import { HomePage, AuthPage } from '../page-objects/pages';
+import { test, expect } from '../../fixtures/test-fixtures';
+import { HomePage, AuthPage } from '../../page-objects/pages';
 
 test.describe('Authentication Flow - Enhanced', () => {
     let homePage: HomePage;

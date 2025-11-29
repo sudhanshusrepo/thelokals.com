@@ -1,5 +1,5 @@
-import { test, expect } from '../fixtures/test-fixtures';
-import { HomePage } from '../page-objects/pages';
+import { test, expect } from '../../fixtures/test-fixtures';
+import { HomePage } from '../../page-objects/pages';
 
 test.describe('User Experience - Enhanced', () => {
     let homePage: HomePage;

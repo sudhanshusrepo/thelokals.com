@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/test-fixtures';
+import { test, expect } from '../../fixtures/test-fixtures';
 
 test.describe('API Integration Tests', () => {
     test.describe('Booking API', () => {

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Header } from './Header';
 
 interface LandingProps {
   onStart: () => void;
@@ -7,6 +8,9 @@ interface LandingProps {
 export const Landing: React.FC<LandingProps> = ({ onStart }) => {
   return (
     <div className="min-h-screen bg-white">
+      {/* Header */}
+      <Header title="" showAutoSaving={false} />
+
       {/* Hero Section */}
       <div className="relative overflow-hidden bg-slate-50 pt-16 pb-32">
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center">

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import logo from '../public/logo.svg';
 
 interface HeaderProps {
     title?: string;
@@ -10,17 +11,19 @@ export const Header: React.FC<HeaderProps> = ({ title = "Registration", showAuto
     return (
         <header className="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg shadow-sm">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center justify-between h-20">
+                <div className="flex items-center justify-between h-14 sm:h-16">
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex-shrink-0">
                         <Link to="/" className="flex items-center gap-2">
-                            <div className="w-10 h-10 bg-teal-600 rounded-xl flex items-center justify-center text-white font-bold text-2xl">L</div>
-                            <span className="text-xl font-bold text-slate-900 dark:text-white tracking-tighter">TheLokals<span className="text-teal-600">Pro</span></span>
+                            <img src={logo} alt="The Lokals Logo" className="h-7 sm:h-8 w-auto" />
+                            <span className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tighter">
+                                thelokals.com<span className="text-teal-600">Pro</span>
+                            </span>
                         </Link>
                     </div>
 
-                    <div className="absolute left-1/2 -translate-x-1/2 text-center pointer-events-none">
-                        <h1 className="font-bold text-slate-900 dark:text-white">
+                    <div className="absolute left-1/2 -translate-x-1/2 text-center pointer-events-none sm:pointer-events-auto">
+                        <h1 className="font-semibold text-slate-800 dark:text-white text-sm sm:text-base">
                             {title}
                         </h1>
                     </div>
@@ -31,10 +34,10 @@ export const Header: React.FC<HeaderProps> = ({ title = "Registration", showAuto
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                             </span>
-                            <span className="text-xs text-slate-400 font-medium">Auto-saving</span>
+                            <span className="text-xs text-slate-400 font-medium hidden sm:inline">Auto-saving</span>
                         </div>
                     ) : (
-                        <Link to="/login" className="text-sm font-bold text-slate-600 hover:text-teal-600 transition-colors">
+                        <Link to="/login" className="text-sm font-bold text-slate-600 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400 transition-colors">
                             Sign In
                         </Link>
                     )}
