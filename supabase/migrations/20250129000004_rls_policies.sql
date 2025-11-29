@@ -137,7 +137,6 @@ CREATE POLICY "reviews_insert_own" ON public.reviews
   FOR INSERT WITH CHECK (
     auth.uid() = client_id 
     AND (SELECT status FROM public.bookings WHERE id = booking_id) = 'COMPLETED'
-    AND NOT EXISTS (SELECT 1 FROM public.reviews WHERE booking_id = NEW.booking_id)
   );
 
 CREATE POLICY "reviews_update_own" ON public.reviews
