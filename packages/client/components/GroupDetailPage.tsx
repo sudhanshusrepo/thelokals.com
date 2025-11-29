@@ -2,13 +2,13 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { SERVICE_GROUPS, CATEGORY_ICONS, CATEGORY_DISPLAY_NAMES } from '../constants';
-import { WorkerCategory } from '@core/types';
+import { WorkerCategory } from '../types';
 import NotFound from './NotFound';
 
 export const GroupDetailPage: React.FC = () => {
     const { groupId } = useParams<{ groupId: string }>();
     const navigate = useNavigate();
-    const group = Object.values(SERVICE_GROUPS).find(g => encodeURIComponent(g.name) === groupId);
+    const group = Object.values(SERVICE_GROUPS).find(g => g.name === groupId);
 
     if (!group) {
         return <NotFound />;
