@@ -5,10 +5,6 @@
 
 -- Drop existing tables and triggers
 DROP TABLE IF EXISTS public.reviews CASCADE;
-DROP TRIGGER IF EXISTS update_provider_rating_on_review_insert ON public.reviews;
-DROP TRIGGER IF EXISTS update_provider_rating_on_review_update ON public.reviews;
-DROP TRIGGER IF EXISTS update_provider_rating_on_review_delete ON public.reviews;
-DROP TRIGGER IF EXISTS update_provider_stats_on_booking_complete ON public.bookings;
 
 -- Drop existing indexes
 DROP INDEX IF EXISTS idx_reviews_provider;

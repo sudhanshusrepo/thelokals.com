@@ -26,9 +26,6 @@ DROP INDEX IF EXISTS idx_live_requests_expires;
 DROP INDEX IF EXISTS idx_booking_otp_booking;
 DROP INDEX IF EXISTS idx_booking_otp_code;
 
--- Drop existing triggers
-DROP TRIGGER IF EXISTS update_bookings_updated_at ON public.bookings;
-
 -- Create enums
 CREATE TYPE booking_status AS ENUM (
   'PENDING',

@@ -20,11 +20,6 @@ DROP INDEX IF EXISTS idx_providers_category;
 DROP INDEX IF EXISTS idx_providers_active;
 DROP INDEX IF EXISTS idx_providers_rating;
 
--- Drop existing triggers
-DROP TRIGGER IF EXISTS update_service_categories_updated_at ON public.service_categories;
-DROP TRIGGER IF EXISTS update_providers_updated_at ON public.providers;
-DROP TRIGGER IF EXISTS update_profiles_updated_at ON public.profiles;
-
 -- Service Categories Table
 CREATE TABLE public.service_categories (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
