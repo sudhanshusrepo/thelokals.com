@@ -9,6 +9,82 @@ import { logger } from './logger';
  */
 export const bookingService = {
   /**
+   * Creates a new AI-enhanced booking.
+   * @param {object} params - The booking parameters.
+   * @returns {Promise<{ bookingId: string }>} The newly created booking ID.
+   * @throws {Error} If the booking creation fails.
+   */
+  async createAIBooking(params: {
+    clientId: string;
+    serviceCategory: string;
+    requirements: object;
+    aiChecklist: string[];
+    estimatedCost: number;
+    location: { lat: number; lng: number };
+    address: object;
+    notes?: string;
+  }): Promise<{ bookingId: string }> {
+    const { data, error } = await supabase.rpc('create_ai_booking', {
+      p_client_id: params.clientId,
+      p_service_category: params.serviceCategory,
+      p_requirements: params.requirements,
+      p_ai_checklist: params.aiChecklist,
+      p_estimated_cost: params.estimatedCost,
+      p_location: `POINT(${params.location.lng} ${params.location.lat})`,
+      p_address: params.address,
+      p_notes: params.notes,
+    });
+
+    if (error) {
+      logger.error('Error creating AI booking', { error, params });
+      throw error;
+    }
+    return { bookingId: data };
+  },
+
+  /**
+   * Retrieves a specific booking by its ID.
+   * @param {string} bookingId - The ID of the booking to retrieve.
+   * @returns {Promise<Booking>} The booking object.
+   * @throws {Error} If the database query fails.
+   */
+  async getBooking(bookingId: string): Promise<Booking> {
+    const { data, error } = await supabase
+      .from('bookings')
+      .select('*')
+      .eq('id', bookingId)
+      .single();
+
+    if (error) {
+      logger.error('Error fetching booking', { error, bookingId });
+      throw error;
+    }
+    return data;
+  },
+
+  /**
+   * Subscribes to real-time updates for a specific booking.
+   * @param {string} bookingId - The ID of the booking to subscribe to.
+   * @param {function} callback - The function to call with the updated booking data.
+   * @returns {() => void} A function to unsubscribe from the channel.
+   */
+  subscribeToBookingUpdates(bookingId: string, callback: (booking: Booking) => void) {
+    const channel = supabase
+      .channel(`booking-${bookingId}`)
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'bookings',
+        filter: `id=eq.${bookingId}`,
+      }, (payload) => {
+        callback(payload.new as Booking);
+      })
+      .subscribe();
+
+    return () => supabase.removeChannel(channel);
+  },
+  
+  /**
    * Creates a new booking.
    * @param {string} workerId - The ID of the worker being booked.
    * @param {string} userId - The ID of the user making the booking.

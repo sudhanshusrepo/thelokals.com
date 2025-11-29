@@ -59,6 +59,8 @@ export interface WorkerProfile {
 }
 
 export type BookingStatus = 'PENDING' | 'CONFIRMED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+export type BookingType = 'AI_ENHANCED' | 'LIVE' | 'SCHEDULED';
+export type PaymentStatus = 'PENDING' | 'PAID' | 'REFUNDED' | 'FAILED';
 
 export type UserProfile = {
   id: string;
@@ -68,25 +70,27 @@ export type UserProfile = {
 
 export interface Booking {
   id: string;
-  user_id: string;
-  worker_id: string;
-  date: string;
+  client_id: string;
+  provider_id?: string;
+  service_category: string;
+  booking_type: BookingType;
   status: BookingStatus;
-  total_price: number;
-  payment_status: 'paid' | 'unpaid';
-  note?: string;
+  requirements?: object;
+  ai_checklist?: string[];
+  estimated_cost?: number;
+  final_cost?: number;
+  scheduled_date?: string;
+  started_at?: string;
+  completed_at?: string;
+  location?: Coordinates,
+  address?: object;
+  notes?: string;
+  payment_status: PaymentStatus;
+  created_at: string;
+  updated_at: string;
   user?: UserProfile;
   worker?: WorkerProfile;
   review?: Review;
-  // New fields for live booking
-  serviceId?: string;
-  clientId?: string;
-  providerId?: string;
-  requirements?: any;
-  otp?: string;
-  acceptedAt?: any;
-  startedAt?: any;
-  completedAt?: any;
 }
 
 export interface Review {
