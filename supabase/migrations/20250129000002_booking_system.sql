@@ -38,8 +38,11 @@ EXCEPTION
   WHEN duplicate_object THEN null;
 END $$;
 
+-- Drop old bookings table if it exists (from previous schema)
+DROP TABLE IF EXISTS public.bookings CASCADE;
+
 -- Bookings Table
-CREATE TABLE IF NOT EXISTS public.bookings (
+CREATE TABLE public.bookings (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   client_id uuid REFERENCES auth.users NOT NULL,
   provider_id uuid REFERENCES public.providers,
@@ -82,8 +85,12 @@ EXCEPTION
   WHEN duplicate_object THEN null;
 END $$;
 
+-- Drop old tables if they exist
+DROP TABLE IF EXISTS public.live_booking_requests CASCADE;
+DROP TABLE IF EXISTS public.booking_otp CASCADE;
+
 -- Live Booking Requests Table
-CREATE TABLE IF NOT EXISTS public.live_booking_requests (
+CREATE TABLE public.live_booking_requests (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   booking_id uuid REFERENCES public.bookings NOT NULL,
   provider_id uuid REFERENCES public.providers NOT NULL,
@@ -96,7 +103,7 @@ CREATE TABLE IF NOT EXISTS public.live_booking_requests (
 );
 
 -- Booking OTP Table
-CREATE TABLE IF NOT EXISTS public.booking_otp (
+CREATE TABLE public.booking_otp (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   booking_id uuid REFERENCES public.bookings NOT NULL,
   otp_code text NOT NULL,

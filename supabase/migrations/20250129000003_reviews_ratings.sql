@@ -2,8 +2,11 @@
 -- Description: Create reviews table and rating aggregation
 -- Phase: 3 of 6
 
+-- Drop old reviews table if it exists
+DROP TABLE IF EXISTS public.reviews CASCADE;
+
 -- Reviews Table
-CREATE TABLE IF NOT EXISTS public.reviews (
+CREATE TABLE public.reviews (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   booking_id uuid REFERENCES public.bookings NOT NULL UNIQUE,
   client_id uuid REFERENCES auth.users NOT NULL,
