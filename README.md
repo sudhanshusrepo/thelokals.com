@@ -38,6 +38,21 @@ This will start the `client` and `provider` applications in development mode. Th
 
 The platform is deployed using Vercel. The `client` and `provider` applications are deployed as separate Vercel projects. The `core` and `db` packages are not deployed directly, but are used by the `client` and `provider` applications.
 
+## Documentation
+
+Comprehensive project documentation is available in the **[SBS_documentation](./SBS_documentation/)** folder, including:
+
+- 📐 Architecture & Design Documents
+- 📋 Development Plans & Sprint Reports
+- 🧪 Testing Guides & E2E Test Reports
+- 🔧 Setup & Configuration Guides
+- 👷 Worker Management Documentation
+
+**Quick Links:**
+- [E2E Test Summary Report](./SBS_documentation/E2E_TEST_SUMMARY_REPORT.md) - Latest test results and bug priorities
+- [Architecture Overview](./SBS_documentation/ARCHITECTURE.md) - System architecture
+- [E2E Testing Guide](./SBS_documentation/E2E_TESTING_GUIDE.md) - Testing setup and execution
+
 ## Contributing
 
 We welcome contributions to the platform. If you would like to contribute, please fork the repository and create a pull request.

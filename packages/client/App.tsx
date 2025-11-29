@@ -39,19 +39,24 @@ const AuthRequiredPlaceholder: React.FC<{ onSignIn: () => void, view: string }> 
 );
 
 const DashboardPage: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
-    const { view } = useParams<{ view: DashboardView }>();
+    const { view } = useParams<{ view: string }>();
     const { user } = useAuth();
     const [showAuthModal, setShowAuthModal] = useState(false);
 
+    // Capitalize the view parameter to match DashboardView type
+    const capitalizedView = view
+        ? (view.charAt(0).toUpperCase() + view.slice(1)) as DashboardView
+        : 'Bookings';
+
     if (isLoading) {
-        return view === 'Bookings' ? <BookingSkeleton /> : <ProfileSkeleton />;
+        return capitalizedView === 'Bookings' ? <BookingSkeleton /> : <ProfileSkeleton />;
     }
 
     if (!user) {
-        return <AuthRequiredPlaceholder onSignIn={() => setShowAuthModal(true)} view={view || 'Bookings'} />;
+        return <AuthRequiredPlaceholder onSignIn={() => setShowAuthModal(true)} view={capitalizedView} />;
     }
 
-    return <UserDashboard initialView={view || 'Bookings'} />;
+    return <UserDashboard initialView={capitalizedView} />;
 }
 
 const MainLayout: React.FC = () => {
@@ -174,24 +179,29 @@ const MainLayout: React.FC = () => {
                     )}
                 </main>
 
-                <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t dark:border-slate-700 flex justify-around max-w-7xl mx-auto rounded-t-2xl shadow-lg">
-                    <NavLink to="/" label="Home" />
-                    <NavLink to="/dashboard/bookings" label="Bookings" />
-                    <NavLink to="/dashboard/profile" label="Profile" />
+                <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t dark:border-slate-700 flex justify-around max-w-7xl mx-auto rounded-t-2xl shadow-lg" role="navigation" aria-label="Bottom Navigation">
+                    <NavLink to="/" label="Home" icon="🏠" />
+                    <NavLink to="/dashboard/bookings" label="Bookings" icon="📋" />
+                    <NavLink to="/dashboard/profile" label="Profile" icon="👤" />
+                    <NavLink to="/dashboard/support" label="Support" icon="💬" />
                 </nav>
             </div>
         </SkeletonTheme>
     );
 };
 
-const NavLink: React.FC<{ to: string, label: string }> = ({ to, label }) => {
+const NavLink: React.FC<{ to: string, label: string, icon?: string }> = ({ to, label, icon }) => {
     const location = useLocation();
-    const isActive = location.pathname === to || (location.pathname.startsWith('/dashboard') && to.startsWith('/dashboard'));
+    // Fix: Only highlight if the exact path matches
+    const isActive = location.pathname === to;
 
     return (
         <Link
             to={to}
-            className={`flex flex-col items-center justify-center flex-1 p-3 text-sm font-semibold transition-colors ${isActive ? 'text-teal-600' : 'text-slate-500'}`}>
+            className={`flex flex-col items-center justify-center flex-1 p-3 text-xs font-semibold transition-colors ${isActive ? 'text-teal-600' : 'text-slate-500'}`}
+            aria-current={isActive ? 'page' : undefined}
+        >
+            {icon && <span className="text-lg mb-1">{icon}</span>}
             {label}
         </Link>
     )

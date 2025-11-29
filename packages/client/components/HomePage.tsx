@@ -12,12 +12,7 @@ const OfferBanner: React.FC = () => (
     </div>
 );
 
-const EmergencyBanner: React.FC = () => (
-    <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-3 sm:p-4 mb-4 rounded-md shadow-md">
-        <p className="font-bold text-sm sm:text-base">Emergency Help Needed?</p>
-        <p className="text-xs sm:text-sm">Call our 24/7 hotline at 1-800-123-4567.</p>
-    </div>
-);
+
 
 export const HomePage: React.FC = () => {
     const navigate = useNavigate();
@@ -77,9 +72,6 @@ export const HomePage: React.FC = () => {
                     <OfferBanner />
                 </div>
                 <Features />
-                <div className="my-6 sm:my-8">
-                    <EmergencyBanner />
-                </div>
             </div>
         </div>
     );
