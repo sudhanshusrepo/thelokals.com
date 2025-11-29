@@ -1,17 +1,34 @@
-  async findNearbyProviders(booking: LiveBooking): Promise < NearbyProviderResponse[] > {
-  const { data, error } = await supabase.rpc('find_nearby_providers', {
-    lat: booking.requirements.location.lat,
-    lng: booking.requirements.location.lng,
-    service_id: booking.serviceId,
-    max_distance: GEOGRAPHY_PROXIMITY_THRESHOLD
-  });
+import { supabase } from './supabase';
+import { LiveBooking, NearbyProviderResponse } from '../types';
+import { logger } from './logger';
+import { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 
-  if(error) {
-    logger.error('Error finding nearby providers', { error, booking });
-    throw error;
-  }
+const GEOGRAPHY_PROXIMITY_THRESHOLD = 10000; // 10km in meters
+
+/**
+ * @module liveBookingService
+ * @description Handles real-time booking operations, including finding nearby providers, creating booking requests, and managing real-time subscriptions.
+ */
+export const liveBookingService = {
+  /**
+   * Finds nearby providers for a given booking.
+   * @param {LiveBooking} booking - The booking to find providers for.
+   * @returns {Promise<NearbyProviderResponse[]>} A list of nearby providers.
+   */
+  async findNearbyProviders(booking: LiveBooking): Promise<NearbyProviderResponse[]> {
+    const { data, error } = await supabase.rpc('find_nearby_providers', {
+      lat: booking.requirements.location.lat,
+      lng: booking.requirements.location.lng,
+      service_id: booking.serviceId,
+      max_distance: GEOGRAPHY_PROXIMITY_THRESHOLD
+    });
+
+    if (error) {
+      logger.error('Error finding nearby providers', { error, booking });
+      throw error;
+    }
     return data as NearbyProviderResponse[] || [];
-},
+  },
 
   /**
    * Creates booking requests for a list of providers.
@@ -20,19 +37,19 @@
    * @throws {Error} If the insert fails.
    */
   async createBookingRequests(bookingId: string, providerIds: string[]) {
-  const requests = providerIds.map(providerId => ({
-    booking_id: bookingId,
-    provider_id: providerId,
-    status: 'PENDING'
-  }));
+    const requests = providerIds.map(providerId => ({
+      booking_id: bookingId,
+      provider_id: providerId,
+      status: 'PENDING'
+    }));
 
-  const { error } = await supabase.from('booking_requests').insert(requests);
+    const { error } = await supabase.from('booking_requests').insert(requests);
 
-  if (error) {
-    logger.error('Error creating booking requests', { error, bookingId, providerIds });
-    throw error;
-  }
-},
+    if (error) {
+      logger.error('Error creating booking requests', { error, bookingId, providerIds });
+      throw error;
+    }
+  },
 
   /**
    * Sends notifications to a list of providers.
@@ -41,10 +58,10 @@
    * @param {LiveBooking} booking - The booking to notify providers about.
    */
   async sendNotifications(providerIds: string[], booking: LiveBooking) {
-  logger.info('Sending notifications to providers', { providerIds, booking });
-  // In a real implementation, this would call Firebase Cloud Messaging (FCM)
-  // to send push notifications to the providers.
-},
+    logger.info('Sending notifications to providers', { providerIds, booking });
+    // In a real implementation, this would call Firebase Cloud Messaging (FCM)
+    // to send push notifications to the providers.
+  },
 
   /**
    * A provider accepts a booking request.
@@ -53,19 +70,19 @@
    * @returns {Promise<LiveBooking>} The updated booking.
    * @throws {Error} If the RPC call fails.
    */
-  async acceptBooking(bookingId: string, providerId: string): Promise < LiveBooking > {
-  const { data, error } = await supabase.rpc('accept_booking', {
-    p_booking_id: bookingId,
-    p_provider_id: providerId
-  });
+  async acceptBooking(bookingId: string, providerId: string): Promise<LiveBooking> {
+    const { data, error } = await supabase.rpc('accept_booking', {
+      p_booking_id: bookingId,
+      p_provider_id: providerId
+    });
 
-  if(error) {
-    logger.error('Error accepting booking', { error, bookingId, providerId });
-    throw error;
-  }
+    if (error) {
+      logger.error('Error accepting booking', { error, bookingId, providerId });
+      throw error;
+    }
 
     return data as LiveBooking;
-},
+  },
 
   /**
    * Subscribes to real-time updates for a specific booking.
@@ -74,28 +91,28 @@
    * @returns {RealtimeChannel} The Supabase Realtime channel.
    */
   subscribeToBookingUpdates(bookingId: string, callback: (payload: RealtimePostgresChangesPayload<{ [key: string]: any; }>) => void): RealtimeChannel {
-  const channel = supabase
-    .channel(`booking-updates:${bookingId}`)
-    .on(
-      'postgres_changes',
-      {
-        event: 'UPDATE',
-        schema: 'public',
-        table: 'bookings',
-        filter: `id=eq.${bookingId}`,
-      },
-      callback
-    )
-    .subscribe();
+    const channel = supabase
+      .channel(`booking-updates:${bookingId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'bookings',
+          filter: `id=eq.${bookingId}`,
+        },
+        callback
+      )
+      .subscribe();
 
-  return channel;
-},
+    return channel;
+  },
 
-/**
- * Unsubscribes from a Realtime channel.
- * @param {RealtimeChannel} channel - The channel to unsubscribe from.
- */
-unsubscribeFromChannel(channel: RealtimeChannel) {
-  supabase.removeChannel(channel);
-}
+  /**
+   * Unsubscribes from a Realtime channel.
+   * @param {RealtimeChannel} channel - The channel to unsubscribe from.
+   */
+  unsubscribeFromChannel(channel: RealtimeChannel) {
+    supabase.removeChannel(channel);
+  }
 };
