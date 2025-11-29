@@ -14,8 +14,8 @@ export const Header: React.FC<HeaderProps> = ({ title = "Registration", showAuto
 
                     <div className="flex items-center gap-2">
                         <Link to="/" className="flex items-center gap-2">
-                            <img src="/logo.png" alt="The Lokals Logo" className="h-10 w-auto" />
-                            <span className="text-xl font-bold text-slate-900 dark:text-white tracking-tighter">thelokals.com</span>
+                            <div className="w-10 h-10 bg-teal-600 rounded-xl flex items-center justify-center text-white font-bold text-2xl">L</div>
+                            <span className="text-xl font-bold text-slate-900 dark:text-white tracking-tighter">TheLokals<span className="text-teal-600">Pro</span></span>
                         </Link>
                     </div>
 
@@ -25,7 +25,7 @@ export const Header: React.FC<HeaderProps> = ({ title = "Registration", showAuto
                         </h1>
                     </div>
 
-                    {showAutoSaving && (
+                    {showAutoSaving ? (
                         <div className="flex items-center gap-2">
                             <span className="flex h-2 w-2 relative">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
@@ -33,6 +33,10 @@ export const Header: React.FC<HeaderProps> = ({ title = "Registration", showAuto
                             </span>
                             <span className="text-xs text-slate-400 font-medium">Auto-saving</span>
                         </div>
+                    ) : (
+                        <Link to="/login" className="text-sm font-bold text-slate-600 hover:text-teal-600 transition-colors">
+                            Sign In
+                        </Link>
                     )}
                 </div>
             </div>

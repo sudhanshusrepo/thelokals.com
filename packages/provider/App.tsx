@@ -12,6 +12,7 @@ import { ToastProvider, useToast } from './components/Toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Header } from './components/Header';
 import { IncomingRequestModal } from './components/IncomingRequestModal';
+import { ProviderDashboard } from './components/ProviderDashboard';
 import { ServiceType } from '@core/types';
 
 const initialData: ProviderProfile = {
@@ -34,6 +35,7 @@ const initialData: ProviderProfile = {
 
 const MainApp = () => {
   const [started, setStarted] = useState(false);
+  const [showDashboard, setShowDashboard] = useState(false);
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<ProviderProfile>(initialData);
   const [isRestoring, setIsRestoring] = useState(true);
@@ -114,6 +116,17 @@ const MainApp = () => {
         <div className="animate-pulse flex flex-col items-center">
           <div className="h-12 w-12 bg-slate-200 rounded-full mb-4"></div>
           <div className="h-4 w-32 bg-slate-200 rounded"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (showDashboard) {
+    return (
+      <div className="min-h-screen bg-slate-50">
+        <Header title="Dashboard" showAutoSaving={false} />
+        <div className="pt-6 px-4">
+          <ProviderDashboard />
         </div>
       </div>
     );

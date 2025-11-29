@@ -1,3 +1,9 @@
+import { WorkerCategory } from '@core/types';
+
+export { WorkerCategory };
+
+export type ProviderProfile = OnboardingData;
+
 export enum DocType {
     GovtID = 'GovtID',
     PAN = 'PAN',
@@ -29,6 +35,8 @@ export interface OnboardingData {
     gender?: string;
     city?: string;
     locality?: string;
+    category?: string;
+    experienceYears?: number;
     idType?: 'aadhar' | 'pan';
     idNumber?: string;
     selfie?: string;
