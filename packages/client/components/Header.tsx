@@ -22,6 +22,7 @@ export const Header: React.FC<HeaderProps> = ({
   const [user, setUser] = useState<User | null>(null);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isMenuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -57,7 +58,7 @@ export const Header: React.FC<HeaderProps> = ({
     <>
       <header className="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20">
+          <div className="flex items-center justify-between h-16 sm:h-20">
             
             <div className="flex-shrink-0">
               {!isHome ? (
@@ -72,25 +73,25 @@ export const Header: React.FC<HeaderProps> = ({
                   </Link>
               ) : (
                   <Link to="/" className="flex items-center gap-2">
-                      <img src={logo} alt="The Lokals Logo" className="h-10 w-auto" />
-                      <span className="text-xl font-bold text-slate-900 dark:text-white tracking-tighter">thelokals.com</span>
+                      <img src={logo} alt="The Lokals Logo" className="h-8 sm:h-10 w-auto" />
+                      <span className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white tracking-tighter">thelokals.com</span>
                   </Link>
               )}
             </div>
 
-            <div className="absolute left-1/2 -translate-x-1/2 text-center pointer-events-none">
-                <h1 className={`font-bold text-slate-900 dark:text-white transition-opacity duration-300 ${isHome ? 'opacity-0' : 'opacity-100'}`}>
+            <div className="absolute left-1/2 -translate-x-1/2 text-center pointer-events-none sm:pointer-events-auto">
+                <h1 className={`font-bold text-slate-900 dark:text-white transition-opacity duration-300 text-base sm:text-lg ${isHome ? 'opacity-0' : 'opacity-100'}`}>
                   {title}
                 </h1>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               <button 
                 onClick={() => setIsSearchVisible(true)} 
                 className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
                 aria-label="Open search bar"
               >
-                  <svg className="w-6 h-6 text-slate-600 dark:text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-slate-600 dark:text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
               </button>
@@ -104,8 +105,9 @@ export const Header: React.FC<HeaderProps> = ({
                 </a>
 
               {user ? (
-                <div className="relative group">
+                <div className="relative">
                     <button 
+                      onClick={() => setMenuOpen(!isMenuOpen)}
                       className="flex items-center gap-2 p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
                       aria-label="Open user menu"
                     >
@@ -115,21 +117,31 @@ export const Header: React.FC<HeaderProps> = ({
                           className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 object-cover" />
                     </button>
 
-                    <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-100 dark:border-slate-700 py-2 opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-200 scale-95 group-hover:scale-100 origin-top-right">
+                    {isMenuOpen && (
+                    <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-100 dark:border-slate-700 py-2 transition-all duration-200 scale-95 group-hover:scale-100 origin-top-right">
                         <Link to="/dashboard/bookings" className="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2">
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={ICONS.DASHBOARD} /></svg>
                             Dashboard
                         </Link>
+                        <a 
+                          href="https://pro.thelokals.com" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="w-full text-left sm:hidden px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2"
+                        >
+                          For Professionals
+                        </a>
                         <button onClick={handleSignOut} className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 flex items-center gap-2">
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={ICONS.SIGN_OUT} /></svg>
                             Sign Out
                         </button>
                     </div>
+                    )}
                 </div>
               ) : (
                   <button 
                       onClick={onSignInClick}
-                      className="bg-slate-900 dark:bg-teal-600 hover:bg-slate-800 dark:hover:bg-teal-700 text-white font-bold py-2.5 px-5 rounded-xl transition-all shadow-lg shadow-slate-200 dark:shadow-none active:scale-[0.98]"
+                      className="bg-slate-900 dark:bg-teal-600 hover:bg-slate-800 dark:hover:bg-teal-700 text-white font-bold py-2 px-3 sm:py-2.5 sm:px-5 rounded-xl transition-all shadow-lg shadow-slate-200 dark:shadow-none active:scale-[0.98] text-sm sm:text-base"
                   > 
                       Sign In
                   </button>
@@ -140,11 +152,11 @@ export const Header: React.FC<HeaderProps> = ({
       </header>
       {isSearchVisible && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-start justify-center p-4" onClick={() => setIsSearchVisible(false)}>
-            <div className="w-full max-w-lg mt-20" onClick={(e) => e.stopPropagation()}>
+            <div className="w-full max-w-lg mt-10 sm:mt-20" onClick={(e) => e.stopPropagation()}>
                 <input
                     type="text"
                     placeholder="What service are you looking for?"
-                    className="w-full p-4 text-lg rounded-xl shadow-2xl focus:ring-2 focus:ring-teal-500 outline-none"
+                    className="w-full p-4 text-base sm:text-lg rounded-xl shadow-2xl focus:ring-2 focus:ring-teal-500 outline-none"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyDown={handleSearch}
