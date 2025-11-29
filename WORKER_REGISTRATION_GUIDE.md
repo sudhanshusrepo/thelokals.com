@@ -175,15 +175,45 @@ All workers use password: **Worker@123**
 | Priya Singh | Maid Service | priya.maid@thelokals.com |
 | Vikram Reddy | Mechanic | vikram.mechanic@thelokals.com |
 
-## Alternative: Manual Registration
+## Alternative: Manual Registration (Dashboard + SQL)
 
-If the script doesn't work, you can manually register workers:
+If you prefer to create users manually in the Supabase Dashboard, follow these steps:
 
-1. Go to Supabase Dashboard → Authentication → Users
-2. Click "Add User"
-3. Enter email and password
-4. Confirm email automatically
-5. Then manually insert into `profiles` and `providers` tables
+### Step 1: Create Users in Dashboard
+
+1. Go to **Supabase Dashboard** → **Authentication** → **Users**
+2. Click **"Add User"**
+3. Create the following 5 users (use any password you like, e.g., `Worker@123`):
+
+   - `rajesh.plumber@thelokals.com`
+   - `amit.electrician@thelokals.com`
+   - `suresh.carpenter@thelokals.com`
+   - `priya.maid@thelokals.com`
+   - `vikram.mechanic@thelokals.com`
+
+4. Ensure "Auto Confirm User?" is checked (or manually confirm them).
+
+### Step 2: Run the Setup Script
+
+1. Go to **Supabase Dashboard** → **SQL Editor**
+2. Open the file `scripts/manual-worker-setup.sql` in your editor
+3. Copy the entire content
+4. Paste it into the SQL Editor
+5. Click **Run**
+
+This script will:
+- Find the users you just created by their email
+- Set their role to "provider"
+- Create their profile records
+- Create their provider records with location data
+
+### Step 3: Verify
+
+Run this query to confirm everything is set up:
+
+```sql
+SELECT full_name, email, category, is_verified FROM public.providers;
+```
 
 ## Security Notes
 
@@ -195,9 +225,9 @@ If the script doesn't work, you can manually register workers:
 
 ---
 
-**Last Updated:** 2025-01-29  
-**Status:** ✅ Ready to use  
+**Last Updated:** 2025-01-30
+**Status:** ✅ Ready to use
 **Files:**
-- `scripts/register-workers.ts` - Main registration script
-- `scripts/create-provider-function.sql` - Helper SQL function
+- `scripts/register-workers.ts` - Automated registration script
+- `scripts/manual-worker-setup.sql` - Manual setup SQL script
 - `WORKER_CREDENTIALS.md` - Detailed credentials and testing guide
