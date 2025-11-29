@@ -1,24 +1,24 @@
-
 import React from 'react';
 import Skeleton from 'react-loading-skeleton';
 
 export const HomeSkeleton = () => (
-    <div className="space-y-8 animate-fade-in-up">
-        <Skeleton height={40} />
-        <div className="space-y-4">
-            {[...Array(3)].map((_, i) => (
-                <div key={i} className="rounded-2xl shadow-sm border dark:border-gray-700 bg-white dark:bg-gray-800 p-4">
-                    <Skeleton height={24} width="50%" />
-                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-4">
-                        {[...Array(5)].map((_, j) => (
-                            <div key={j} className="flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-700 p-4 rounded-xl h-28">
-                                <Skeleton circle height={40} width={40} />
-                                <Skeleton height={10} width="80%" className="mt-2" />
-                            </div>
-                        ))}
+    <div className="space-y-6 animate-fade-in-up">
+        {/* Category Grid Skeleton */}
+        <div className="mx-2 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-3xl p-6 sm:p-8">
+            <div className="grid grid-cols-3 gap-4 sm:gap-6">
+                {[...Array(6)].map((_, i) => (
+                    <div key={i} className="flex flex-col items-center p-4 sm:p-6 bg-white dark:bg-gray-800 rounded-2xl">
+                        <Skeleton circle height={64} width={64} className="mb-3" />
+                        <Skeleton height={20} width="80%" className="mb-2" />
+                        <Skeleton height={14} width="90%" className="hidden sm:block" />
                     </div>
-                </div>
-            ))}
+                ))}
+            </div>
+        </div>
+
+        {/* Subtitle Skeleton */}
+        <div className="text-center py-4">
+            <Skeleton height={16} width={300} className="mx-auto" />
         </div>
     </div>
 );
