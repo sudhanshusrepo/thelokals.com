@@ -95,7 +95,13 @@ export const HomePage: React.FC = () => {
                             key={group.name}
                             data-testid="category-card"
                             onClick={() => navigate(`/group/${encodeURIComponent(group.name)}`)}
-                            whileHover={{ scale: 1.05, y: -5 }}
+                            whileHover={{
+                                scale: 1.05,
+                                y: -8,
+                                rotateX: 5,
+                                rotateY: 5,
+                                transition: { duration: 0.2 }
+                            }}
                             whileTap={{ scale: 0.95 }}
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -105,9 +111,12 @@ export const HomePage: React.FC = () => {
                                 bg-white dark:bg-slate-800
                                 rounded-xl sm:rounded-2xl
                                 shadow-[0_2px_10px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.2)]
+                                hover:shadow-[0_20px_30px_-10px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_20px_30px_-10px_rgba(0,0,0,0.4)]
                                 border border-slate-100 dark:border-slate-700
+                                hover:border-teal-500/50 dark:hover:border-teal-400/50
                                 group overflow-hidden
                                 min-h-[100px] sm:min-h-[160px] justify-center
+                                transform-gpu perspective-1000
                             `}
                         >
                             {/* Background Gradient Hover Effect */}

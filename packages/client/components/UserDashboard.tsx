@@ -143,12 +143,38 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ initialView = 'Boo
     if (loading) return <div className="p-8 text-center text-slate-500 dark:text-slate-400">Loading your bookings...</div>;
     return (
       <div className="animate-fade-in" data-testid="user-dashboard">
-        <div className="border-b border-slate-200 dark:border-slate-700">
-          <nav className="-mb-px flex space-x-6" aria-label="Tabs">
-            <TabButton title="Upcoming" count={upcomingBookings.length} activeTab={activeTab} setActiveTab={setActiveTab} testId="tab-upcoming" />
-            <TabButton title="Active" count={activeBookings.length} activeTab={activeTab} setActiveTab={setActiveTab} testId="tab-active" />
-            <TabButton title="Past" count={pastBookings.length} activeTab={activeTab} setActiveTab={setActiveTab} testId="tab-past" />
-          </nav>
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden">
+
+          {/* Mobile Number Prompt Banner */}
+          {user && !user.phone && (
+            <div className="bg-amber-50 dark:bg-amber-900/20 border-b border-amber-100 dark:border-amber-800/30 px-6 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-800/40 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-amber-800 dark:text-amber-200">Add your mobile number</h3>
+                  <p className="text-xs text-amber-700 dark:text-amber-300">Secure your account and enable mobile login.</p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  window.location.href = '/dashboard/profile';
+                }}
+                className="px-4 py-2 bg-amber-100 hover:bg-amber-200 dark:bg-amber-800/40 dark:hover:bg-amber-800/60 text-amber-800 dark:text-amber-200 text-xs font-bold rounded-lg transition-colors"
+              >
+                Add Now
+              </button>
+            </div>
+          )}
+
+          <div className="border-b border-slate-100 dark:border-slate-700 px-6">
+            <nav className="-mb-px flex space-x-6" aria-label="Tabs">
+              <TabButton title="Upcoming" count={upcomingBookings.length} activeTab={activeTab} setActiveTab={setActiveTab} testId="tab-upcoming" />
+              <TabButton title="Active" count={activeBookings.length} activeTab={activeTab} setActiveTab={setActiveTab} testId="tab-active" />
+              <TabButton title="Past" count={pastBookings.length} activeTab={activeTab} setActiveTab={setActiveTab} testId="tab-past" />
+            </nav>
+          </div>
         </div>
 
         <div className="mt-6" data-testid="bookings-list">
@@ -195,14 +221,15 @@ const TabButton: React.FC<{ title: Tab, count: number, activeTab: Tab, setActive
     <button
       onClick={() => setActiveTab(title)}
       data-testid={props.testId}
-      className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors
+      className={`relative whitespace-nowrap py-4 px-4 border-b-2 font-medium text-sm transition-all duration-200
             ${isActive
-          ? 'border-teal-500 text-teal-600'
-          : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 dark:text-slate-400 dark:hover:text-slate-300'
+          ? 'border-teal-500 text-teal-600 dark:text-teal-400 bg-gradient-to-t from-teal-50/50 to-transparent dark:from-teal-900/20 -translate-y-0.5 shadow-sm'
+          : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 dark:text-slate-400 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50'
         }`
       }
     >
-      {title} <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-medium ${isActive ? 'bg-teal-100 text-teal-600' : 'bg-slate-100 text-slate-900 dark:bg-slate-700 dark:text-slate-200'}`}>{count}</span>
+      {title} <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-medium transition-all ${isActive ? 'bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300 scale-105' : 'bg-slate-100 text-slate-900 dark:bg-slate-700 dark:text-slate-200'}`}>{count}</span>
+      {isActive && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-teal-400 to-emerald-500 rounded-full"></div>}
     </button>
   );
 }
