@@ -1,10 +1,10 @@
 -- Function to find nearby providers using PostGIS
 CREATE OR REPLACE FUNCTION find_nearby_providers(
-  lat double precision,
-  long double precision,
-  radius_km double precision DEFAULT 10,
-  service_category text DEFAULT NULL,
-  limit_count int DEFAULT 10
+  p_lat double precision,
+  p_long double precision,
+  p_radius_km double precision DEFAULT 10,
+  p_service_category text DEFAULT NULL,
+  p_limit_count int DEFAULT 10
 )
 RETURNS TABLE (
   id uuid,
@@ -30,7 +30,7 @@ BEGIN
     ST_X(p.operating_location::geometry) as lng,
     (ST_Distance(
       p.operating_location,
-      ST_SetSRID(ST_MakePoint(long, lat), 4326)::geography
+      ST_SetSRID(ST_MakePoint(p_long, p_lat), 4326)::geography
     ) / 1000) as distance,
     p.profile_image_url
   FROM
@@ -38,14 +38,14 @@ BEGIN
   WHERE
     p.is_active = true
     AND p.is_verified = true
-    AND (service_category IS NULL OR p.category = service_category)
+    AND (p_service_category IS NULL OR p.category = p_service_category)
     AND ST_DWithin(
       p.operating_location,
-      ST_SetSRID(ST_MakePoint(long, lat), 4326)::geography,
-      radius_km * 1000
+      ST_SetSRID(ST_MakePoint(p_long, p_lat), 4326)::geography,
+      p_radius_km * 1000
     )
   ORDER BY
     distance ASC
-  LIMIT limit_count;
+  LIMIT p_limit_count;
 END;
 $$;
