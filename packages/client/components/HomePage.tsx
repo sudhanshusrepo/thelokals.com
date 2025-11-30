@@ -77,13 +77,13 @@ export const HomePage: React.FC = () => {
                 <link rel="canonical" href="https://thelokals.com/" />
             </Helmet>
 
-            {/* Hero Section - Subtle & Clean */}
-            <div className="text-center py-8 px-4 max-w-3xl mx-auto">
-                <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-900 dark:text-white mb-4 tracking-tight">
+            {/* Hero Section - Compact to focus on services */}
+            <div className="text-center py-4 px-4 max-w-3xl mx-auto">
+                <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">
                     Your Local Experts, <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-emerald-500">Instantly.</span>
                 </h1>
-                <p className="text-lg text-slate-600 dark:text-slate-400 font-medium leading-relaxed">
-                    Select a category below or ask our AI to find the perfect professional for your needs.
+                <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">
+                    Select a category below or ask our AI
                 </p>
             </div>
 
