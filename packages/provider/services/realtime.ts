@@ -55,7 +55,7 @@ class RealtimeService {
                     filter: `provider_id=eq.${providerId}`,
                 },
                 (payload) => {
-                    console.log('New booking request:', payload.new);
+                    // console.log('New booking request:', payload.new);
                     onNewBooking(payload.new as BookingRequest);
                 }
             )
@@ -68,12 +68,12 @@ class RealtimeService {
                     filter: `provider_id=eq.${providerId}`,
                 },
                 (payload) => {
-                    console.log('Booking updated:', payload.new);
+                    // console.log('Booking updated:', payload.new);
                     onBookingUpdate(payload.new as BookingRequest);
                 }
             )
             .subscribe((status) => {
-                console.log('Booking subscription status:', status);
+                // console.log('Booking subscription status:', status);
             });
 
         return () => {
@@ -106,7 +106,7 @@ class RealtimeService {
                     filter: `provider_id=eq.${providerId}`,
                 },
                 (payload) => {
-                    console.log('New notification:', payload.new);
+                    // console.log('New notification:', payload.new);
                     onNewNotification(payload.new as ProviderNotification);
                 }
             )
@@ -119,12 +119,12 @@ class RealtimeService {
                     filter: `provider_id=eq.${providerId}`,
                 },
                 (payload) => {
-                    console.log('Notification updated:', payload.new);
+                    // console.log('Notification updated:', payload.new);
                     onNotificationUpdate(payload.new as ProviderNotification);
                 }
             )
             .subscribe((status) => {
-                console.log('Notification subscription status:', status);
+                // console.log('Notification subscription status:', status);
             });
 
         return () => {

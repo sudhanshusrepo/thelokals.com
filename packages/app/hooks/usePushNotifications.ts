@@ -10,14 +10,16 @@ Notifications.setNotificationHandler({
         shouldShowAlert: true,
         shouldPlaySound: true,
         shouldSetBadge: false,
+        shouldShowBanner: true,
+        shouldShowList: true,
     }),
 });
 
 export function usePushNotifications() {
     const [expoPushToken, setExpoPushToken] = useState<string | undefined>();
     const [notification, setNotification] = useState<Notifications.Notification | undefined>();
-    const notificationListener = useRef<Notifications.Subscription>();
-    const responseListener = useRef<Notifications.Subscription>();
+    const notificationListener = useRef<Notifications.Subscription | null>(null);
+    const responseListener = useRef<Notifications.Subscription | null>(null);
 
     async function registerForPushNotificationsAsync() {
         let token;
@@ -39,7 +41,7 @@ export function usePushNotifications() {
                 finalStatus = status;
             }
             if (finalStatus !== 'granted') {
-                console.log('Failed to get push token for push notification!');
+                // console.log('Failed to get push token for push notification!');
                 return;
             }
 
@@ -48,12 +50,12 @@ export function usePushNotifications() {
                 token = (await Notifications.getExpoPushTokenAsync({
                     projectId,
                 })).data;
-                console.log('Push Token:', token);
+                // console.log('Push Token:', token);
             } catch (e) {
                 console.error('Error getting push token:', e);
             }
         } else {
-            console.log('Must use physical device for Push Notifications');
+            // console.log('Must use physical device for Push Notifications');
         }
 
         return token;
@@ -70,7 +72,7 @@ export function usePushNotifications() {
             .eq('id', user.id);
 
         if (providerError) {
-            console.log('Error updating provider push token:', providerError);
+            console.error('Error updating provider push token:', providerError);
         }
 
         // Also update profiles if needed
@@ -80,7 +82,7 @@ export function usePushNotifications() {
             .eq('id', user.id);
 
         if (profileError) {
-            console.log('Error updating profile push token:', profileError);
+            console.error('Error updating profile push token:', profileError);
         }
     };
 
@@ -97,15 +99,15 @@ export function usePushNotifications() {
         });
 
         responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-            console.log(response);
+            // console.log(response);
         });
 
         return () => {
             if (notificationListener.current) {
-                Notifications.removeNotificationSubscription(notificationListener.current);
+                notificationListener.current.remove();
             }
             if (responseListener.current) {
-                Notifications.removeNotificationSubscription(responseListener.current);
+                responseListener.current.remove();
             }
         };
     }, []);

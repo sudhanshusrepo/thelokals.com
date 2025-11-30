@@ -33,10 +33,10 @@ export default function HomeScreen() {
     lastScrollY.current = currentScrollY;
   };
 
-  const router = useRouter(); // Need to import useRouter
+  const router = useRouter();
 
   const handleChatSend = (content: { type: 'text' | 'audio' | 'video', data: string }) => {
-    console.log("Chat sent:", content);
+    // console.log("Chat sent:", content);
     router.push({
       pathname: '/(app)/ai-booking',
       params: { type: content.type, data: content.data }

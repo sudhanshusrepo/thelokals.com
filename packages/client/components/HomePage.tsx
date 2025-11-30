@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { SERVICE_GROUPS } from '../constants';
-// import { HowItWorks } from './HowItWorks';
+
 import { Features } from './Features';
 import { StickyChatCta } from './StickyChatCta';
 
@@ -22,6 +22,7 @@ const OfferBanner: React.FC = () => {
                 text-white p-4 sm:p-6 mb-8 rounded-2xl shadow-lg shadow-pink-500/20
                 transform hover:scale-[1.02] transition-transform duration-300
                 animate-fade-in
+                border-2 animate-flash-border
             `}>
                 <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white/10 rounded-full blur-xl"></div>
                 <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-24 h-24 bg-black/10 rounded-full blur-xl"></div>
@@ -50,6 +51,7 @@ const OfferBanner: React.FC = () => {
             bg-gradient-to-r from-emerald-500 to-teal-600 
             text-white p-4 sm:p-6 mb-8 rounded-2xl shadow-lg shadow-emerald-500/20
             transform hover:scale-[1.02] transition-transform duration-300
+            border-2 animate-flash-border
         ">
             <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white/10 rounded-full blur-xl"></div>
             <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-24 h-24 bg-black/10 rounded-full blur-xl"></div>
@@ -167,9 +169,7 @@ export const HomePage: React.FC = () => {
             </div>
 
             <div className="py-8 px-4 max-w-7xl mx-auto">
-                {/* <div className="mb-12">
-                    <HowItWorks />
-                </div> */}
+
 
                 <OfferBanner />
 
