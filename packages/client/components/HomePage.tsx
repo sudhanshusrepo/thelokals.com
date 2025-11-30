@@ -48,22 +48,22 @@ export const HomePage: React.FC = () => {
                 </p>
             </div>
 
-            {/* Service Groups Grid */}
+            {/* Service Groups Grid - 3 columns × 2 rows */}
             <div className="w-full px-2 sm:px-4">
-                <div className="grid grid-cols-4 gap-2 sm:gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
                     {Object.values(SERVICE_GROUPS).map((group) => (
                         <button
                             key={group.name}
                             data-testid="category-card"
                             onClick={() => navigate(`/group/${encodeURIComponent(group.name)}`)}
                             className={`
-                                relative flex flex-col items-center p-2 sm:p-6
+                                relative flex flex-col items-center p-3 sm:p-6
                                 bg-white dark:bg-slate-800
                                 rounded-2xl
                                 shadow-[0_4px_20px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.2)]
                                 border border-slate-100 dark:border-slate-700
                                 transition-all duration-300 
-                                transform hover:-translate-y-1 hover:scale-[1.01] 
+                                transform hover:-translate-y-1 hover:scale-[1.02] 
                                 hover:shadow-[0_12px_30px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_12px_30px_rgba(0,0,0,0.3)]
                                 hover:border-teal-100 dark:hover:border-teal-900/50
                                 group overflow-hidden
@@ -78,9 +78,9 @@ export const HomePage: React.FC = () => {
                             {/* Icon Container */}
                             <div className={`
                                 relative z-10
-                                w-16 h-16 sm:w-20 sm:h-20 rounded-full 
+                                w-14 h-14 sm:w-20 sm:h-20 rounded-full 
                                 flex items-center justify-center 
-                                text-3xl sm:text-4xl mb-4 
+                                text-2xl sm:text-4xl mb-3 sm:mb-4 
                                 bg-${group.color}-50 dark:bg-${group.color}-900/20 
                                 text-${group.color}-600 dark:text-${group.color}-400
                                 group-hover:scale-110 group-hover:rotate-3 
@@ -92,7 +92,7 @@ export const HomePage: React.FC = () => {
 
                             {/* Text Content */}
                             <div className="relative z-10 text-center">
-                                <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-1 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors leading-tight">
+                                <h3 className="text-sm sm:text-lg font-bold text-slate-900 dark:text-white mb-1 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors leading-tight">
                                     {group.name}
                                 </h3>
                                 <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 px-1 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors">
