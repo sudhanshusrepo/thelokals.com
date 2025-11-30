@@ -10,11 +10,23 @@ DROP VIEW IF EXISTS provider_dashboard_stats;
 DO $$
 BEGIN
   -- Remove tables from publication (ignore errors if not present)
-  ALTER PUBLICATION supabase_realtime DROP TABLE IF EXISTS public.bookings;
-  ALTER PUBLICATION supabase_realtime DROP TABLE IF EXISTS public.live_booking_requests;
-  ALTER PUBLICATION supabase_realtime DROP TABLE IF EXISTS public.providers;
-EXCEPTION
-  WHEN OTHERS THEN NULL;
+  BEGIN
+    ALTER PUBLICATION supabase_realtime DROP TABLE public.bookings;
+  EXCEPTION
+    WHEN OTHERS THEN NULL;
+  END;
+  
+  BEGIN
+    ALTER PUBLICATION supabase_realtime DROP TABLE public.live_booking_requests;
+  EXCEPTION
+    WHEN OTHERS THEN NULL;
+  END;
+  
+  BEGIN
+    ALTER PUBLICATION supabase_realtime DROP TABLE public.providers;
+  EXCEPTION
+    WHEN OTHERS THEN NULL;
+  END;
 END $$;
 
 -- Enable realtime for tables that need live updates

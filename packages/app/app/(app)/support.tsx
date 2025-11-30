@@ -2,8 +2,11 @@ import { StyleSheet, SafeAreaView, Linking, TouchableOpacity } from 'react-nativ
 import { Text, View } from '@/components/Themed';
 import Colors from '@/constants/Colors';
 import { FontAwesome } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 
 export default function SupportScreen() {
+    const router = useRouter();
+
     const handleEmailSupport = () => {
         Linking.openURL('mailto:support@thelokals.com');
     };
@@ -61,12 +64,12 @@ export default function SupportScreen() {
 
                 <View style={styles.divider} />
 
-                <TouchableOpacity style={styles.linkOption} onPress={() => Linking.openURL('https://thelokals.com/privacy')}>
-                    <Text style={styles.linkText}>Privacy Policy</Text>
+                <TouchableOpacity style={styles.linkOption} onPress={() => router.push('/(app)/terms')}>
+                    <Text style={styles.linkText}>Terms & Conditions</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.linkOption} onPress={() => Linking.openURL('https://thelokals.com/terms')}>
-                    <Text style={styles.linkText}>Terms of Service</Text>
+                <TouchableOpacity style={styles.linkOption} onPress={() => router.push('/(app)/privacy')}>
+                    <Text style={styles.linkText}>Privacy Policy</Text>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>
