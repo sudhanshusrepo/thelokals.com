@@ -49,22 +49,22 @@ export const HomePage: React.FC = () => {
             </div>
 
             {/* Service Groups Grid */}
-            <div className="px-4 max-w-7xl mx-auto">
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-8">
+            <div className="w-full px-2 sm:px-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                     {Object.values(SERVICE_GROUPS).map((group) => (
                         <button
                             key={group.name}
                             data-testid="category-card"
                             onClick={() => navigate(`/group/${encodeURIComponent(group.name)}`)}
                             className={`
-                                relative flex flex-col items-center p-6 sm:p-8
+                                relative flex flex-col items-center p-4 sm:p-6
                                 bg-white dark:bg-slate-800
-                                rounded-3xl
-                                shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.2)]
+                                rounded-2xl
+                                shadow-[0_4px_20px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.2)]
                                 border border-slate-100 dark:border-slate-700
                                 transition-all duration-300 
-                                transform hover:-translate-y-2 hover:scale-[1.02] 
-                                hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)]
+                                transform hover:-translate-y-1 hover:scale-[1.01] 
+                                hover:shadow-[0_12px_30px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_12px_30px_rgba(0,0,0,0.3)]
                                 hover:border-teal-100 dark:hover:border-teal-900/50
                                 group overflow-hidden
                             `}
@@ -78,9 +78,9 @@ export const HomePage: React.FC = () => {
                             {/* Icon Container */}
                             <div className={`
                                 relative z-10
-                                w-20 h-20 sm:w-24 sm:h-24 rounded-full 
+                                w-16 h-16 sm:w-20 sm:h-20 rounded-full 
                                 flex items-center justify-center 
-                                text-4xl sm:text-5xl mb-6 
+                                text-3xl sm:text-4xl mb-4 
                                 bg-${group.color}-50 dark:bg-${group.color}-900/20 
                                 text-${group.color}-600 dark:text-${group.color}-400
                                 group-hover:scale-110 group-hover:rotate-3 
@@ -92,21 +92,21 @@ export const HomePage: React.FC = () => {
 
                             {/* Text Content */}
                             <div className="relative z-10 text-center">
-                                <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-2 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
+                                <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-1 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors leading-tight">
                                     {group.name}
                                 </h3>
-                                <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 px-2 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors">
+                                <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 px-1 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors">
                                     {group.helperText}
                                 </p>
                             </div>
 
                             {/* Action Arrow (Visible on Hover) */}
                             <div className="
-                                absolute bottom-4 right-4 
-                                w-8 h-8 rounded-full bg-teal-50 dark:bg-teal-900/30 
+                                absolute bottom-2 right-2 
+                                w-6 h-6 rounded-full bg-teal-50 dark:bg-teal-900/30 
                                 flex items-center justify-center text-teal-600 dark:text-teal-400
                                 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 
-                                transition-all duration-300 delay-100
+                                transition-all duration-300 delay-100 text-xs
                             ">
                                 →
                             </div>
