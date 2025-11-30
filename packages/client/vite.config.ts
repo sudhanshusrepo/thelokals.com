@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks: {
             vendor: ['react', 'react-dom', 'react-router-dom'],
-            ui: ['framer-motion', 'react-loading-skeleton', 'lucide-react'],
+            ui: ['framer-motion', 'react-loading-skeleton'],
             map: ['leaflet', 'react-leaflet'],
             supabase: ['@supabase/supabase-js'],
           },
