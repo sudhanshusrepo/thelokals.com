@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { useRouter } from 'expo-router';
 import { StyleSheet, SafeAreaView, ScrollView, TextInput, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { FontAwesome } from '@expo/vector-icons';
@@ -32,10 +33,14 @@ export default function HomeScreen() {
     lastScrollY.current = currentScrollY;
   };
 
-  const handleChatSend = (text: string) => {
-    console.log("Chat sent:", text);
-    // TODO: Navigate to AI booking flow
-    alert("AI Booking flow coming soon!");
+  const router = useRouter(); // Need to import useRouter
+
+  const handleChatSend = (content: { type: 'text' | 'audio' | 'video', data: string }) => {
+    console.log("Chat sent:", content);
+    router.push({
+      pathname: '/(app)/ai-booking',
+      params: { type: content.type, data: content.data }
+    });
   };
 
   return (

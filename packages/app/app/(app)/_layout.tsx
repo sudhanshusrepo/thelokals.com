@@ -46,6 +46,13 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
         }}
       />
+      <Tabs.Screen
+        name="support"
+        options={{
+          title: 'Support',
+          tabBarIcon: ({ color }) => <TabBarIcon name="question-circle" color={color} />,
+        }}
+      />
     </Tabs>
   );
 }

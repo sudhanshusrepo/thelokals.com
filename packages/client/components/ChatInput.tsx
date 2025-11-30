@@ -7,9 +7,10 @@ interface ChatInputProps {
     isLoading?: boolean;
     placeholder?: string;
     className?: string;
+    hideMedia?: boolean;
 }
 
-export const ChatInput: React.FC<ChatInputProps> = ({ onSend, isLoading = false, placeholder = "Type or record your request...", className = "" }) => {
+export const ChatInput: React.FC<ChatInputProps> = ({ onSend, isLoading = false, placeholder = "Type or record your request...", className = "", hideMedia = false }) => {
     const [text, setText] = useState('');
     const [mode, setMode] = useState<'text' | 'audio' | 'video'>('text');
 
@@ -178,30 +179,48 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend, isLoading = false,
         <div className={`fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t dark:border-slate-700 p-3 sm:p-4 pb-safe z-40 ${className}`}>
             <div className="max-w-3xl mx-auto flex items-end gap-2 sm:gap-3">
                 {/* Media Buttons */}
-                <div className="flex gap-1 sm:gap-2 pb-1">
-                    <button
-                        onClick={() => {
-                            setMode('audio');
-                            audioRecorder.startRecording();
-                        }}
-                        disabled={isLoading}
-                        className="p-2 sm:p-3 rounded-full text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-                        title="Record Audio"
-                    >
-                        <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
-                    </button>
-                    <button
-                        onClick={() => {
-                            setMode('video');
-                            videoRecorder.startRecording();
-                        }}
-                        disabled={isLoading}
-                        className="p-2 sm:p-3 rounded-full text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-                        title="Record Video"
-                    >
-                        <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
-                    </button>
-                </div>
+                {!hideMedia && (
+                    <div className="flex gap-1 sm:gap-2 pb-1">
+                        <button
+                            onClick={async () => {
+                                try {
+                                    // Request microphone permission
+                                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                                    stream.getTracks().forEach(track => track.stop()); // Stop the test stream
+                                    setMode('audio');
+                                    audioRecorder.startRecording();
+                                } catch (error) {
+                                    console.error('Microphone permission denied:', error);
+                                    alert('🎤 Microphone access is required to record audio. Please allow microphone access in your browser settings.');
+                                }
+                            }}
+                            disabled={isLoading}
+                            className="p-2 sm:p-3 rounded-full text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                            title="Record Audio"
+                        >
+                            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
+                        </button>
+                        <button
+                            onClick={async () => {
+                                try {
+                                    // Request camera and microphone permission
+                                    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                                    stream.getTracks().forEach(track => track.stop()); // Stop the test stream
+                                    setMode('video');
+                                    videoRecorder.startRecording();
+                                } catch (error) {
+                                    console.error('Camera permission denied:', error);
+                                    alert('📹 Camera and microphone access are required to record video. Please allow access in your browser settings.');
+                                }
+                            }}
+                            disabled={isLoading}
+                            className="p-2 sm:p-3 rounded-full text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                            title="Record Video"
+                        >
+                            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                        </button>
+                    </div>
+                )}
 
                 {/* Text Input */}
                 <div className="flex-1 relative">

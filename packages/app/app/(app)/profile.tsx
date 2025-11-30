@@ -27,6 +27,13 @@ export default function ProfileScreen() {
         <TouchableOpacity style={[styles.button, styles.logoutButton]} onPress={handleLogout}>
           <Text style={styles.buttonText}>Logout</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity style={[styles.button, styles.deleteButton]} onPress={() => {
+          // In a real app, show a confirmation dialog
+          alert("Are you sure you want to delete your account? This action cannot be undone.");
+        }}>
+          <Text style={[styles.buttonText, styles.deleteButtonText]}>Delete Account</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -60,8 +67,17 @@ const styles = StyleSheet.create({
   logoutButton: {
     backgroundColor: Colors.red,
   },
+  deleteButton: {
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: Colors.red,
+    marginTop: 20,
+  },
   buttonText: {
     color: 'white',
     fontWeight: 'bold',
+  },
+  deleteButtonText: {
+    color: Colors.red,
   },
 });

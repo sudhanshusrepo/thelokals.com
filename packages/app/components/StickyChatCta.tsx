@@ -1,16 +1,22 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, TextInput, TouchableOpacity, StyleSheet, Animated, KeyboardAvoidingView, Platform, Text } from 'react-native';
+import { View, TextInput, TouchableOpacity, StyleSheet, Animated, KeyboardAvoidingView, Platform, Alert, ActivityIndicator } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
+import { Audio } from 'expo-av';
+import * as ImagePicker from 'expo-image-picker';
 
 interface StickyChatCtaProps {
     isVisible: boolean;
-    onSend: (text: string) => void;
+    onSend: (content: { type: 'text' | 'audio' | 'video', data: string | any }) => void;
     placeholder?: string;
 }
 
 export const StickyChatCta: React.FC<StickyChatCtaProps> = ({ isVisible, onSend, placeholder = "Ask our AI to find a professional..." }) => {
     const [text, setText] = useState('');
+    const [isRecording, setIsRecording] = useState(false);
+    const [recording, setRecording] = useState<Audio.Recording | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+
     const slideAnim = useRef(new Animated.Value(100)).current; // Start hidden (below screen)
 
     useEffect(() => {
@@ -21,10 +27,74 @@ export const StickyChatCta: React.FC<StickyChatCtaProps> = ({ isVisible, onSend,
         }).start();
     }, [isVisible]);
 
-    const handleSend = () => {
+    const handleSendText = () => {
         if (text.trim()) {
-            onSend(text);
+            onSend({ type: 'text', data: text });
             setText('');
+        }
+    };
+
+    const startRecording = async () => {
+        try {
+            const permission = await Audio.requestPermissionsAsync();
+            if (permission.status === 'granted') {
+                await Audio.setAudioModeAsync({
+                    allowsRecordingIOS: true,
+                    playsInSilentModeIOS: true,
+                });
+                const { recording } = await Audio.Recording.createAsync(
+                    Audio.RecordingOptionsPresets.HIGH_QUALITY
+                );
+                setRecording(recording);
+                setIsRecording(true);
+            } else {
+                Alert.alert("Permission required", "Please grant microphone permission to record audio.");
+            }
+        } catch (err) {
+            console.error('Failed to start recording', err);
+            Alert.alert("Error", "Failed to start recording.");
+        }
+    };
+
+    const stopRecording = async () => {
+        if (!recording) return;
+
+        setIsRecording(false);
+        try {
+            await recording.stopAndUnloadAsync();
+            const uri = recording.getURI();
+            setRecording(null);
+
+            if (uri) {
+                // In a real app, you might upload this file here
+                onSend({ type: 'audio', data: uri });
+            }
+        } catch (error) {
+            console.error('Failed to stop recording', error);
+        }
+    };
+
+    const handleVideo = async () => {
+        try {
+            const permission = await ImagePicker.requestCameraPermissionsAsync();
+            if (permission.status !== 'granted') {
+                Alert.alert("Permission required", "Please grant camera permission to record video.");
+                return;
+            }
+
+            const result = await ImagePicker.launchCameraAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+                allowsEditing: true,
+                quality: 1,
+                videoMaxDuration: 60,
+            });
+
+            if (!result.canceled && result.assets && result.assets.length > 0) {
+                onSend({ type: 'video', data: result.assets[0].uri });
+            }
+        } catch (error) {
+            console.error("Error picking video:", error);
+            Alert.alert("Error", "Failed to record video.");
         }
     };
 
@@ -41,27 +111,35 @@ export const StickyChatCta: React.FC<StickyChatCtaProps> = ({ isVisible, onSend,
             >
                 <View style={styles.inputContainer}>
                     <View style={styles.mediaButtons}>
-                        <TouchableOpacity style={styles.iconButton}>
-                            <FontAwesome name="microphone" size={20} color={Colors.slate[500]} />
+                        <TouchableOpacity
+                            style={[styles.iconButton, isRecording && styles.recordingButton]}
+                            onPress={isRecording ? stopRecording : startRecording}
+                        >
+                            {isRecording ? (
+                                <ActivityIndicator color="white" size="small" />
+                            ) : (
+                                <FontAwesome name="microphone" size={20} color={Colors.slate[500]} />
+                            )}
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.iconButton}>
-                            <FontAwesome name="video-camera" size={20} color={Colors.slate[500]} />
+                        <TouchableOpacity style={styles.iconButton} onPress={handleVideo} disabled={isRecording}>
+                            <FontAwesome name="video-camera" size={20} color={isRecording ? Colors.slate[300] : Colors.slate[500]} />
                         </TouchableOpacity>
                     </View>
 
                     <TextInput
                         style={styles.input}
-                        placeholder={placeholder}
+                        placeholder={isRecording ? "Recording audio..." : placeholder}
                         value={text}
                         onChangeText={setText}
                         multiline
                         maxLength={200}
+                        editable={!isRecording}
                     />
 
                     <TouchableOpacity
-                        style={[styles.sendButton, !text.trim() && styles.sendButtonDisabled]}
-                        onPress={handleSend}
-                        disabled={!text.trim()}
+                        style={[styles.sendButton, (!text.trim() && !isRecording) && styles.sendButtonDisabled]}
+                        onPress={handleSendText}
+                        disabled={!text.trim() || isRecording}
                     >
                         <FontAwesome name="paper-plane" size={16} color="white" />
                     </TouchableOpacity>
@@ -102,6 +180,13 @@ const styles = StyleSheet.create({
         padding: 8,
         borderRadius: 20,
         backgroundColor: Colors.slate[100],
+        width: 36,
+        height: 36,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    recordingButton: {
+        backgroundColor: Colors.red,
     },
     input: {
         flex: 1,

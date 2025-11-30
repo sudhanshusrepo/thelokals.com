@@ -50,14 +50,14 @@ export const HomePage: React.FC = () => {
 
             {/* Service Groups Grid */}
             <div className="w-full px-2 sm:px-4">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+                <div className="grid grid-cols-4 gap-2 sm:gap-4">
                     {Object.values(SERVICE_GROUPS).map((group) => (
                         <button
                             key={group.name}
                             data-testid="category-card"
                             onClick={() => navigate(`/group/${encodeURIComponent(group.name)}`)}
                             className={`
-                                relative flex flex-col items-center p-4 sm:p-6
+                                relative flex flex-col items-center p-2 sm:p-6
                                 bg-white dark:bg-slate-800
                                 rounded-2xl
                                 shadow-[0_4px_20px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.2)]

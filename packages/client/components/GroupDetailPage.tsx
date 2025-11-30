@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { SERVICE_GROUPS, CATEGORY_ICONS, CATEGORY_DISPLAY_NAMES } from '../constants';
 import { WorkerCategory } from '../types';
 import NotFound from './NotFound';
+import { StickyChatCta } from './StickyChatCta';
 
 import { Helmet } from 'react-helmet';
 
@@ -47,6 +48,7 @@ export const GroupDetailPage: React.FC = () => {
                     </button>
                 ))}
             </div>
+            <StickyChatCta serviceCategory={group.name} />
         </div>
     );
 };
