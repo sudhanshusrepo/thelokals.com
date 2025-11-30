@@ -76,7 +76,7 @@ CREATE POLICY "Users can view their own payment transactions"
     booking_id IN (
       SELECT id FROM public.bookings 
       WHERE client_id = auth.uid() OR provider_id IN (
-        SELECT id FROM public.providers WHERE user_id = auth.uid()
+        SELECT id FROM public.providers WHERE id = auth.uid()
       )
     )
   );
