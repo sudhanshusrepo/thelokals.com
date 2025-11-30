@@ -1,11 +1,22 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@core/services/supabase';
+import { supabase } from '@thelocals/core/services/supabase';
+
+interface ProviderProfile {
+  id: string;
+  user_id: string;
+  full_name: string;
+  registration_status: 'unregistered' | 'pending' | 'verified' | 'rejected';
+  digilocker_verified: boolean;
+  profile_photo_verified: boolean;
+  is_available: boolean;
+  created_at: string;
+}
 
 interface AuthContextType {
   session: Session | null;
   user: User | null;
+  profile: ProviderProfile | null;
   loading: boolean;
   signOut: () => Promise<void>;
   signInWithPhone: (phone: string) => Promise<any>;
@@ -15,6 +26,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
   session: null,
   user: null,
+  profile: null,
   loading: true,
   signOut: async () => { },
   signInWithPhone: async () => { },
@@ -24,7 +36,30 @@ const AuthContext = createContext<AuthContextType>({
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
+  const [profile, setProfile] = useState<ProviderProfile | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Fetch provider profile
+  const fetchProfile = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('providers')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+      if (error) {
+        console.error('Error fetching provider profile:', error);
+        setProfile(null);
+        return;
+      }
+
+      setProfile(data);
+    } catch (error) {
+      console.error('Error fetching provider profile:', error);
+      setProfile(null);
+    }
+  };
 
   useEffect(() => {
     const setData = async () => {
@@ -34,10 +69,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         setSession(session);
         setUser(session?.user ?? null);
+
+        if (session?.user) {
+          await fetchProfile(session.user.id);
+        }
       } catch (error) {
         console.error('Auth initialization error:', error);
         setSession(null);
         setUser(null);
+        setProfile(null);
       } finally {
         setLoading(false);
       }
@@ -45,9 +85,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     setData();
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
+
+      if (session?.user) {
+        await fetchProfile(session.user.id);
+      } else {
+        setProfile(null);
+      }
+
       setLoading(false);
     });
 
@@ -73,10 +120,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const value = {
     session,
     user,
+    profile,
     loading,
     signOut: async () => {
       try {
         await supabase.auth.signOut();
+        setProfile(null);
       } catch (error) {
         console.error("Error signing out:", error);
       }

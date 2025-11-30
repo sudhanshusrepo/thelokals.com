@@ -10,6 +10,7 @@ interface Toast {
 
 interface ToastContextType {
   addToast: (message: string, type: ToastType) => void;
+  show: (message: string, type: ToastType) => void;
   success: (message: string) => void;
   error: (message: string) => void;
   info: (message: string) => void;
@@ -31,18 +32,18 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const success = (msg: string) => addToast(msg, 'success');
   const error = (msg: string) => addToast(msg, 'error');
   const info = (msg: string) => addToast(msg, 'info');
+  const show = (msg: string, type: ToastType) => addToast(msg, type);
 
   return (
-    <ToastContext.Provider value={{ addToast, success, error, info }}>
+    <ToastContext.Provider value={{ addToast, show, success, error, info }}>
       {children}
       <div className="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none">
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`pointer-events-auto min-w-[300px] max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5 animate-in slide-in-from-right-10 fade-in duration-300 ${
-                toast.type === 'success' ? 'border-l-4 border-green-500' : 
+            className={`pointer-events-auto min-w-[300px] max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5 animate-in slide-in-from-right-10 fade-in duration-300 ${toast.type === 'success' ? 'border-l-4 border-green-500' :
                 toast.type === 'error' ? 'border-l-4 border-red-500' : 'border-l-4 border-blue-500'
-            }`}
+              }`}
           >
             <div className="p-4 flex items-start">
               <div className="flex-shrink-0">
