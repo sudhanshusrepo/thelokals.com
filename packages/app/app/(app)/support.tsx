@@ -1,6 +1,4 @@
-import { StyleSheet, SafeAreaView, Linking, TouchableOpacity } from 'react-native';
-import { Text, View } from '@/components/Themed';
-import Colors from '@/constants/Colors';
+import { SafeAreaView, Linking, TouchableOpacity, ScrollView, View, Text } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
@@ -19,127 +17,88 @@ export default function SupportScreen() {
         Linking.openURL('https://thelokals.com/faq');
     };
 
+    const supportOptions = [
+        {
+            icon: 'envelope',
+            title: 'Email Support',
+            subtitle: 'Get help via email',
+            action: handleEmailSupport,
+            color: 'text-blue-500',
+            bgColor: 'bg-blue-50',
+        },
+        {
+            icon: 'phone',
+            title: 'Call Us',
+            subtitle: 'Speak to an agent',
+            action: handleCallSupport,
+            color: 'text-green-500',
+            bgColor: 'bg-green-50',
+        },
+        {
+            icon: 'question-circle',
+            title: 'FAQs',
+            subtitle: 'Common questions',
+            action: handleFaq,
+            color: 'text-purple-500',
+            bgColor: 'bg-purple-50',
+        },
+    ];
+
     return (
-        <SafeAreaView style={styles.container}>
-            <View style={styles.header}>
-                <Text style={styles.headerTitle}>Support</Text>
-            </View>
-            <View style={styles.content}>
-                <Text style={styles.description}>
-                    Need help? Contact our support team or browse our FAQs.
-                </Text>
+        <SafeAreaView className="flex-1 bg-slate-50 dark:bg-slate-900">
+            <ScrollView className="flex-1">
+                <View className="p-6 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+                    <Text className="text-3xl font-bold text-slate-900 dark:text-white">Help & Support</Text>
+                    <Text className="text-slate-500 dark:text-slate-400 mt-1">
+                        We're here to help you with anything you need.
+                    </Text>
+                </View>
 
-                <TouchableOpacity style={styles.option} onPress={handleEmailSupport}>
-                    <View style={styles.iconContainer}>
-                        <FontAwesome name="envelope" size={24} color={Colors.teal} />
-                    </View>
-                    <View style={styles.optionTextContainer}>
-                        <Text style={styles.optionTitle}>Email Support</Text>
-                        <Text style={styles.optionSubtitle}>Get help via email</Text>
-                    </View>
-                    <FontAwesome name="chevron-right" size={16} color={Colors.slate[400]} />
-                </TouchableOpacity>
+                <View className="p-4 gap-4">
+                    {supportOptions.map((option, index) => (
+                        <TouchableOpacity
+                            key={index}
+                            onPress={option.action}
+                            className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex-row items-center"
+                            activeOpacity={0.7}
+                        >
+                            <View className={`w-12 h-12 rounded-full items-center justify-center mr-4 ${option.bgColor} dark:bg-opacity-10`}>
+                                <FontAwesome name={option.icon as any} size={20} className={option.color.replace('text-', 'color-')} />
+                            </View>
+                            <View className="flex-1">
+                                <Text className="text-lg font-bold text-slate-900 dark:text-white">{option.title}</Text>
+                                <Text className="text-slate-500 dark:text-slate-400 text-sm">{option.subtitle}</Text>
+                            </View>
+                            <FontAwesome name="chevron-right" size={14} color="#cbd5e1" />
+                        </TouchableOpacity>
+                    ))}
+                </View>
 
-                <TouchableOpacity style={styles.option} onPress={handleCallSupport}>
-                    <View style={styles.iconContainer}>
-                        <FontAwesome name="phone" size={24} color={Colors.teal} />
+                <View className="mt-8 px-6">
+                    <Text className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Legal</Text>
+                    <View className="bg-white dark:bg-slate-800 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-700">
+                        <TouchableOpacity
+                            className="p-4 flex-row justify-between items-center border-b border-slate-100 dark:border-slate-700"
+                            onPress={() => router.push('/(app)/terms')}
+                        >
+                            <Text className="text-slate-700 dark:text-slate-200 font-medium">Terms & Conditions</Text>
+                            <FontAwesome name="external-link" size={12} color="#94a3b8" />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            className="p-4 flex-row justify-between items-center"
+                            onPress={() => router.push('/(app)/privacy')}
+                        >
+                            <Text className="text-slate-700 dark:text-slate-200 font-medium">Privacy Policy</Text>
+                            <FontAwesome name="external-link" size={12} color="#94a3b8" />
+                        </TouchableOpacity>
                     </View>
-                    <View style={styles.optionTextContainer}>
-                        <Text style={styles.optionTitle}>Call Us</Text>
-                        <Text style={styles.optionSubtitle}>Speak to an agent</Text>
-                    </View>
-                    <FontAwesome name="chevron-right" size={16} color={Colors.slate[400]} />
-                </TouchableOpacity>
+                </View>
 
-                <TouchableOpacity style={styles.option} onPress={handleFaq}>
-                    <View style={styles.iconContainer}>
-                        <FontAwesome name="question-circle" size={24} color={Colors.teal} />
-                    </View>
-                    <View style={styles.optionTextContainer}>
-                        <Text style={styles.optionTitle}>FAQs</Text>
-                        <Text style={styles.optionSubtitle}>Frequently Asked Questions</Text>
-                    </View>
-                    <FontAwesome name="chevron-right" size={16} color={Colors.slate[400]} />
-                </TouchableOpacity>
-
-                <View style={styles.divider} />
-
-                <TouchableOpacity style={styles.linkOption} onPress={() => router.push('/(app)/terms')}>
-                    <Text style={styles.linkText}>Terms & Conditions</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.linkOption} onPress={() => router.push('/(app)/privacy')}>
-                    <Text style={styles.linkText}>Privacy Policy</Text>
-                </TouchableOpacity>
-            </View>
+                <View className="items-center mt-12 mb-8">
+                    <Text className="text-slate-400 text-xs">Version 1.0.0</Text>
+                    <Text className="text-slate-300 text-[10px] mt-1">© 2025 The Lokals</Text>
+                </View>
+            </ScrollView>
         </SafeAreaView>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    header: {
-        padding: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: Colors.slate[200],
-    },
-    headerTitle: {
-        fontSize: 24,
-        fontWeight: 'bold',
-    },
-    content: {
-        padding: 16,
-    },
-    description: {
-        fontSize: 16,
-        color: Colors.slate[500],
-        marginBottom: 24,
-    },
-    option: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: 16,
-        backgroundColor: 'white',
-        borderRadius: 12,
-        marginBottom: 12,
-        borderWidth: 1,
-        borderColor: Colors.slate[200],
-    },
-    iconContainer: {
-        width: 48,
-        height: 48,
-        borderRadius: 24,
-        backgroundColor: Colors.slate[100],
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginRight: 16,
-    },
-    optionTextContainer: {
-        flex: 1,
-    },
-    optionTitle: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        marginBottom: 4,
-    },
-    optionSubtitle: {
-        fontSize: 14,
-        color: Colors.slate[500],
-    },
-    divider: {
-        height: 1,
-        backgroundColor: Colors.slate[200],
-        marginVertical: 24,
-    },
-    linkOption: {
-        paddingVertical: 12,
-        alignItems: 'center',
-    },
-    linkText: {
-        color: Colors.teal,
-        fontSize: 16,
-        fontWeight: '500',
-    },
-});
