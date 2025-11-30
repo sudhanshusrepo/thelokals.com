@@ -11,6 +11,7 @@ import { useColorScheme } from '@/components/useColorScheme';
 import Colors from '@/constants/Colors';
 import { LoaderProvider, useLoader } from '@/contexts/LoaderContext';
 import AnimatedLoader from '@/components/AnimatedLoader';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -61,7 +62,7 @@ function RootLayoutNav() {
       text: Colors.slate[100],
     },
   };
-  
+
   const AppLightTheme = {
     ...DefaultTheme,
     colors: {
@@ -74,6 +75,9 @@ function RootLayoutNav() {
   };
   const router = useRouter();
   const [session, setSession] = useState(false);
+
+  // Initialize Push Notifications
+  usePushNotifications();
 
   useEffect(() => {
     if (session) {
