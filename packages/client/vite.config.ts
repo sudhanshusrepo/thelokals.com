@@ -13,11 +13,12 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       outDir: 'dist',
+      target: 'esnext', // Optimize for modern browsers
       rollupOptions: {
         output: {
           manualChunks: {
             vendor: ['react', 'react-dom', 'react-router-dom'],
-            ui: ['framer-motion', 'react-loading-skeleton'],
+            ui: ['framer-motion', 'react-loading-skeleton', 'lucide-react'],
             map: ['leaflet', 'react-leaflet'],
             supabase: ['@supabase/supabase-js'],
           },

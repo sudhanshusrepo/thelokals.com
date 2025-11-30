@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { bookingService } from '@core/services/bookingService';
-import { MapComponent } from './MapComponent';
 import { useGeolocation } from '../hooks/useGeolocation';
 import { supabase } from '../../core/services/supabase';
+
+// Lazy load the map component
+const MapComponent = lazy(() => import('./MapComponent').then(module => ({ default: module.MapComponent })));
 
 interface LiveSearchProps {
     onCancel: () => void;
@@ -97,7 +99,9 @@ export const LiveSearch: React.FC<LiveSearchProps> = ({ onCancel, bookingId }) =
             {/* Map Background */}
             <div className="absolute inset-0 z-0 opacity-50">
                 {location ? (
-                    <MapComponent center={location} isScanning={true} />
+                    <Suspense fallback={<div className="w-full h-full bg-slate-100 dark:bg-slate-800 animate-pulse" />}>
+                        <MapComponent center={location} isScanning={true} />
+                    </Suspense>
                 ) : (
                     <div className="w-full h-full bg-slate-100 dark:bg-slate-800 animate-pulse" />
                 )}
