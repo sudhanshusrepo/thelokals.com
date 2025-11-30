@@ -142,7 +142,11 @@ const MainLayout: React.FC = () => {
     }
 
     if (isSearching) {
-        return <LiveSearch onCancel={() => setIsSearching(false)} />;
+        return (
+            <Suspense fallback={<div className="fixed inset-0 bg-white dark:bg-slate-900 z-50 flex items-center justify-center">Loading search...</div>}>
+                <LiveSearch onCancel={() => setIsSearching(false)} />
+            </Suspense>
+        );
     }
 
     return (
