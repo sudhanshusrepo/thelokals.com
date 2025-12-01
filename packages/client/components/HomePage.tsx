@@ -165,9 +165,9 @@ export const HomePage: React.FC = () => {
                             {/* Icon Container */}
                             <div className={`
                                 relative z-10
-                                w-10 h-10 sm:w-20 sm:h-20 rounded-full 
+                                w-14 h-14 sm:w-24 sm:h-24 rounded-full 
                                 flex items-center justify-center 
-                                text-xl sm:text-4xl mb-2 sm:mb-4 
+                                text-3xl sm:text-5xl mb-3 sm:mb-5 
                                 bg-${group.color}-50 dark:bg-${group.color}-900/20 
                                 text-${group.color}-600 dark:text-${group.color}-400
                                 group-hover:scale-110 group-hover:rotate-3 
