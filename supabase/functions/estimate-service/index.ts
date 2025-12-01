@@ -27,7 +27,7 @@ serve(async (req) => {
             const { query, categoriesList } = payload;
 
             const response = await ai.models.generateContent({
-                model: "gemini-2.5-flash",
+                model: "gemini-1.5-flash",
                 contents: `User query: "${query}". 
         Available Categories: ${categoriesList}.
         Task: Analyze the query and map it to the best fitting Category. 
@@ -74,7 +74,7 @@ serve(async (req) => {
             const { input, category } = payload;
 
             const response = await ai.models.generateContent({
-                model: "gemini-2.5-flash",
+                model: "gemini-1.5-flash",
                 contents: `You are a service cost estimator for ${category} services in India.
         
 User's problem description: "${input}"

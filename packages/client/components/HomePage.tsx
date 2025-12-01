@@ -96,7 +96,7 @@ export const HomePage: React.FC = () => {
                     {JSON.stringify({
                         "@context": "https://schema.org",
                         "@type": "LocalBusiness",
-                        "name": "The Lokals",
+                        "name": "thelokals.com",
                         "description": "On-demand local services marketplace",
                         "url": "https://thelokals.com",
                         "areaServed": {

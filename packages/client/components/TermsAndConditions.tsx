@@ -24,7 +24,7 @@ export const TermsAndConditions: React.FC = () => {
             <span className="text-3xl">📄</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white mb-3">Terms of Service</h1>
-          <p className="text-slate-600 dark:text-slate-400 text-lg">TheLokals.com</p>
+          <p className="text-slate-600 dark:text-slate-400 text-lg">thelokals.com</p>
           <p className="text-sm text-slate-500 dark:text-slate-500 mt-2 font-mono bg-slate-100 dark:bg-slate-700/50 inline-block px-3 py-1 rounded-full">Last Updated: November 30, 2025</p>
         </div>
 
@@ -33,7 +33,7 @@ export const TermsAndConditions: React.FC = () => {
           <section>
             <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">1. Introduction</h2>
             <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
-              These Terms and Conditions outline the rules for using TheLokals.com, a platform connecting users with local home services like maids, tiffins, repairs, and car services in India. By accessing or using the site, users agree to these terms, which prioritize safe transactions for busy families, students, working professionals, and neighborhood providers.
+              These Terms and Conditions outline the rules for using thelokals.com, a platform connecting users with local home services like maids, tiffins, repairs, and car services in India. By accessing or using the site, users agree to these terms, which prioritize safe transactions for busy families, students, working professionals, and neighborhood providers.
             </p>
             <p className="text-slate-700 dark:text-slate-300 leading-relaxed mt-3">
               <strong>Important:</strong> The platform operates as a marketplace, not a direct service provider. We facilitate connections between service seekers and providers but do not employ or directly provide the services.
@@ -46,7 +46,7 @@ export const TermsAndConditions: React.FC = () => {
 
             <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-3">2.1 Age Requirements</h3>
             <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
-              Users must be at least 18 years old to use TheLokals.com. Minors may use the platform only with parental or guardian consent and supervision.
+              Users must be at least 18 years old to use thelokals.com. Minors may use the platform only with parental or guardian consent and supervision.
             </p>
 
             <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-3 mt-4">2.2 Geographic Availability</h3>
@@ -146,7 +146,7 @@ export const TermsAndConditions: React.FC = () => {
           <section>
             <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">6. Limitation of Liability</h2>
             <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
-              TheLokals.com acts solely as a marketplace platform. We are not responsible for:
+              thelokals.com acts solely as a marketplace platform. We are not responsible for:
             </p>
             <ul className="list-disc list-inside text-slate-700 dark:text-slate-300 space-y-2 mt-2">
               <li>Quality, safety, or legality of services provided</li>
@@ -164,7 +164,7 @@ export const TermsAndConditions: React.FC = () => {
           <section>
             <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">7. Intellectual Property</h2>
             <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
-              All content on TheLokals.com, including logos, designs, text, and software, is protected by intellectual property rights. Users may not copy, reproduce, or distribute platform content without written permission.
+              All content on thelokals.com, including logos, designs, text, and software, is protected by intellectual property rights. Users may not copy, reproduce, or distribute platform content without written permission.
             </p>
           </section>
 
@@ -195,7 +195,7 @@ export const TermsAndConditions: React.FC = () => {
           {/* Acceptance */}
           <section className="border-t border-slate-200 dark:border-slate-700 pt-6 mt-8">
             <p className="text-sm text-slate-600 dark:text-slate-400 italic">
-              By using TheLokals.com, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions.
+              By using thelokals.com, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions.
             </p>
           </section>
         </div>

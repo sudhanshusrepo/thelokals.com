@@ -34,7 +34,7 @@ describe('Header', () => {
         );
 
         expect(screen.getByText('thelokals.com')).toBeInTheDocument();
-        expect(screen.getByAltText('The Lokals Logo')).toBeInTheDocument();
+        expect(screen.getByAltText('thelokals logo')).toBeInTheDocument();
     });
 
     it('should render back button when not on home page', () => {

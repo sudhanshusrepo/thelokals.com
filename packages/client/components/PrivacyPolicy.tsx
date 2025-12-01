@@ -24,7 +24,7 @@ export const PrivacyPolicy: React.FC = () => {
                         <span className="text-3xl">🔒</span>
                     </div>
                     <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white mb-3">Privacy Policy</h1>
-                    <p className="text-slate-600 dark:text-slate-400 text-lg">TheLokals.com</p>
+                    <p className="text-slate-600 dark:text-slate-400 text-lg">thelokals.com</p>
                     <p className="text-sm text-slate-500 dark:text-slate-500 mt-2 font-mono bg-slate-100 dark:bg-slate-700/50 inline-block px-3 py-1 rounded-full">Last Updated: November 30, 2025</p>
                 </div>
 
@@ -33,7 +33,7 @@ export const PrivacyPolicy: React.FC = () => {
                     <section>
                         <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">1. Introduction</h2>
                         <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
-                            TheLokals.com, a neighborhood services platform in India, collects and processes user data to connect busy families, students, bachelors, home chefs, and providers for services like maids, tiffins, repairs, and car maintenance.
+                            thelokals.com, a neighborhood services platform in India, collects and processes user data to connect busy families, students, bachelors, home chefs, and providers for services like maids, tiffins, repairs, and car maintenance.
                         </p>
                         <p className="text-slate-700 dark:text-slate-300 leading-relaxed mt-3">
                             This policy complies with India's <strong>Digital Personal Data Protection Act 2023 (DPDP Act)</strong> and <strong>Information Technology Rules 2011</strong>, ensuring transparent handling of personal information.
@@ -324,7 +324,7 @@ export const PrivacyPolicy: React.FC = () => {
                     <section>
                         <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">8. Children's Privacy</h2>
                         <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
-                            TheLokals.com is not intended for children under 18. We do not knowingly collect data from minors without parental consent. If you believe we have collected data from a minor, please contact us immediately.
+                            thelokals.com is not intended for children under 18. We do not knowingly collect data from minors without parental consent. If you believe we have collected data from a minor, please contact us immediately.
                         </p>
                     </section>
 
@@ -382,7 +382,7 @@ export const PrivacyPolicy: React.FC = () => {
                     {/* Acceptance */}
                     <section className="border-t border-slate-200 dark:border-slate-700 pt-6 mt-8">
                         <p className="text-sm text-slate-600 dark:text-slate-400 italic">
-                            By using TheLokals.com, you acknowledge that you have read, understood, and agree to this Privacy Policy and our data handling practices.
+                            By using thelokals.com, you acknowledge that you have read, understood, and agree to this Privacy Policy and our data handling practices.
                         </p>
                     </section>
                 </div>
