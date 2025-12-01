@@ -73,19 +73,77 @@ export const HomePage: React.FC = () => {
     return (
         <div className="space-y-8 animate-fade-in-up pb-24">
             <Helmet>
-                <title>thelokals.com - AI-Powered Local Service Booking</title>
-                <meta name="description" content="Find and book trusted local professionals instantly with thelokals.com. Our AI-powered platform matches you with top-rated cleaners, plumbers, electricians, and more in your area." />
-                <meta name="keywords" content="local services, book cleaners, find plumbers, electrician near me, AI booking, home services, thelokals, trusted professionals, instant booking" />
+                <title>thelokals.com – All Types of Local Services Near You</title>
+                <meta name="description" content="Discover all types of local services in one app – home cleaning, maids, cooks & tiffin, electricians, plumbers, appliance repair, tutors, car wash, salon at home and more." />
+                <meta name="keywords" content="local services, all types of services, home cleaning, maids, cooks, tiffin, electricians, plumbers, appliance repair, tutors, car wash, salon at home, AI booking, thelokals" />
                 <link rel="canonical" href="https://thelokals.com/" />
+
+                {/* Open Graph */}
+                <meta property="og:title" content="thelokals.com – All Types of Local Services Near You" />
+                <meta property="og:description" content="Discover all types of local services in one app – home cleaning, maids, cooks & tiffin, electricians, plumbers, appliance repair, tutors, car wash, salon at home and more." />
+                <meta property="og:type" content="website" />
+                <meta property="og:url" content="https://thelokals.com" />
+                <meta property="og:image" content="https://thelokals.com/og-image.png" />
+
+                {/* Twitter Card */}
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content="thelokals.com – All Types of Local Services Near You" />
+                <meta name="twitter:description" content="Discover all types of local services in one app – home cleaning, maids, cooks & tiffin, electricians, plumbers, appliance repair, tutors, car wash, salon at home and more." />
+                <meta name="twitter:image" content="https://thelokals.com/og-image.png" />
+
+                {/* LocalBusiness Schema */}
+                <script type="application/ld+json">
+                    {JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "LocalBusiness",
+                        "name": "The Lokals",
+                        "description": "On-demand local services marketplace",
+                        "url": "https://thelokals.com",
+                        "areaServed": {
+                            "@type": "City",
+                            "name": "Gurugram"
+                        },
+                        "hasOfferCatalog": {
+                            "@type": "OfferCatalog",
+                            "name": "Local Services",
+                            "itemListElement": [
+                                {
+                                    "@type": "Offer",
+                                    "itemOffered": {
+                                        "@type": "Service",
+                                        "name": "Home Cleaning & Maids",
+                                        "description": "Professional home cleaning and maid services"
+                                    }
+                                },
+                                {
+                                    "@type": "Offer",
+                                    "itemOffered": {
+                                        "@type": "Service",
+                                        "name": "Cooks, Tiffin & Catering",
+                                        "description": "Personal cooks and tiffin services"
+                                    }
+                                },
+                                {
+                                    "@type": "Offer",
+                                    "itemOffered": {
+                                        "@type": "Service",
+                                        "name": "Electricians & Plumbers",
+                                        "description": "Expert electrical and plumbing repairs"
+                                    }
+                                }
+                            ]
+                        }
+                    })}
+                </script>
             </Helmet>
 
             {/* Hero Section - Compact to focus on services */}
             <div className="text-center py-4 px-4 max-w-3xl mx-auto">
                 <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">
-                    Your Local Experts, <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-emerald-500">Instantly.</span>
+                    All Types of Local Services <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-emerald-500">Near You</span>
                 </h1>
                 <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">
-                    Select a category below or ask our AI
+                    From home cleaning to appliance repair, find trusted local helpers in your neighborhood.
                 </p>
             </div>
 
@@ -167,6 +225,18 @@ export const HomePage: React.FC = () => {
                     ))}
                 </div>
             </div>
+
+            {/* SEO Navigation Links (Hidden visually but available for crawlers/sitelinks) */}
+            <nav className="sr-only">
+                <a href="/login">Login / Sign up</a>
+                <a href="/home-cleaning-maids">Home Cleaning & Maids</a>
+                <a href="/cooks-tiffin">Cooks, Tiffin & Catering</a>
+                <a href="/electricians-plumbers">Electricians & Plumbers</a>
+                <a href="/appliance-repair">Appliance Repairs</a>
+                <a href="/tutors-home-tuitions">Tutors & Home Tuitions</a>
+                <a href="/car-care">Car Wash & Car Care</a>
+                <a href="/salon-at-home">Salon & Grooming at Home</a>
+            </nav>
 
             <div className="py-8 px-4 max-w-7xl mx-auto">
 

@@ -23,6 +23,7 @@ const ServiceRequestPage = lazy(() => import('./components/ServiceRequestPage').
 const BookingConfirmation = lazy(() => import('./components/BookingConfirmation'));
 const HomePage = lazy(() => import('./components/HomePage').then(module => ({ default: module.HomePage })));
 const SchedulePage = lazy(() => import('./components/SchedulePage').then(module => ({ default: module.SchedulePage })));
+import { CategoryPage } from './components/CategoryPage';
 
 const AuthRequiredPlaceholder: React.FC<{ onSignIn: () => void, view: string }> = ({ onSignIn, view }) => (
     <div className="text-center py-20 animate-fade-in">
@@ -191,6 +192,66 @@ const MainLayout: React.FC = () => {
                                 <Route path="/service/:category" element={<ServiceRequestPage />} />
                                 <Route path="/booking/:bookingId" element={<BookingConfirmation />} />
                                 <Route path="/dashboard/:view" element={<DashboardPage isLoading={isLoading} />} />
+
+                                {/* SEO Category Routes */}
+                                <Route path="/login" element={<AuthModal onClose={() => navigate('/')} />} />
+                                <Route path="/home-cleaning-maids" element={
+                                    <CategoryPage
+                                        title="Home Cleaning & Maids"
+                                        description="Professional home cleaning and maid services in your area. Book trusted cleaners for deep cleaning, regular maintenance, and more."
+                                        services={['Deep Cleaning', 'Regular Cleaning', 'Part-time Maid', 'Full-time Maid']}
+                                        icon="🧹"
+                                    />
+                                } />
+                                <Route path="/cooks-tiffin" element={
+                                    <CategoryPage
+                                        title="Cooks, Tiffin & Catering"
+                                        description="Find experienced cooks and reliable tiffin services near you. Fresh, home-cooked meals delivered to your doorstep."
+                                        services={['Personal Cook', 'Tiffin Service', 'Party Catering', 'Bulk Orders']}
+                                        icon="🍳"
+                                    />
+                                } />
+                                <Route path="/electricians-plumbers" element={
+                                    <CategoryPage
+                                        title="Electricians & Plumbers"
+                                        description="Expert electricians and plumbers available 24/7 for emergency repairs and installations."
+                                        services={['Electrical Repair', 'Plumbing Fixes', 'Installation', 'Maintenance']}
+                                        icon="🔧"
+                                    />
+                                } />
+                                <Route path="/appliance-repair" element={
+                                    <CategoryPage
+                                        title="Appliance Repairs"
+                                        description="Fast and reliable repair services for ACs, refrigerators, washing machines, and more."
+                                        services={['AC Repair', 'Refrigerator Repair', 'Washing Machine', 'Microwave']}
+                                        icon="⚙️"
+                                    />
+                                } />
+                                <Route path="/tutors-home-tuitions" element={
+                                    <CategoryPage
+                                        title="Tutors & Home Tuitions"
+                                        description="Qualified tutors for all subjects and grades. Personalized home tuition to help your child excel."
+                                        services={['Math Tutor', 'Science Tutor', 'English Tutor', 'Competitive Exams']}
+                                        icon="📚"
+                                    />
+                                } />
+                                <Route path="/car-care" element={
+                                    <CategoryPage
+                                        title="Car Wash & Car Care"
+                                        description="Premium car wash and detailing services at your doorstep. Keep your vehicle looking brand new."
+                                        services={['Car Wash', 'Interior Detailing', 'Polishing', 'Ceramic Coating']}
+                                        icon="🚗"
+                                    />
+                                } />
+                                <Route path="/salon-at-home" element={
+                                    <CategoryPage
+                                        title="Salon & Grooming at Home"
+                                        description="Luxury salon services at home. Haircuts, facials, manicures, and more from top stylists."
+                                        services={['Haircut', 'Facial', 'Manicure/Pedicure', 'Massage']}
+                                        icon="💇‍♀️"
+                                    />
+                                } />
+
                                 <Route path="*" element={<NotFound />} />
                             </Routes>
                         </Suspense>
