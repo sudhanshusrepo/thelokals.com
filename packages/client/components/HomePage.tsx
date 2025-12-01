@@ -74,7 +74,7 @@ export const HomePage: React.FC = () => {
     const currentGroups = activeTab === 'offline' ? SERVICE_GROUPS : ONLINE_SERVICE_GROUPS;
 
     return (
-        <div className="space-y-6 animate-fade-in-up pb-24">
+        <div className="space-y-6 animate-fade-in-up">
             <Helmet>
                 <title>thelokals.com – All Types of Local & Online Services</title>
                 <meta name="description" content="Discover local home services and expert online professionals in one app." />

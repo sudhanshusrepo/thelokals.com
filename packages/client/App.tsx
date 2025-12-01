@@ -70,6 +70,17 @@ const DashboardPage: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
     return <UserDashboard initialView={capitalizedView} />;
 }
 
+// Component to scroll to top on route change
+const ScrollToTop: React.FC = () => {
+    const { pathname } = useLocation();
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [pathname]);
+
+    return null;
+};
+
 const MainLayout: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
@@ -162,7 +173,7 @@ const MainLayout: React.FC = () => {
 
     return (
         <SkeletonTheme baseColor="#dcfce7" highlightColor="#bbf7d0">
-            <div className="min-h-screen bg-[#f0fdf4] dark:bg-slate-900 font-sans pb-20">
+            <div className="min-h-screen bg-[#f0fdf4] dark:bg-slate-900 font-sans">
                 <Helmet>
                     <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png" />
                     <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png" />
@@ -179,13 +190,15 @@ const MainLayout: React.FC = () => {
                 />
 
                 <main
-                    className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6"
+                    className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
                     style={{
-                        paddingTop: 'calc(env(safe-area-inset-top) + 0.5rem)',
+                        paddingTop: 'calc(64px + env(safe-area-inset-top))',
+                        paddingBottom: '80px', // Space for bottom nav
                     }}
                 >
                     {isLoading ? <HomeSkeleton /> : (
                         <Suspense fallback={<HomeSkeleton />}>
+                            <ScrollToTop />
                             <Routes>
                                 <Route path="/" element={<HomePage />} />
                                 <Route path="/schedule" element={<SchedulePage />} />
@@ -259,7 +272,7 @@ const MainLayout: React.FC = () => {
                     )}
                 </main>
 
-                <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t dark:border-slate-700 flex justify-around max-w-7xl mx-auto rounded-t-2xl shadow-lg" role="navigation" aria-label="Bottom Navigation">
+                <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t dark:border-slate-700 flex justify-around max-w-7xl mx-auto rounded-t-2xl shadow-lg z-40" role="navigation" aria-label="Bottom Navigation">
                     <NavLink to="/" label="Home" icon="🏠" />
                     <NavLink to="/dashboard/bookings" label="Bookings" icon="📋" />
                     <NavLink to="/dashboard/profile" label="Profile" icon="👤" />

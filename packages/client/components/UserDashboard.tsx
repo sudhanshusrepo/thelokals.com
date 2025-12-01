@@ -187,7 +187,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ initialView = 'Boo
   }
 
   return (
-    <div className="max-w-4xl mx-auto pb-20">
+    <div className="max-w-4xl mx-auto">
       {/* Based on the initialView prop, render the correct component directly */}
       {initialView === 'Bookings' && renderBookingsView()}
       {initialView === 'Profile' && <Profile />}
