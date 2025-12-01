@@ -53,10 +53,9 @@ test.describe('Authentication Flow - Enhanced', () => {
             // Try to submit without filling fields
             await authPage.submitButton.click();
 
-            // Check for validation errors
-            const emailInput = authPage.emailInput;
-            const isInvalid = await emailInput.evaluate((el: HTMLInputElement) => !el.validity.valid);
-            expect(isInvalid).toBeTruthy();
+            // Check for validation error toast
+            const errorMsg = await authPage.getErrorMessage();
+            expect(errorMsg).toContain('valid email address');
         });
 
         test('should toggle password visibility', async ({ page }) => {

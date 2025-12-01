@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useToast } from '../contexts/ToastContext';
 import { supabase } from '../../core/services/supabase';
 import { AuthLayout, AuthField, AuthOAuthButton, AuthDivider } from '@core/components/auth';
+import { validateEmail, validatePassword, validateName } from '../utils/validation';
 
 interface AuthModalProps {
   onClose: () => void;
@@ -19,24 +20,28 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
     e.preventDefault();
     setLoading(true);
 
-    // Validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      showToast("Please enter a valid email address.", "error");
+    // Validation using utilities
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.valid) {
+      showToast(emailValidation.error!, "error");
       setLoading(false);
       return;
     }
 
-    if (password.length < 6) {
-      showToast("Password must be at least 6 characters long.", "error");
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.valid) {
+      showToast(passwordValidation.error!, "error");
       setLoading(false);
       return;
     }
 
-    if (activeTab === 'signup' && !fullName.trim()) {
-      showToast("Please enter your full name.", "error");
-      setLoading(false);
-      return;
+    if (activeTab === 'signup') {
+      const nameValidation = validateName(fullName);
+      if (!nameValidation.valid) {
+        showToast(nameValidation.error!, "error");
+        setLoading(false);
+        return;
+      }
     }
 
     try {

@@ -38,11 +38,14 @@ export const ToastContainer: React.FC = () => {
             {toasts.map((toast) => (
                 <div
                     key={toast.id}
+                    role="alert"
+                    aria-live="polite"
+                    aria-atomic="true"
                     className="pointer-events-auto flex items-center gap-3 bg-white dark:bg-slate-800 p-4 rounded-xl shadow-lg border border-slate-100 dark:border-slate-700 min-w-[300px] max-w-md animate-slide-in-right"
                 >
                     <div className={`p-2 rounded-full bg-opacity-10 ${toast.type === 'success' ? 'bg-green-500' :
-                            toast.type === 'error' ? 'bg-red-500' :
-                                toast.type === 'warning' ? 'bg-amber-500' : 'bg-blue-500'
+                        toast.type === 'error' ? 'bg-red-500' :
+                            toast.type === 'warning' ? 'bg-amber-500' : 'bg-blue-500'
                         }`}>
                         <ToastIcon type={toast.type} />
                     </div>

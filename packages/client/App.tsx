@@ -24,7 +24,7 @@ const ServiceRequestPage = lazy(() => import('./components/ServiceRequestPage').
 const BookingConfirmation = lazy(() => import('./components/BookingConfirmation'));
 const HomePage = lazy(() => import('./components/HomePage').then(module => ({ default: module.HomePage })));
 const SchedulePage = lazy(() => import('./components/SchedulePage').then(module => ({ default: module.SchedulePage })));
-import { CategoryPage } from './components/CategoryPage';
+const CategoryPage = lazy(() => import('./components/CategoryPage').then(module => ({ default: module.CategoryPage })));
 
 const AuthRequiredPlaceholder: React.FC<{ onSignIn: () => void, view: string }> = ({ onSignIn, view }) => (
     <div className="text-center py-20 animate-fade-in">

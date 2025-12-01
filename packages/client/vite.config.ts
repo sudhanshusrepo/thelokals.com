@@ -14,23 +14,61 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       outDir: 'dist',
-      target: 'esnext', // Optimize for modern browsers
+      target: 'esnext',
+      minify: 'terser',
+      terserOptions: {
+        compress: {
+          drop_console: true,
+          drop_debugger: true,
+          pure_funcs: ['console.log', 'console.info', 'console.debug'],
+        },
+      },
       rollupOptions: {
         output: {
           manualChunks: {
-            vendor: ['react', 'react-dom', 'react-router-dom'],
-            ui: ['framer-motion', 'react-loading-skeleton'],
-            map: ['leaflet', 'react-leaflet'],
-            supabase: ['@supabase/supabase-js'],
+            'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+            'ui-vendor': ['framer-motion', 'react-loading-skeleton'],
+            'map-vendor': ['leaflet', 'react-leaflet'],
+            'supabase-vendor': ['@supabase/supabase-js'],
           },
         },
       },
+      chunkSizeWarningLimit: 1000,
     },
     plugins: [
       react(),
       VitePWA({
         registerType: 'autoUpdate',
         includeAssets: ['favicon.ico', 'apple-touch-icon.png'],
+        workbox: {
+          runtimeCaching: [
+            {
+              urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
+              handler: 'NetworkFirst',
+              options: {
+                cacheName: 'supabase-cache',
+                expiration: {
+                  maxEntries: 50,
+                  maxAgeSeconds: 5 * 60, // 5 minutes
+                },
+                cacheableResponse: {
+                  statuses: [0, 200],
+                },
+              },
+            },
+            {
+              urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'google-fonts-cache',
+                expiration: {
+                  maxEntries: 10,
+                  maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
+                },
+              },
+            },
+          ],
+        },
         manifest: {
           name: 'thelokals.com',
           short_name: 'thelokals',

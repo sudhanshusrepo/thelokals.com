@@ -70,12 +70,13 @@ export class AuthPage {
 
     constructor(page: Page) {
         this.page = page;
-        this.emailInput = page.locator('input[type="email"]');
-        this.passwordInput = page.locator('input[type="password"]');
-        this.submitButton = page.locator('button[type="submit"]');
-        this.errorMessage = page.locator('.error-message, [role="alert"]');
-        this.successMessage = page.locator('.success-message');
-        this.googleSignInButton = page.locator('button:has-text("Google")');
+        this.emailInput = page.locator('[data-testid="email-input"]');
+        this.passwordInput = page.locator('[data-testid="password-input"]');
+        this.submitButton = page.locator('[data-testid="submit-button"]');
+        // Error messages are now shown in Toasts
+        this.errorMessage = page.locator('.fixed.bottom-4.right-4 .bg-red-500 + p, .fixed.bottom-4.right-4 .bg-amber-500 + p');
+        this.successMessage = page.locator('.fixed.bottom-4.right-4 .bg-green-500 + p');
+        this.googleSignInButton = page.locator('button:has-text("Continue with Google")');
         this.forgotPasswordLink = page.locator('a:has-text("Forgot")');
     }
 
@@ -83,7 +84,8 @@ export class AuthPage {
         await this.emailInput.fill(email);
         await this.passwordInput.fill(password);
         await this.submitButton.click();
-        await this.page.waitForLoadState('networkidle');
+        // Wait for potential network requests or toasts
+        await this.page.waitForTimeout(500);
     }
 
     async loginWithGoogle() {
@@ -91,10 +93,13 @@ export class AuthPage {
     }
 
     async getErrorMessage() {
-        if (await this.errorMessage.isVisible()) {
-            return await this.errorMessage.textContent();
+        // Wait for toast to appear
+        try {
+            await this.errorMessage.first().waitFor({ state: 'visible', timeout: 5000 });
+            return await this.errorMessage.first().textContent();
+        } catch (e) {
+            return null;
         }
-        return null;
     }
 
     async isLoginSuccessful() {

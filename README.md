@@ -40,18 +40,13 @@ The platform is deployed using Vercel. The `client` and `provider` applications 
 
 ## Documentation
 
-Comprehensive project documentation is available in the **[SBS_documentation](./SBS_documentation/)** folder, including:
+Comprehensive project documentation is available in the **[docs](./docs/)** folder, including:
 
-- 📐 Architecture & Design Documents
-- 📋 Development Plans & Sprint Reports
-- 🧪 Testing Guides & E2E Test Reports
-- 🔧 Setup & Configuration Guides
-- 👷 Worker Management Documentation
-
-**Quick Links:**
-- [E2E Test Summary Report](./SBS_documentation/E2E_TEST_SUMMARY_REPORT.md) - Latest test results and bug priorities
-- [Architecture Overview](./SBS_documentation/ARCHITECTURE.md) - System architecture
-- [E2E Testing Guide](./SBS_documentation/E2E_TESTING_GUIDE.md) - Testing setup and execution
+- **[System Architecture](./docs/SYSTEM_ARCHITECTURE.md)**: High-level design and database schema.
+- **[Development Guide](./docs/DEVELOPMENT_GUIDE.md)**: Setup and workflow instructions.
+- **[API Reference](./docs/API_REFERENCE.md)**: Database functions and API details.
+- **[Testing Guide](./docs/TESTING_GUIDE.md)**: E2E testing strategy and instructions.
+- **[Worker Credentials](./docs/WORKER_CREDENTIALS.md)**: Test account details.
 
 ## Contributing
 
