@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../../core/services/supabase';
 import { ICONS } from '../constants';
 import { User } from '@supabase/supabase-js';
+import { usePWA } from '../hooks/usePWA';
 
 
 interface HeaderProps {
@@ -25,6 +26,7 @@ export const Header: React.FC<HeaderProps> = ({
   const [isMenuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const { isInstallable, promptInstall } = usePWA();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -101,7 +103,7 @@ export const Header: React.FC<HeaderProps> = ({
                 </Link>
               ) : (
                 <Link to="/" className="flex items-center gap-2" aria-label="thelokals homepage">
-                  <img src="/logo.svg" alt="thelokals logo" className="h-7 sm:h-8 w-auto" />
+                  <img src="/logo-small.png" alt="thelokals logo" className="h-7 sm:h-8 w-auto" />
                   <span className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tighter">thelokals.com</span>
                 </Link>
               )}
@@ -133,6 +135,19 @@ export const Header: React.FC<HeaderProps> = ({
               >
                 For Professionals
               </a>
+
+              {isInstallable && (
+                <button
+                  onClick={promptInstall}
+                  className="flex items-center gap-1 p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-teal-600 dark:text-teal-400 font-bold transition-colors"
+                  aria-label="Install App"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                  <span className="hidden sm:inline">Install</span>
+                </button>
+              )}
 
               {user ? (
                 <div className="relative" ref={menuRef}>

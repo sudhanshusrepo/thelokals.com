@@ -277,7 +277,7 @@ npx playwright show-report
 
 ---
 
-**Deployed by:** Antigravity AI  
+ 
 **Deployment Date:** November 30, 2025  
 **Deployment Time:** 08:52 IST  
 **Status:** ✅ **PRODUCTION READY**

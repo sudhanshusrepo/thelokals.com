@@ -195,6 +195,4 @@ ALTER TABLE bookings DROP COLUMN IF EXISTS provider_location;
 
 ---
 
-**Prepared by:** Antigravity AI  
-**Approved for Production:** Yes  
-**Go/No-Go Decision:** ✅ GO
+
