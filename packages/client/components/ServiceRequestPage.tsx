@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { useAuth } from '../contexts/AuthContext';
 import { estimateService, AIAnalysisResult } from '@core/services/geminiService';
@@ -68,6 +68,14 @@ export const ServiceRequestPage: React.FC = () => {
     }, [analysis, checkedItems]);
 
     const { showToast } = useToast();
+    const locationState = useLocation().state as { userInput?: string, intent?: any } | null;
+
+    useEffect(() => {
+        if (locationState?.userInput && !userInput && !analysis && !isLoading && selectedCategory) {
+            // Auto-trigger analysis from home page input
+            handleInput({ type: 'text', data: locationState.userInput });
+        }
+    }, [locationState, selectedCategory]);
 
     const handleInput = async (content: { type: 'text' | 'audio' | 'video', data: string | Blob }) => {
         if (!selectedCategory) return;

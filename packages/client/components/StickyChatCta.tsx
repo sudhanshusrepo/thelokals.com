@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { ChatInput } from './ChatInput';
 import { useNavigate } from 'react-router-dom';
+import { interpretSearchQuery } from '@core/services/geminiService';
+import { WorkerCategory } from '@core/types';
+import { LOWERCASE_TO_WORKER_CATEGORY } from '../constants';
 
 interface StickyChatCtaProps {
     serviceCategory?: string;
@@ -119,29 +122,74 @@ export const StickyChatCta: React.FC<StickyChatCtaProps> = ({ serviceCategory, o
         return () => window.removeEventListener('scroll', handleScroll);
     }, [serviceCategory]);
 
-    const handleInputSend = (content: { type: 'text' | 'audio' | 'video', data: string | Blob }) => {
+    const handleInputSend = async (content: { type: 'text' | 'audio' | 'video', data: string | Blob }) => {
         setIsProcessing(true);
         setIsComplete(false);
         setProgressStep(0);
 
-        let step = 0;
-        const interval = setInterval(() => {
-            step++;
-            setProgressStep(step);
+        // If onSend is provided, use the legacy/parent-controlled behavior (e.g. inside ServiceRequestPage)
+        if (onSend) {
+            let step = 0;
+            const interval = setInterval(() => {
+                step++;
+                setProgressStep(step);
 
-            if (step >= steps.length) {
-                clearInterval(interval);
-                setIsComplete(true);
+                if (step >= steps.length) {
+                    clearInterval(interval);
+                    setIsComplete(true);
 
-                if (onSend) {
-                    // If a custom handler is provided, call it after a delay
                     setTimeout(() => {
                         setIsProcessing(false);
                         onSend(content);
                     }, 1500);
                 }
+            }, 1200);
+            return;
+        }
+
+        // New Logic: Self-managed analysis and navigation (e.g. from HomePage)
+        try {
+            // 1. Start Analysis (Async)
+            let textData = '';
+            if (content.type === 'text') {
+                textData = content.data as string;
+            } else {
+                // For media, we might pass a placeholder or handle it if we had a transcriber here.
+                // For now, we'll pass a generic message so the next page prompts for details or handles it.
+                textData = "I have a request with media attachment";
             }
-        }, 1200); // Slightly slower for better UX
+
+            // Import dynamically to avoid circular deps if any, or just standard import at top
+            // But since I'm editing the function body, I should ensure imports are present.
+            // I'll assume imports are added at the top.
+            const analysisPromise = interpretSearchQuery(textData);
+
+            // 2. Run Simulation (Visuals)
+            for (let i = 0; i < steps.length; i++) {
+                setProgressStep(i);
+                await new Promise(r => setTimeout(r, 800)); // 800ms per step
+            }
+
+            // 3. Wait for Analysis to complete
+            const intent = await analysisPromise;
+
+            setIsComplete(true);
+
+            // 4. Navigate
+            setTimeout(() => {
+                const detectedCategory = intent.category || WorkerCategory.OTHER;
+                const slugEntry = Object.entries(LOWERCASE_TO_WORKER_CATEGORY).find(([_, v]) => v === detectedCategory);
+                const slug = slugEntry ? slugEntry[0] : 'other';
+
+                setIsProcessing(false);
+                navigate(`/service/${slug}`, { state: { userInput: textData, intent } });
+            }, 1000);
+
+        } catch (error) {
+            console.error("Error in sticky chat flow:", error);
+            setIsProcessing(false);
+            navigate('/service/other');
+        }
     };
 
     const handleCloseOverlay = () => {
