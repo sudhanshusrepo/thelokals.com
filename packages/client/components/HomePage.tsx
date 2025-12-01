@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { SERVICE_GROUPS } from '../constants';
+import { SERVICE_GROUPS, ONLINE_SERVICE_GROUPS } from '../constants';
 
 import { Features } from './Features';
 import { StickyChatCta } from './StickyChatCta';
@@ -69,88 +69,65 @@ const OfferBanner: React.FC = () => {
 
 export const HomePage: React.FC = () => {
     const navigate = useNavigate();
+    const [activeTab, setActiveTab] = useState<'offline' | 'online'>('offline');
+
+    const currentGroups = activeTab === 'offline' ? SERVICE_GROUPS : ONLINE_SERVICE_GROUPS;
 
     return (
-        <div className="space-y-8 animate-fade-in-up pb-24">
+        <div className="space-y-6 animate-fade-in-up pb-24">
             <Helmet>
-                <title>thelokals.com – All Types of Local Services Near You</title>
-                <meta name="description" content="Discover all types of local services in one app – home cleaning, maids, cooks & tiffin, electricians, plumbers, appliance repair, tutors, car wash, salon at home and more." />
-                <meta name="keywords" content="local services, all types of services, home cleaning, maids, cooks, tiffin, electricians, plumbers, appliance repair, tutors, car wash, salon at home, AI booking, thelokals" />
-                <link rel="canonical" href="https://thelokals.com/" />
-
-                {/* Open Graph */}
-                <meta property="og:title" content="thelokals.com – All Types of Local Services Near You" />
-                <meta property="og:description" content="Discover all types of local services in one app – home cleaning, maids, cooks & tiffin, electricians, plumbers, appliance repair, tutors, car wash, salon at home and more." />
-                <meta property="og:type" content="website" />
-                <meta property="og:url" content="https://thelokals.com" />
-                <meta property="og:image" content="https://thelokals.com/og-image.png" />
-
-                {/* Twitter Card */}
-                <meta name="twitter:card" content="summary_large_image" />
-                <meta name="twitter:title" content="thelokals.com – All Types of Local Services Near You" />
-                <meta name="twitter:description" content="Discover all types of local services in one app – home cleaning, maids, cooks & tiffin, electricians, plumbers, appliance repair, tutors, car wash, salon at home and more." />
-                <meta name="twitter:image" content="https://thelokals.com/og-image.png" />
-
-                {/* LocalBusiness Schema */}
-                <script type="application/ld+json">
-                    {JSON.stringify({
-                        "@context": "https://schema.org",
-                        "@type": "LocalBusiness",
-                        "name": "thelokals.com",
-                        "description": "On-demand local services marketplace",
-                        "url": "https://thelokals.com",
-                        "areaServed": {
-                            "@type": "City",
-                            "name": "Gurugram"
-                        },
-                        "hasOfferCatalog": {
-                            "@type": "OfferCatalog",
-                            "name": "Local Services",
-                            "itemListElement": [
-                                {
-                                    "@type": "Offer",
-                                    "itemOffered": {
-                                        "@type": "Service",
-                                        "name": "Home Cleaning & Maids",
-                                        "description": "Professional home cleaning and maid services"
-                                    }
-                                },
-                                {
-                                    "@type": "Offer",
-                                    "itemOffered": {
-                                        "@type": "Service",
-                                        "name": "Cooks, Tiffin & Catering",
-                                        "description": "Personal cooks and tiffin services"
-                                    }
-                                },
-                                {
-                                    "@type": "Offer",
-                                    "itemOffered": {
-                                        "@type": "Service",
-                                        "name": "Electricians & Plumbers",
-                                        "description": "Expert electrical and plumbing repairs"
-                                    }
-                                }
-                            ]
-                        }
-                    })}
-                </script>
+                <title>thelokals.com – All Types of Local & Online Services</title>
+                <meta name="description" content="Discover local home services and expert online professionals in one app." />
             </Helmet>
 
-            {/* Hero Section - Compact to focus on services */}
-            <div className="text-center py-4 px-4 max-w-3xl mx-auto">
+            {/* Tab Switcher */}
+            <div className="flex justify-center pt-4">
+                <div className="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl inline-flex shadow-inner">
+                    <button
+                        onClick={() => setActiveTab('offline')}
+                        className={`
+                            px-6 py-2 rounded-lg text-sm font-bold transition-all duration-200
+                            ${activeTab === 'offline'
+                                ? 'bg-white dark:bg-slate-700 text-teal-600 dark:text-teal-400 shadow-sm'
+                                : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}
+                        `}
+                    >
+                        At-Home Services
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('online')}
+                        className={`
+                            px-6 py-2 rounded-lg text-sm font-bold transition-all duration-200
+                            ${activeTab === 'online'
+                                ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                                : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}
+                        `}
+                    >
+                        Online Experts
+                    </button>
+                </div>
+            </div>
+
+            {/* Hero Section */}
+            <div className="text-center px-4 max-w-3xl mx-auto">
                 <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">
-                    All Types of Local Services <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-emerald-500">Near You</span>
+                    {activeTab === 'offline' ? (
+                        <>All Types of Local Services <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-emerald-500">Near You</span></>
+                    ) : (
+                        <>Expert Online Services <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500">& Professionals</span></>
+                    )}
                 </h1>
                 <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">
-                    From home cleaning to appliance repair, find trusted local helpers in your neighborhood.
+                    {activeTab === 'offline'
+                        ? "From home cleaning to appliance repair, find trusted local helpers in your neighborhood."
+                        : "Connect with top-rated freelancers and experts for digital, creative, and business needs."}
                 </p>
             </div>
 
-            {/* Service Groups Grid - 3 columns × 2 rows */}
+            {/* Service Groups Grid */}
             <div className="w-full px-0">
                 <div className="grid grid-cols-3 gap-1.5 sm:gap-3">
-                    {Object.values(SERVICE_GROUPS).slice(0, 6).map((group) => (
+                    {Object.values(currentGroups).map((group) => (
                         <motion.button
                             key={group.name}
                             data-testid="category-card"
@@ -173,7 +150,7 @@ export const HomePage: React.FC = () => {
                                 shadow-[0_2px_10px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.2)]
                                 hover:shadow-[0_20px_30px_-10px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_20px_30px_-10px_rgba(0,0,0,0.4)]
                                 border border-slate-100 dark:border-slate-700
-                                hover:border-teal-500/50 dark:hover:border-teal-400/50
+                                hover:border-${activeTab === 'offline' ? 'teal' : 'indigo'}-500/50 dark:hover:border-${activeTab === 'offline' ? 'teal' : 'indigo'}-400/50
                                 group overflow-hidden
                                 min-h-[120px] sm:min-h-[180px] justify-center
                                 transform-gpu perspective-1000
@@ -202,7 +179,7 @@ export const HomePage: React.FC = () => {
 
                             {/* Text Content */}
                             <div className="relative z-10 text-center w-full">
-                                <h3 className="text-[10px] sm:text-lg font-bold text-slate-900 dark:text-white mb-0 sm:mb-1 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors leading-tight px-0.5 break-words">
+                                <h3 className={`text-[10px] sm:text-lg font-bold text-slate-900 dark:text-white mb-0 sm:mb-1 group-hover:text-${activeTab === 'offline' ? 'teal' : 'indigo'}-600 dark:group-hover:text-${activeTab === 'offline' ? 'teal' : 'indigo'}-400 transition-colors leading-tight px-0.5 break-words`}>
                                     {group.name}
                                 </h3>
                                 <p className="hidden sm:block text-xs text-slate-500 dark:text-slate-400 line-clamp-2 px-1 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors">
@@ -211,14 +188,14 @@ export const HomePage: React.FC = () => {
                             </div>
 
                             {/* Action Arrow (Visible on Hover - Desktop only) */}
-                            <div className="
+                            <div className={`
                                 hidden sm:flex
                                 absolute bottom-2 right-2 
-                                w-6 h-6 rounded-full bg-teal-50 dark:bg-teal-900/30 
-                                items-center justify-center text-teal-600 dark:text-teal-400
+                                w-6 h-6 rounded-full bg-${activeTab === 'offline' ? 'teal' : 'indigo'}-50 dark:bg-${activeTab === 'offline' ? 'teal' : 'indigo'}-900/30 
+                                items-center justify-center text-${activeTab === 'offline' ? 'teal' : 'indigo'}-600 dark:text-${activeTab === 'offline' ? 'teal' : 'indigo'}-400
                                 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 
                                 transition-all duration-300 delay-100 text-xs
-                            ">
+                            `}>
                                 →
                             </div>
                         </motion.button>
@@ -239,10 +216,7 @@ export const HomePage: React.FC = () => {
             </nav>
 
             <div className="py-8 px-4 max-w-7xl mx-auto">
-
-
-                <OfferBanner />
-
+                {activeTab === 'offline' && <OfferBanner />}
                 <Features />
             </div>
 

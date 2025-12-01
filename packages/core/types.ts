@@ -32,6 +32,16 @@ export enum WorkerCategory {
   VIDEOGRAPHY = 'Videography',
   SECURITY = 'Security',
   CATERING = 'Catering',
+  // Online Categories
+  DIGITAL_MARKETING = 'DigitalMarketing',
+  CONTENT_CREATIVE = 'ContentCreative',
+  TECH_DEV = 'TechDev',
+  BUSINESS_OPS = 'BusinessOps',
+  KNOWLEDGE_SERVICES = 'KnowledgeServices',
+  PROFESSIONAL_ADVISORY = 'ProfessionalAdvisory',
+  WELLNESS_ONLINE = 'WellnessOnline',
+  CREATOR_ECONOMY = 'CreatorEconomy',
+  LOCAL_BIZ_DIGITIZATION = 'LocalBizDigitization',
   OTHER = 'Other',
 }
 

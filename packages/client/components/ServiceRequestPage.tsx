@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { estimateService, AIAnalysisResult } from '@core/services/geminiService';
 import { bookingService } from '@core/services/bookingService';
 import { LiveSearch } from './LiveSearch';
-import { CATEGORY_DISPLAY_NAMES, LOWERCASE_TO_WORKER_CATEGORY, SERVICE_TYPES_BY_CATEGORY } from '../constants';
+import { CATEGORY_DISPLAY_NAMES, LOWERCASE_TO_WORKER_CATEGORY, SERVICE_TYPES_BY_CATEGORY, ONLINE_CATEGORIES } from '../constants';
 import { useGeolocation } from '../hooks/useGeolocation';
 import { StickyChatCta } from './StickyChatCta';
 import { mediaUploadService } from '../services/mediaUploadService';
@@ -167,9 +167,11 @@ export const ServiceRequestPage: React.FC = () => {
             return;
         }
 
-        // Check if location is available, if not, try to get it
+        // Check if location is available, if not, try to get it (only for offline services)
         let bookingLocation = location;
-        if (!bookingLocation) {
+        const isOnlineService = selectedCategory && ONLINE_CATEGORIES.has(selectedCategory);
+
+        if (!isOnlineService && !bookingLocation) {
             try {
                 bookingLocation = await getLocationPromise();
             } catch (error) {
@@ -177,6 +179,11 @@ export const ServiceRequestPage: React.FC = () => {
                 showToast("We need your location to find nearby providers. Please allow location access.", "warning");
                 return;
             }
+        }
+
+        // Use dummy location for online services if actual location is missing
+        if (isOnlineService && !bookingLocation) {
+            bookingLocation = { lat: 0, lng: 0 };
         }
 
         // Check if at least one item is selected
@@ -196,13 +203,14 @@ export const ServiceRequestPage: React.FC = () => {
                 serviceCategory: selectedCategory,
                 requirements: {
                     description: userInput,
-                    serviceType: serviceTypeId
+                    serviceType: serviceTypeId,
+                    isOnline: isOnlineService // Tag as online
                 },
                 aiChecklist: finalChecklist,
                 estimatedCost: currentPrice,
-                location: bookingLocation,
+                location: bookingLocation!, // Assert non-null as we handled it above
                 address: {},
-                notes: `AI Analysis Reasoning: ${analysis.reasoning}`
+                notes: `AI Analysis Reasoning: ${analysis.reasoning}${isOnlineService ? ' [ONLINE SERVICE]' : ''}`
             });
             setCreatedBookingId(bookingId);
             showToast('Booking created! Searching for providers...', 'success');

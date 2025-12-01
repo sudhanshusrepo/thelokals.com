@@ -58,6 +58,17 @@ export const CATEGORY_ICONS: Record<WorkerCategory, string> = {
   [WorkerCategory.SECURITY]: '🛡️',
   [WorkerCategory.CATERING]: '🍲',
 
+  // Online Categories
+  [WorkerCategory.DIGITAL_MARKETING]: '📈',
+  [WorkerCategory.CONTENT_CREATIVE]: '🎨',
+  [WorkerCategory.TECH_DEV]: '👨‍💻',
+  [WorkerCategory.BUSINESS_OPS]: '💼',
+  [WorkerCategory.KNOWLEDGE_SERVICES]: '🧠',
+  [WorkerCategory.PROFESSIONAL_ADVISORY]: '⚖️',
+  [WorkerCategory.WELLNESS_ONLINE]: '🧘',
+  [WorkerCategory.CREATOR_ECONOMY]: '📱',
+  [WorkerCategory.LOCAL_BIZ_DIGITIZATION]: '🏪',
+
   [WorkerCategory.OTHER]: "🔍",
 };
 
@@ -94,6 +105,18 @@ export const CATEGORY_DISPLAY_NAMES: Record<WorkerCategory, string> = {
   [WorkerCategory.VIDEOGRAPHY]: 'Videography',
   [WorkerCategory.SECURITY]: 'Security',
   [WorkerCategory.CATERING]: 'Catering',
+
+  // Online Categories
+  [WorkerCategory.DIGITAL_MARKETING]: 'Digital & Growth',
+  [WorkerCategory.CONTENT_CREATIVE]: 'Content & Creative',
+  [WorkerCategory.TECH_DEV]: 'Tech & Product',
+  [WorkerCategory.BUSINESS_OPS]: 'Business & Ops',
+  [WorkerCategory.KNOWLEDGE_SERVICES]: 'Knowledge Services',
+  [WorkerCategory.PROFESSIONAL_ADVISORY]: 'Professional Advisory',
+  [WorkerCategory.WELLNESS_ONLINE]: 'Wellness & Personal',
+  [WorkerCategory.CREATOR_ECONOMY]: 'Creator Economy',
+  [WorkerCategory.LOCAL_BIZ_DIGITIZATION]: 'Local Biz Digitization',
+
   [WorkerCategory.OTHER]: 'Other',
 };
 
@@ -194,6 +217,69 @@ export const SERVICE_GROUPS: Record<string, ServiceGroup> = {
   }
 }
 
+export const ONLINE_SERVICE_GROUPS: Record<string, ServiceGroup> = {
+  "Digital & Growth": {
+    name: "Digital & Growth",
+    icon: "📈",
+    color: "blue",
+    helperText: "Social media, SEO, marketing automation, and growth strategies.",
+    categories: [WorkerCategory.DIGITAL_MARKETING]
+  },
+  "Content & Creative": {
+    name: "Content & Creative",
+    icon: "🎨",
+    color: "pink",
+    helperText: "Writing, design, video editing, and creative production.",
+    categories: [WorkerCategory.CONTENT_CREATIVE]
+  },
+  "Tech & Product": {
+    name: "Tech & Product",
+    icon: "💻",
+    color: "indigo",
+    helperText: "Development, UI/UX, QA, AI automation, and data analysis.",
+    categories: [WorkerCategory.TECH_DEV]
+  },
+  "Business & Operations": {
+    name: "Business & Operations",
+    icon: "💼",
+    color: "slate",
+    helperText: "Virtual assistants, project management, finance, and HR.",
+    categories: [WorkerCategory.BUSINESS_OPS]
+  },
+  "Knowledge & Advisory": {
+    name: "Knowledge & Advisory",
+    icon: "🧠",
+    color: "teal",
+    helperText: "Tutoring, coaching, legal, financial, and business advice.",
+    categories: [WorkerCategory.KNOWLEDGE_SERVICES, WorkerCategory.PROFESSIONAL_ADVISORY]
+  },
+  "Wellness & Personal": {
+    name: "Wellness & Personal",
+    icon: "🧘",
+    color: "emerald",
+    helperText: "Mental health, life coaching, nutrition, and fitness plans.",
+    categories: [WorkerCategory.WELLNESS_ONLINE]
+  },
+  "Creator Economy": {
+    name: "Creator Economy",
+    icon: "📱",
+    color: "purple",
+    helperText: "UGC, personal branding, and influencer services.",
+    categories: [WorkerCategory.CREATOR_ECONOMY]
+  },
+  "Local Biz Digitization": {
+    name: "Local Biz Digitization",
+    icon: "🏪",
+    color: "orange",
+    helperText: "Get your local business online with Google, catalogs, and more.",
+    categories: [WorkerCategory.LOCAL_BIZ_DIGITIZATION]
+  }
+};
+
+export const ONLINE_CATEGORIES = new Set(
+  Object.values(ONLINE_SERVICE_GROUPS).flatMap(g => g.categories)
+);
+
 // Service type definitions for each category
 export interface ServiceType {
   id: string;
@@ -280,6 +366,17 @@ export const SERVICE_TYPES_BY_CATEGORY: Record<WorkerCategory, ServiceType[]> = 
   [WorkerCategory.SECURITY]: [],
   [WorkerCategory.CATERING]: [],
   [WorkerCategory.OTHER]: [],
+
+  // Online Categories - Empty arrays for now
+  [WorkerCategory.DIGITAL_MARKETING]: [],
+  [WorkerCategory.CONTENT_CREATIVE]: [],
+  [WorkerCategory.TECH_DEV]: [],
+  [WorkerCategory.BUSINESS_OPS]: [],
+  [WorkerCategory.KNOWLEDGE_SERVICES]: [],
+  [WorkerCategory.PROFESSIONAL_ADVISORY]: [],
+  [WorkerCategory.WELLNESS_ONLINE]: [],
+  [WorkerCategory.CREATOR_ECONOMY]: [],
+  [WorkerCategory.LOCAL_BIZ_DIGITIZATION]: [],
 };
 
 // Default start location (if geo fails)
