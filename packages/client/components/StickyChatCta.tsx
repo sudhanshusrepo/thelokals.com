@@ -22,7 +22,7 @@ const AIAnalysisOverlay: React.FC<{
     if (!isVisible) return null;
 
     return (
-        <div className="fixed inset-0 z-50 bg-slate-900/95 backdrop-blur-md flex flex-col items-center justify-center p-6 animate-fade-in">
+        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex flex-col items-center justify-center p-6 animate-fade-in">
             <div className="w-full max-w-md bg-slate-800 rounded-3xl p-8 shadow-2xl border border-slate-700 relative overflow-hidden">
                 {/* Background Glow */}
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-32 bg-teal-500/20 blur-3xl rounded-full pointer-events-none"></div>
@@ -46,7 +46,7 @@ const AIAnalysisOverlay: React.FC<{
 
                     {/* Text Content */}
                     <h3 className="text-2xl font-bold text-white mb-2">
-                        {isComplete ? "Pros Found!" : "thelokals.com AI is working..."}
+                        {isComplete ? "Pros Found!" : "thelokals AI is working..."}
                     </h3>
                     <p className="text-slate-400 mb-8 h-6">
                         {isComplete
@@ -218,7 +218,7 @@ export const StickyChatCta: React.FC<StickyChatCtaProps> = ({ serviceCategory, o
                                     <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
                                 </span>
                                 <span className="text-[10px] font-bold uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600">
-                                    thelokals.com AI Assistant
+                                    thelokals AI
                                 </span>
                             </div>
                             {serviceCategory && (

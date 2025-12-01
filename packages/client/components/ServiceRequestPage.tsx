@@ -236,7 +236,7 @@ export const ServiceRequestPage: React.FC = () => {
                 <meta name="keywords" content={`${selectedCategory ? CATEGORY_DISPLAY_NAMES[selectedCategory].toLowerCase() : 'service'}, book online, AI quote, thelokals`} />
             </Helmet>
             {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
-            <div className="max-w-2xl mx-auto p-4 sm:p-8 animate-fade-in-up">
+            <div className="max-w-2xl mx-auto p-4 sm:p-8 pt-24 animate-fade-in-up">
                 <div className="text-center mb-8">
                     <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-2">
                         {serviceType ? serviceType.name : (selectedCategory ? CATEGORY_DISPLAY_NAMES[selectedCategory] : 'Service Request')}
