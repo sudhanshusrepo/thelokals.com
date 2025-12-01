@@ -16,6 +16,7 @@ import { LiveSearch } from './components/LiveSearch';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ToastProvider } from './contexts/ToastContext';
 import { ToastContainer } from './components/ToastContainer';
+import { Toaster } from 'react-hot-toast';
 
 // Lazy load page components
 const GroupDetailPage = lazy(() => import('./components/GroupDetailPage').then(module => ({ default: module.GroupDetailPage })));
@@ -294,6 +295,7 @@ export default function App() {
                     <BrowserRouter>
                         <MainLayout />
                         <ToastContainer />
+                        <Toaster position="top-center" />
                     </BrowserRouter>
                 </ToastProvider>
             </AuthProvider>

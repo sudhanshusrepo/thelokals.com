@@ -1,19 +1,34 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export const PrivacyPolicy: React.FC = () => {
+    const navigate = useNavigate();
+
     return (
-        <div className="max-w-4xl mx-auto p-6 animate-fade-in">
-            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-8">
-                <div className="text-center mb-8">
-                    <div className="w-20 h-20 bg-teal-100 dark:bg-teal-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <span className="text-4xl">🔒</span>
+        <div className="max-w-4xl mx-auto p-4 sm:p-6 animate-fade-in pb-20">
+            <div className="mb-6">
+                <button
+                    onClick={() => navigate(-1)}
+                    className="flex items-center text-slate-600 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 transition-colors font-medium"
+                >
+                    <svg className="w-5 h-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Back
+                </button>
+            </div>
+
+            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-6 sm:p-10">
+                <div className="text-center mb-10 border-b border-slate-100 dark:border-slate-700 pb-8">
+                    <div className="w-16 h-16 bg-teal-100 dark:bg-teal-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4 transform -rotate-3">
+                        <span className="text-3xl">🔒</span>
                     </div>
-                    <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Privacy Policy</h1>
-                    <p className="text-slate-600 dark:text-slate-400">TheLokals.com</p>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">Last Updated: November 30, 2025</p>
+                    <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white mb-3">Privacy Policy</h1>
+                    <p className="text-slate-600 dark:text-slate-400 text-lg">TheLokals.com</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-500 mt-2 font-mono bg-slate-100 dark:bg-slate-700/50 inline-block px-3 py-1 rounded-full">Last Updated: November 30, 2025</p>
                 </div>
 
-                <div className="prose prose-slate dark:prose-invert max-w-none space-y-6">
+                <div className="prose prose-slate dark:prose-invert max-w-none space-y-8">
                     {/* Introduction */}
                     <section>
                         <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">1. Introduction</h2>

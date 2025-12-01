@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../core/services/supabase';
 import { User } from '@supabase/supabase-js';
 import { ICONS } from '../constants';
+import { toast } from 'react-hot-toast';
 
 export const Profile: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -11,8 +12,11 @@ export const Profile: React.FC = () => {
   const [phone, setPhone] = useState('');
   const [profilePictureUrl, setProfilePictureUrl] = useState('');
   const [loading, setLoading] = useState(true);
-  const [isEditing, setIsEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Validation state
+  const [errors, setErrors] = useState<{ fullName?: string; phone?: string }>({});
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -22,7 +26,7 @@ export const Profile: React.FC = () => {
       if (user) {
         setFullName(user.user_metadata.fullName || '');
         setEmail(user.email || '');
-        setPhone(user.phone || ''); // Assuming phone is available, adjust if not
+        setPhone(user.phone || user.user_metadata.phone || '');
         setProfilePictureUrl(user.user_metadata.avatar_url || '');
       }
       setLoading(false);
@@ -31,29 +35,76 @@ export const Profile: React.FC = () => {
     fetchUser();
   }, []);
 
+  const validate = () => {
+    const newErrors: { fullName?: string; phone?: string } = {};
+
+    if (!fullName.trim()) {
+      newErrors.fullName = 'Full name is required';
+    } else if (fullName.length < 2) {
+      newErrors.fullName = 'Name must be at least 2 characters';
+    }
+
+    if (phone) {
+      // Basic Indian mobile number validation (starts with 6-9, 10 digits)
+      const phoneRegex = /^[6-9]\d{9}$/;
+      // Allow +91 prefix
+      const cleanPhone = phone.replace('+91', '').trim();
+      if (!phoneRegex.test(cleanPhone)) {
+        newErrors.phone = 'Please enter a valid 10-digit mobile number';
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleUpdate = async () => {
     if (!user) return;
+    if (!validate()) {
+      toast.error('Please fix the errors before saving');
+      return;
+    }
 
-    const updates = {
-      id: user.id,
-      data: {
-        fullName,
-        avatar_url: profilePictureUrl,
-      },
-    };
+    setSaving(true);
+    try {
+      const updates = {
+        data: {
+          fullName,
+          phone, // Storing phone in metadata as well for easy access
+          avatar_url: profilePictureUrl,
+        },
+      };
 
-    const { error } = await supabase.auth.updateUser(updates)
-    if (error) {
-      console.error('Error updating user:', error);
-    } else {
-      setIsEditing(false);
-      // Refresh user data locally
+      const { error } = await supabase.auth.updateUser(updates);
+
+      if (error) throw error;
+
+      // Also try to update the profiles table if it exists and RLS allows
+      // This is a best-effort attempt to keep data in sync
+      try {
+        await supabase
+          .from('profiles')
+          .upsert({
+            id: user.id,
+            full_name: fullName,
+            mobile_number: phone,
+            avatar_url: profilePictureUrl,
+            updated_at: new Date().toISOString(),
+          });
+      } catch (dbError) {
+        console.warn('Could not update profiles table:', dbError);
+      }
+
+      toast.success('Profile updated successfully');
+
+      // Refresh user data
       const { data: { user: updatedUser } } = await supabase.auth.getUser();
       setUser(updatedUser);
-      if (updatedUser) {
-        setFullName(updatedUser.user_metadata.fullName || '');
-        setProfilePictureUrl(updatedUser.user_metadata.avatar_url || '');
-      }
+    } catch (error: any) {
+      console.error('Error updating user:', error);
+      toast.error(error.message || 'Failed to update profile');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -65,109 +116,178 @@ export const Profile: React.FC = () => {
     const file = event.target.files?.[0];
     if (!file || !user) return;
 
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${user.id}-${Math.random()}.${fileExt}`;
-    const filePath = `${fileName}`;
+    const toastId = toast.loading('Uploading avatar...');
 
-    let { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file);
-    if (uploadError) {
-      console.error('Error uploading avatar:', uploadError);
-      return;
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}-${Math.random()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      let { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file);
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
+      setProfilePictureUrl(data.publicUrl);
+
+      // Auto-save after upload
+      await supabase.auth.updateUser({
+        data: { avatar_url: data.publicUrl }
+      });
+
+      toast.success('Avatar updated', { id: toastId });
+    } catch (error: any) {
+      console.error('Error uploading avatar:', error);
+      toast.error('Failed to upload avatar', { id: toastId });
     }
-
-    const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
-    setProfilePictureUrl(data.publicUrl);
   };
 
   if (loading) {
-    return <div className="p-8 text-center text-slate-500 dark:text-slate-400">Loading profile...</div>;
+    return (
+      <div className="p-8 text-center space-y-4">
+        <div className="w-16 h-16 border-4 border-teal-200 border-t-teal-600 rounded-full animate-spin mx-auto"></div>
+        <p className="text-slate-500 dark:text-slate-400">Loading profile...</p>
+      </div>
+    );
   }
 
   return (
-    <div className="animate-fade-in space-y-8">
-      <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-100 dark:border-slate-700 shadow-sm">
-        <div className="flex items-center space-x-6">
-          <div className="relative">
-            <img
-              src={profilePictureUrl || `https://api.dicebear.com/8.x/initials/svg?seed=${email}`}
-              alt="avatar"
-              className="w-24 h-24 rounded-full object-cover border-4 border-white dark:border-slate-800 shadow-lg"
-            />
-            {isEditing && (
-              <button onClick={handleAvatarClick} className="absolute bottom-0 right-0 bg-teal-500 hover:bg-teal-600 text-white p-2 rounded-full shadow-md transition-transform hover:scale-110">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={ICONS.EDIT} /></svg>
-              </button>
-            )}
+    <div className="animate-fade-in space-y-6 max-w-3xl mx-auto">
+      {/* Header Card */}
+      <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-100 dark:border-slate-700 shadow-sm relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-r from-teal-500/10 to-emerald-500/10 dark:from-teal-900/20 dark:to-emerald-900/20"></div>
+
+        <div className="relative flex flex-col sm:flex-row items-center sm:items-end gap-6 pt-4">
+          <div className="relative group">
+            <div className="w-28 h-28 rounded-full p-1 bg-white dark:bg-slate-800 shadow-xl">
+              <img
+                src={profilePictureUrl || `https://api.dicebear.com/8.x/initials/svg?seed=${email}`}
+                alt="avatar"
+                className="w-full h-full rounded-full object-cover border-2 border-slate-100 dark:border-slate-700"
+              />
+            </div>
+            <button
+              onClick={handleAvatarClick}
+              className="absolute bottom-1 right-1 bg-teal-600 hover:bg-teal-700 text-white p-2.5 rounded-full shadow-lg transition-transform hover:scale-110 border-2 border-white dark:border-slate-800"
+              title="Change Avatar"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={ICONS.EDIT} /></svg>
+            </button>
             <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" />
           </div>
-          <div className='flex-grow'>
-            {isEditing ? (
-              <input
-                type="text"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                className="w-full text-2xl font-bold text-slate-900 dark:text-white bg-transparent border-b-2 border-slate-200 dark:border-slate-600 focus:outline-none focus:border-teal-500 transition"
-              />
-            ) : (
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{fullName || 'Set Your Name'}</h2>
-            )}
-            <p className="text-slate-500 dark:text-slate-400">{email}</p>
-          </div>
-          {!isEditing ? (
-            <button onClick={() => setIsEditing(true)} className="bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 font-bold py-2 px-4 rounded-lg transition-colors flex items-center gap-2">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={ICONS.EDIT} /></svg>
-              Edit
-            </button>
-          ) : (
-            <div className="flex gap-2">
-              <button onClick={handleUpdate} className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">
-                Save
-              </button>
-              <button onClick={() => setIsEditing(false)} className="bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 font-bold py-2 px-4 rounded-lg transition-colors">
-                Cancel
-              </button>
+
+          <div className="flex-grow text-center sm:text-left pb-2">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{fullName || 'Set Your Name'}</h2>
+            <p className="text-slate-500 dark:text-slate-400 font-medium">{email}</p>
+            <div className="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-300">
+              Verified User
             </div>
-          )}
+          </div>
         </div>
       </div>
 
+      {/* Personal Information Form */}
       <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-100 dark:border-slate-700 shadow-sm">
-        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Personal Information</h3>
-        <div className="space-y-4">
-          <InfoRow
-            icon={ICONS.USER}
-            label="Full Name"
-            value={isEditing ?
-              <input type="text" value={fullName} onChange={e => setFullName(e.target.value)} className="form-input" /> :
-              fullName || 'Not set'
-            }
-            isEditing={isEditing}
-          />
-          <InfoRow
-            icon={ICONS.EMAIL}
-            label="Email Address"
-            value={email}
-          />
-          <InfoRow
-            icon={ICONS.PHONE}
-            label="Mobile Number"
-            value={isEditing ?
-              <input type="text" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+123456789" className="form-input" /> :
-              phone || 'Not set'
-            }
-            isEditing={isEditing}
-          />
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <span className="text-2xl">👤</span> Personal Information
+          </h3>
+          {saving && <span className="text-sm text-teal-600 animate-pulse font-medium">Saving changes...</span>}
+        </div>
+
+        <div className="space-y-6">
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Full Name</label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  className={`w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-900 border ${errors.fullName ? 'border-red-500 focus:ring-red-500' : 'border-slate-200 dark:border-slate-700 focus:border-teal-500 focus:ring-teal-500'} focus:ring-2 transition-all outline-none`}
+                  placeholder="Enter your full name"
+                />
+                <div className="absolute right-3 top-3.5 text-slate-400">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                </div>
+              </div>
+              {errors.fullName && <p className="text-xs text-red-500 mt-1">{errors.fullName}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Mobile Number</label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className={`w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-900 border ${errors.phone ? 'border-red-500 focus:ring-red-500' : 'border-slate-200 dark:border-slate-700 focus:border-teal-500 focus:ring-teal-500'} focus:ring-2 transition-all outline-none`}
+                  placeholder="+91 98765 43210"
+                />
+                <div className="absolute right-3 top-3.5 text-slate-400">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                </div>
+              </div>
+              {errors.phone && <p className="text-xs text-red-500 mt-1">{errors.phone}</p>}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Email Address</label>
+            <div className="relative opacity-70">
+              <input
+                type="email"
+                value={email}
+                disabled
+                className="w-full px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 cursor-not-allowed"
+              />
+              <div className="absolute right-3 top-3.5 text-slate-400">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+              </div>
+            </div>
+            <p className="text-xs text-slate-500">Email address cannot be changed</p>
+          </div>
+
+          <div className="pt-4 flex justify-end">
+            <button
+              onClick={handleUpdate}
+              disabled={saving}
+              className={`
+                px-8 py-3 rounded-xl font-bold text-white shadow-lg shadow-teal-500/30
+                transition-all duration-200 flex items-center gap-2
+                ${saving
+                  ? 'bg-slate-400 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 hover:scale-[1.02] active:scale-[0.98]'
+                }
+              `}
+            >
+              {saving ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Saving Changes...
+                </>
+              ) : (
+                <>
+                  Save Changes
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Account Management Section */}
       <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-100 dark:border-slate-700 shadow-sm">
-        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Account Management</h3>
+        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+          <span className="text-2xl">⚙️</span> Account Settings
+        </h3>
         <div className="space-y-4">
-          <div className="flex items-center justify-between py-3 border-b border-slate-100 dark:border-slate-700">
+          <div className="flex items-center justify-between py-4 border-b border-slate-100 dark:border-slate-700">
             <div>
-              <p className="text-sm font-medium text-slate-900 dark:text-white">Logout</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Sign out of your account</p>
+              <p className="text-sm font-bold text-slate-900 dark:text-white">Sign Out</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Log out of your account on this device</p>
             </div>
             <button
               onClick={async () => {
@@ -182,18 +302,16 @@ export const Profile: React.FC = () => {
             </button>
           </div>
 
-          <div className="flex items-center justify-between py-3">
+          <div className="flex items-center justify-between py-4">
             <div>
-              <p className="text-sm font-medium text-red-600 dark:text-red-400">Delete Account</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Permanently delete your account and all data</p>
+              <p className="text-sm font-bold text-red-600 dark:text-red-400">Delete Account</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Permanently remove your account and data</p>
             </div>
             <button
               onClick={async () => {
                 if (confirm('⚠️ WARNING: This action cannot be undone!\n\nAre you absolutely sure you want to permanently delete your account? All your data, bookings, and reviews will be lost forever.')) {
                   if (confirm('Please confirm one more time: Delete my account permanently?')) {
                     try {
-                      // In production, this should call a backend endpoint to handle account deletion
-                      // For now, we'll just sign out
                       await supabase.auth.signOut();
                       alert('Account deletion request submitted. Our team will process this within 24-48 hours.');
                       window.location.href = '/';
@@ -206,7 +324,7 @@ export const Profile: React.FC = () => {
               }}
               className="px-4 py-2 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 font-semibold rounded-lg transition-colors border border-red-200 dark:border-red-800"
             >
-              Delete Account
+              Delete
             </button>
           </div>
         </div>
@@ -215,15 +333,4 @@ export const Profile: React.FC = () => {
   );
 };
 
-const InfoRow: React.FC<{ icon: string, label: string, value: React.ReactNode, isEditing?: boolean }> = ({ icon, label, value, isEditing }) => (
-  <div className="flex items-center justify-between py-3 border-b border-slate-100 dark:border-slate-700 last:border-b-0">
-    <div className="flex items-center gap-4">
-      <svg className="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={icon} /></svg>
-      <span className="text-sm font-medium text-slate-600 dark:text-slate-300">{label}</span>
-    </div>
-    <div className={`text-sm text-right ${isEditing ? '' : 'text-slate-900 dark:text-white font-semibold'}`}>
-      {value}
-    </div>
-  </div>
-)
 
