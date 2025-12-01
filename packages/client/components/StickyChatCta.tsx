@@ -11,15 +11,6 @@ interface StickyChatCtaProps {
     placeholder?: string;
 }
 
-import React, { useState, useEffect } from 'react';
-import { ChatInput } from './ChatInput';
-import { useNavigate } from 'react-router-dom';
-
-interface StickyChatCtaProps {
-    serviceCategory?: string;
-    onSend?: (content: { type: 'text' | 'audio' | 'video', data: string | Blob }) => void;
-    placeholder?: string;
-}
 
 const AIAnalysisOverlay: React.FC<{
     isVisible: boolean;
@@ -55,7 +46,7 @@ const AIAnalysisOverlay: React.FC<{
 
                     {/* Text Content */}
                     <h3 className="text-2xl font-bold text-white mb-2">
-                        {isComplete ? "Pros Found!" : "Lokals AI is working..."}
+                        {isComplete ? "Pros Found!" : "thelokals.com AI is working..."}
                     </h3>
                     <p className="text-slate-400 mb-8 h-6">
                         {isComplete
@@ -227,7 +218,7 @@ export const StickyChatCta: React.FC<StickyChatCtaProps> = ({ serviceCategory, o
                                     <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
                                 </span>
                                 <span className="text-[10px] font-bold uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600">
-                                    Lokals AI Assistant
+                                    thelokals.com AI Assistant
                                 </span>
                             </div>
                             {serviceCategory && (

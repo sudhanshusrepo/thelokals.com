@@ -1,6 +1,6 @@
 
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../../core/services/supabase';
 import { ICONS } from '../constants';
 import { User } from '@supabase/supabase-js';
@@ -23,6 +23,8 @@ export const Header: React.FC<HeaderProps> = ({
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isMenuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -41,6 +43,23 @@ export const Header: React.FC<HeaderProps> = ({
       authListener.subscription.unsubscribe();
     };
   }, []);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMenuOpen]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -116,7 +135,7 @@ export const Header: React.FC<HeaderProps> = ({
               </a>
 
               {user ? (
-                <div className="relative">
+                <div className="relative" ref={menuRef}>
                   <button
                     onClick={() => setMenuOpen(!isMenuOpen)}
                     className="flex items-center gap-2 p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
@@ -133,57 +152,24 @@ export const Header: React.FC<HeaderProps> = ({
                   </button>
 
                   {isMenuOpen && (
-                    <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-100 dark:border-slate-700 py-2 transition-all duration-200 scale-95 group-hover:scale-100 origin-top-right" role="menu">
-                      <div className="px-4 py-2 border-b border-slate-100 dark:border-slate-700 mb-1">
-                        <p className="text-xs text-slate-500 dark:text-slate-400">Signed in as</p>
-                        <p className="text-sm font-bold text-slate-900 dark:text-white truncate">{user.email}</p>
+                    <div className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-100 dark:border-slate-700 py-2 transition-all duration-200 origin-top-right" role="menu">
+                      <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Signed in as</p>
+                        <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">{user.email}</p>
                       </div>
 
-                      <label className="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2 cursor-pointer" role="menuitem">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={async (e) => {
-                            if (!e.target.files || e.target.files.length === 0) return;
-                            const file = e.target.files[0];
-                            const fileExt = file.name.split('.').pop();
-                            const fileName = `${user.id}-${Math.random()}.${fileExt}`;
-
-                            try {
-                              // Upload to Supabase
-                              const { data, error } = await supabase.storage
-                                .from('avatars')
-                                .upload(fileName, file);
-
-                              if (error) throw error;
-
-                              // Get public URL
-                              const { data: { publicUrl } } = supabase.storage
-                                .from('avatars')
-                                .getPublicUrl(fileName);
-
-                              // Update profile
-                              await supabase.auth.updateUser({
-                                data: { avatar_url: publicUrl }
-                              });
-
-                              // Force refresh (optional, subscription handles it)
-                              setUser({ ...user, user_metadata: { ...user.user_metadata, avatar_url: publicUrl } });
-
-                            } catch (error) {
-                              console.error('Error uploading avatar:', error);
-                              alert('Failed to upload image. Please try again.');
-                            }
-                          }}
-                        />
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                        Change Photo
-                      </label>
-
-                      <button onClick={handleSignOut} className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 flex items-center gap-2" role="menuitem">
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={ICONS.SIGN_OUT} /></svg>
-                        Sign Out
+                      <button
+                        onClick={() => {
+                          navigate('/dashboard/profile');
+                          setMenuOpen(false);
+                        }}
+                        className="w-full text-left px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2"
+                        role="menuitem"
+                      >
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        View Profile
                       </button>
                     </div>
                   )}

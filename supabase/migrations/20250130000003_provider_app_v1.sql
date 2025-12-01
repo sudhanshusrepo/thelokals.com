@@ -199,6 +199,11 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 CREATE OR REPLACE FUNCTION notify_provider_new_booking_request()
 RETURNS TRIGGER AS $$
 BEGIN
+  -- Only create notification if provider is assigned
+  IF NEW.provider_id IS NULL THEN
+    RETURN NEW;
+  END IF;
+  
   -- Create notification for provider
   PERFORM create_provider_notification(
     NEW.provider_id,
@@ -223,7 +228,7 @@ DROP TRIGGER IF EXISTS trigger_notify_provider_new_booking ON public.bookings;
 CREATE TRIGGER trigger_notify_provider_new_booking
   AFTER INSERT ON public.bookings
   FOR EACH ROW
-  WHEN (NEW.status = 'PENDING')
+  WHEN (NEW.status = 'PENDING' AND NEW.provider_id IS NOT NULL)
   EXECUTE FUNCTION notify_provider_new_booking_request();
 
 -- Trigger to create notification when booking status changes
@@ -234,6 +239,11 @@ DECLARE
 BEGIN
   -- Only notify on status changes
   IF OLD.status = NEW.status THEN
+    RETURN NEW;
+  END IF;
+  
+  -- Only create notification if provider is assigned
+  IF NEW.provider_id IS NULL THEN
     RETURN NEW;
   END IF;
   
@@ -268,7 +278,7 @@ DROP TRIGGER IF EXISTS trigger_notify_provider_booking_update ON public.bookings
 CREATE TRIGGER trigger_notify_provider_booking_update
   AFTER UPDATE ON public.bookings
   FOR EACH ROW
-  WHEN (OLD.status IS DISTINCT FROM NEW.status)
+  WHEN (OLD.status IS DISTINCT FROM NEW.status AND NEW.provider_id IS NOT NULL)
   EXECUTE FUNCTION notify_provider_booking_update();
 
 -- ============================================================================
