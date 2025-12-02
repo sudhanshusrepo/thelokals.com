@@ -1,0 +1,91 @@
+import { geminiService } from './geminiService';
+
+export interface ClassificationResult {
+    serviceCategory: string;
+    serviceMode: 'local' | 'online';
+    urgency: 'low' | 'normal' | 'high' | 'emergency';
+    estimatedDuration: { min: number; max: number }; // minutes
+    suggestedQuestions: string[];
+    confidence: number; // 0-1
+}
+
+/**
+ * AI Classification Service using Gemini
+ */
+export const aiClassificationService = {
+    /**
+     * Classify service request using Gemini
+     */
+    async classifyRequest(
+        input: string,
+        location?: { lat: number; lng: number }
+    ): Promise<ClassificationResult> {
+        const prompt = `
+You are a service classification AI for thelokals.com, a platform connecting customers with service providers in India.
+
+Customer request: "${input}"
+${location ? `Customer location: ${location.lat}, ${location.lng}` : ''}
+
+Analyze this request and provide:
+1. Service category (use snake_case: cleaning, plumbing, tax_consulting, web_development, etc.)
+2. Service mode: "local" (physical, on-location) or "online" (remote, digital)
+3. Urgency level: 
+   - "low": Can wait days/weeks
+   - "normal": Within 1-2 days
+   - "high": Same day needed
+   - "emergency": Immediate (water leak, electrical issue, etc.)
+4. Estimated duration range in minutes (min and max)
+5. 2-3 clarifying questions to ask the customer
+6. Confidence score (0-1)
+
+Examples:
+- "My sink is leaking" → cleaning/plumbing, local, high urgency
+- "Need tax filing help" → tax_consulting, online, normal urgency
+- "Website design needed" → web_development, online, low urgency
+
+Respond ONLY with valid JSON (no markdown, no code blocks):
+{
+  "serviceCategory": "string",
+  "serviceMode": "local" | "online",
+  "urgency": "low" | "normal" | "high" | "emergency",
+  "estimatedDuration": { "min": number, "max": number },
+  "suggestedQuestions": ["question1", "question2"],
+  "confidence": number
+}
+`;
+
+        try {
+            const response = await geminiService.generateContent(prompt);
+
+            // Extract JSON from response
+            const jsonMatch = response.match(/\{[\s\S]*\}/);
+            if (!jsonMatch) {
+                throw new Error('Invalid AI response format');
+            }
+
+            const result = JSON.parse(jsonMatch[0]) as ClassificationResult;
+
+            // Validate result
+            if (!result.serviceCategory || !result.serviceMode) {
+                throw new Error('Incomplete classification result');
+            }
+
+            return result;
+        } catch (error) {
+            console.error('Classification error:', error);
+
+            // Fallback classification
+            return {
+                serviceCategory: 'general_service',
+                serviceMode: location ? 'local' : 'online',
+                urgency: 'normal',
+                estimatedDuration: { min: 30, max: 120 },
+                suggestedQuestions: [
+                    'Can you provide more details about what you need?',
+                    'When would you like this service?'
+                ],
+                confidence: 0.3
+            };
+        }
+    }
+};

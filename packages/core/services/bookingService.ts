@@ -1,7 +1,7 @@
 
 import { supabase } from './supabase';
 import { Booking, BookingStatus, LiveBooking, LiveBookingStatus, Service } from '../types';
-import { BookingWithWorkerResponse, NearbyProviderResponse } from '../databaseTypes';
+import { BookingWithWorkerResponse, DbNearbyProviderResponse } from '../databaseTypes';
 import { logger } from './logger';
 
 /**
@@ -25,6 +25,15 @@ export const bookingService = {
     address: object;
     notes?: string;
   }): Promise<{ bookingId: string }> {
+    // Check service availability before creating booking
+    const city = (params.address as any)?.city;
+    if (city) {
+      const isAvailable = await this.checkServiceAvailability(params.serviceCategory, city);
+      if (!isAvailable) {
+        throw new Error(`${params.serviceCategory} is currently unavailable in ${city}. Please try again later or contact support.`);
+      }
+    }
+
     const { data, error } = await supabase.rpc('create_ai_booking', {
       p_client_id: params.clientId,
       p_service_category: params.serviceCategory,
@@ -251,10 +260,10 @@ export const bookingService = {
    * @param {number} lat - The latitude of the user's location.
    * @param {number} lng - The longitude of the user's location.
    * @param {number} distance - The search radius in meters.
-   * @returns {Promise<NearbyProviderResponse[]>} A list of nearby providers.
+   * @returns {Promise<DbNearbyProviderResponse[]>} A list of nearby providers.
    * @throws {Error} If the database query fails.
    */
-  async findNearbyProviders(serviceId: string, lat: number, lng: number, distance: number): Promise<NearbyProviderResponse[]> {
+  async findNearbyProviders(serviceId: string, lat: number, lng: number, distance: number): Promise<DbNearbyProviderResponse[]> {
     const { data, error } = await supabase
       .rpc('find_nearby_providers', {
         service_id: serviceId,
@@ -267,7 +276,7 @@ export const bookingService = {
       logger.error('Error finding nearby providers', { error, serviceId, lat, lng, distance });
       throw error;
     }
-    return data as NearbyProviderResponse[];
+    return data as DbNearbyProviderResponse[];
   },
 
   /**
@@ -335,5 +344,28 @@ export const bookingService = {
       throw error;
     }
     return data;
+  },
+
+  /**
+   * Checks if a service is available in a given location
+   * @param {string} serviceCategoryId - The ID of the service category
+   * @param {string} city - The city to check availability for
+   * @returns {Promise<boolean>} True if service is available, false otherwise
+   */
+  async checkServiceAvailability(serviceCategoryId: string, city: string): Promise<boolean> {
+    const { data, error } = await supabase
+      .from('service_availability')
+      .select('status')
+      .eq('service_category_id', serviceCategoryId)
+      .eq('location_value', city)
+      .eq('location_type', 'city')
+      .single();
+
+    // If no record exists, service is available by default
+    if (error || !data) {
+      return true;
+    }
+
+    return data.status === 'ENABLED';
   }
 };

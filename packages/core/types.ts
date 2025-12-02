@@ -44,19 +44,6 @@ export enum WorkerCategory {
   LOCAL_BIZ_DIGITIZATION = 'LocalBizDigitization',
   OTHER = 'Other',
 }
-
-export type Coordinates = {
-  lat: number;
-  lng: number;
-};
-
-export type WorkerStatus = 'AVAILABLE' | 'BUSY' | 'OFFLINE';
-
-export interface SearchIntent {
-  category: WorkerCategory | null;
-  keywords: string[];
-  sortBy: 'price' | 'rating' | 'distance' | 'relevance';
-  urgency: 'high' | 'normal';
 }
 
 

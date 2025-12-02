@@ -3,7 +3,7 @@ import { supabase } from './supabase';
 import { WorkerProfile, WorkerCategory, WorkerStatus } from '../types';
 import { logger } from './logger';
 import { bookingService } from './bookingService';
-import { DatabaseWorker, NearbyProviderResponse } from '../databaseTypes';
+import { DatabaseWorker, DbNearbyProviderResponse } from '../databaseTypes';
 
 /**
  * @module workerService
@@ -23,9 +23,9 @@ export const workerService = {
       // Use the new booking service function to find nearby providers
       const nearby = await bookingService.findNearbyProviders(serviceId, lat, lng, 5000); // 5km radius
 
-      // Map NearbyProviderResponse to WorkerProfile
-      // Note: Some fields are missing in NearbyProviderResponse, so we use defaults
-      return nearby.map((p: NearbyProviderResponse) => ({
+      // Map DbNearbyProviderResponse to WorkerProfile
+      // Note: Some fields are missing in DbNearbyProviderResponse, so we use defaults
+      return nearby.map((p: DbNearbyProviderResponse) => ({
         id: p.id,
         name: p.name,
         category: p.category as WorkerCategory, // Assuming category matches enum

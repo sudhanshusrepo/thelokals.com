@@ -11,23 +11,23 @@ interface StepProps {
 }
 
 export const ReviewStep: React.FC<StepProps> = ({ data, updateData, onBack }) => {
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const toast = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const toast = useToast();
 
-    const handleSubmit = async () => {
-        setIsSubmitting(true);
-        try {
-            const finalData = { ...data, registrationStatus: RegistrationStatus.Submitted };
-            updateData(finalData);
-            await backend.db.saveProfile(finalData);
-            await backend.db.deleteDraft(); // Clear draft on successful submission
-            toast.show('Application submitted successfully! We will review it and get back to you.', { type: 'success', duration: 5000 });
-            // Here you would typically redirect to a 'Thank You' or 'Pending Review' page
-        } catch (err) {
-            toast.show(`Submission failed: ${(err as Error).message}`, { type: 'error' });
-            setIsSubmitting(false);
-        }
-    };
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    try {
+      const finalData = { ...data, registrationStatus: RegistrationStatus.Submitted };
+      updateData(finalData);
+      await backend.db.saveProfile(finalData);
+      await backend.db.deleteDraft(); // Clear draft on successful submission
+      toast.success('Application submitted successfully! We will review it and get back to you.');
+      // Here you would typically redirect to a 'Thank You' or 'Pending Review' page
+    } catch (err) {
+      toast.error(`Submission failed: ${(err as Error).message}`);
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="flex flex-col h-full">
@@ -36,32 +36,32 @@ export const ReviewStep: React.FC<StepProps> = ({ data, updateData, onBack }) =>
         <p className="text-slate-500 mt-2">Please review your details one last time before submitting your application.</p>
 
         <div className="mt-6 bg-white border border-slate-200 rounded-lg divide-y divide-slate-200">
-            <div className="p-4 flex justify-between items-center">
-                <span className="text-sm font-medium text-slate-600">Full Name</span>
-                <span className="text-sm text-slate-800 font-semibold">{data.fullName}</span>
-            </div>
-            <div className="p-4 flex justify-between items-center">
-                <span className="text-sm font-medium text-slate-600">Phone</span>
-                <span className="text-sm text-slate-800 font-semibold">{data.phoneNumber}</span>
-            </div>
-             <div className="p-4 flex justify-between items-center">
-                <span className="text-sm font-medium text-slate-600">Date of Birth</span>
-                <span className="text-sm text-slate-800 font-semibold">{data.dob}</span>
-            </div>
-            <div className="p-4 flex justify-between items-center">
-                <span className="text-sm font-medium text-slate-600">Location</span>
-                <span className="text-sm text-slate-800 font-semibold">{data.locality}, {data.city}</span>
-            </div>
-            <div className="p-4 flex justify-between items-center">
-                <span className="text-sm font-medium text-slate-600">Documents</span>
-                <span className="text-sm text-green-600 font-semibold">{Object.values(data.documents).filter(d => d.status === 'uploaded').length} files uploaded</span>
-            </div>
-            <div className="p-4 flex justify-between items-center">
-                <span className="text-sm font-medium text-slate-600">Guidelines</span>
-                <span className={`text-sm font-semibold ${data.guidelinesAccepted ? 'text-green-600' : 'text-red-600'}`}>
-                    {data.guidelinesAccepted ? 'Accepted' : 'Not Accepted'}
-                </span>
-            </div>
+          <div className="p-4 flex justify-between items-center">
+            <span className="text-sm font-medium text-slate-600">Full Name</span>
+            <span className="text-sm text-slate-800 font-semibold">{data.fullName}</span>
+          </div>
+          <div className="p-4 flex justify-between items-center">
+            <span className="text-sm font-medium text-slate-600">Phone</span>
+            <span className="text-sm text-slate-800 font-semibold">{data.phoneNumber}</span>
+          </div>
+          <div className="p-4 flex justify-between items-center">
+            <span className="text-sm font-medium text-slate-600">Date of Birth</span>
+            <span className="text-sm text-slate-800 font-semibold">{data.dob}</span>
+          </div>
+          <div className="p-4 flex justify-between items-center">
+            <span className="text-sm font-medium text-slate-600">Location</span>
+            <span className="text-sm text-slate-800 font-semibold">{data.locality}, {data.city}</span>
+          </div>
+          <div className="p-4 flex justify-between items-center">
+            <span className="text-sm font-medium text-slate-600">Documents</span>
+            <span className="text-sm text-green-600 font-semibold">{Object.values(data.documents).filter(d => d.status === 'uploaded').length} files uploaded</span>
+          </div>
+          <div className="p-4 flex justify-between items-center">
+            <span className="text-sm font-medium text-slate-600">Guidelines</span>
+            <span className={`text-sm font-semibold ${data.guidelinesAccepted ? 'text-green-600' : 'text-red-600'}`}>
+              {data.guidelinesAccepted ? 'Accepted' : 'Not Accepted'}
+            </span>
+          </div>
         </div>
       </div>
 

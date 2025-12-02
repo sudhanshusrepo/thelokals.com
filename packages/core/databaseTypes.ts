@@ -38,7 +38,7 @@ export interface DatabaseWorker {
     location_lng: number;
 }
 
-export interface NearbyProviderResponse {
+export interface DbNearbyProviderResponse {
     id: string;
     name: string;
     category: string;

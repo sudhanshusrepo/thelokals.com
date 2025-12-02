@@ -13,38 +13,6 @@ export interface AIAnalysisResult {
   reasoning: string;
 }
 
-/**
- * Interprets a user's search query using the Google Gemini API (via Edge Function).
- *
- * @param {string} query - The user's search query.
- * @returns {Promise<SearchIntent>} A structured search intent object.
- */
-export const interpretSearchQuery = async (query: string): Promise<SearchIntent> => {
-  try {
-    const categoriesList = Object.values(WorkerCategory).join(', ');
-
-    const { data, error } = await supabase.functions.invoke('estimate-service', {
-      body: {
-        action: 'interpretSearch',
-        payload: {
-          query,
-          categoriesList
-        }
-      }
-    });
-
-    if (error) throw error;
-    return data as SearchIntent;
-
-  } catch (error) {
-    logger.error("Gemini API Error (Edge Function)", { error, query });
-    // Fallback intent
-    return {
-      category: null,
-      keywords: query.split(" "),
-      sortBy: 'relevance',
-      urgency: 'normal'
-    };
   }
 };
 

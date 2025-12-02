@@ -13,14 +13,16 @@ export enum DocType {
 export enum RegistrationStatus {
     Incomplete = 'incomplete',
     Pending = 'pending',
+    Submitted = 'submitted',
     Approved = 'approved',
     Rejected = 'rejected',
 }
 
 export interface ProviderDocument {
     type: DocType;
-    status: 'empty' | 'uploading' | 'analyzing' | 'verified' | 'error' | 'uploaded';
+    status: 'empty' | 'uploading' | 'analyzing' | 'verified' | 'error' | 'uploaded' | 'rejected';
     file?: File;
+    url?: string;
     previewUrl?: string;
     error?: string;
     source?: 'manual' | 'digilocker';
@@ -41,6 +43,7 @@ export interface OnboardingData {
     idNumber?: string;
     selfie?: string;
     isAgreedToTerms?: boolean;
+    guidelinesAccepted?: boolean;
     registrationStatus?: RegistrationStatus;
     documents: {
         [key in DocType]: ProviderDocument;

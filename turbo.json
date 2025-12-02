@@ -13,7 +13,9 @@
                 "POSTGRES_URL",
                 "POSTGRES_PRISMA_URL",
                 "POSTGRES_URL_NON_POOLING",
-                "POSTGRES_PASSWORD"
+                "POSTGRES_PASSWORD",
+                "VITE_SUPABASE_URL",
+                "VITE_SUPABASE_ANON_KEY"
             ]
         },
         "dev": {
@@ -21,10 +23,19 @@
             "persistent": true
         },
         "test": {
-            "outputs": []
+            "outputs": [],
+            "dependsOn": [
+                "^build"
+            ]
         },
         "lint": {
             "outputs": []
+        },
+        "type-check": {
+            "outputs": [],
+            "dependsOn": [
+                "^build"
+            ]
         }
     }
 }

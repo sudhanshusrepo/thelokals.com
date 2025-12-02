@@ -1,4 +1,4 @@
-import { ProviderProfile } from '../types';
+import { ProviderProfile } from '../../types';
 
 export interface StepProps {
   data: ProviderProfile;

@@ -22,11 +22,20 @@
       "@/*": [
         "./*"
       ],
+      "@thelocals/core": [
+        "../core/index.ts"
+      ],
       "@core/*": [
         "../core/*"
       ]
     },
     "allowImportingTsExtensions": true,
-    "noEmit": true
-  }
+    "noEmit": true,
+    "composite": true
+  },
+  "references": [
+    {
+      "path": "../core"
+    }
+  ]
 }

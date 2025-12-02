@@ -4,7 +4,7 @@ import { bookingService } from '../services/bookingService';
 import { liveBookingService as providerLiveBookingService } from '../services/liveBookingService';
 import { liveBookingService as coreLiveBookingService } from '../../core/services/liveBookingService';
 import { Booking, BookingStatus, BookingRequest } from '../../core/types';
-import { supabase } from '../../core/services/supabase';
+import { supabase } from '@core/services/supabase';
 
 import { ProfileTab } from './ProfileTab';
 import { ProviderProfile } from '../types';
@@ -31,8 +31,8 @@ export const ProviderDashboard: React.FC = () => {
       setBookings(data);
 
       const earnings = data
-        .filter(b => b.status === 'COMPLETED' && b.payment_status === 'paid')
-        .reduce((acc, b) => acc + (b.total_price || 0), 0);
+        .filter(b => b.status === 'COMPLETED' && b.payment_status === 'PAID')
+        .reduce((acc, b) => acc + (b.final_cost || b.estimated_cost || 0), 0);
       setTotalEarnings(earnings);
 
     } catch (error) {
