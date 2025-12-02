@@ -11,7 +11,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@thelocals/core": "workspace:*",
+    "@thelocals/core": "file:../core",
     "@supabase/supabase-js": "^2.86.0",
     "@react-oauth/google": "^0.12.1",
     "date-fns": "^4.1.0",
