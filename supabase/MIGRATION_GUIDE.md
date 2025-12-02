@@ -1,22 +1,5 @@
 # Supabase Migration Guide
 
-## Overview
-This guide provides step-by-step instructions for running the refactored Supabase migrations. The migrations have been reorganized into 5 logical, sequential files that are error-free and idempotent.
-
-## Migration Files
-
-1. **01_core_schema.sql** - Extensions, Enums, Core Tables (Profiles, Providers, Service Categories)
-2. **02_booking_system.sql** - Booking System (Bookings, Lifecycle, Requests, OTP, Reviews)
-3. **03_admin_panel.sql** - Admin Panel (Admin Users, Audit Logs, Service Availability)
-4. **04_dynamic_pricing.sql** - Dynamic Pricing Engine (Pricing Tables, Analytics)
-5. **05_seeds.sql** - Seed Data (Service Categories, Base Prices, Admin User)
-
-## Prerequisites
-
-- Access to Supabase Dashboard
-- SQL Editor access in your Supabase project
-- Database backup (recommended before running migrations)
-
 ## Execution Steps
 
 ### Step 1: Backup Your Database (Recommended)

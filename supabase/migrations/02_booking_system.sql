@@ -56,15 +56,14 @@ CREATE TABLE IF NOT EXISTS public.booking_lifecycle_events (
   created_at timestamptz DEFAULT now()
 );
 
--- 3. Live Booking Requests
-CREATE TABLE IF NOT EXISTS public.live_booking_requests (
+-- 3. Booking Requests (Match Phase)
+CREATE TABLE IF NOT EXISTS public.booking_requests (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   booking_id uuid REFERENCES public.bookings(id) ON DELETE CASCADE NOT NULL,
   provider_id uuid REFERENCES public.providers(id) ON DELETE CASCADE NOT NULL,
-  status request_status DEFAULT 'PENDING',
-  expires_at timestamptz NOT NULL,
-  responded_at timestamptz,
+  status text CHECK (status IN ('PENDING', 'ACCEPTED', 'REJECTED', 'EXPIRED')) DEFAULT 'PENDING',
   created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now(),
   UNIQUE(booking_id, provider_id)
 );
 
@@ -103,8 +102,9 @@ CREATE INDEX IF NOT EXISTS idx_bookings_urgency ON public.bookings(urgency) WHER
 CREATE INDEX IF NOT EXISTS idx_lifecycle_events_booking ON public.booking_lifecycle_events(booking_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_lifecycle_events_phase ON public.booking_lifecycle_events(phase, created_at DESC);
 
-CREATE INDEX IF NOT EXISTS idx_live_requests_provider ON public.live_booking_requests(provider_id);
-CREATE INDEX IF NOT EXISTS idx_live_requests_booking ON public.live_booking_requests(booking_id);
+CREATE INDEX IF NOT EXISTS idx_booking_requests_provider ON public.booking_requests(provider_id);
+CREATE INDEX IF NOT EXISTS idx_booking_requests_booking ON public.booking_requests(booking_id);
+CREATE INDEX IF NOT EXISTS idx_booking_requests_status ON public.booking_requests(status);
 
 CREATE INDEX IF NOT EXISTS idx_booking_otp_booking ON public.booking_otp(booking_id);
 
@@ -158,32 +158,26 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Broadcast Live Booking
+-- Broadcast Live Booking (Creates Booking Requests)
 CREATE OR REPLACE FUNCTION broadcast_live_booking(
   p_booking_id uuid,
-  p_provider_ids uuid[],
-  p_expiry_minutes integer DEFAULT 1
+  p_provider_ids uuid[]
 )
 RETURNS integer AS $$
 DECLARE
   v_provider_id uuid;
   v_count integer := 0;
-  v_expires_at timestamptz;
 BEGIN
-  v_expires_at := now() + (p_expiry_minutes || ' minutes')::interval;
-  
   FOREACH v_provider_id IN ARRAY p_provider_ids
   LOOP
-    INSERT INTO public.live_booking_requests (
+    INSERT INTO public.booking_requests (
       booking_id,
       provider_id,
-      status,
-      expires_at
+      status
     ) VALUES (
       p_booking_id,
       v_provider_id,
-      'PENDING',
-      v_expires_at
+      'PENDING'
     )
     ON CONFLICT (booking_id, provider_id) DO NOTHING;
     
@@ -194,48 +188,50 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Accept Live Booking
-CREATE OR REPLACE FUNCTION accept_live_booking(
-  p_request_id uuid,
-  p_provider_id uuid
-)
-RETURNS boolean AS $$
+-- Accept Booking (Race Condition Handling)
+CREATE OR REPLACE FUNCTION accept_booking(
+  p_booking_id UUID,
+  p_provider_id UUID
+) RETURNS JSONB AS $$
 DECLARE
-  v_booking_id uuid;
-  v_request_status request_status;
+  v_booking_status TEXT;
+  v_request_status TEXT;
 BEGIN
-  SELECT booking_id, status 
-  INTO v_booking_id, v_request_status
-  FROM public.live_booking_requests
-  WHERE id = p_request_id AND provider_id = p_provider_id;
+  -- Lock the booking row
+  SELECT status INTO v_booking_status FROM bookings WHERE id = p_booking_id FOR UPDATE;
   
-  IF v_request_status != 'PENDING' THEN
-    RETURN false;
+  -- Check if booking is still available
+  IF v_booking_status NOT IN ('REQUESTED', 'PENDING') THEN
+    RETURN jsonb_build_object('success', false, 'message', 'Booking already taken or cancelled');
   END IF;
-  
-  UPDATE public.live_booking_requests
+
+  -- Check if request exists and is pending
+  SELECT status INTO v_request_status FROM booking_requests 
+  WHERE booking_id = p_booking_id AND provider_id = p_provider_id;
+
+  IF v_request_status != 'PENDING' THEN
+    RETURN jsonb_build_object('success', false, 'message', 'Request is no longer valid');
+  END IF;
+
+  -- Update booking
+  UPDATE bookings 
   SET 
-    status = 'ACCEPTED',
-    responded_at = now()
-  WHERE id = p_request_id;
-  
-  UPDATE public.bookings
-  SET 
+    status = 'CONFIRMED', 
     provider_id = p_provider_id,
-    status = 'CONFIRMED',
-    updated_at = now()
-  WHERE id = v_booking_id;
-  
-  UPDATE public.live_booking_requests
-  SET 
-    status = 'REJECTED',
-    responded_at = now()
-  WHERE 
-    booking_id = v_booking_id 
-    AND id != p_request_id 
-    AND status = 'PENDING';
-  
-  RETURN true;
+    updated_at = NOW()
+  WHERE id = p_booking_id;
+
+  -- Update this request to ACCEPTED
+  UPDATE booking_requests 
+  SET status = 'ACCEPTED', updated_at = NOW()
+  WHERE booking_id = p_booking_id AND provider_id = p_provider_id;
+
+  -- Expire other requests for this booking
+  UPDATE booking_requests 
+  SET status = 'EXPIRED', updated_at = NOW()
+  WHERE booking_id = p_booking_id AND provider_id != p_provider_id;
+
+  RETURN jsonb_build_object('success', true, 'message', 'Booking accepted successfully');
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
@@ -400,7 +396,7 @@ CREATE TRIGGER booking_status_change_trigger
 -- 9. RLS Policies
 ALTER TABLE public.bookings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.booking_lifecycle_events ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.live_booking_requests ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.booking_requests ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.booking_otp ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.reviews ENABLE ROW LEVEL SECURITY;
 
@@ -428,17 +424,17 @@ DROP POLICY IF EXISTS "bookings_update_own_provider" ON public.bookings;
 CREATE POLICY "bookings_update_own_provider" ON public.bookings
   FOR UPDATE USING (auth.uid() = provider_id);
 
--- Live Booking Requests Policies
-DROP POLICY IF EXISTS "live_requests_select_own" ON public.live_booking_requests;
-CREATE POLICY "live_requests_select_own" ON public.live_booking_requests
+-- Booking Requests Policies
+DROP POLICY IF EXISTS "booking_requests_select_own" ON public.booking_requests;
+CREATE POLICY "booking_requests_select_own" ON public.booking_requests
   FOR SELECT USING (auth.uid() = provider_id);
 
-DROP POLICY IF EXISTS "live_requests_insert_service" ON public.live_booking_requests;
-CREATE POLICY "live_requests_insert_service" ON public.live_booking_requests
+DROP POLICY IF EXISTS "booking_requests_insert_service" ON public.booking_requests;
+CREATE POLICY "booking_requests_insert_service" ON public.booking_requests
   FOR INSERT WITH CHECK (auth.role() = 'service_role');
 
-DROP POLICY IF EXISTS "live_requests_update_own" ON public.live_booking_requests;
-CREATE POLICY "live_requests_update_own" ON public.live_booking_requests
+DROP POLICY IF EXISTS "booking_requests_update_own" ON public.booking_requests;
+CREATE POLICY "booking_requests_update_own" ON public.booking_requests
   FOR UPDATE USING (
     auth.uid() = provider_id 
     AND status = 'PENDING'
