@@ -21,8 +21,9 @@ Deno.serve(async (req) => {
         // Webhook payload structure: { type: 'INSERT', table: 'bookings', record: { ... }, schema: 'public' }
         const { record } = payload as { record: Booking }
 
-        if (!record || record.status !== 'REQUESTED') {
-            return new Response(JSON.stringify({ message: 'Ignored: Not a new requested booking' }), {
+        // Check for PENDING status (initial state)
+        if (!record || record.status !== 'PENDING') {
+            return new Response(JSON.stringify({ message: 'Ignored: Not a new pending booking' }), {
                 headers: { 'Content-Type': 'application/json' },
                 status: 200,
             })
@@ -74,11 +75,8 @@ Deno.serve(async (req) => {
             throw new Error(`Failed to create requests: ${requestError.message}`)
         }
 
-        // 3. Update booking status to PENDING (Matching in progress)
-        await supabase
-            .from('bookings')
-            .update({ status: 'PENDING' })
-            .eq('id', record.id)
+        // 3. Status is already PENDING, no need to update
+        // But we can log that we've started the matching process
 
         // 4. Log lifecycle event
         await supabase
