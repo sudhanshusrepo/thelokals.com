@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback, Suspense, lazy } from 'react';
 import { Helmet } from 'react-helmet';
 import { BrowserRouter, Routes, Route, useParams, useNavigate, Link, useLocation } from 'react-router-dom';
-import { Header } from './components/Header';
+import { AppLayout, AppHeader, BottomNav, BottomNavItem } from '@thelocals/core';
 import { AuthModal } from './components/AuthModal';
 import { UserDashboard, DashboardView } from './components/UserDashboard';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -84,7 +84,7 @@ const ScrollToTop: React.FC = () => {
 const MainLayout: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { user, loading: authLoading } = useAuth();
+    const { user, loading: authLoading, signOut } = useAuth();
 
     const [isLocationLoading, setIsLocationLoading] = useState(false);
     const [userLocation, setUserLocation] = useState<Coordinates>(DEFAULT_CENTER);
@@ -171,114 +171,112 @@ const MainLayout: React.FC = () => {
         );
     }
 
+    const bottomNavItems: BottomNavItem[] = [
+        { label: "Home", to: "/", icon: "🏠" },
+        { label: "Bookings", to: "/dashboard/bookings", icon: "📋" },
+        { label: "Profile", to: "/dashboard/profile", icon: "👤" },
+        { label: "Support", to: "/dashboard/support", icon: "💬" }
+    ];
+
     return (
         <SkeletonTheme baseColor="#dcfce7" highlightColor="#bbf7d0">
-            <div className="min-h-screen bg-[#f0fdf4] dark:bg-slate-900 font-sans">
-                <Helmet>
-                    <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png" />
-                    <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png" />
-                    <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-16x16.png" />
-                    <link rel="manifest" href="/assets/images/site.webmanifest" />
-                </Helmet>
-                {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
+            <Helmet>
+                <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png" />
+                <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png" />
+                <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-16x16.png" />
+                <link rel="manifest" href="/assets/images/site.webmanifest" />
+            </Helmet>
+            {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
 
-                <Header
-                    isHome={location.pathname === '/'}
-                    title={getHeaderTitle()}
-                    onSignInClick={() => setShowAuthModal(true)}
-                    onSearch={() => { /* Not implemented for AI flow */ }}
-                />
+            <AppLayout
+                header={
+                    <AppHeader
+                        isHome={location.pathname === '/'}
+                        title={getHeaderTitle()}
+                        user={user}
+                        onSignInClick={() => setShowAuthModal(true)}
+                        onSignOutClick={signOut}
+                        onSearch={() => { /* Not implemented for AI flow */ }}
+                        showSearch={true}
+                    />
+                }
+                bottomNav={<BottomNav items={bottomNavItems} />}
+            >
+                {isLoading ? <HomeSkeleton /> : (
+                    <Suspense fallback={<HomeSkeleton />}>
+                        <ScrollToTop />
+                        <Routes>
+                            <Route path="/" element={<HomePage />} />
+                            <Route path="/schedule" element={<SchedulePage />} />
+                            <Route path="/group/:groupId" element={<GroupDetailPage />} />
+                            <Route path="/service/:category" element={<ServiceRequestPage />} />
+                            <Route path="/booking/:bookingId" element={<BookingConfirmation />} />
+                            <Route path="/dashboard/:view" element={<DashboardPage isLoading={isLoading} />} />
 
-                <main
-                    className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
-                    style={{
-                        paddingTop: 'calc(64px + env(safe-area-inset-top))',
-                        paddingBottom: '80px', // Space for bottom nav
-                    }}
-                >
-                    {isLoading ? <HomeSkeleton /> : (
-                        <Suspense fallback={<HomeSkeleton />}>
-                            <ScrollToTop />
-                            <Routes>
-                                <Route path="/" element={<HomePage />} />
-                                <Route path="/schedule" element={<SchedulePage />} />
-                                <Route path="/group/:groupId" element={<GroupDetailPage />} />
-                                <Route path="/service/:category" element={<ServiceRequestPage />} />
-                                <Route path="/booking/:bookingId" element={<BookingConfirmation />} />
-                                <Route path="/dashboard/:view" element={<DashboardPage isLoading={isLoading} />} />
+                            {/* SEO Category Routes */}
+                            <Route path="/login" element={<AuthModal onClose={() => navigate('/')} />} />
+                            <Route path="/home-cleaning-maids" element={
+                                <CategoryPage
+                                    title="Home Cleaning & Maids"
+                                    description="Professional home cleaning and maid services in your area. Book trusted cleaners for deep cleaning, regular maintenance, and more."
+                                    services={['Deep Cleaning', 'Regular Cleaning', 'Part-time Maid', 'Full-time Maid']}
+                                    icon="🧹"
+                                />
+                            } />
+                            <Route path="/cooks-tiffin" element={
+                                <CategoryPage
+                                    title="Cooks, Tiffin & Catering"
+                                    description="Find experienced cooks and reliable tiffin services near you. Fresh, home-cooked meals delivered to your doorstep."
+                                    services={['Personal Cook', 'Tiffin Service', 'Party Catering', 'Bulk Orders']}
+                                    icon="🍳"
+                                />
+                            } />
+                            <Route path="/electricians-plumbers" element={
+                                <CategoryPage
+                                    title="Electricians & Plumbers"
+                                    description="Expert electricians and plumbers available 24/7 for emergency repairs and installations."
+                                    services={['Electrical Repair', 'Plumbing Fixes', 'Installation', 'Maintenance']}
+                                    icon="🔧"
+                                />
+                            } />
+                            <Route path="/appliance-repair" element={
+                                <CategoryPage
+                                    title="Appliance Repairs"
+                                    description="Fast and reliable repair services for ACs, refrigerators, washing machines, and more."
+                                    services={['AC Repair', 'Refrigerator Repair', 'Washing Machine', 'Microwave']}
+                                    icon="⚙️"
+                                />
+                            } />
+                            <Route path="/tutors-home-tuitions" element={
+                                <CategoryPage
+                                    title="Tutors & Home Tuitions"
+                                    description="Qualified tutors for all subjects and grades. Personalized home tuition to help your child excel."
+                                    services={['Math Tutor', 'Science Tutor', 'English Tutor', 'Competitive Exams']}
+                                    icon="📚"
+                                />
+                            } />
+                            <Route path="/car-care" element={
+                                <CategoryPage
+                                    title="Car Wash & Car Care"
+                                    description="Premium car wash and detailing services at your doorstep. Keep your vehicle looking brand new."
+                                    services={['Car Wash', 'Interior Detailing', 'Polishing', 'Ceramic Coating']}
+                                    icon="🚗"
+                                />
+                            } />
+                            <Route path="/salon-at-home" element={
+                                <CategoryPage
+                                    title="Salon & Grooming at Home"
+                                    description="Luxury salon services at home. Haircuts, facials, manicures, and more from top stylists."
+                                    services={['Haircut', 'Facial', 'Manicure/Pedicure', 'Massage']}
+                                    icon="💇‍♀️"
+                                />
+                            } />
 
-                                {/* SEO Category Routes */}
-                                <Route path="/login" element={<AuthModal onClose={() => navigate('/')} />} />
-                                <Route path="/home-cleaning-maids" element={
-                                    <CategoryPage
-                                        title="Home Cleaning & Maids"
-                                        description="Professional home cleaning and maid services in your area. Book trusted cleaners for deep cleaning, regular maintenance, and more."
-                                        services={['Deep Cleaning', 'Regular Cleaning', 'Part-time Maid', 'Full-time Maid']}
-                                        icon="🧹"
-                                    />
-                                } />
-                                <Route path="/cooks-tiffin" element={
-                                    <CategoryPage
-                                        title="Cooks, Tiffin & Catering"
-                                        description="Find experienced cooks and reliable tiffin services near you. Fresh, home-cooked meals delivered to your doorstep."
-                                        services={['Personal Cook', 'Tiffin Service', 'Party Catering', 'Bulk Orders']}
-                                        icon="🍳"
-                                    />
-                                } />
-                                <Route path="/electricians-plumbers" element={
-                                    <CategoryPage
-                                        title="Electricians & Plumbers"
-                                        description="Expert electricians and plumbers available 24/7 for emergency repairs and installations."
-                                        services={['Electrical Repair', 'Plumbing Fixes', 'Installation', 'Maintenance']}
-                                        icon="🔧"
-                                    />
-                                } />
-                                <Route path="/appliance-repair" element={
-                                    <CategoryPage
-                                        title="Appliance Repairs"
-                                        description="Fast and reliable repair services for ACs, refrigerators, washing machines, and more."
-                                        services={['AC Repair', 'Refrigerator Repair', 'Washing Machine', 'Microwave']}
-                                        icon="⚙️"
-                                    />
-                                } />
-                                <Route path="/tutors-home-tuitions" element={
-                                    <CategoryPage
-                                        title="Tutors & Home Tuitions"
-                                        description="Qualified tutors for all subjects and grades. Personalized home tuition to help your child excel."
-                                        services={['Math Tutor', 'Science Tutor', 'English Tutor', 'Competitive Exams']}
-                                        icon="📚"
-                                    />
-                                } />
-                                <Route path="/car-care" element={
-                                    <CategoryPage
-                                        title="Car Wash & Car Care"
-                                        description="Premium car wash and detailing services at your doorstep. Keep your vehicle looking brand new."
-                                        services={['Car Wash', 'Interior Detailing', 'Polishing', 'Ceramic Coating']}
-                                        icon="🚗"
-                                    />
-                                } />
-                                <Route path="/salon-at-home" element={
-                                    <CategoryPage
-                                        title="Salon & Grooming at Home"
-                                        description="Luxury salon services at home. Haircuts, facials, manicures, and more from top stylists."
-                                        services={['Haircut', 'Facial', 'Manicure/Pedicure', 'Massage']}
-                                        icon="💇‍♀️"
-                                    />
-                                } />
-
-                                <Route path="*" element={<NotFound />} />
-                            </Routes>
-                        </Suspense>
-                    )}
-                </main>
-
-                <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t dark:border-slate-700 flex justify-around max-w-7xl mx-auto rounded-t-2xl shadow-lg z-40" role="navigation" aria-label="Bottom Navigation">
-                    <NavLink to="/" label="Home" icon="🏠" />
-                    <NavLink to="/dashboard/bookings" label="Bookings" icon="📋" />
-                    <NavLink to="/dashboard/profile" label="Profile" icon="👤" />
-                    <NavLink to="/dashboard/support" label="Support" icon="💬" />
-                </nav>
-            </div>
+                            <Route path="*" element={<NotFound />} />
+                        </Routes>
+                    </Suspense>
+                )}
+            </AppLayout>
         </SkeletonTheme>
     );
 };

@@ -12,6 +12,9 @@ export * from './components/auth';
 export * from './theme';
 export * from './theme/colors';
 export { ThemeProvider, useTheme } from './components/ThemeProvider';
+export * from './components/layout/AppHeader';
+export * from './components/layout/BottomNav';
+export * from './components/layout/AppLayout';
 export { useTheme as useThemeHook } from './hooks/useTheme';
 
 // Services are usually imported directly to avoid circular dependencies or large bundles, but we can export them if needed.

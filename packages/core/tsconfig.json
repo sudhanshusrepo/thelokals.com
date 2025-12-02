@@ -14,7 +14,7 @@
         "strict": true,
         "moduleResolution": "bundler",
         "allowImportingTsExtensions": false,
-        "emitDeclarationOnly": true,
+        "emitDeclarationOnly": false,
         "outDir": "./dist",
         "skipLibCheck": true,
         "esModuleInterop": true,

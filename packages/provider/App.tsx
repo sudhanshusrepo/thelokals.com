@@ -1,14 +1,13 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
-import { BrowserRouter, Routes, Route, useLocation, useNavigate, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { ToastProvider, useToast } from './components/Toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { Header } from './components/Header';
+import { AppLayout, AppHeader, BottomNav, BottomNavItem } from '@thelocals/core';
 import { ProviderLanding } from './components/ProviderLanding';
 import { RegistrationBanner } from './components/RegistrationBanner';
 import { ProviderDashboard } from './components/ProviderDashboard';
 import { RegistrationWizard } from './components/RegistrationWizard';
-import { ProviderProfile, RegistrationStatus } from './types';
 import { backend } from './services/backend';
 
 // Lazy load components
@@ -60,7 +59,7 @@ const RegistrationRequiredPlaceholder: React.FC<{ onRegister: () => void }> = ({
 const MainLayout: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, loading: authLoading, profile } = useAuth();
+  const { user, loading: authLoading, profile, signOut } = useAuth();
   const toast = useToast();
 
   const [showRegistration, setShowRegistration] = useState(false);
@@ -103,6 +102,11 @@ const MainLayout: React.FC = () => {
     setShowRegistration(true);
   };
 
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
+
   if (isRestoring || authLoading) {
     return <LoadingSkeleton />;
   }
@@ -121,18 +125,32 @@ const MainLayout: React.FC = () => {
     );
   }
 
+  const navItems: BottomNavItem[] = [
+    { label: 'Dashboard', to: '/dashboard', icon: '📊' },
+    { label: 'Requests', to: '/bookings', icon: '📋', badge: 0 },
+    { label: 'Payments', to: '/payments', icon: '💰' },
+    { label: 'Alerts', to: '/notifications', icon: '🔔', badge: 0 },
+    { label: 'Profile', to: '/profile', icon: '👤' },
+  ];
+
   return (
-    <div className="min-h-screen bg-[#f0fdf4] font-sans pb-20">
+    <AppLayout
+      header={
+        <AppHeader
+          isHome={location.pathname === '/'}
+          title={getHeaderTitle()}
+          user={user}
+          onSignInClick={() => navigate('/')} // Assuming landing page has sign in
+          onSignOutClick={handleSignOut}
+          appName="thelokals - Provider"
+        />
+      }
+      bottomNav={user ? <BottomNav items={navItems} /> : null}
+    >
       <Helmet>
         <title>{getHeaderTitle()}</title>
         <meta name="description" content="thelokals - Provider Platform. Join our network of service providers and grow your business." />
       </Helmet>
-
-      <Header
-        isHome={location.pathname === '/'}
-        title={getHeaderTitle()}
-        showAutoSaving={false}
-      />
 
       {/* Registration Banner for unregistered users */}
       {user && isUnregistered && location.pathname !== '/' && (
@@ -141,7 +159,7 @@ const MainLayout: React.FC = () => {
 
       {/* Pending approval banner */}
       {user && isPending && (
-        <div className="bg-yellow-50 border-b border-yellow-200 px-4 py-3">
+        <div className="bg-yellow-50 border-b border-yellow-200 px-4 py-3 mb-4">
           <div className="max-w-7xl mx-auto flex items-center gap-3">
             <span className="text-2xl">⏳</span>
             <div className="flex-1">
@@ -152,136 +170,96 @@ const MainLayout: React.FC = () => {
         </div>
       )}
 
-      <main
-        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6"
-        style={{
-          paddingTop: 'calc(env(safe-area-inset-top) + 0.5rem)',
-        }}
-      >
-        <Suspense fallback={<LoadingSkeleton />}>
-          <Routes>
-            {/* Public landing page */}
-            <Route path="/" element={<ProviderLanding onRegisterClick={handleRegisterClick} />} />
+      <Suspense fallback={<LoadingSkeleton />}>
+        <Routes>
+          {/* Public landing page */}
+          <Route path="/" element={<ProviderLanding onRegisterClick={handleRegisterClick} />} />
 
-            {/* Protected routes - require sign in */}
-            <Route
-              path="/dashboard"
-              element={
-                user ? (
-                  isRegistered ? (
-                    <ProviderDashboard />
-                  ) : (
-                    <RegistrationRequiredPlaceholder onRegister={handleRegisterClick} />
-                  )
+          {/* Protected routes - require sign in */}
+          <Route
+            path="/dashboard"
+            element={
+              user ? (
+                isRegistered ? (
+                  <ProviderDashboard />
                 ) : (
-                  <AuthRequiredPlaceholder onSignIn={() => navigate('/')} />
+                  <RegistrationRequiredPlaceholder onRegister={handleRegisterClick} />
                 )
-              }
-            />
+              ) : (
+                <AuthRequiredPlaceholder onSignIn={() => navigate('/')} />
+              )
+            }
+          />
 
-            <Route
-              path="/bookings"
-              element={
-                user ? (
-                  isRegistered ? (
-                    <BookingRequestsPage />
-                  ) : (
-                    <RegistrationRequiredPlaceholder onRegister={handleRegisterClick} />
-                  )
+          <Route
+            path="/bookings"
+            element={
+              user ? (
+                isRegistered ? (
+                  <BookingRequestsPage />
                 ) : (
-                  <AuthRequiredPlaceholder onSignIn={() => navigate('/')} />
+                  <RegistrationRequiredPlaceholder onRegister={handleRegisterClick} />
                 )
-              }
-            />
+              ) : (
+                <AuthRequiredPlaceholder onSignIn={() => navigate('/')} />
+              )
+            }
+          />
 
-            <Route
-              path="/booking/:bookingId"
-              element={
-                user ? (
-                  isRegistered ? (
-                    <BookingDetailsPage />
-                  ) : (
-                    <RegistrationRequiredPlaceholder onRegister={handleRegisterClick} />
-                  )
+          <Route
+            path="/booking/:bookingId"
+            element={
+              user ? (
+                isRegistered ? (
+                  <BookingDetailsPage />
                 ) : (
-                  <AuthRequiredPlaceholder onSignIn={() => navigate('/')} />
+                  <RegistrationRequiredPlaceholder onRegister={handleRegisterClick} />
                 )
-              }
-            />
+              ) : (
+                <AuthRequiredPlaceholder onSignIn={() => navigate('/')} />
+              )
+            }
+          />
 
-            <Route
-              path="/payments"
-              element={
-                user ? (
-                  isRegistered ? (
-                    <PaymentPage />
-                  ) : (
-                    <RegistrationRequiredPlaceholder onRegister={handleRegisterClick} />
-                  )
+          <Route
+            path="/payments"
+            element={
+              user ? (
+                isRegistered ? (
+                  <PaymentPage />
                 ) : (
-                  <AuthRequiredPlaceholder onSignIn={() => navigate('/')} />
+                  <RegistrationRequiredPlaceholder onRegister={handleRegisterClick} />
                 )
-              }
-            />
+              ) : (
+                <AuthRequiredPlaceholder onSignIn={() => navigate('/')} />
+              )
+            }
+          />
 
-            <Route
-              path="/notifications"
-              element={
-                user ? (
-                  <NotificationsPage />
-                ) : (
-                  <AuthRequiredPlaceholder onSignIn={() => navigate('/')} />
-                )
-              }
-            />
+          <Route
+            path="/notifications"
+            element={
+              user ? (
+                <NotificationsPage />
+              ) : (
+                <AuthRequiredPlaceholder onSignIn={() => navigate('/')} />
+              )
+            }
+          />
 
-            <Route
-              path="/profile"
-              element={
-                user ? (
-                  <div>Profile Page</div>
-                ) : (
-                  <AuthRequiredPlaceholder onSignIn={() => navigate('/')} />
-                )
-              }
-            />
-          </Routes>
-        </Suspense>
-      </main>
-
-      {/* Bottom Navigation - only show for signed in users */}
-      {user && (
-        <nav className="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around max-w-7xl mx-auto rounded-t-2xl shadow-lg" role="navigation" aria-label="Bottom Navigation">
-          <NavLink to="/dashboard" label="Dashboard" icon="📊" />
-          <NavLink to="/bookings" label="Requests" icon="📋" badge={0} />
-          <NavLink to="/payments" label="Payments" icon="💰" />
-          <NavLink to="/notifications" label="Alerts" icon="🔔" badge={0} />
-          <NavLink to="/profile" label="Profile" icon="👤" />
-        </nav>
-      )}
-    </div>
-  );
-};
-
-const NavLink: React.FC<{ to: string; label: string; icon?: string; badge?: number }> = ({ to, label, icon, badge }) => {
-  const location = useLocation();
-  const isActive = location.pathname === to || location.pathname.startsWith(to + '/');
-
-  return (
-    <Link
-      to={to}
-      className={`relative flex flex-col items-center justify-center flex-1 p-3 text-xs font-semibold transition-colors ${isActive ? 'text-teal-600' : 'text-slate-500'
-        }`}
-      aria-current={isActive ? 'page' : undefined}
-    >
-      {icon && <span className="text-lg mb-1">{icon}</span>}
-      {label}
-      {badge !== undefined && badge > 0 && (
-        <span className="absolute top-1 right-1/4 bg-red-500 text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center">
-          {badge > 9 ? '9+' : badge}
-        </span>
-      )}
-    </Link>
+          <Route
+            path="/profile"
+            element={
+              user ? (
+                <div>Profile Page</div>
+              ) : (
+                <AuthRequiredPlaceholder onSignIn={() => navigate('/')} />
+              )
+            }
+          />
+        </Routes>
+      </Suspense>
+    </AppLayout>
   );
 };
 
