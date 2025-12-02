@@ -246,7 +246,7 @@ export const adminService = {
         const { error } = await supabase
             .from('admin_audit_logs')
             .insert({
-                admin_user_id: adminId,
+                admin_id: adminId,
                 action,
                 resource_type: resourceType,
                 resource_id: resourceId,
@@ -273,7 +273,7 @@ export const adminService = {
             .limit(filters?.limit || 100);
 
         if (filters?.adminId) {
-            query = query.eq('admin_user_id', filters.adminId);
+            query = query.eq('admin_id', filters.adminId);
         }
         if (filters?.action) {
             query = query.eq('action', filters.action);

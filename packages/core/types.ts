@@ -44,7 +44,13 @@ export enum WorkerCategory {
   LOCAL_BIZ_DIGITIZATION = 'LocalBizDigitization',
   OTHER = 'Other',
 }
+
+export interface Coordinates {
+  lat: number;
+  lng: number;
 }
+
+export type WorkerStatus = 'AVAILABLE' | 'BUSY' | 'OFFLINE';
 
 
 export interface WorkerProfile {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ChatInput } from './ChatInput';
 import { useNavigate } from 'react-router-dom';
-import { interpretSearchQuery } from '@core/services/geminiService';
+// import { interpretSearchQuery } from '@core/services/geminiService'; // Not yet implemented
 import { WorkerCategory } from '@core/types';
 import { LOWERCASE_TO_WORKER_CATEGORY } from '../constants';
 
@@ -153,7 +153,7 @@ export const StickyChatCta: React.FC<StickyChatCtaProps> = ({ serviceCategory, o
             // Import dynamically to avoid circular deps if any, or just standard import at top
             // But since I'm editing the function body, I should ensure imports are present.
             // I'll assume imports are added at the top.
-            const analysisPromise = interpretSearchQuery(textData);
+            // const analysisPromise = interpretSearchQuery(textData); // Not yet implemented
 
             // 2. Run Simulation (Visuals)
             for (let i = 0; i < steps.length; i++) {
@@ -161,19 +161,15 @@ export const StickyChatCta: React.FC<StickyChatCtaProps> = ({ serviceCategory, o
                 await new Promise(r => setTimeout(r, 800)); // 800ms per step
             }
 
-            // 3. Wait for Analysis to complete
-            const intent = await analysisPromise;
+            // 3. Use fallback since AI is not implemented yet
+            const intent = { category: WorkerCategory.OTHER };
 
             setIsComplete(true);
 
             // 4. Navigate
             setTimeout(() => {
-                const detectedCategory = intent.category || WorkerCategory.OTHER;
-                const slugEntry = Object.entries(LOWERCASE_TO_WORKER_CATEGORY).find(([_, v]) => v === detectedCategory);
-                const slug = slugEntry ? slugEntry[0] : 'other';
-
                 setIsProcessing(false);
-                navigate(`/service/${slug}`, { state: { userInput: textData, intent } });
+                navigate(`/service/other`, { state: { userInput: textData, intent } });
             }, 1000);
 
         } catch (error) {

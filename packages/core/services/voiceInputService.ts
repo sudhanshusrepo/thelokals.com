@@ -1,4 +1,4 @@
-import { geminiService } from './geminiService';
+// Voice Input Service - currently disabled as geminiService doesn't export the required methods
 
 /**
  * Voice Input Service using Gemini Audio API
@@ -65,17 +65,18 @@ Provide only the transcribed text, no additional commentary.
 `;
 
             // Call Gemini with audio
-            const response = await geminiService.generateContentWithMedia(
-                prompt,
-                [{
-                    inlineData: {
-                        mimeType: 'audio/webm',
-                        data: base64Audio
-                    }
-                }]
-            );
+            // const response = await geminiService.generateContentWithMedia(
+            //     prompt,
+            //     [{
+            //         inlineData: {
+            //             mimeType: 'audio/webm',
+            //             data: base64Audio
+            //         }
+            //     }]
+            // );
 
-            return response.trim();
+            // return response.trim();
+            throw new Error('Voice transcription not yet implemented');
         } catch (error) {
             console.error('Transcription error:', error);
             throw new Error('Failed to transcribe audio. Please try again.');

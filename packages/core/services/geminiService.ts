@@ -1,5 +1,5 @@
 import { supabase } from "./supabase";
-import { SearchIntent, WorkerCategory } from "../types";
+import { WorkerCategory } from "../types";
 import { logger } from "./logger";
 
 /**
@@ -12,9 +12,6 @@ export interface AIAnalysisResult {
   checklist: string[];
   reasoning: string;
 }
-
-  }
-};
 
 /**
  * Estimates the cost and generates a checklist for a service request using Gemini AI (via Edge Function).

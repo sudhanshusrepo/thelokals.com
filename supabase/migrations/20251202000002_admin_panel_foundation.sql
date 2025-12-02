@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS active_sessions (
 -- Admin audit logs for compliance and tracking
 CREATE TABLE IF NOT EXISTS admin_audit_logs (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  admin_user_id UUID REFERENCES admin_users(id),
+  admin_id UUID REFERENCES admin_users(id),
   action TEXT NOT NULL,
   resource_type TEXT NOT NULL,
   resource_id TEXT,
@@ -74,7 +74,7 @@ CREATE INDEX IF NOT EXISTS idx_audit_logs_recent
   ON admin_audit_logs(created_at DESC);
 
 CREATE INDEX IF NOT EXISTS idx_audit_logs_admin 
-  ON admin_audit_logs(admin_user_id, created_at DESC);
+  ON admin_audit_logs(admin_id, created_at DESC);
 
 -- Enable Row Level Security
 ALTER TABLE admin_users ENABLE ROW LEVEL SECURITY;

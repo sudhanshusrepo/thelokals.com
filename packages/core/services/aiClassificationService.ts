@@ -1,4 +1,4 @@
-import { geminiService } from './geminiService';
+// AI Classification Service - currently using fallback only
 
 export interface ClassificationResult {
     serviceCategory: string;
@@ -55,22 +55,23 @@ Respond ONLY with valid JSON (no markdown, no code blocks):
 `;
 
         try {
-            const response = await geminiService.generateContent(prompt);
+            // const response = await geminiService.generateContent(prompt);
 
-            // Extract JSON from response
-            const jsonMatch = response.match(/\{[\s\S]*\}/);
-            if (!jsonMatch) {
-                throw new Error('Invalid AI response format');
-            }
+            // // Extract JSON from response
+            // const jsonMatch = response.match(/\{[\s\S]*\}/);
+            // if (!jsonMatch) {
+            //     throw new Error('Invalid AI response format');
+            // }
 
-            const result = JSON.parse(jsonMatch[0]) as ClassificationResult;
+            // const result = JSON.parse(jsonMatch[0]) as ClassificationResult;
 
-            // Validate result
-            if (!result.serviceCategory || !result.serviceMode) {
-                throw new Error('Incomplete classification result');
-            }
+            // // Validate result
+            // if (!result.serviceCategory || !result.serviceMode) {
+            //     throw new Error('Incomplete classification result');
+            // }
 
-            return result;
+            // return result;
+            throw new Error('AI classification not yet implemented');
         } catch (error) {
             console.error('Classification error:', error);
 

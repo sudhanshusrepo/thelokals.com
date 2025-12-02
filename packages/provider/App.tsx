@@ -12,7 +12,7 @@ import { ProviderProfile, RegistrationStatus } from './types';
 import { backend } from './services/backend';
 
 // Lazy load components
-const BookingRequestsPage = lazy(() => import('./components/BookingRequestsPage'));
+const BookingRequestsPage = lazy(() => import('./src/pages/JobRequests').then(module => ({ default: module.JobRequests })));
 const BookingDetailsPage = lazy(() => import('./components/BookingDetailsPage'));
 const PaymentPage = lazy(() => import('./components/PaymentPage'));
 const NotificationsPage = lazy(() => import('./components/NotificationsPage'));
