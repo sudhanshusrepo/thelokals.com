@@ -78,6 +78,34 @@ export const estimateService = async (input: string, category: string): Promise<
 };
 
 /**
+ * Chat with the AI assistant.
+ * 
+ * @param {string} message - The user's message.
+ * @param {any[]} history - Chat history (optional).
+ * @returns {Promise<string>} The AI's response.
+ */
+export const chatWithAI = async (message: string, history: any[] = []): Promise<string> => {
+  try {
+    const { data, error } = await supabase.functions.invoke('estimate-service', {
+      body: {
+        action: 'chat',
+        payload: {
+          message,
+          history
+        }
+      }
+    });
+
+    if (error) throw error;
+    return data.response;
+
+  } catch (error) {
+    logger.error("Gemini chat error (Edge Function)", { error, message });
+    return "I'm having trouble connecting right now. Please try again later.";
+  }
+};
+
+/**
  * Fallback estimation when Gemini API is unavailable.
  */
 function fallbackEstimation(input: string, category: string): AIAnalysisResult {

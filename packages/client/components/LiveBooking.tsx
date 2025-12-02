@@ -20,7 +20,7 @@ const LiveBooking: React.FC = () => {
   useEffect(() => {
     if (booking) {
       channel = liveBookingService.subscribeToBookingUpdates(booking.id, (payload) => {
-        const updatedBooking = payload.new as LivetimeBookingType;
+        const updatedBooking = payload.new as LiveBookingType;
         setBooking(updatedBooking);
 
         if (updatedBooking.status === 'CONFIRMED' || updatedBooking.status === 'EXPIRED') {
@@ -59,8 +59,9 @@ const LiveBooking: React.FC = () => {
       });
       setBooking(newBooking);
       setStep(3); // Move to the finding providers step
-    } catch (err: any) {
-      setError(err.message || 'An unknown error occurred.');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

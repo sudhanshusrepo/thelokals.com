@@ -31,6 +31,46 @@ export const liveBookingService = {
   },
 
   /**
+   * Creates a new live booking.
+   * @param {Partial<LiveBooking>} bookingData - The booking data.
+   * @returns {Promise<LiveBooking>} The created booking.
+   */
+  async createLiveBooking(bookingData: Partial<LiveBooking>): Promise<LiveBooking> {
+    const { data, error } = await supabase
+      .from('bookings')
+      .insert({
+        client_id: bookingData.clientId,
+        service_category: bookingData.serviceId, // Mapping serviceId to category for now
+        booking_type: 'LIVE',
+        status: 'PENDING', // Initial status in DB
+        requirements: bookingData.requirements,
+        location: `POINT(${bookingData.requirements?.location.lng} ${bookingData.requirements?.location.lat})`,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      logger.error('Error creating live booking', { error, bookingData });
+      throw error;
+    }
+
+    // Map DB response to LiveBooking type
+    return {
+      id: data.id,
+      clientId: data.client_id,
+      serviceId: data.service_category,
+      providerId: data.provider_id,
+      status: 'REQUESTED', // Client-side status mapping
+      requirements: data.requirements,
+      otp: '', // OTP generated later
+      createdAt: data.created_at,
+      acceptedAt: null,
+      startedAt: data.started_at,
+      completedAt: data.completed_at
+    } as LiveBooking;
+  },
+
+  /**
    * Creates booking requests for a list of providers.
    * @param {string} bookingId - The ID of the booking.
    * @param {string[]} providerIds - A list of provider IDs to create requests for.

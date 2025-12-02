@@ -116,6 +116,44 @@ Consider typical market rates for ${category} services in India.`,
             }
             throw new Error("Empty response from Gemini");
 
+        } else if (action === 'chat') {
+            const { message, history } = payload;
+
+            // Construct chat history for context if needed, for now just using the latest message
+            // In a real app, you'd format history properly for the model
+
+            const response = await ai.models.generateContent({
+                model: "gemini-1.5-flash",
+                contents: `You are a helpful AI assistant for 'thelokals.com', a platform connecting users with local service providers (plumbers, electricians, maids, etc.) and online professionals.
+                
+User message: "${message}"
+
+Task: Provide a helpful, friendly, and concise response. 
+If the user is looking for a service, guide them to use the search bar or describe their problem in the service request form.
+If they ask about the platform, explain that we use AI to match them with the best professionals instantly.
+Keep the tone professional yet conversational.`,
+                config: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: Type.OBJECT,
+                        properties: {
+                            response: {
+                                type: Type.STRING,
+                                description: "The AI's response to the user"
+                            }
+                        },
+                        required: ["response"]
+                    }
+                }
+            });
+
+            if (response.text) {
+                return new Response(response.text, {
+                    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+                });
+            }
+            throw new Error("Empty response from Gemini");
+
         } else {
             throw new Error(`Unknown action: ${action}`);
         }

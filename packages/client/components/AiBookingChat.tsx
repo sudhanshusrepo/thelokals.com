@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ChatInput } from './ChatInput';
 import { useAuth } from '../contexts/AuthContext';
 import { useLocation } from 'react-router-dom';
+import { chatWithAI } from '@core/services/geminiService';
 
 interface AiBookingChatProps {
     isOpen: boolean;
@@ -25,18 +26,20 @@ export const AiBookingChat: React.FC<AiBookingChatProps> = ({ isOpen, onClose, i
     }, [isOpen]);
 
     const handleSend = async (content: { type: 'text' | 'audio' | 'video', data: string | Blob }) => {
-        // Placeholder for actual AI integration
-        // In a real implementation, this would call the Gemini service
         const text = content.type === 'text' ? content.data as string : "Media received";
 
         setMessages(prev => [...prev, { role: 'user', content: text }]);
         setIsLoading(true);
 
-        // Simulate AI response
-        setTimeout(() => {
-            setMessages(prev => [...prev, { role: 'assistant', content: "I'm processing your request. (This is a placeholder for the actual Gemini integration)" }]);
+        try {
+            const response = await chatWithAI(text, messages);
+            setMessages(prev => [...prev, { role: 'assistant', content: response }]);
+        } catch (error) {
+            console.error('Chat error:', error);
+            setMessages(prev => [...prev, { role: 'assistant', content: "Sorry, I encountered an error. Please try again." }]);
+        } finally {
             setIsLoading(false);
-        }, 1000);
+        }
     };
 
     if (!isOpen) return null;
@@ -65,8 +68,8 @@ export const AiBookingChat: React.FC<AiBookingChatProps> = ({ isOpen, onClose, i
                     {messages.map((msg, idx) => (
                         <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                             <div className={`max-w-[80%] p-3 rounded-2xl ${msg.role === 'user'
-                                    ? 'bg-teal-600 text-white rounded-tr-none'
-                                    : 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-tl-none'
+                                ? 'bg-teal-600 text-white rounded-tr-none'
+                                : 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-tl-none'
                                 }`}>
                                 {msg.content}
                             </div>

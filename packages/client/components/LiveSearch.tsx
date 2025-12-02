@@ -4,6 +4,9 @@ import { bookingService } from '@core/services/bookingService';
 import { useGeolocation } from '../hooks/useGeolocation';
 import { supabase } from '../../core/services/supabase';
 
+import { ONLINE_CATEGORIES } from '../constants';
+import { WorkerCategory } from '@core/types';
+
 // Lazy load the map component
 const MapComponent = lazy(() => import('./MapComponent').then(module => ({ default: module.MapComponent })));
 
@@ -98,9 +101,9 @@ export const LiveSearch: React.FC<LiveSearchProps> = ({ onCancel, bookingId }) =
         >
             {/* Map Background */}
             <div className="absolute inset-0 z-0 opacity-50">
-                {location ? (
+                {location && bookingId ? (
                     <Suspense fallback={<div className="w-full h-full bg-slate-100 dark:bg-slate-800 animate-pulse" />}>
-                        <MapComponent center={location} isScanning={true} />
+                        <BookingMapWrapper bookingId={bookingId} location={location} />
                     </Suspense>
                 ) : (
                     <div className="w-full h-full bg-slate-100 dark:bg-slate-800 animate-pulse" />
@@ -146,4 +149,27 @@ export const LiveSearch: React.FC<LiveSearchProps> = ({ onCancel, bookingId }) =
             </div>
         </div>
     );
+};
+
+// Helper component to handle async booking fetch for map visibility
+const BookingMapWrapper: React.FC<{ bookingId: string, location: { lat: number, lng: number } }> = ({ bookingId, location }) => {
+    const [isOnline, setIsOnline] = useState(false);
+
+    useEffect(() => {
+        bookingService.getBooking(bookingId).then(booking => {
+            if (booking && booking.service_category && ONLINE_CATEGORIES.has(booking.service_category as WorkerCategory)) {
+                setIsOnline(true);
+            }
+        });
+    }, [bookingId]);
+
+    if (isOnline) {
+        return (
+            <div className="w-full h-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                <div className="text-9xl opacity-10">🌐</div>
+            </div>
+        );
+    }
+
+    return <MapComponent center={location} isScanning={true} />;
 };

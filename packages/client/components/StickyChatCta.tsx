@@ -80,7 +80,7 @@ const AIAnalysisOverlay: React.FC<{
 };
 
 export const StickyChatCta: React.FC<StickyChatCtaProps> = ({ serviceCategory, onSend, placeholder }) => {
-    const [isVisible, setIsVisible] = useState(false);
+    const [isVisible, setIsVisible] = useState(!!serviceCategory);
     const [isProcessing, setIsProcessing] = useState(false);
     const [progressStep, setProgressStep] = useState(0);
     const [isComplete, setIsComplete] = useState(false);
@@ -203,7 +203,7 @@ export const StickyChatCta: React.FC<StickyChatCtaProps> = ({ serviceCategory, o
             />
 
             {/* Enhanced AI Chat Bar */}
-            <div className={`fixed bottom-[80px] left-0 right-0 p-4 z-40 transition-transform duration-300 ${isProcessing ? 'translate-y-full' : 'translate-y-0'}`}>
+            <div className={`fixed bottom-[80px] left-0 right-0 p-3 sm:p-4 z-40 transition-transform duration-300 ${isProcessing ? 'translate-y-full' : 'translate-y-0'}`}>
                 <div className="max-w-3xl mx-auto relative group">
                     {/* Glowing Effect Background */}
                     <div className="absolute -inset-1 bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>

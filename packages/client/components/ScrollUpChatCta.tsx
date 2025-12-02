@@ -53,7 +53,7 @@ export const ScrollUpChatCta: React.FC<ScrollUpChatCtaProps> = ({ onOpenChat }) 
     // Analytics: Log when shown (debounce to avoid spamming logs)
     useEffect(() => {
         if (isVisible && !hasLoggedShow.current) {
-            console.log('cta_shown', { route: location.pathname, scrollY: window.scrollY });
+            // Analytics log removed
             hasLoggedShow.current = true;
         } else if (!isVisible) {
             hasLoggedShow.current = false;
@@ -61,7 +61,6 @@ export const ScrollUpChatCta: React.FC<ScrollUpChatCtaProps> = ({ onOpenChat }) 
     }, [isVisible, location.pathname]);
 
     const handleClick = () => {
-        console.log('cta_clicked', { route: location.pathname, scrollY: window.scrollY });
         onOpenChat();
     };
 

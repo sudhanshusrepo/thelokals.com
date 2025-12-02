@@ -156,7 +156,7 @@ export interface Provider {
   location: Coordinates;
 }
 
-export type LiveBookingStatus = 'REQUESTED' | 'ACCEPTED' | 'OTP_SENT' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+export type LiveBookingStatus = 'REQUESTED' | 'ACCEPTED' | 'OTP_SENT' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'CONFIRMED' | 'EXPIRED';
 
 export interface LiveBooking {
   id: string;
@@ -181,4 +181,13 @@ export interface BookingRequest {
   bookingId: string;
   providerId: string;
   status: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'EXPIRED';
+}
+
+export interface NearbyProviderResponse {
+  provider_id: string;
+  provider_name: string;
+  distance_km: number;
+  rating: number;
+  total_jobs: number;
+  is_verified: boolean;
 }

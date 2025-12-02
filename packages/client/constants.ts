@@ -367,16 +367,46 @@ export const SERVICE_TYPES_BY_CATEGORY: Record<WorkerCategory, ServiceType[]> = 
   [WorkerCategory.CATERING]: [],
   [WorkerCategory.OTHER]: [],
 
-  // Online Categories - Empty arrays for now
-  [WorkerCategory.DIGITAL_MARKETING]: [],
-  [WorkerCategory.CONTENT_CREATIVE]: [],
-  [WorkerCategory.TECH_DEV]: [],
-  [WorkerCategory.BUSINESS_OPS]: [],
-  [WorkerCategory.KNOWLEDGE_SERVICES]: [],
-  [WorkerCategory.PROFESSIONAL_ADVISORY]: [],
-  [WorkerCategory.WELLNESS_ONLINE]: [],
-  [WorkerCategory.CREATOR_ECONOMY]: [],
-  [WorkerCategory.LOCAL_BIZ_DIGITIZATION]: [],
+  // Online Categories
+  [WorkerCategory.DIGITAL_MARKETING]: [
+    { id: 'seo', name: 'SEO Optimization', icon: '🔍', description: 'Improve search rankings', priceRange: '₹5000-20000', category: WorkerCategory.DIGITAL_MARKETING },
+    { id: 'social-media', name: 'Social Media Mgmt', icon: '📱', description: 'Manage social accounts', priceRange: '₹8000-30000/mo', category: WorkerCategory.DIGITAL_MARKETING },
+    { id: 'ads', name: 'Ad Campaigns', icon: '📢', description: 'Google/FB Ads setup', priceRange: '₹5000-15000', category: WorkerCategory.DIGITAL_MARKETING },
+  ],
+  [WorkerCategory.CONTENT_CREATIVE]: [
+    { id: 'blog-writing', name: 'Blog Writing', icon: '✍️', description: 'SEO-friendly articles', priceRange: '₹1000-5000', category: WorkerCategory.CONTENT_CREATIVE },
+    { id: 'graphic-design', name: 'Graphic Design', icon: '🎨', description: 'Logos, banners, posts', priceRange: '₹500-5000', category: WorkerCategory.CONTENT_CREATIVE },
+    { id: 'video-editing', name: 'Video Editing', icon: '🎬', description: 'Reels, YouTube edits', priceRange: '₹1000-10000', category: WorkerCategory.CONTENT_CREATIVE },
+  ],
+  [WorkerCategory.TECH_DEV]: [
+    { id: 'web-dev', name: 'Website Development', icon: '💻', description: 'Business websites', priceRange: '₹10000-50000', category: WorkerCategory.TECH_DEV },
+    { id: 'app-dev', name: 'App Development', icon: '📱', description: 'Mobile apps', priceRange: '₹50000+', category: WorkerCategory.TECH_DEV },
+    { id: 'automation', name: 'Automation', icon: '🤖', description: 'Workflow automation', priceRange: '₹5000-20000', category: WorkerCategory.TECH_DEV },
+  ],
+  [WorkerCategory.BUSINESS_OPS]: [
+    { id: 'virtual-assistant', name: 'Virtual Assistant', icon: '👩‍💼', description: 'Admin tasks', priceRange: '₹500-1500/hr', category: WorkerCategory.BUSINESS_OPS },
+    { id: 'data-entry', name: 'Data Entry', icon: '⌨️', description: 'Excel/CRM work', priceRange: '₹300-800/hr', category: WorkerCategory.BUSINESS_OPS },
+  ],
+  [WorkerCategory.KNOWLEDGE_SERVICES]: [
+    { id: 'online-tutor', name: 'Online Tutoring', icon: '📚', description: 'Academic/Skill tutoring', priceRange: '₹500-2000/hr', category: WorkerCategory.KNOWLEDGE_SERVICES },
+    { id: 'career-coach', name: 'Career Coaching', icon: '🎯', description: 'Resume/Interview prep', priceRange: '₹1000-5000', category: WorkerCategory.KNOWLEDGE_SERVICES },
+  ],
+  [WorkerCategory.PROFESSIONAL_ADVISORY]: [
+    { id: 'legal-consult', name: 'Legal Consultation', icon: '⚖️', description: 'Legal advice', priceRange: '₹2000-10000', category: WorkerCategory.PROFESSIONAL_ADVISORY },
+    { id: 'finance-consult', name: 'Financial Advice', icon: '💰', description: 'Investment/Tax planning', priceRange: '₹1500-8000', category: WorkerCategory.PROFESSIONAL_ADVISORY },
+  ],
+  [WorkerCategory.WELLNESS_ONLINE]: [
+    { id: 'therapy', name: 'Online Therapy', icon: '🧠', description: 'Mental health support', priceRange: '₹1000-3000', category: WorkerCategory.WELLNESS_ONLINE },
+    { id: 'diet-plan', name: 'Diet/Nutrition Plan', icon: '🥗', description: 'Customized meal plans', priceRange: '₹1500-5000', category: WorkerCategory.WELLNESS_ONLINE },
+  ],
+  [WorkerCategory.CREATOR_ECONOMY]: [
+    { id: 'ugc', name: 'UGC Creation', icon: '🤳', description: 'User-generated content', priceRange: '₹2000-10000', category: WorkerCategory.CREATOR_ECONOMY },
+    { id: 'influencer', name: 'Influencer Collab', icon: '🤝', description: 'Brand promotion', priceRange: '₹5000+', category: WorkerCategory.CREATOR_ECONOMY },
+  ],
+  [WorkerCategory.LOCAL_BIZ_DIGITIZATION]: [
+    { id: 'gmb', name: 'Google My Business', icon: '📍', description: 'Setup & Optimization', priceRange: '₹2000-5000', category: WorkerCategory.LOCAL_BIZ_DIGITIZATION },
+    { id: 'catalog', name: 'Digital Catalog', icon: '📋', description: 'Menu/Product list', priceRange: '₹1000-4000', category: WorkerCategory.LOCAL_BIZ_DIGITIZATION },
+  ],
 };
 
 // Default start location (if geo fails)
