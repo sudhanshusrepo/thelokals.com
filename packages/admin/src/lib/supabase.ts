@@ -13,7 +13,7 @@ export const isAdmin = async () => {
     const { data } = await supabase
         .from('admin_users')
         .select('role')
-        .eq('user_id', user.id)
+        .eq('id', user.id)
         .single();
 
     return !!data;
@@ -25,8 +25,8 @@ export const getAdminRole = async () => {
 
     const { data } = await supabase
         .from('admin_users')
-        .select('role, permissions')
-        .eq('user_id', user.id)
+        .select('role')
+        .eq('id', user.id)
         .single();
 
     return data;
