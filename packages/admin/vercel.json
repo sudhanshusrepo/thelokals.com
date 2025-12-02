@@ -1,7 +1,7 @@
 {
-    "buildCommand": "cd ../.. && npm run build --filter=admin",
+    "buildCommand": "cd ../.. && npm run build --workspace=packages/admin",
     "outputDirectory": "dist",
-    "installCommand": "cd ../.. && npm install",
+    "installCommand": "cd ../.. && npm ci",
     "framework": null,
     "rewrites": [
         {
