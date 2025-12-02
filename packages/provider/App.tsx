@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import { ToastProvider, useToast } from './components/Toast';
+import { Toaster, toast } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AppLayout, AppHeader, BottomNav, BottomNavItem } from '@thelocals/core';
 import { ProviderLanding } from './components/ProviderLanding';
@@ -60,7 +60,6 @@ const MainLayout: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, loading: authLoading, profile, signOut } = useAuth();
-  const toast = useToast();
 
   const [showRegistration, setShowRegistration] = useState(false);
   const [isRestoring, setIsRestoring] = useState(true);
@@ -96,7 +95,7 @@ const MainLayout: React.FC = () => {
 
   const handleRegisterClick = () => {
     if (!user) {
-      toast.show('Please sign in first', 'error');
+      toast.error('Please sign in first');
       return;
     }
     setShowRegistration(true);
@@ -117,7 +116,7 @@ const MainLayout: React.FC = () => {
       <RegistrationWizard
         onComplete={() => {
           setShowRegistration(false);
-          toast.show('Registration submitted! We will review your application.', 'success');
+          toast.success('Registration submitted! We will review your application.');
           navigate('/dashboard');
         }}
         onCancel={() => setShowRegistration(false)}
@@ -266,11 +265,10 @@ const MainLayout: React.FC = () => {
 export default function App() {
   return (
     <BrowserRouter>
-      <ToastProvider>
-        <AuthProvider>
-          <MainLayout />
-        </AuthProvider>
-      </ToastProvider>
+      <AuthProvider>
+        <Toaster position="top-right" />
+        <MainLayout />
+      </AuthProvider>
     </BrowserRouter>
   );
 }
