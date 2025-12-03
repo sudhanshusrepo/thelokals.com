@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useToast } from '../contexts/ToastContext';
 import { supabase } from '../../core/services/supabase';
-import { AuthLayout, AuthField, AuthOAuthButton, AuthDivider } from '@core/components/auth';
+import { AuthLayout, AuthField, AuthOAuthButton, AuthDivider } from '@thelocals/core/components/auth';
 import { validateEmail, validatePassword, validateName } from '../utils/validation';
 import { useAuth } from '../contexts/AuthContext';
-import { initializeRecaptcha, cleanupRecaptcha, isFirebaseConfigured } from '@core/services/firebaseAuth';
+import { initializeRecaptcha, cleanupRecaptcha, isFirebaseConfigured } from '@thelocals/core/services/firebaseAuth';
 
 interface AuthModalProps {
   onClose: () => void;
