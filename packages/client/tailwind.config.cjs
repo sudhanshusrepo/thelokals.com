@@ -8,6 +8,7 @@ module.exports = {
     "./App.tsx",
     "./main.tsx",
     "../core/**/*.{js,ts,jsx,tsx}",
+    "!./node_modules/**",
   ],
   theme: {
     extend: {

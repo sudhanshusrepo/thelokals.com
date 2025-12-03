@@ -4,6 +4,8 @@ export * from './services/bookingService';
 export * from './services/workerService';
 export * from './services/geminiService';
 export * from './services/adminService';
+export * from './services/firebaseAuth';
+export * from './services/authBridge';
 export * from './databaseTypes';
 export * from './utils/headerUtils';
 export * from './components/auth';

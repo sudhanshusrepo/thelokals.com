@@ -10,6 +10,8 @@ interface AuthContextType {
   customer: Customer | null;
   loading: boolean;
   signOut: () => void;
+  signInWithPhone: (phone: string, recaptchaVerifier: any) => Promise<any>;
+  verifyPhoneOTP: (confirmationResult: any, code: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -28,7 +30,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setLoading(false);
         return;
       }
-      
+
       setSession(data.session);
       setUser(data.session?.user ?? null);
       setLoading(false);
@@ -53,7 +55,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           .from('customers')
           .select('*')
           .eq('id', user.id);
-        
+
         if (data && data.length > 0) {
           setCustomer(data[0] as Customer);
         } else if (!error) {
@@ -62,7 +64,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             .from('customers')
             .insert([{ id: user.id, email: user.email }])
             .select();
-          
+
           if (newCustomer) {
             setCustomer(newCustomer[0] as Customer);
           }
@@ -85,8 +87,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setCustomer(null);
   };
 
+  const signInWithPhone = async (phone: string, recaptchaVerifier: any) => {
+    const { sendPhoneOTP } = await import('../../core/services/firebaseAuth');
+    return sendPhoneOTP(phone, recaptchaVerifier);
+  };
+
+  const verifyPhoneOTP = async (confirmationResult: any, code: string) => {
+    const { verifyPhoneOTP: verifyOTP } = await import('../../core/services/firebaseAuth');
+    const { authenticateWithPhone } = await import('../../core/services/authBridge');
+
+    const firebaseToken = await verifyOTP(confirmationResult, code);
+    const { session: newSession, user: newUser } = await authenticateWithPhone(
+      firebaseToken,
+      confirmationResult._phoneNumber || ''
+    );
+
+    setSession(newSession);
+    setUser(newUser);
+  };
+
   return (
-    <AuthContext.Provider value={{ session, user, customer, loading, signOut }}>
+    <AuthContext.Provider value={{ session, user, customer, loading, signOut, signInWithPhone, verifyPhoneOTP }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ProviderProfile } from '../../types';
 import toast from 'react-hot-toast';
-import { backend } from '../../services/backend';
+import { useAuth } from '../contexts/AuthContext';
+import { initializeRecaptcha, cleanupRecaptcha } from '@thelocals/core/services/firebaseAuth';
 
 interface StepProps {
   data: ProviderProfile;
@@ -16,6 +17,14 @@ export const PhoneStep: React.FC<StepProps> = ({ data, updateData, onNext }) => 
   const [otpSent, setOtpSent] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
+  const [confirmationResult, setConfirmationResult] = useState<any>(null);
+  const { signInWithPhone, verifyOtp } = useAuth();
+
+  useEffect(() => {
+    return () => {
+      cleanupRecaptcha();
+    };
+  }, []);
 
   const handleSendOtp = async () => {
     if (phone.length !== 10) {
@@ -24,7 +33,9 @@ export const PhoneStep: React.FC<StepProps> = ({ data, updateData, onNext }) => 
     }
     setIsSending(true);
     try {
-      await backend.auth.sendOtp(phone);
+      const recaptchaVerifier = initializeRecaptcha('recaptcha-container', 'invisible');
+      const result = await signInWithPhone(`+91${phone}`, recaptchaVerifier);
+      setConfirmationResult(result);
       setOtpSent(true);
       updateData({ phoneNumber: phone });
       toast.success('OTP sent successfully!');
@@ -42,7 +53,7 @@ export const PhoneStep: React.FC<StepProps> = ({ data, updateData, onNext }) => 
     }
     setIsVerifying(true);
     try {
-      await backend.auth.verifyOtp(phone, otp);
+      await verifyOtp(confirmationResult, otp);
       updateData({ isPhoneVerified: true });
       toast.success('Phone number verified!');
       onNext();
@@ -70,7 +81,7 @@ export const PhoneStep: React.FC<StepProps> = ({ data, updateData, onNext }) => 
               id="phone"
               name="phone"
               value={phone}
-              onChange={e => setPhone(e.target.value)}
+              onChange={e => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
               className="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-slate-300"
               placeholder="9876543210"
               disabled={otpSent}
@@ -86,12 +97,15 @@ export const PhoneStep: React.FC<StepProps> = ({ data, updateData, onNext }) => 
               id="otp"
               name="otp"
               value={otp}
-              onChange={e => setOtp(e.target.value)}
+              onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
               className="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               placeholder="Enter 6-digit OTP"
             />
           </div>
         )}
+
+        {/* Recaptcha Container */}
+        <div id="recaptcha-container"></div>
       </div>
 
       <div className="mt-8">

@@ -1,20 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useToast } from '../contexts/ToastContext';
 import { supabase } from '../../core/services/supabase';
 import { AuthLayout, AuthField, AuthOAuthButton, AuthDivider } from '@core/components/auth';
 import { validateEmail, validatePassword, validateName } from '../utils/validation';
+import { useAuth } from '../contexts/AuthContext';
+import { initializeRecaptcha, cleanupRecaptcha, isFirebaseConfigured } from '@core/services/firebaseAuth';
 
 interface AuthModalProps {
   onClose: () => void;
 }
 
+type AuthTab = 'signin' | 'signup' | 'phone';
+
 export const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
-  const [activeTab, setActiveTab] = useState<'signin' | 'signup'>('signin');
+  const [activeTab, setActiveTab] = useState<AuthTab>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [confirmationResult, setConfirmationResult] = useState<any>(null);
   const { showToast } = useToast();
+  const { signInWithPhone, verifyPhoneOTP } = useAuth();
+
+  const firebaseConfigured = isFirebaseConfigured();
+
+  useEffect(() => {
+    // Cleanup on unmount
+    return () => {
+      cleanupRecaptcha();
+    };
+  }, []);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,6 +90,39 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
     }
   };
 
+  const handlePhoneAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      if (!otpSent) {
+        // Send OTP
+        if (phone.length !== 10) {
+          throw new Error('Please enter a valid 10-digit phone number');
+        }
+
+        const recaptchaVerifier = initializeRecaptcha('recaptcha-container', 'invisible');
+        const result = await signInWithPhone(`+91${phone}`, recaptchaVerifier);
+        setConfirmationResult(result);
+        setOtpSent(true);
+        showToast("OTP sent successfully!", "success");
+      } else {
+        // Verify OTP
+        if (otp.length !== 6) {
+          throw new Error('Please enter the 6-digit OTP');
+        }
+
+        await verifyPhoneOTP(confirmationResult, otp);
+        showToast("Successfully signed in!", "success");
+        onClose();
+      }
+    } catch (err: any) {
+      showToast(err.message || 'Authentication failed', "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleOAuthLogin = async (provider: 'google') => {
     const { error } = await supabase.auth.signInWithOAuth({ provider });
     if (error) {
@@ -96,7 +147,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
         {/* Tab Header */}
         <div className="flex border-b border-slate-100 dark:border-slate-700">
           <button
-            onClick={() => setActiveTab('signin')}
+            onClick={() => { setActiveTab('signin'); setOtpSent(false); }}
             className={`flex-1 py-4 text-sm font-bold uppercase tracking-wider transition-colors relative ${activeTab === 'signin'
               ? 'text-teal-600 dark:text-teal-400 bg-slate-50 dark:bg-slate-800/50'
               : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50'
@@ -108,7 +159,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
             )}
           </button>
           <button
-            onClick={() => setActiveTab('signup')}
+            onClick={() => { setActiveTab('signup'); setOtpSent(false); }}
             className={`flex-1 py-4 text-sm font-bold uppercase tracking-wider transition-colors relative ${activeTab === 'signup'
               ? 'text-teal-600 dark:text-teal-400 bg-slate-50 dark:bg-slate-800/50'
               : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50'
@@ -119,77 +170,156 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-teal-600 dark:bg-teal-400"></div>
             )}
           </button>
+          {firebaseConfigured && (
+            <button
+              onClick={() => { setActiveTab('phone'); setOtpSent(false); }}
+              className={`flex-1 py-4 text-sm font-bold uppercase tracking-wider transition-colors relative ${activeTab === 'phone'
+                ? 'text-teal-600 dark:text-teal-400 bg-slate-50 dark:bg-slate-800/50'
+                : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50'
+                }`}
+            >
+              Phone
+              {activeTab === 'phone' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-teal-600 dark:bg-teal-400"></div>
+              )}
+            </button>
+          )}
         </div>
 
         <div className="p-6 sm:p-8">
           <div className="text-center mb-6">
             <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
-              {activeTab === 'signin' ? 'Welcome Back' : 'Create Account'}
+              {activeTab === 'signin' ? 'Welcome Back' : activeTab === 'signup' ? 'Create Account' : 'Phone Login'}
             </h2>
             <p className="text-slate-500 dark:text-slate-400 text-sm">
-              {activeTab === 'signin' ? 'Enter your details to sign in' : 'Join thelokals to connect with experts'}
+              {activeTab === 'signin' ? 'Enter your details to sign in' : activeTab === 'signup' ? 'Join thelokals to connect with experts' : 'Sign in with your phone number'}
             </p>
           </div>
 
-          <div className="space-y-4">
-            <AuthOAuthButton
-              onClick={() => handleOAuthLogin('google')}
-              provider="google"
-              label="Continue with Google"
-            />
-          </div>
+          {activeTab !== 'phone' && (
+            <>
+              <div className="space-y-4">
+                <AuthOAuthButton
+                  onClick={() => handleOAuthLogin('google')}
+                  provider="google"
+                  label="Continue with Google"
+                />
+              </div>
 
-          <AuthDivider />
+              <AuthDivider />
 
-          <form onSubmit={handleAuth} className="space-y-4">
-            {activeTab === 'signup' && (
-              <AuthField
-                label="Full Name"
-                type="text"
-                required
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder="John Doe"
-              />
-            )}
-            <AuthField
-              label="Email Address"
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              data-testid="email-input"
-              placeholder="john@example.com"
-            />
-            <AuthField
-              label="Password"
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              data-testid="password-input"
-              placeholder="••••••••"
-              minLength={6}
-              helperText="Password must be at least 6 characters long."
-            />
+              <form onSubmit={handleAuth} className="space-y-4">
+                {activeTab === 'signup' && (
+                  <AuthField
+                    label="Full Name"
+                    type="text"
+                    required
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="John Doe"
+                  />
+                )}
+                <AuthField
+                  label="Email Address"
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  data-testid="email-input"
+                  placeholder="john@example.com"
+                />
+                <AuthField
+                  label="Password"
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  data-testid="password-input"
+                  placeholder="••••••••"
+                  minLength={6}
+                  helperText="Password must be at least 6 characters long."
+                />
 
-            <button
-              type="submit"
-              disabled={loading}
-              data-testid="submit-button"
-              className={`w-full py-3 px-4 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl shadow-lg transition-all transform active:scale-[0.98] flex items-center justify-center ${loading ? 'opacity-70 cursor-not-allowed' : ''
-                }`}
-            >
-              {loading ? (
-                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-              ) : (
-                activeTab === 'signin' ? 'Sign In' : 'Sign Up'
+                <button
+                  type="submit"
+                  disabled={loading}
+                  data-testid="submit-button"
+                  className={`w-full py-3 px-4 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl shadow-lg transition-all transform active:scale-[0.98] flex items-center justify-center ${loading ? 'opacity-70 cursor-not-allowed' : ''
+                    }`}
+                >
+                  {loading ? (
+                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  ) : (
+                    activeTab === 'signin' ? 'Sign In' : 'Sign Up'
+                  )}
+                </button>
+              </form>
+            </>
+          )}
+
+          {activeTab === 'phone' && (
+            <form onSubmit={handlePhoneAuth} className="space-y-4">
+              <div>
+                <label htmlFor="phone" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  Phone Number
+                </label>
+                <div className="flex rounded-lg shadow-sm">
+                  <span className="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-400 text-sm">
+                    +91
+                  </span>
+                  <input
+                    type="tel"
+                    id="phone"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                    className="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                    placeholder="9876543210"
+                    disabled={otpSent}
+                    required
+                  />
+                </div>
+              </div>
+
+              {otpSent && (
+                <div className="animate-fade-in">
+                  <label htmlFor="otp" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    Enter OTP
+                  </label>
+                  <input
+                    type="text"
+                    id="otp"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    className="block w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg shadow-sm bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                    placeholder="Enter 6-digit OTP"
+                    required
+                  />
+                </div>
               )}
-            </button>
-          </form>
+
+              {/* Recaptcha Container */}
+              <div id="recaptcha-container"></div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className={`w-full py-3 px-4 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl shadow-lg transition-all transform active:scale-[0.98] flex items-center justify-center ${loading ? 'opacity-70 cursor-not-allowed' : ''
+                  }`}
+              >
+                {loading ? (
+                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                ) : (
+                  otpSent ? 'Verify OTP' : 'Send OTP'
+                )}
+              </button>
+            </form>
+          )}
         </div>
       </div>
     </div>

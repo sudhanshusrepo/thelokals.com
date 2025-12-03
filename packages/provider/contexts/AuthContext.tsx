@@ -19,8 +19,8 @@ interface AuthContextType {
   profile: ProviderProfile | null;
   loading: boolean;
   signOut: () => Promise<void>;
-  signInWithPhone: (phone: string) => Promise<any>;
-  verifyOtp: (phone: string, token: string) => Promise<any>;
+  signInWithPhone: (phone: string, recaptchaVerifier: any) => Promise<any>;
+  verifyOtp: (confirmationResult: any, token: string) => Promise<any>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -103,19 +103,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
-  const signInWithPhone = async (phone: string) => {
-    return supabase.auth.signInWithOtp({
-      phone,
-    });
+  const signInWithPhone = async (phone: string, recaptchaVerifier: any) => {
+    const { sendPhoneOTP } = await import('@thelocals/core/services/firebaseAuth');
+    return sendPhoneOTP(phone, recaptchaVerifier);
   };
 
-  const verifyOtp = async (phone: string, token: string) => {
-    return supabase.auth.verifyOtp({
-      phone,
-      token,
-      type: 'sms'
-    });
-  }
+  const verifyOtp = async (confirmationResult: any, token: string) => {
+    const { verifyPhoneOTP } = await import('@thelocals/core/services/firebaseAuth');
+    const { authenticateWithPhone } = await import('@thelocals/core/services/authBridge');
+
+    const firebaseToken = await verifyPhoneOTP(confirmationResult, token);
+    const { session: newSession, user: newUser } = await authenticateWithPhone(
+      firebaseToken,
+      confirmationResult._phoneNumber || ''
+    );
+
+    setSession(newSession);
+    setUser(newUser);
+
+    // Fetch provider profile
+    if (newUser) {
+      await fetchProfile(newUser.id);
+    }
+  };
 
   const value = {
     session,
