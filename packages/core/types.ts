@@ -79,6 +79,15 @@ export type UserProfile = {
   avatarUrl?: string;
 };
 
+export interface Customer {
+  id: string;
+  email: string;
+  full_name?: string;
+  phone?: string;
+  avatar_url?: string;
+  created_at?: string;
+}
+
 export interface Booking {
   id: string;
   client_id: string;

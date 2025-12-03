@@ -1,8 +1,8 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Session, User } from '@supabase/supabase-js';
-import { supabase } from '../../core/services/supabase';
-import { Customer } from '../../core/types';
+import { supabase } from '@thelocals/core/services/supabase';
+import { Customer } from '@thelocals/core/types';
 
 interface AuthContextType {
   session: Session | null;
@@ -88,13 +88,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const signInWithPhone = async (phone: string, recaptchaVerifier: any) => {
-    const { sendPhoneOTP } = await import('../../core/services/firebaseAuth');
+    const { sendPhoneOTP } = await import('@thelocals/core/services/firebaseAuth');
     return sendPhoneOTP(phone, recaptchaVerifier);
   };
 
   const verifyPhoneOTP = async (confirmationResult: any, code: string) => {
-    const { verifyPhoneOTP: verifyOTP } = await import('../../core/services/firebaseAuth');
-    const { authenticateWithPhone } = await import('../../core/services/authBridge');
+    const { verifyPhoneOTP: verifyOTP } = await import('@thelocals/core/services/firebaseAuth');
+    const { authenticateWithPhone } = await import('@thelocals/core/services/authBridge');
 
     const firebaseToken = await verifyOTP(confirmationResult, code);
     const { session: newSession, user: newUser } = await authenticateWithPhone(
