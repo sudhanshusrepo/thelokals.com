@@ -13,11 +13,27 @@ export const backend = {
     },
 
     getDraft: async (): Promise<ProviderProfile | null> => {
-      const { data, error } = await supabase.from('profiles').select('*').single()
-      if (error) {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          return null;
+        }
+
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (error) {
+          console.error('Error fetching draft:', error);
+          return null;
+        }
+        return data as ProviderProfile;
+      } catch (error) {
+        console.error('Error in getDraft:', error);
         return null;
       }
-      return data as ProviderProfile;
     },
 
     deleteDraft: async (): Promise<void> => {
