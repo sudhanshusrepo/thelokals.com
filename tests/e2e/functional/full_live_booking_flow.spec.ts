@@ -24,9 +24,47 @@ test.describe('Full Live Booking Flow', () => {
         if (provider) {
             providerId = provider.id;
         } else {
-            // Create a dummy provider user and profile/provider entry if needed
-            // For now, we assume seed data exists or we skip this part if no provider
-            console.log('No provider found, test might fail at provider step');
+            // Create a dummy provider user and profile/provider entry
+            const email = `provider_${Date.now()}@test.com`;
+            const { data: user, error: userError } = await supabase.auth.signUp({
+                email,
+                password: 'password123',
+            });
+
+            if (userError || !user.user) {
+                console.error('Failed to create test provider user:', userError);
+                throw new Error('Failed to create test provider user');
+            }
+
+            const userId = user.user.id;
+
+            // Create profile
+            await supabase.from('profiles').insert({
+                id: userId,
+                email,
+                role: 'provider',
+                full_name: 'Test Provider',
+            });
+
+            // Create provider entry
+            const { data: newProvider, error: providerError } = await supabase
+                .from('providers')
+                .insert({
+                    id: userId,
+                    service_radius: 50,
+                    is_verified: true,
+                    is_active: true
+                })
+                .select('id')
+                .single();
+
+            if (providerError) {
+                console.error('Failed to create provider entry:', providerError);
+                throw new Error('Failed to create provider entry');
+            }
+
+            providerId = newProvider.id;
+            console.log(`Created test provider: ${providerId}`);
         }
     });
 

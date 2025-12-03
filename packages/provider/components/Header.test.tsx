@@ -12,9 +12,8 @@ describe('Provider Header', () => {
             </BrowserRouter>
         );
 
-        expect(screen.getByText('TheLokals')).toBeInTheDocument();
-        expect(screen.getByText('Pro')).toBeInTheDocument();
-        expect(screen.getByText('L')).toBeInTheDocument();
+        expect(screen.getByAltText('thelokals logo')).toBeInTheDocument();
+        expect(screen.getByText('thelokals.com')).toBeInTheDocument();
     });
 
     it('should render the title', () => {

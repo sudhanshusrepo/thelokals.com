@@ -11,23 +11,23 @@ test.describe('Booking System', () => {
     });
 
     test('should create an AI-enhanced booking', async ({ page }) => {
-        await page.goto('/services');
-        await page.click('text=Plumber');
+        await page.goto('/service/plumber');
 
-        // Fill booking details
-        await page.fill('textarea[name="requirements"]', 'Fix leaking kitchen sink');
-        await page.fill('input[name="location"]', 'New York, NY');
+        // Fill booking details via Chat Input
+        const chatInput = page.locator('textarea[placeholder*="Tell us about"]');
+        await expect(chatInput).toBeVisible();
+        await chatInput.fill('Fix leaking kitchen sink');
 
-        // Submit for AI analysis
-        await page.click('button:has-text("Get AI Estimate")');
+        // Submit
+        await page.click('button[aria-label="Send message"]');
 
         // Wait for AI checklist
-        await expect(page.locator('.ai-checklist')).toBeVisible();
-        await expect(page.locator('.estimated-cost')).toBeVisible();
+        await expect(page.locator('[data-testid="ai-checklist-section"]')).toBeVisible({ timeout: 15000 });
+        await expect(page.locator('text=Estimated Cost')).toBeVisible();
 
         // Confirm booking
-        await page.click('button:has-text("Confirm Booking")');
-        await expect(page.locator('text=Booking created successfully')).toBeVisible();
+        await page.click('[data-testid="book-now-button"]');
+        await expect(page.locator('text=Booking created')).toBeVisible();
     });
 
     test('should send live booking request to providers', async ({ page }) => {
