@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ProviderProfile } from '../../types';
 import toast from 'react-hot-toast';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { initializeRecaptcha, cleanupRecaptcha } from '@thelocals/core/services/firebaseAuth';
 
 interface StepProps {

@@ -4,8 +4,9 @@ export default {
   content: [
     "./index.html",
     "./{components,contexts,services,utils}/**/*.{js,ts,jsx,tsx}",
-    theme: {
-      extend: {},
-    },
-    plugins: [],
-      }
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}

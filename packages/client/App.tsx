@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback, Suspense, lazy } from 'react';
-import { Helmet } from 'react-helmet';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { BrowserRouter, Routes, Route, useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import { AppLayout, AppHeader, BottomNav, BottomNavItem } from '@thelocals/core';
 import { AuthModal } from './components/AuthModal';
@@ -301,15 +301,17 @@ const NavLink: React.FC<{ to: string, label: string, icon?: string }> = ({ to, l
 export default function App() {
     return (
         <ErrorBoundary>
-            <AuthProvider>
-                <ToastProvider>
-                    <BrowserRouter>
-                        <MainLayout />
-                        <ToastContainer />
-                        <Toaster position="top-center" />
-                    </BrowserRouter>
-                </ToastProvider>
-            </AuthProvider>
+            <HelmetProvider>
+                <AuthProvider>
+                    <ToastProvider>
+                        <BrowserRouter>
+                            <MainLayout />
+                            <ToastContainer />
+                            <Toaster position="top-center" />
+                        </BrowserRouter>
+                    </ToastProvider>
+                </AuthProvider>
+            </HelmetProvider>
         </ErrorBoundary>
     );
 }
