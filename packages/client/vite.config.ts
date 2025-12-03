@@ -105,6 +105,7 @@ export default defineConfig(({ mode }) => {
       alias: {
         '@': path.resolve(__dirname, '.'),
         '@core': path.resolve(__dirname, '../core'),
+        '@thelocals/core': path.resolve(__dirname, '../core'),
       }
     }
   };

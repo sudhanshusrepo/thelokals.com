@@ -1,6 +1,6 @@
 import React from 'react';
 import { ProviderProfile, ProviderDocument, DocType } from '../../types';
-import { useToast } from '../Toast';
+import toast from 'react-hot-toast';
 import { backend } from '../../services/backend';
 
 interface StepProps {
@@ -11,7 +11,6 @@ interface StepProps {
 }
 
 const DocUpload: React.FC<{ doc: ProviderDocument, onUpdate: (update: Partial<ProviderDocument>) => void }> = ({ doc, onUpdate }) => {
-    const toast = useToast();
     const [isUploading, setIsUploading] = React.useState(false);
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {

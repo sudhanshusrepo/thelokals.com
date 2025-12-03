@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ProviderProfile, RegistrationStatus } from '../../types';
-import { useToast } from '../Toast';
+import toast from 'react-hot-toast';
 import { backend } from '../../services/backend';
 
 interface StepProps {
@@ -12,7 +12,6 @@ interface StepProps {
 
 export const ReviewStep: React.FC<StepProps> = ({ data, updateData, onBack }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const toast = useToast();
 
   const handleSubmit = async () => {
     setIsSubmitting(true);

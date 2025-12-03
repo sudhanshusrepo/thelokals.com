@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ProviderProfile } from '../../types';
-import { useToast } from '../Toast';
+import toast from 'react-hot-toast';
 import { backend } from '../../services/backend';
 
 interface StepProps {
@@ -16,7 +16,6 @@ export const PhoneStep: React.FC<StepProps> = ({ data, updateData, onNext }) => 
   const [otpSent, setOtpSent] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
-  const toast = useToast();
 
   const handleSendOtp = async () => {
     if (phone.length !== 10) {
