@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Coordinates } from '@core/types';
+import { Coordinates } from '@thelocals/core/types';
 
 interface GeolocationState {
     location: Coordinates | null;

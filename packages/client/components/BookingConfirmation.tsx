@@ -1,8 +1,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { bookingService } from '@core/services/bookingService';
-import { Booking } from '@core/types';
+import { bookingService } from '@thelocals/core/services/bookingService';
+import { Booking } from '@thelocals/core/types';
 import { ProfileSkeleton } from './Skeleton';
 
 const BookingConfirmation: React.FC = () => {

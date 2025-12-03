@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Circle, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import { Coordinates } from '@core/types';
+import { Coordinates } from '@thelocals/core/types';
 
 // Fix for default marker icon
 import icon from 'leaflet/dist/images/marker-icon.png';

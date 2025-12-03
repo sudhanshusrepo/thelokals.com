@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { WorkerCategory, ServiceType } from '@core/types';
-import { SERVICES_BY_CATEGORY } from '@core/constants/services';
+import { WorkerCategory, ServiceType } from '@thelocals/core/types';
+import { SERVICES_BY_CATEGORY } from '@thelocals/core/constants/services';
 import { CATEGORY_DISPLAY_NAMES } from '../constants';
 import { useNavigate } from 'react-router-dom';
 
@@ -32,8 +32,8 @@ export const ServiceSelection: React.FC<ServiceSelectionProps> = ({ category, on
                             key={service.id}
                             onClick={() => setSelectedService(service)}
                             className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${selectedService?.id === service.id
-                                    ? 'border-teal-500 bg-teal-50 dark:bg-teal-900/20'
-                                    : 'border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-teal-200'
+                                ? 'border-teal-500 bg-teal-50 dark:bg-teal-900/20'
+                                : 'border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-teal-200'
                                 }`}
                         >
                             <div className="flex justify-between items-start">
@@ -69,8 +69,8 @@ export const ServiceSelection: React.FC<ServiceSelectionProps> = ({ category, on
                         disabled={!selectedService}
                         onClick={() => selectedService && onBook(selectedService)}
                         className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${selectedService
-                                ? 'bg-teal-600 text-white hover:bg-teal-700 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5'
-                                : 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
+                            ? 'bg-teal-600 text-white hover:bg-teal-700 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5'
+                            : 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
                             }`}
                     >
                         {selectedService ? `Book ${selectedService.name} - ₹${selectedService.price}` : 'Select a Service'}

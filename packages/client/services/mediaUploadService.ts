@@ -1,4 +1,4 @@
-import { supabase } from '@core/services/supabase';
+import { supabase } from '@thelocals/core/services/supabase';
 
 export interface UploadResult {
     url: string;

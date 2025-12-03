@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ChatInput } from './ChatInput';
 import { useNavigate } from 'react-router-dom';
 // import { interpretSearchQuery } from '@core/services/geminiService'; // Not yet implemented
-import { WorkerCategory } from '@core/types';
+import { WorkerCategory } from '@thelocals/core/types';
 import { LOWERCASE_TO_WORKER_CATEGORY } from '../constants';
 
 interface StickyChatCtaProps {

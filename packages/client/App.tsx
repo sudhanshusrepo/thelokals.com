@@ -6,8 +6,8 @@ import { AuthModal } from './components/AuthModal';
 import { UserDashboard, DashboardView } from './components/UserDashboard';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { DEFAULT_CENTER, CATEGORY_DISPLAY_NAMES, LOWERCASE_TO_WORKER_CATEGORY } from './constants';
-import { Coordinates, ServiceType } from '@core/types';
-import { bookingService } from '@core/services/bookingService';
+import { Coordinates, ServiceType } from '@thelocals/core/types';
+import { bookingService } from '@thelocals/core/services/bookingService';
 import { HomeSkeleton, BookingSkeleton, ProfileSkeleton } from './components/Skeleton';
 import { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css'

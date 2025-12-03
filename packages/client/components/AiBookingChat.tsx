@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ChatInput } from './ChatInput';
 import { useAuth } from '../contexts/AuthContext';
 import { useLocation } from 'react-router-dom';
-import { chatWithAI } from '@core/services/geminiService';
+import { chatWithAI } from '@thelocals/core/services/geminiService';
 
 interface AiBookingChatProps {
     isOpen: boolean;

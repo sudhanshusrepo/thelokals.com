@@ -1,4 +1,4 @@
-import { Coordinates } from '@core/types';
+import { Coordinates } from '@thelocals/core/types';
 
 export const isLocationInBetaArea = (location: Coordinates | null): boolean => {
     if (!location) return false;

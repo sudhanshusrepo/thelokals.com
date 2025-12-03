@@ -1,11 +1,11 @@
 import React, { useEffect, useState, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { bookingService } from '@core/services/bookingService';
+import { bookingService } from '@thelocals/core/services/bookingService';
 import { useGeolocation } from '../hooks/useGeolocation';
 import { supabase } from '../../core/services/supabase';
 
 import { ONLINE_CATEGORIES } from '../constants';
-import { WorkerCategory } from '@core/types';
+import { WorkerCategory } from '@thelocals/core/types';
 
 // Lazy load the map component
 const MapComponent = lazy(() => import('./MapComponent').then(module => ({ default: module.MapComponent })));

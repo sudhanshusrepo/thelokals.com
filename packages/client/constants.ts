@@ -1,5 +1,5 @@
 
-import { WorkerCategory } from '@core/types';
+import { WorkerCategory } from '@thelocals/core/types';
 
 // SVG Path Constants for Icons
 export const ICONS = {
