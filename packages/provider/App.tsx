@@ -72,14 +72,21 @@ const MainLayout: React.FC = () => {
   useEffect(() => {
     // Restore any draft data
     const loadDraft = async () => {
-      const draft = await backend.db.getDraft();
-      if (draft) {
-        // Handle draft restoration if needed
+      try {
+        const draft = await backend.db.getDraft();
+        if (draft) {
+          // Handle draft restoration if needed
+        }
+      } catch (e) {
+        console.error('App.tsx: getDraft failed', e);
+      } finally {
+        setIsRestoring(false);
       }
-      setIsRestoring(false);
     };
     loadDraft();
   }, []);
+
+
 
   const getHeaderTitle = () => {
     const path = location.pathname;
