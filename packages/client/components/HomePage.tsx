@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import Tilt from 'react-parallax-tilt';
 import { SERVICE_GROUPS, ONLINE_SERVICE_GROUPS } from '../constants';
 
 import { Features } from './Features';
@@ -64,126 +65,166 @@ const OfferBanner: React.FC = () => {
                 <div className="hidden sm:block text-4xl animate-bounce">✨</div>
             </div>
         </div>
+    );
+};
 
-            {/* Hero Section */ }
-    <div className="text-center px-4 max-w-3xl mx-auto">
-        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">
-            {activeTab === 'offline' ? (
-                <>All Types of Local Services <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-emerald-500">Near You</span></>
-            ) : (
-                <>Expert Online Services <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500">& Professionals</span></>
-            )}
-        </h1>
-        <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">
-            {activeTab === 'offline'
-                ? "From home cleaning to appliance repair, find trusted local helpers in your neighborhood."
-                : "Connect with top-rated freelancers and experts for digital, creative, and business needs."}
-        </p>
-    </div>
+export const HomePage: React.FC = () => {
+    const navigate = useNavigate();
+    const [activeTab, setActiveTab] = useState<'offline' | 'online'>('offline');
 
-    {/* Service Groups Grid */ }
-    <div
-        className="w-full px-0"
-        role="tabpanel"
-        id={`${activeTab}-services-panel`}
-        aria-labelledby={`tab-${activeTab}`}
-    >
-        <h2 className="sr-only">
-            {activeTab === 'offline' ? 'At-Home Services' : 'Online Experts'}
-        </h2>
-        <div className="grid grid-cols-3 gap-1.5 sm:gap-3">
-            {Object.values(currentGroups).map((group) => (
-import Tilt from 'react-parallax-tilt';
+    const currentGroups = activeTab === 'offline' ? SERVICE_GROUPS : ONLINE_SERVICE_GROUPS;
 
-            // ... existing imports
+    return (
+        <div className="space-y-6 animate-fade-in-up">
+            <Helmet>
+                <title>thelokals.com – All Types of Local & Online Services</title>
+                <meta name="description" content="Discover local home services and expert online professionals in one app." />
+            </Helmet>
 
-            {Object.values(currentGroups).map((group) => (
-                <Tilt
-                    key={group.name}
-                    tiltMaxAngleX={10}
-                    tiltMaxAngleY={10}
-                    perspective={1000}
-                    scale={1.02}
-                    transitionSpeed={1500}
-                    gyroscope={true}
-                    glareEnable={true}
-                    glareMaxOpacity={0.3}
-                    glareColor={activeTab === 'offline' ? '#0d9488' : '#6366f1'} // teal or indigo glare
-                    glarePosition="all"
-                    glareBorderRadius="1rem"
-                    className="bg-transparent h-full" // Ensure full height for grid
+            {/* Tab Switcher */}
+            <div className="flex justify-center pt-4">
+                <div
+                    className="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl inline-flex shadow-inner"
+                    role="tablist"
+                    aria-label="Service Type Selection"
                 >
-                    <motion.button
-                        data-testid="category-card"
-                        onClick={() => navigate(`/group/${encodeURIComponent(group.name)}`)}
-                        // Removed internal whileHover scale/rotate as Tilt handles it better spatially
-                        whileTap={{ scale: 0.95 }}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3 }}
+                    <button
+                        role="tab"
+                        aria-selected={activeTab === 'offline'}
+                        aria-controls="offline-services-panel"
+                        id="tab-offline"
+                        onClick={() => setActiveTab('offline')}
                         className={`
-                                    w-full h-full
-                                    relative flex flex-col items-center p-3 sm:p-6
-                                    bg-white dark:bg-slate-800
-                                    rounded-xl sm:rounded-2xl
-                                    shadow-[0_2px_10px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.2)]
-                                    hover:shadow-[0_20px_40px_-5px_rgba(0,0,0,0.15)] dark:hover:shadow-[0_20px_40px_-5px_rgba(0,0,0,0.5)]
-                                    border border-slate-100 dark:border-slate-700
-                                    hover:border-${activeTab === 'offline' ? 'teal' : 'indigo'}-500/30 dark:hover:border-${activeTab === 'offline' ? 'teal' : 'indigo'}-400/30
-                                    group overflow-hidden
-                                    min-h-[120px] sm:min-h-[180px] justify-center
-                                `}
+                            px-6 py-2 rounded-lg text-sm font-bold transition-all duration-200
+                            ${activeTab === 'offline'
+                                ? 'bg-white dark:bg-slate-700 text-teal-600 dark:text-teal-400 shadow-sm'
+                                : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}
+                        `}
                     >
-                        {/* Background Gradient Hover Effect */}
-                        <div className={`
-                                    absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500
-                                    bg-gradient-to-br from-${group.color}-50/50 to-transparent dark:from-${group.color}-900/10
-                                `}></div>
+                        At-Home Services
+                    </button>
+                    <button
+                        role="tab"
+                        aria-selected={activeTab === 'online'}
+                        aria-controls="online-services-panel"
+                        id="tab-online"
+                        onClick={() => setActiveTab('online')}
+                        className={`
+                            px-6 py-2 rounded-lg text-sm font-bold transition-all duration-200
+                            ${activeTab === 'online'
+                                ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                                : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}
+                        `}
+                    >
+                        Online Experts
+                    </button>
+                </div>
+            </div>
 
-                        {/* Icon Container */}
-                        <div className={`
-                                    relative z-10
-                                    w-14 h-14 sm:w-24 sm:h-24 rounded-full 
-                                    flex items-center justify-center 
-                                    text-3xl sm:text-5xl mb-3 sm:mb-5 
-                                    bg-${group.color}-50 dark:bg-${group.color}-900/20 
-                                    text-${group.color}-600 dark:text-${group.color}-400
-                                    group-hover:scale-110 group-hover:rotate-3 
-                                    transition-all duration-300 ease-out
-                                    shadow-sm group-hover:shadow-md
-                                `}>
-                            {group.icon}
-                        </div>
+            {/* Hero Section */}
+            <div className="text-center px-4 max-w-3xl mx-auto">
+                <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">
+                    {activeTab === 'offline' ? (
+                        <>All Types of Local Services <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-emerald-500">Near You</span></>
+                    ) : (
+                        <>Expert Online Services <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500">& Professionals</span></>
+                    )}
+                </h1>
+                <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">
+                    {activeTab === 'offline'
+                        ? "From home cleaning to appliance repair, find trusted local helpers in your neighborhood."
+                        : "Connect with top-rated freelancers and experts for digital, creative, and business needs."}
+                </p>
+            </div>
 
-                        {/* Text Content */}
-                        <div className="relative z-10 text-center w-full">
-                            <h3 className={`text-[10px] sm:text-lg font-bold text-slate-900 dark:text-white mb-0 sm:mb-1 group-hover:text-${activeTab === 'offline' ? 'teal' : 'indigo'}-600 dark:group-hover:text-${activeTab === 'offline' ? 'teal' : 'indigo'}-400 transition-colors leading-tight px-0.5 break-words`}>
-                                {group.name}
-                            </h3>
-                            <p className="hidden sm:block text-xs text-slate-500 dark:text-slate-400 line-clamp-2 px-1 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors">
-                                {group.helperText}
-                            </p>
-                        </div>
+            {/* Service Groups Grid */}
+            <div
+                className="w-full px-0"
+                role="tabpanel"
+                id={`${activeTab}-services-panel`}
+                aria-labelledby={`tab-${activeTab}`}
+            >
+                <h2 className="sr-only">
+                    {activeTab === 'offline' ? 'At-Home Services' : 'Online Experts'}
+                </h2>
+                <div className="grid grid-cols-3 gap-1.5 sm:gap-3">
+                    {Object.values(currentGroups).map((group) => (
+                        <motion.button
+                            key={group.name}
+                            data-testid="category-card"
+                            onClick={() => navigate(`/group/${encodeURIComponent(group.name)}`)}
+                            whileHover={{
+                                scale: 1.05,
+                                y: -8,
+                                rotateX: 5,
+                                rotateY: 5,
+                                transition: { duration: 0.2 }
+                            }}
+                            whileTap={{ scale: 0.95 }}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.3 }}
+                            className={`
+                                relative flex flex-col items-center p-3 sm:p-6
+                                bg-white dark:bg-slate-800
+                                rounded-xl sm:rounded-2xl
+                                shadow-[0_2px_10px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.2)]
+                                hover:shadow-[0_20px_30px_-10px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_20px_30px_-10px_rgba(0,0,0,0.4)]
+                                border border-slate-100 dark:border-slate-700
+                                hover:border-${activeTab === 'offline' ? 'teal' : 'indigo'}-500/50 dark:hover:border-${activeTab === 'offline' ? 'teal' : 'indigo'}-400/50
+                                group overflow-hidden
+                                min-h-[120px] sm:min-h-[180px] justify-center
+                                transform-gpu perspective-1000
+                            `}
+                        >
+                            {/* Background Gradient Hover Effect */}
+                            <div className={`
+                                absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500
+                                bg-gradient-to-br from-${group.color}-50/50 to-transparent dark:from-${group.color}-900/10
+                            `}></div>
 
-                        {/* Action Arrow (Visible on Hover - Desktop only) */}
-                        <div className={`
-                                    hidden sm:flex
-                                    absolute bottom-2 right-2 
-                                    w-6 h-6 rounded-full bg-${activeTab === 'offline' ? 'teal' : 'indigo'}-50 dark:bg-${activeTab === 'offline' ? 'teal' : 'indigo'}-900/30 
-                                    items-center justify-center text-${activeTab === 'offline' ? 'teal' : 'indigo'}-600 dark:text-${activeTab === 'offline' ? 'teal' : 'indigo'}-400
-                                    opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 
-                                    transition-all duration-300 delay-100 text-xs
-                                `}>
-                            →
-                        </div>
-                    </motion.button>
-                </Tilt>
-            ))}
-            ))}
-        </div>
-    </div>
+                            {/* Icon Container */}
+                            <div className={`
+                                relative z-10
+                                w-14 h-14 sm:w-24 sm:h-24 rounded-full 
+                                flex items-center justify-center 
+                                text-3xl sm:text-5xl mb-3 sm:mb-5 
+                                bg-${group.color}-50 dark:bg-${group.color}-900/20 
+                                text-${group.color}-600 dark:text-${group.color}-400
+                                group-hover:scale-110 group-hover:rotate-3 
+                                transition-all duration-300 ease-out
+                                shadow-sm group-hover:shadow-md
+                            `}>
+                                {group.icon}
+                            </div>
 
-    {/* SEO Navigation Links (Hidden visually but available for crawlers/sitelinks) */ }
+                            {/* Text Content */}
+                            <div className="relative z-10 text-center w-full">
+                                <h3 className={`text-[10px] sm:text-lg font-bold text-slate-900 dark:text-white mb-0 sm:mb-1 group-hover:text-${activeTab === 'offline' ? 'teal' : 'indigo'}-600 dark:group-hover:text-${activeTab === 'offline' ? 'teal' : 'indigo'}-400 transition-colors leading-tight px-0.5 break-words`}>
+                                    {group.name}
+                                </h3>
+                                <p className="hidden sm:block text-xs text-slate-500 dark:text-slate-400 line-clamp-2 px-1 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors">
+                                    {group.helperText}
+                                </p>
+                            </div>
+
+                            {/* Action Arrow (Visible on Hover - Desktop only) */}
+                            <div className={`
+                                hidden sm:flex
+                                absolute bottom-2 right-2 
+                                w-6 h-6 rounded-full bg-${activeTab === 'offline' ? 'teal' : 'indigo'}-50 dark:bg-${activeTab === 'offline' ? 'teal' : 'indigo'}-900/30 
+                                items-center justify-center text-${activeTab === 'offline' ? 'teal' : 'indigo'}-600 dark:text-${activeTab === 'offline' ? 'teal' : 'indigo'}-400
+                                opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 
+                                transition-all duration-300 delay-100 text-xs
+                            `}>
+                                →
+                            </div>
+                        </motion.button>
+                    ))}
+                </div>
+            </div>
+
+            {/* SEO Navigation Links (Hidden visually but available for crawlers/sitelinks) */}
             <nav className="sr-only">
                 <a href="/login">Login / Sign up</a>
                 <a href="/home-cleaning-maids">Home Cleaning & Maids</a>
@@ -201,6 +242,6 @@ import Tilt from 'react-parallax-tilt';
             </div>
 
             <StickyChatCta />
-        </div >
+        </div>
     );
 };
