@@ -93,77 +93,92 @@ const OfferBanner: React.FC = () => {
         </h2>
         <div className="grid grid-cols-3 gap-1.5 sm:gap-3">
             {Object.values(currentGroups).map((group) => (
-                <motion.button
+import Tilt from 'react-parallax-tilt';
+
+            // ... existing imports
+
+            {Object.values(currentGroups).map((group) => (
+                <Tilt
                     key={group.name}
-                    data-testid="category-card"
-                    onClick={() => navigate(`/group/${encodeURIComponent(group.name)}`)}
-                    whileHover={{
-                        scale: 1.05,
-                        y: -8,
-                        rotateX: 5,
-                        rotateY: 5,
-                        transition: { duration: 0.2 }
-                    }}
-                    whileTap={{ scale: 0.95 }}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className={`
-                                relative flex flex-col items-center p-3 sm:p-6
-                                bg-white dark:bg-slate-800
-                                rounded-xl sm:rounded-2xl
-                                shadow-[0_2px_10px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.2)]
-                                hover:shadow-[0_20px_30px_-10px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_20px_30px_-10px_rgba(0,0,0,0.4)]
-                                border border-slate-100 dark:border-slate-700
-                                hover:border-${activeTab === 'offline' ? 'teal' : 'indigo'}-500/50 dark:hover:border-${activeTab === 'offline' ? 'teal' : 'indigo'}-400/50
-                                group overflow-hidden
-                                min-h-[120px] sm:min-h-[180px] justify-center
-                                transform-gpu perspective-1000
-                            `}
+                    tiltMaxAngleX={10}
+                    tiltMaxAngleY={10}
+                    perspective={1000}
+                    scale={1.02}
+                    transitionSpeed={1500}
+                    gyroscope={true}
+                    glareEnable={true}
+                    glareMaxOpacity={0.3}
+                    glareColor={activeTab === 'offline' ? '#0d9488' : '#6366f1'} // teal or indigo glare
+                    glarePosition="all"
+                    glareBorderRadius="1rem"
+                    className="bg-transparent h-full" // Ensure full height for grid
                 >
-                    {/* Background Gradient Hover Effect */}
-                    <div className={`
-                                absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500
-                                bg-gradient-to-br from-${group.color}-50/50 to-transparent dark:from-${group.color}-900/10
-                            `}></div>
+                    <motion.button
+                        data-testid="category-card"
+                        onClick={() => navigate(`/group/${encodeURIComponent(group.name)}`)}
+                        // Removed internal whileHover scale/rotate as Tilt handles it better spatially
+                        whileTap={{ scale: 0.95 }}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className={`
+                                    w-full h-full
+                                    relative flex flex-col items-center p-3 sm:p-6
+                                    bg-white dark:bg-slate-800
+                                    rounded-xl sm:rounded-2xl
+                                    shadow-[0_2px_10px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.2)]
+                                    hover:shadow-[0_20px_40px_-5px_rgba(0,0,0,0.15)] dark:hover:shadow-[0_20px_40px_-5px_rgba(0,0,0,0.5)]
+                                    border border-slate-100 dark:border-slate-700
+                                    hover:border-${activeTab === 'offline' ? 'teal' : 'indigo'}-500/30 dark:hover:border-${activeTab === 'offline' ? 'teal' : 'indigo'}-400/30
+                                    group overflow-hidden
+                                    min-h-[120px] sm:min-h-[180px] justify-center
+                                `}
+                    >
+                        {/* Background Gradient Hover Effect */}
+                        <div className={`
+                                    absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500
+                                    bg-gradient-to-br from-${group.color}-50/50 to-transparent dark:from-${group.color}-900/10
+                                `}></div>
 
-                    {/* Icon Container */}
-                    <div className={`
-                                relative z-10
-                                w-14 h-14 sm:w-24 sm:h-24 rounded-full 
-                                flex items-center justify-center 
-                                text-3xl sm:text-5xl mb-3 sm:mb-5 
-                                bg-${group.color}-50 dark:bg-${group.color}-900/20 
-                                text-${group.color}-600 dark:text-${group.color}-400
-                                group-hover:scale-110 group-hover:rotate-3 
-                                transition-all duration-300 ease-out
-                                shadow-sm group-hover:shadow-md
-                            `}>
-                        {group.icon}
-                    </div>
+                        {/* Icon Container */}
+                        <div className={`
+                                    relative z-10
+                                    w-14 h-14 sm:w-24 sm:h-24 rounded-full 
+                                    flex items-center justify-center 
+                                    text-3xl sm:text-5xl mb-3 sm:mb-5 
+                                    bg-${group.color}-50 dark:bg-${group.color}-900/20 
+                                    text-${group.color}-600 dark:text-${group.color}-400
+                                    group-hover:scale-110 group-hover:rotate-3 
+                                    transition-all duration-300 ease-out
+                                    shadow-sm group-hover:shadow-md
+                                `}>
+                            {group.icon}
+                        </div>
 
-                    {/* Text Content */}
-                    <div className="relative z-10 text-center w-full">
-                        <h3 className={`text-[10px] sm:text-lg font-bold text-slate-900 dark:text-white mb-0 sm:mb-1 group-hover:text-${activeTab === 'offline' ? 'teal' : 'indigo'}-600 dark:group-hover:text-${activeTab === 'offline' ? 'teal' : 'indigo'}-400 transition-colors leading-tight px-0.5 break-words`}>
-                            {group.name}
-                        </h3>
-                        <p className="hidden sm:block text-xs text-slate-500 dark:text-slate-400 line-clamp-2 px-1 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors">
-                            {group.helperText}
-                        </p>
-                    </div>
+                        {/* Text Content */}
+                        <div className="relative z-10 text-center w-full">
+                            <h3 className={`text-[10px] sm:text-lg font-bold text-slate-900 dark:text-white mb-0 sm:mb-1 group-hover:text-${activeTab === 'offline' ? 'teal' : 'indigo'}-600 dark:group-hover:text-${activeTab === 'offline' ? 'teal' : 'indigo'}-400 transition-colors leading-tight px-0.5 break-words`}>
+                                {group.name}
+                            </h3>
+                            <p className="hidden sm:block text-xs text-slate-500 dark:text-slate-400 line-clamp-2 px-1 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors">
+                                {group.helperText}
+                            </p>
+                        </div>
 
-                    {/* Action Arrow (Visible on Hover - Desktop only) */}
-                    <div className={`
-                                hidden sm:flex
-                                absolute bottom-2 right-2 
-                                w-6 h-6 rounded-full bg-${activeTab === 'offline' ? 'teal' : 'indigo'}-50 dark:bg-${activeTab === 'offline' ? 'teal' : 'indigo'}-900/30 
-                                items-center justify-center text-${activeTab === 'offline' ? 'teal' : 'indigo'}-600 dark:text-${activeTab === 'offline' ? 'teal' : 'indigo'}-400
-                                opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 
-                                transition-all duration-300 delay-100 text-xs
-                            `}>
-                        →
-                    </div>
-                </motion.button>
+                        {/* Action Arrow (Visible on Hover - Desktop only) */}
+                        <div className={`
+                                    hidden sm:flex
+                                    absolute bottom-2 right-2 
+                                    w-6 h-6 rounded-full bg-${activeTab === 'offline' ? 'teal' : 'indigo'}-50 dark:bg-${activeTab === 'offline' ? 'teal' : 'indigo'}-900/30 
+                                    items-center justify-center text-${activeTab === 'offline' ? 'teal' : 'indigo'}-600 dark:text-${activeTab === 'offline' ? 'teal' : 'indigo'}-400
+                                    opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 
+                                    transition-all duration-300 delay-100 text-xs
+                                `}>
+                            →
+                        </div>
+                    </motion.button>
+                </Tilt>
+            ))}
             ))}
         </div>
     </div>
