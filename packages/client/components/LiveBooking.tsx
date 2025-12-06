@@ -119,6 +119,33 @@ const LiveBooking: React.FC = () => {
             {booking.status === 'CONFIRMED' && <p>A provider is on their way!</p>}
             {booking.status === 'EXPIRED' && <p>Sorry, no providers were available. Please try again later.</p>}
             {booking.status === 'REQUESTED' && <div className="loader"></div>}
+
+            {(booking.status === 'REQUESTED' || booking.status === 'PENDING') && (
+              <button
+                onClick={async () => {
+                  try {
+                    setLoading(true);
+                    await liveBookingService.cancelBooking(booking.id);
+                    setBooking({ ...booking, status: 'CANCELLED' });
+                  } catch (err) {
+                    setError('Failed to cancel booking');
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
+                disabled={loading}
+                style={{ marginTop: '10px', backgroundColor: '#ef4444', color: 'white' }}
+              >
+                {loading ? 'Cancelling...' : 'Cancel Booking'}
+              </button>
+            )}
+
+            {booking.status === 'CANCELLED' && (
+              <div>
+                <p style={{ color: '#ef4444' }}>Booking was cancelled.</p>
+                <button onClick={() => { setBooking(null); setStep(1); }}>Start New Booking</button>
+              </div>
+            )}
           </div>
         );
       default:

@@ -82,8 +82,16 @@ export const HomePage: React.FC = () => {
 
             {/* Tab Switcher */}
             <div className="flex justify-center pt-4">
-                <div className="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl inline-flex shadow-inner">
+                <div
+                    className="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl inline-flex shadow-inner"
+                    role="tablist"
+                    aria-label="Service Type Selection"
+                >
                     <button
+                        role="tab"
+                        aria-selected={activeTab === 'offline'}
+                        aria-controls="offline-services-panel"
+                        id="tab-offline"
                         onClick={() => setActiveTab('offline')}
                         className={`
                             px-6 py-2 rounded-lg text-sm font-bold transition-all duration-200
@@ -95,6 +103,10 @@ export const HomePage: React.FC = () => {
                         At-Home Services
                     </button>
                     <button
+                        role="tab"
+                        aria-selected={activeTab === 'online'}
+                        aria-controls="online-services-panel"
+                        id="tab-online"
                         onClick={() => setActiveTab('online')}
                         className={`
                             px-6 py-2 rounded-lg text-sm font-bold transition-all duration-200
@@ -125,7 +137,15 @@ export const HomePage: React.FC = () => {
             </div>
 
             {/* Service Groups Grid */}
-            <div className="w-full px-0">
+            <div
+                className="w-full px-0"
+                role="tabpanel"
+                id={`${activeTab}-services-panel`}
+                aria-labelledby={`tab-${activeTab}`}
+            >
+                <h2 className="sr-only">
+                    {activeTab === 'offline' ? 'At-Home Services' : 'Online Experts'}
+                </h2>
                 <div className="grid grid-cols-3 gap-1.5 sm:gap-3">
                     {Object.values(currentGroups).map((group) => (
                         <motion.button

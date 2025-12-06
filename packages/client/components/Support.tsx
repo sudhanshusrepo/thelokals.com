@@ -20,26 +20,30 @@ export const Support: React.FC = () => {
 
       {/* Contact Methods */}
       <div className="grid md:grid-cols-2 gap-4">
-        <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-md transition-all group cursor-pointer" onClick={() => window.location.href = 'mailto:support@thelokals.com'}>
+        <button
+          className="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-md transition-all group cursor-pointer text-left w-full"
+          onClick={() => window.location.href = 'mailto:support@thelokals.com'}
+          aria-label="Send email support request"
+        >
           <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/20 rounded-xl flex items-center justify-center text-blue-600 dark:text-blue-400 mb-4 group-hover:scale-110 transition-transform">
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={ICONS.EMAIL} /></svg>
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={ICONS.EMAIL} /></svg>
           </div>
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">Email Support</h3>
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-1">Email Support</h2>
           <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">Get a response within 24 hours</p>
           <span className="text-teal-600 dark:text-teal-400 font-semibold text-sm flex items-center gap-1 group-hover:gap-2 transition-all">
-            Send Email <span className="text-lg">→</span>
+            Send Email <span className="text-lg" aria-hidden="true">→</span>
           </span>
-        </div>
+        </button>
 
         <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
           <div className="absolute top-3 right-3 bg-amber-100 text-amber-800 text-xs font-bold px-2 py-1 rounded-full">Coming Soon</div>
           <div className="w-12 h-12 bg-teal-50 dark:bg-teal-900/20 rounded-xl flex items-center justify-center text-teal-600 dark:text-teal-400 mb-4">
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
           </div>
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">Live Chat</h3>
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-1">Live Chat</h2>
           <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">Chat instantly with our team</p>
           <button disabled className="text-slate-400 dark:text-slate-500 font-semibold text-sm flex items-center gap-1 cursor-not-allowed">
-            Start Chat <span className="text-lg">→</span>
+            Start Chat <span className="text-lg" aria-hidden="true">→</span>
           </button>
         </div>
       </div>

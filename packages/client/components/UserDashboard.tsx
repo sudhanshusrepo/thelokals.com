@@ -255,7 +255,7 @@ const BookingCard: React.FC<{ booking: Booking, setPaymentBooking: (b: Booking) 
       <div className="flex justify-between items-start mb-4">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-xl overflow-hidden">
-            {booking.worker?.imageUrl ? <img src={booking.worker.imageUrl} className="w-full h-full object-cover" /> : '👤'}
+            {booking.worker?.imageUrl ? <img src={booking.worker.imageUrl} className="w-full h-full object-cover" loading="lazy" alt={booking.worker.name} /> : '👤'}
           </div>
           <div>
             <h3 className="font-bold text-slate-900 dark:text-white">{booking.worker?.name || 'Unknown Worker'}</h3>

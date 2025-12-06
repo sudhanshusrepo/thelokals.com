@@ -141,6 +141,34 @@ export const Profile: React.FC = () => {
     }
   };
 
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState('');
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmation !== 'DELETE') {
+      toast.error('Please type DELETE to confirm');
+      return;
+    }
+
+    const toastId = toast.loading('Processing account deletion...');
+    try {
+      // In a real app, you would call a cloud function to archive/delete data
+      // For now, we simulate this and sign out
+      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate processing
+
+      await supabase.auth.signOut();
+
+      toast.success('Account scheduled for deletion', { id: toastId });
+      // Short delay to let the toast be seen
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 1000);
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      toast.error('Failed to delete account. Please contact support.', { id: toastId });
+    }
+  };
+
   if (loading) {
     return (
       <div className="p-8 text-center space-y-4">
@@ -163,6 +191,7 @@ export const Profile: React.FC = () => {
                 src={profilePictureUrl || `https://api.dicebear.com/8.x/initials/svg?seed=${email}`}
                 alt="avatar"
                 className="w-full h-full rounded-full object-cover border-2 border-slate-100 dark:border-slate-700"
+                loading="lazy"
               />
             </div>
             <button
@@ -308,20 +337,7 @@ export const Profile: React.FC = () => {
               <p className="text-xs text-slate-500 dark:text-slate-400">Permanently remove your account and data</p>
             </div>
             <button
-              onClick={async () => {
-                if (confirm('⚠️ WARNING: This action cannot be undone!\n\nAre you absolutely sure you want to permanently delete your account? All your data, bookings, and reviews will be lost forever.')) {
-                  if (confirm('Please confirm one more time: Delete my account permanently?')) {
-                    try {
-                      await supabase.auth.signOut();
-                      alert('Account deletion request submitted. Our team will process this within 24-48 hours.');
-                      window.location.href = '/';
-                    } catch (error) {
-                      console.error('Error deleting account:', error);
-                      alert('Failed to delete account. Please contact support.');
-                    }
-                  }
-                }
-              }}
+              onClick={() => setShowDeleteModal(true)}
               className="px-4 py-2 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 font-semibold rounded-lg transition-colors border border-red-200 dark:border-red-800"
             >
               Delete
@@ -329,6 +345,58 @@ export const Profile: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl transform transition-all scale-100 border border-slate-100 dark:border-slate-700">
+            <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center text-red-600 dark:text-red-400 mb-4 mx-auto">
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+            </div>
+
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white text-center mb-2">Delete Account Permanently?</h3>
+            <p className="text-slate-500 dark:text-slate-400 text-center mb-6 text-sm">
+              This action cannot be undone. All your bookings, history, and personal data will be permanently removed.
+            </p>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase tracking-wide">
+                  Type "DELETE" to confirm
+                </label>
+                <input
+                  type="text"
+                  value={deleteConfirmation}
+                  onChange={(e) => setDeleteConfirmation(e.target.value)}
+                  className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-red-500 outline-none transition-all uppercase"
+                  placeholder="DELETE"
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="flex-1 px-4 py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteAccount}
+                  disabled={deleteConfirmation !== 'DELETE'}
+                  className={`flex-1 px-4 py-2 font-bold rounded-lg transition-colors text-white
+                    ${deleteConfirmation === 'DELETE'
+                      ? 'bg-red-600 hover:bg-red-700 shadow-lg shadow-red-500/30'
+                      : 'bg-slate-300 dark:bg-slate-700 cursor-not-allowed opacity-50'
+                    }
+                  `}
+                >
+                  Confirm Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

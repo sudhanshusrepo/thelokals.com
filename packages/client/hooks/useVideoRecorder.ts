@@ -25,8 +25,26 @@ export const useVideoRecorder = (maxDurationSeconds: number = 30): UseVideoRecor
     const videoRef = useRef<HTMLVideoElement>(null);
     const streamRef = useRef<MediaStream | null>(null);
 
+    const checkPermission = async () => {
+        if (!navigator.permissions || !navigator.permissions.query) return true;
+        try {
+            const result = await navigator.permissions.query({ name: 'camera' as PermissionName });
+            if (result.state === 'denied') {
+                setError('Camera permission is denied. Please enable it in your browser settings.');
+                return false;
+            }
+            return true;
+        } catch (e) {
+            // Some browsers might not support the query
+            return true;
+        }
+    };
+
     const startRecording = useCallback(async () => {
         try {
+            const hasPermission = await checkPermission();
+            if (!hasPermission) return;
+
             const stream = await navigator.mediaDevices.getUserMedia({
                 video: { facingMode: 'user' }, // Prefer front camera on mobile
                 audio: true
@@ -83,9 +101,15 @@ export const useVideoRecorder = (maxDurationSeconds: number = 30): UseVideoRecor
                 });
             }, 1000);
 
-        } catch (err) {
+        } catch (err: any) {
             console.error('Error accessing camera:', err);
-            setError('Could not access camera. Please check permissions.');
+            if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                setError('Permission denied. Please allow camera access to record video.');
+            } else if (err.name === 'NotFoundError') {
+                setError('No camera found. Please connect a camera.');
+            } else {
+                setError('Could not access camera: ' + (err.message || 'Unknown error'));
+            }
         }
     }, [maxDurationSeconds]);
 

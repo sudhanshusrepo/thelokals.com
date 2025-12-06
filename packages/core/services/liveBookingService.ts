@@ -125,6 +125,23 @@ export const liveBookingService = {
   },
 
   /**
+   * Cancels a live booking.
+   * @param {string} bookingId - The ID of the booking to cancel.
+   * @returns {Promise<void>}
+   */
+  async cancelBooking(bookingId: string): Promise<void> {
+    const { error } = await supabase
+      .from('bookings')
+      .update({ status: 'CANCELLED' })
+      .eq('id', bookingId);
+
+    if (error) {
+      logger.error('Error canceling booking', { error, bookingId });
+      throw error;
+    }
+  },
+
+  /**
    * Subscribes to real-time updates for a specific booking.
    * @param {string} bookingId - The ID of the booking to listen to.
    * @param {(payload: RealtimePostgresChangesPayload<{ [key: string]: any; }>) => void} callback - The function to call with the update payload.

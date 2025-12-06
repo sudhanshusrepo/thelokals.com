@@ -22,8 +22,26 @@ export const useAudioRecorder = (maxDurationSeconds: number = 60): UseAudioRecor
     const chunksRef = useRef<Blob[]>([]);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
 
+    const checkPermission = async () => {
+        if (!navigator.permissions || !navigator.permissions.query) return true;
+        try {
+            const result = await navigator.permissions.query({ name: 'microphone' as PermissionName });
+            if (result.state === 'denied') {
+                setError('Microphone permission is denied. Please enable it in your browser settings.');
+                return false;
+            }
+            return true;
+        } catch (e) {
+            // Some browsers might not support the query
+            return true;
+        }
+    };
+
     const startRecording = useCallback(async () => {
         try {
+            const hasPermission = await checkPermission();
+            if (!hasPermission) return;
+
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
             // Check supported mime types
@@ -67,9 +85,15 @@ export const useAudioRecorder = (maxDurationSeconds: number = 60): UseAudioRecor
                 });
             }, 1000);
 
-        } catch (err) {
+        } catch (err: any) {
             console.error('Error accessing microphone:', err);
-            setError('Could not access microphone. Please check permissions.');
+            if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                setError('Permission denied. Please allow microphone access to record audio.');
+            } else if (err.name === 'NotFoundError') {
+                setError('No microphone found. Please connect a microphone.');
+            } else {
+                setError('Could not access microphone: ' + (err.message || 'Unknown error'));
+            }
         }
     }, [maxDurationSeconds]);
 

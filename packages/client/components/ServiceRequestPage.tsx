@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet';
 import { useAuth } from '../contexts/AuthContext';
 import { estimateService, AIAnalysisResult } from '@thelocals/core/services/geminiService';
 import { bookingService } from '@thelocals/core/services/bookingService';
+import { liveBookingService } from '@thelocals/core/services/liveBookingService';
 import { LiveSearch } from './LiveSearch';
 import { CATEGORY_DISPLAY_NAMES, LOWERCASE_TO_WORKER_CATEGORY, SERVICE_TYPES_BY_CATEGORY, ONLINE_CATEGORIES } from '../constants';
 import { useGeolocation } from '../hooks/useGeolocation';
@@ -265,7 +266,6 @@ export const ServiceRequestPage: React.FC = () => {
             });
             setCreatedBookingId(bookingId);
             showToast('Booking created! Searching for providers...', 'success');
-            showToast('Booking created! Searching for providers...', 'success');
         } catch (error: unknown) {
             console.error('Booking creation failed:', error);
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -285,8 +285,24 @@ export const ServiceRequestPage: React.FC = () => {
         }
     };
 
+    const handleCancelSearch = async () => {
+        if (createdBookingId) {
+            try {
+                // Call the service to update status
+                await liveBookingService.cancelBooking(createdBookingId);
+                showToast('Booking request cancelled.', 'info');
+            } catch (error) {
+                console.error('Error cancelling:', error);
+                // Even if backend fails, we should probably let user exit the screen
+                showToast('Search stopped.', 'info');
+            }
+        }
+        setIsBooking(false);
+        setCreatedBookingId(null);
+    };
+
     if (isBooking) {
-        return <LiveSearch onCancel={() => setIsBooking(false)} bookingId={createdBookingId || undefined} />;
+        return <LiveSearch onCancel={handleCancelSearch} bookingId={createdBookingId || undefined} />;
     }
 
     return (
