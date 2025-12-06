@@ -12,6 +12,12 @@ export default defineConfig(({ mode }) => {
       port: Number(process.env.PORT) || 5173,
       host: '0.0.0.0',
     },
+    build: {
+      outDir: 'dist',
+      emptyOutDir: true,
+      target: 'esnext',
+      sourcemap: true,
+    },
     plugins: [react()],
     resolve: {
       dedupe: ['react', 'react-dom', 'react-router-dom'],
