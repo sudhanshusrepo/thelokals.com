@@ -13,7 +13,7 @@ export default defineConfig(({ mode }) => {
       host: '0.0.0.0',
     },
     build: {
-      outDir: '../../dist',
+      outDir: '../../dist/provider',
       emptyOutDir: true,
       target: 'esnext',
       sourcemap: true,

@@ -16,7 +16,7 @@ export default defineConfig(({ mode }) => {
       historyApiFallback: true,
     },
     build: {
-      outDir: '../../dist', // Output to root dist for Cloudflare
+      outDir: '../../dist/client', // Output to root dist/client for Cloudflare
       emptyOutDir: true,
       target: 'esnext',
       minify: false, // Keep false for debugging until fully stable

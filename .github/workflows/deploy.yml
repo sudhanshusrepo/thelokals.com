@@ -52,7 +52,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=thelokalscom
+          command: pages deploy dist/client --project-name=thelokalscom
 
   deploy-provider:
     needs: detect-changes
@@ -78,4 +78,4 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=thelocals-provider-portal
+          command: pages deploy dist/provider --project-name=thelocals-provider-portal
