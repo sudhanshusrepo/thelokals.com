@@ -2,7 +2,9 @@
     "name": "thelocals-provider-portal",
     "compatibility_date": "2024-09-23",
     "assets": {
-        "directory": "./dist"
+        "directory": "./dist",
+        "html_handling": "auto-trailing-slash",
+        "not_found_handling": "single-page-application"
     },
     "observability": {
         "enabled": true
