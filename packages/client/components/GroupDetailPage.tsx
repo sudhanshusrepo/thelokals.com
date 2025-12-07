@@ -6,7 +6,7 @@ import { WorkerCategory } from '../types';
 import NotFound from './NotFound';
 import { StickyChatCta } from './StickyChatCta';
 
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 
 export const GroupDetailPage: React.FC = () => {
     const { groupId } = useParams<{ groupId: string }>();

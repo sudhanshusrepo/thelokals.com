@@ -1,11 +1,11 @@
 
 import React from 'react';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 
 interface ServiceData {
-  name: string;
-  description: string;
-  url: string;
+    name: string;
+    description: string;
+    url: string;
 }
 
 export const ServiceStructuredData: React.FC<ServiceData> = ({ name, description, url }) => (
@@ -25,9 +25,9 @@ export const ServiceStructuredData: React.FC<ServiceData> = ({ name, description
 );
 
 interface ProviderData {
-  name: string;
-  jobTitle: string;
-  url: string;
+    name: string;
+    jobTitle: string;
+    url: string;
 }
 
 export const ProviderStructuredData: React.FC<ProviderData> = ({ name, jobTitle, url }) => (

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { SERVICE_TYPES_BY_CATEGORY, CATEGORY_DISPLAY_NAMES, LOWERCASE_TO_WORKER_CATEGORY, ServiceType } from '../constants';
 
 export const SchedulePage: React.FC = () => {
