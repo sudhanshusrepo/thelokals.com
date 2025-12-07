@@ -18,6 +18,16 @@ export default defineConfig(({ mode }) => {
       emptyOutDir: true,
       target: 'esnext',
       sourcemap: true,
+      chunkSizeWarningLimit: 600,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+            'vendor-supabase': ['@supabase/supabase-js'],
+            'vendor-ui': ['framer-motion', 'react-hot-toast']
+          }
+        }
+      }
     },
     plugins: [
       react(),

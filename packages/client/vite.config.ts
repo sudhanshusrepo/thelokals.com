@@ -16,12 +16,23 @@ export default defineConfig(({ mode }) => {
       historyApiFallback: true,
     },
     build: {
-      outDir: 'dist', // Output to local dist folder for standard Cloudflare deployment
+      outDir: 'dist',
       emptyOutDir: true,
       target: 'esnext',
-      minify: false, // Keep false for debugging until fully stable
+      minify: false,
       sourcemap: true,
-      chunkSizeWarningLimit: 1000,
+      chunkSizeWarningLimit: 600,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+            'vendor-supabase': ['@supabase/supabase-js'],
+            'vendor-maps': ['react-leaflet', 'leaflet'],
+            'vendor-three': ['@react-three/fiber', '@react-three/drei'],
+            'vendor-ui': ['framer-motion', 'react-hot-toast']
+          }
+        }
+      }
     },
     plugins: [
       react(),
