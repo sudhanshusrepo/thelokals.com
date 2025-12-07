@@ -29,7 +29,8 @@
     "test:e2e:report": "playwright show-report",
     "test:all": "npm run test && npm run test:e2e",
     "db:migrate": "supabase db push",
-    "prod": "npm run build:client"
+    "prod": "npm run build:client",
+    "lint": "eslint packages --ext .ts,.tsx"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.0",
@@ -38,6 +39,11 @@
     "@testing-library/react": "^16.0.0",
     "@types/jest": "^29.5.12",
     "@types/node": "^24.10.1",
+    "@typescript-eslint/eslint-plugin": "^8.48.1",
+    "@typescript-eslint/parser": "^8.48.1",
+    "eslint": "^8.57.1",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "supabase": "^1.226.4",

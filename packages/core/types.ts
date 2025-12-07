@@ -67,8 +67,10 @@ export interface WorkerProfile {
   reviewCount: number;
   isVerified: boolean;
   location: Coordinates;
-  availabilitySchedule?: Record<string, any>; // New field
+  availabilitySchedule?: AvailabilitySchedule; // New field
 }
+
+export type AvailabilitySchedule = Record<string, { start: string; end: string }[]>;
 
 export type BookingStatus = 'REQUESTED' | 'PENDING' | 'CONFIRMED' | 'EN_ROUTE' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'EXPIRED';
 export type BookingType = 'AI_ENHANCED' | 'LIVE' | 'SCHEDULED';
@@ -89,6 +91,15 @@ export interface Customer {
   created_at?: string;
 }
 
+export interface Address {
+  street?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+  country?: string;
+  formatted?: string;
+}
+
 export interface Booking {
   id: string;
   client_id: string;
@@ -98,7 +109,7 @@ export interface Booking {
   booking_type: BookingType;
   delivery_mode?: 'LOCAL' | 'ONLINE'; // New field
   status: BookingStatus;
-  requirements?: object;
+  requirements?: Record<string, unknown>;
   ai_checklist?: string[];
   estimated_cost?: number;
   final_cost?: number;
@@ -106,7 +117,7 @@ export interface Booking {
   started_at?: string;
   completed_at?: string;
   location?: Coordinates,
-  address?: object;
+  address?: Address;
   notes?: string;
   meeting_link?: string; // New field
   meeting_provider?: string; // New field
@@ -171,16 +182,14 @@ export interface LiveBooking {
   clientId: string;
   providerId: string | null;
   status: LiveBookingStatus;
-  requirements: {
-    [key: string]: any;
-  };
+  requirements: Record<string, unknown>;
   otp: string;
   checklist?: string[];
   estimatedCost?: number;
-  createdAt: any; // serverTimestamp
-  acceptedAt: any | null;
-  startedAt: any | null;
-  completedAt: any | null;
+  createdAt: string; // ISO String
+  acceptedAt: string | null;
+  startedAt: string | null;
+  completedAt: string | null;
 }
 
 export interface BookingRequest {
@@ -231,7 +240,7 @@ export interface ActiveSession {
   city?: string;
   current_booking_id?: string;
   last_activity: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   created_at: string;
 }
 
@@ -241,7 +250,7 @@ export interface AdminAuditLog {
   action: string;
   resource_type: string;
   resource_id?: string;
-  changes?: Record<string, any>;
+  changes?: Record<string, unknown>;
   ip_address?: string;
   created_at: string;
 }
