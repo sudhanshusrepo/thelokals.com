@@ -8,11 +8,11 @@ import { liveBookingService } from '@thelocals/core/services/liveBookingService'
 import { LiveSearch } from './LiveSearch';
 import { CATEGORY_DISPLAY_NAMES, LOWERCASE_TO_WORKER_CATEGORY, SERVICE_TYPES_BY_CATEGORY, ONLINE_CATEGORIES } from '../constants';
 import { useGeolocation } from '../hooks/useGeolocation';
-import { StickyChatCta } from './StickyChatCta';
+import { SmartServiceInput } from './SmartServiceInput';
+import { AILoadingOverlay } from './AILoadingOverlay';
 import { mediaUploadService } from '../services/mediaUploadService';
 import { AuthModal } from './AuthModal';
 import { useToast } from '../contexts/ToastContext';
-import { ProcessingAnimation } from './ProcessingAnimation';
 import { pricingService, DynamicPriceResponse } from '../services/pricingService';
 
 export const ServiceRequestPage: React.FC = () => {
@@ -25,8 +25,11 @@ export const ServiceRequestPage: React.FC = () => {
 
     const [userInput, setUserInput] = useState('');
     const [analysis, setAnalysis] = useState<AIAnalysisResult | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
+
+    // Detailed Loading States
+    const [loadingStep, setLoadingStep] = useState<'idle' | 'transcribing' | 'analyzing' | 'pricing' | 'complete'>('idle');
     const [statusMessage, setStatusMessage] = useState('');
+
     const [isBooking, setIsBooking] = useState(false);
     const [showAuthModal, setShowAuthModal] = useState(false);
     const [createdBookingId, setCreatedBookingId] = useState<string | null>(null);
@@ -70,6 +73,7 @@ export const ServiceRequestPage: React.FC = () => {
     const fetchDynamicPrice = async () => {
         if (!selectedCategory || !analysis) return;
 
+        setLoadingStep('pricing'); // Update overlay to pricing step
         setLoadingPrice(true);
         try {
             const priceData = await pricingService.getDynamicPrice({
@@ -79,10 +83,15 @@ export const ServiceRequestPage: React.FC = () => {
                 requestedTime: new Date().toISOString(),
             });
             setDynamicPrice(priceData);
+            // Small delay to let user see "pricing" step
+            await new Promise(r => setTimeout(r, 800));
         } catch (error) {
             console.error('Failed to fetch dynamic price:', error);
         } finally {
             setLoadingPrice(false);
+            setLoadingStep('complete'); // Done
+            // Auto hide overlay after completion
+            setTimeout(() => setLoadingStep('idle'), 1500);
         }
     };
 
@@ -122,7 +131,7 @@ export const ServiceRequestPage: React.FC = () => {
     const locationState = useLocation().state as LocationState | null;
 
     useEffect(() => {
-        if (locationState?.userInput && !userInput && !analysis && !isLoading && selectedCategory) {
+        if (locationState?.userInput && !userInput && !analysis && loadingStep === 'idle' && selectedCategory) {
             // Auto-trigger analysis from home page input
             handleInput({ type: 'text', data: locationState.userInput });
         }
@@ -137,8 +146,8 @@ export const ServiceRequestPage: React.FC = () => {
             return;
         }
 
-        setIsLoading(true);
-        setStatusMessage('Processing your request...');
+        setLoadingStep('transcribing');
+        setStatusMessage('Processing input...');
 
         try {
             let textToAnalyze = '';
@@ -149,25 +158,27 @@ export const ServiceRequestPage: React.FC = () => {
                 setStatusMessage('Uploading media...');
                 try {
                     const uploadResult = await mediaUploadService.uploadMedia(content.data as Blob, content.type);
-                    setStatusMessage('Transcribing...');
+                    setStatusMessage('Transcribing content...');
                     textToAnalyze = await mediaUploadService.transcribeMedia(uploadResult.url, content.type);
                 } catch (uploadError) {
                     console.error('Media upload failed:', uploadError);
                     showToast('Failed to upload media. Please try text input instead.', 'error');
+                    setLoadingStep('idle');
                     return;
                 }
             }
 
             setUserInput(textToAnalyze);
+            setLoadingStep('analyzing');
             setStatusMessage('Analyzing requirements...');
 
             // Start fetching location
             getLocation();
 
-            // Add timeout for AI analysis (10 seconds)
+            // Add timeout for AI analysis (15 seconds)
             const analysisPromise = estimateService(textToAnalyze, selectedCategory);
             const timeoutPromise = new Promise<never>((_, reject) =>
-                setTimeout(() => reject(new Error('AI analysis timeout')), 10000)
+                setTimeout(() => reject(new Error('AI analysis timeout')), 15000)
             );
 
             try {
@@ -180,31 +191,20 @@ export const ServiceRequestPage: React.FC = () => {
                     initialChecked[idx] = true;
                 });
                 setCheckedItems(initialChecked);
-                showToast('Analysis complete! Review the recommendations below.', 'success');
+
+                showToast('Analysis complete! Review the recommendations.', 'success');
+                // Note: loadingStep stays 'analyzing' briefly until fetchDynamicPrice kicks in via useEffect
             } catch (timeoutError) {
                 console.error('AI analysis timeout:', timeoutError);
-                showToast('AI analysis is taking longer than expected. Please try again or simplify your request.', 'warning');
-                // Optionally provide fallback or manual entry option
+                showToast('AI analysis is taking longer than expected.', 'warning');
+                setLoadingStep('idle');
                 return;
             }
 
         } catch (error: unknown) {
             console.error('Analysis failed:', error);
-            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-
-            // Provide specific error messages based on error type
-            if (errorMessage.includes('network') || errorMessage.includes('fetch')) {
-                showToast('Network error. Please check your connection and try again.', 'error');
-            } else if (errorMessage.includes('timeout')) {
-                showToast('Request timed out. Please try again.', 'error');
-            } else if (errorMessage.includes('API key')) {
-                showToast('Service configuration error. Please contact support.', 'error');
-            } else {
-                showToast('Failed to process request. Please try again or contact support.', 'error');
-            }
-        } finally {
-            setIsLoading(false);
-            setStatusMessage('');
+            showToast('Failed to process request. Please try again.', 'error');
+            setLoadingStep('idle');
         }
     };
 
@@ -219,7 +219,7 @@ export const ServiceRequestPage: React.FC = () => {
             return;
         }
 
-        // Check if location is available, if not, try to get it (only for offline services)
+        // Check if location is available
         let bookingLocation = location;
         const isOnlineService = selectedCategory && ONLINE_CATEGORIES.has(selectedCategory);
 
@@ -228,17 +228,15 @@ export const ServiceRequestPage: React.FC = () => {
                 bookingLocation = await getLocationPromise();
             } catch (error) {
                 console.error("Failed to get location:", error);
-                showToast("We need your location to find nearby providers. Please allow location access.", "warning");
+                showToast("We need your location to find nearby providers.", "warning");
                 return;
             }
         }
 
-        // Use dummy location for online services if actual location is missing
         if (isOnlineService && !bookingLocation) {
             bookingLocation = { lat: 0, lng: 0 };
         }
 
-        // Check if at least one item is selected
         const hasSelectedItems = Object.values(checkedItems).some(Boolean);
         if (!hasSelectedItems) {
             showToast('Please select at least one service from the checklist.', 'warning');
@@ -247,7 +245,6 @@ export const ServiceRequestPage: React.FC = () => {
 
         setIsBooking(true);
         try {
-            // Filter checklist to only included items
             const finalChecklist = analysis.checklist.filter((_, idx) => checkedItems[idx]);
 
             const { bookingId } = await bookingService.createAIBooking({
@@ -260,7 +257,7 @@ export const ServiceRequestPage: React.FC = () => {
                 },
                 aiChecklist: finalChecklist,
                 estimatedCost: currentPrice,
-                location: bookingLocation!, // Assert non-null as we handled it above
+                location: bookingLocation!,
                 address: {},
                 notes: `AI Analysis Reasoning: ${analysis.reasoning}${isOnlineService ? ' [ONLINE SERVICE]' : ''}`
             });
@@ -268,19 +265,7 @@ export const ServiceRequestPage: React.FC = () => {
             showToast('Booking created! Searching for providers...', 'success');
         } catch (error: unknown) {
             console.error('Booking creation failed:', error);
-            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-
-            // Provide specific error messages
-            if (errorMessage.includes('network') || errorMessage.includes('fetch')) {
-                showToast('Network error. Please check your connection and try again.', 'error');
-            } else if (errorMessage.includes('auth') || errorMessage.includes('unauthorized')) {
-                showToast('Authentication error. Please sign in again.', 'error');
-                setShowAuthModal(true);
-            } else if (errorMessage.includes('validation')) {
-                showToast('Invalid booking data. Please review your selections.', 'error');
-            } else {
-                showToast('Failed to create booking. Please try again or contact support.', 'error');
-            }
+            showToast('Failed to create booking. Please try again.', 'error');
             setIsBooking(false);
         }
     };
@@ -288,12 +273,10 @@ export const ServiceRequestPage: React.FC = () => {
     const handleCancelSearch = async () => {
         if (createdBookingId) {
             try {
-                // Call the service to update status
                 await liveBookingService.cancelBooking(createdBookingId);
                 showToast('Booking request cancelled.', 'info');
             } catch (error) {
                 console.error('Error cancelling:', error);
-                // Even if backend fails, we should probably let user exit the screen
                 showToast('Search stopped.', 'info');
             }
         }
@@ -312,7 +295,15 @@ export const ServiceRequestPage: React.FC = () => {
                 <meta name="description" content={pageDescription} />
                 <meta name="keywords" content={`${selectedCategory ? CATEGORY_DISPLAY_NAMES[selectedCategory].toLowerCase() : 'service'}, book online, AI quote, thelokals`} />
             </Helmet>
+
             {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
+
+            <AILoadingOverlay
+                isVisible={loadingStep !== 'idle'}
+                currentStep={loadingStep}
+                message={statusMessage}
+            />
+
             <div className="max-w-2xl mx-auto p-4 sm:p-8 animate-fade-in-up">
                 <div className="text-center mb-8">
                     <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-2">
@@ -339,7 +330,7 @@ export const ServiceRequestPage: React.FC = () => {
                                     {loadingPrice ? (
                                         <div className="h-8 w-24 bg-slate-200 dark:bg-slate-700 animate-pulse rounded"></div>
                                     ) : (
-                                        <div>
+                                        <div className="animate-scale-in">
                                             <span className="text-3xl font-bold text-teal-600 dark:text-teal-400">₹{currentPrice}</span>
                                             {dynamicPrice?.success && (
                                                 <button
@@ -362,7 +353,7 @@ export const ServiceRequestPage: React.FC = () => {
                                         <span>₹{dynamicPrice.breakdown.base}</span>
                                     </div>
                                     <div className="flex justify-between text-slate-500">
-                                        <span>Time Adjustment:</span>
+                                        <span>Time Multiplier:</span>
                                         <span>{dynamicPrice.breakdown.timingMultiplier}x</span>
                                     </div>
                                     <div className="flex justify-between text-slate-500">
@@ -386,8 +377,46 @@ export const ServiceRequestPage: React.FC = () => {
                             </p>
                         </div>
 
+                        {/* Interactive Checklist */}
                         <div className="p-6">
-                            {/* ... checklist items ... */}
+                            <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-4">
+                                Recommended Services
+                            </h3>
+                            <div className="space-y-3">
+                                {analysis.checklist.map((item, idx) => (
+                                    <label
+                                        key={idx}
+                                        className={`flex items-start gap-4 p-4 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer transition-all ${checkedItems[idx]
+                                                ? 'bg-teal-50 dark:bg-teal-900/10 border-teal-200 dark:border-teal-800'
+                                                : 'bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750'
+                                            }`}
+                                    >
+                                        <div className="pt-0.5">
+                                            <input
+                                                type="checkbox"
+                                                checked={!!checkedItems[idx]}
+                                                onChange={() => {
+                                                    setCheckedItems(prev => ({
+                                                        ...prev,
+                                                        [idx]: !prev[idx]
+                                                    }));
+                                                }}
+                                                className="w-5 h-5 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+                                            />
+                                        </div>
+                                        <div className="flex-1">
+                                            <span className={`block font-medium ${checkedItems[idx] ? 'text-teal-900 dark:text-teal-100' : 'text-slate-700 dark:text-slate-300'}`}>
+                                                {item}
+                                            </span>
+                                            {!checkedItems[idx] && (
+                                                <span className="text-xs text-slate-500 mt-1 block">
+                                                    Unselecting this will lower the estimated cost.
+                                                </span>
+                                            )}
+                                        </div>
+                                    </label>
+                                ))}
+                            </div>
                         </div>
 
                         <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border-t dark:border-slate-700 sticky bottom-0">
@@ -395,10 +424,10 @@ export const ServiceRequestPage: React.FC = () => {
                                 onClick={handleBook}
                                 data-testid="book-now-button"
                                 disabled={loadingPrice}
-                                className={`w-full py-4 font-bold rounded-xl transition-all shadow-lg transform 
+                                className={`w-full py-4 font-bold rounded-xl transition-all shadow-lg transform active:scale-[0.98] 
                                     ${loadingPrice
                                         ? 'bg-slate-300 cursor-not-allowed'
-                                        : 'bg-teal-600 hover:bg-teal-700 text-white hover:shadow-xl hover:-translate-y-0.5'
+                                        : 'bg-teal-600 hover:bg-teal-700 text-white hover:shadow-xl'
                                     }`}
                             >
                                 {loadingPrice ? 'Calculating Price...' : `Book Now • ₹${currentPrice}`}
@@ -408,27 +437,20 @@ export const ServiceRequestPage: React.FC = () => {
                 ) : (
                     <div className="flex flex-col items-center justify-center py-12 text-slate-400">
                         <div className="w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
-                            <span className="text-4xl">👇</span>
+                            <span className="text-4xl animate-bounce-subtle">👇</span>
                         </div>
-                        <p>Use the chat below to describe your needs</p>
+                        <p>Describe your needs below to get started</p>
                     </div>
-                )}
-
-                {/* Loading Overlay */}
-                {isLoading && (
-                    <ProcessingAnimation
-                        message={statusMessage}
-                        subMessage="Connecting with local experts"
-                    />
                 )}
             </div>
 
-            {/* Footer Chat Input - Only show if not yet analyzed */}
+            {/* Smart Input - Only show if not yet analyzed */}
             {!analysis && (
-                <StickyChatCta
-                    serviceCategory={selectedCategory}
+                <SmartServiceInput
                     onSend={handleInput}
+                    isLoading={loadingStep !== 'idle'}
                     placeholder={`Tell us about your ${serviceType?.name.toLowerCase() || 'issue'}...`}
+                    serviceCategory={selectedCategory ? CATEGORY_DISPLAY_NAMES[selectedCategory] : undefined}
                 />
             )}
         </div>

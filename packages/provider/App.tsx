@@ -8,10 +8,11 @@ import { ProviderLanding } from './components/ProviderLanding';
 import { RegistrationBanner } from './components/RegistrationBanner';
 import { ProviderDashboard } from './components/ProviderDashboard';
 import { RegistrationWizard } from './components/RegistrationWizard';
+import { AuthModal } from './components/AuthModal';
 import { backend } from './services/backend';
 
 // Lazy load components
-const BookingRequestsPage = lazy(() => import('./src/pages/JobRequests').then(module => ({ default: module.JobRequests })));
+const BookingRequestsPage = lazy(() => import('./components/BookingRequestsPage'));
 const BookingDetailsPage = lazy(() => import('./components/BookingDetailsPage'));
 const PaymentPage = lazy(() => import('./components/PaymentPage'));
 const NotificationsPage = lazy(() => import('./components/NotificationsPage'));
@@ -62,6 +63,7 @@ const MainLayout: React.FC = () => {
   const { user, loading: authLoading, profile, signOut } = useAuth();
 
   const [showRegistration, setShowRegistration] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [isRestoring, setIsRestoring] = useState(true);
 
   // Check registration status
@@ -103,6 +105,7 @@ const MainLayout: React.FC = () => {
   const handleRegisterClick = () => {
     if (!user) {
       toast.error('Please sign in first');
+      setShowAuthModal(true);
       return;
     }
     setShowRegistration(true);
@@ -146,7 +149,7 @@ const MainLayout: React.FC = () => {
           isHome={location.pathname === '/'}
           title={getHeaderTitle()}
           user={user}
-          onSignInClick={() => navigate('/')} // Assuming landing page has sign in
+          onSignInClick={() => setShowAuthModal(true)}
           onSignOutClick={handleSignOut}
           appName="thelokals - Provider"
         />
@@ -161,6 +164,14 @@ const MainLayout: React.FC = () => {
       {/* Registration Banner for unregistered users */}
       {user && isUnregistered && location.pathname !== '/' && (
         <RegistrationBanner onRegisterClick={handleRegisterClick} />
+      )}
+
+      {/* Auth Modal */}
+      {showAuthModal && (
+        <AuthModal
+          onClose={() => setShowAuthModal(false)}
+          initialMode="login"
+        />
       )}
 
       {/* Pending approval banner */}

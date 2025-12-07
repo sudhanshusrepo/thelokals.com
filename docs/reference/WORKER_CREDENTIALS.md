@@ -1,5 +1,11 @@
 # Test Worker Credentials
 
+> [!CAUTION]
+> **TEST CREDENTIALS ONLY**
+> These credentials are for development and testing purposes only.
+> **NEVER** use these passwords in a production environment.
+
+
 This document contains login credentials for 5 test worker profiles created for production workflow testing.
 
 ## Important Notes

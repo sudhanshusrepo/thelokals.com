@@ -20,9 +20,6 @@
     "allowJs": true,
     "jsx": "react-jsx",
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
       "@thelocals/core": [
         "../core/index.ts"
       ]
@@ -32,7 +29,7 @@
     "composite": true
   },
   "include": [
-    "src"
+    "."
   ],
   "references": [
     {

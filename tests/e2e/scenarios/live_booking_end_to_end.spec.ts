@@ -117,34 +117,47 @@ test.describe('Live Booking E2E Flow', () => {
 
         console.log(`[PHASE 3] Client authenticated, starting booking flow`);
 
+        // Navigate to Plumber service (Home Care -> Plumber)
         await clientPage.getByText('Home Care & Repair').click();
         await clientPage.waitForLoadState('networkidle');
 
         await clientPage.getByText('Plumber').click();
-        await clientPage.waitForLoadState('networkidle');
 
-        // Wait for textarea to be stable (it may re-render)
-        const descriptionTextarea = clientPage.locator('textarea[name="description"]');
-        await descriptionTextarea.waitFor({ state: 'attached', timeout: 5000 });
-        await clientPage.waitForTimeout(1000); // Extra buffer for React render
+        // Use the chat input (SmartServiceInput component)
+        const chatInput = clientPage.locator('textarea[data-testid="chat-input-textarea"]');
 
-        await descriptionTextarea.fill('Leaky faucet needs urgent repair');
+        // Wait for page to fully load the new route
+        await expect(clientPage.getByRole('heading', { name: 'Plumber Services' })).toBeVisible({ timeout: 15000 });
 
-        const addressInput = clientPage.locator('input[name="address"]');
-        if (await addressInput.isVisible()) {
-            await addressInput.fill('New York, NY');
-        }
+        // Wait for input to be attached before any action
+        await chatInput.waitFor({ state: 'attached', timeout: 10000 });
 
-        await clientPage.click('button:has-text("Find Pro")');
+        // Ensure we scroll to it if needed (sticky input might initially be at bottom)
+        await chatInput.scrollIntoViewIfNeeded();
+        await chatInput.waitFor({ state: 'visible', timeout: 5000 });
 
-        try {
-            await expect(clientPage.getByText('Recommended Service Checklist')).toBeVisible({ timeout: 10000 });
-            await clientPage.click('button:has-text("Confirm Booking")');
-        } catch (e) {
-            console.log('[PHASE 3] AI checklist not shown or skipped');
-        }
+        // Fill and send
+        await chatInput.fill('Leaky faucet needs urgent repair', { force: true });
+        await chatInput.press('Enter');
 
-        await expect(clientPage.getByText('Searching for nearby professionals')).toBeVisible({ timeout: 10000 });
+        console.log('[PHASE 3] Chat input sent, waiting for AI analysis...');
+
+        // Wait for Checklist Section to appear (means analysis is done)
+        const checklistSection = clientPage.locator('[data-testid="ai-checklist-section"]');
+        await checklistSection.waitFor({ state: 'visible', timeout: 30000 }); // Longer timeout for AI chain
+
+        console.log('[PHASE 3] Analysis complete, checklist visible.');
+
+        // Optional: Toggle a checklist item to test dynamic price?
+        // Let's just proceed to book for now to keep E2E simple.
+
+        // Click Book Now
+        const bookNowButton = clientPage.locator('button[data-testid="book-now-button"]');
+        await bookNowButton.waitFor({ state: 'visible', timeout: 5000 });
+        await bookNowButton.click();
+
+        // Wait for Search Screen
+        await expect(clientPage.getByText('Searching for nearby professionals')).toBeVisible({ timeout: 15000 });
         console.log(`[PHASE 3] Booking submitted, searching for providers`);
 
         // ============================================
