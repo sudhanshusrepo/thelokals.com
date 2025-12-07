@@ -18,9 +18,24 @@ export default defineConfig(({ mode }) => {
       outDir: './dist',
       emptyOutDir: true,
       target: 'esnext',
-      minify: false, // Keep false for debugging until fully stable
+      minify: 'terser',
       sourcemap: true,
       chunkSizeWarningLimit: 1000,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+            'ui-vendor': ['framer-motion', 'react-hot-toast', 'react-helmet'],
+            'map-vendor': ['leaflet', 'react-leaflet'],
+            '3d-vendor': ['three', '@react-three/fiber', '@react-three/drei'],
+          }
+        }
+      },
+      terserOptions: {
+        compress: {
+          drop_console: process.env.NODE_ENV === 'production',
+        }
+      }
     },
     plugins: [
       react(),

@@ -16,7 +16,21 @@ export default defineConfig(({ mode }) => {
       outDir: './dist',
       emptyOutDir: true,
       target: 'esnext',
+      minify: 'terser',
       sourcemap: true,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+            'ui-vendor': ['react-hot-toast', 'react-helmet'],
+          }
+        }
+      },
+      terserOptions: {
+        compress: {
+          drop_console: process.env.NODE_ENV === 'production',
+        }
+      }
     },
     plugins: [react()],
     resolve: {
