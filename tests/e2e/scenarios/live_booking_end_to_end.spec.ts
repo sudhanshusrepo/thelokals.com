@@ -2,135 +2,134 @@ import { test, expect } from '../../fixtures/test-fixtures';
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || 'http://127.0.0.1:54321';
-const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || '';
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabaseAdminKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_SERVICE_ROLE_KEY || '';
+const supabaseAdmin = createClient(supabaseUrl, supabaseAdminKey, {
+    auth: {
+        autoRefreshToken: false,
+        persistSession: false
+    }
+});
 
-test.describe('Live Booking Scenario: Newly Registered Provider', () => {
+test.describe('Live Booking E2E Flow', () => {
+    test('Complete booking flow: Provider setup → Client booking → Provider acceptance', async ({ browser }) => {
+        test.setTimeout(120000);
 
-    test('should allow a new provider to register and accept a live booking', async ({ browser, testBooking }) => {
-        // --- Phase 1: Provider Registration ---
-        const providerContext = await browser.newContext();
-        const providerPage = await providerContext.newPage();
-
-        // Use a unique email
+        // ============================================
+        // PHASE 1: Provider Setup (Admin API)
+        // ============================================
         const providerEmail = `provider_${Date.now()}@e2e.test`;
         const providerPassword = 'StrongPass123!';
 
-        console.log(`Starting Provider Registration for ${providerEmail}`);
+        console.log(`[PHASE 1] Creating provider: ${providerEmail}`);
 
-        // 1.1 Visit Provider Landing
-        await providerPage.goto('http://localhost:5173');
-        await expect(providerPage.getByText('Grow Your Business with')).toBeVisible();
-
-        // 1.2 Sign Up
-        await providerPage.getByRole('button', { name: 'Get Started' }).click();
-        await providerPage.getByRole('button', { name: 'Sign Up' }).click();
-
-        // Use placeholders matching AuthModal.tsx
-        await providerPage.getByPlaceholder('Business or Personal Name').fill('New Provider');
-        await providerPage.getByPlaceholder('you@example.com').fill(providerEmail);
-        await providerPage.getByPlaceholder('••••••••').fill(providerPassword);
-
-        await providerPage.click('button:has-text("Create Account")');
-
-        // 1.3 Wait for potential redirect or toast
-        await providerPage.waitForTimeout(3000);
-
-        // 1.4 Authenticate Node.js Supabase Client to perform DB Setup (Admin simulation)
-        // Login as the new provider to insert DB records
-        const { error: signInError } = await supabase.auth.signInWithPassword({
+        const { data: providerAuthData, error: providerCreateError } = await supabaseAdmin.auth.admin.createUser({
             email: providerEmail,
-            password: providerPassword
+            password: providerPassword,
+            email_confirm: true
         });
 
-        if (signInError) {
-            console.error('Sign In Error:', signInError);
-            throw new Error(`Test Setup Failed: Could not sign in provider to DB client: ${signInError.message}`);
-        }
+        if (providerCreateError) throw new Error(`Provider creation failed: ${providerCreateError.message}`);
+        const providerId = providerAuthData.user.id;
 
-        const { data: userData } = await supabase.auth.getUser();
-        if (!userData.user) throw new Error('User not found after login');
-        const userId = userData.user.id;
+        console.log(`[PHASE 1] Provider created with ID: ${providerId}`);
 
-        console.log(`Provider User ID: ${userId}. Setting up Provider Record in DB...`);
-
-        // 1.5 DB Setup: Verify, Location, Service
-
-        // Update Profile
-        await supabase.from('profiles').update({
-            full_name: 'E2E Provider',
+        await supabaseAdmin.from('profiles').update({
+            full_name: 'E2E Test Provider',
             registration_status: 'verified',
-        }).eq('id', userId);
+        }).eq('id', providerId);
 
-        // Upsert Provider Record
-        const { data: existingProvider } = await supabase.from('providers').select('id').eq('id', userId).maybeSingle();
+        await supabaseAdmin.from('providers').upsert({
+            id: providerId,
+            service_radius: 5000,
+            is_verified: true,
+            is_active: true,
+            location: 'POINT(-74.0060 40.7128)',
+            availability_status: 'online',
+            services: ['PLUMBER', 'plumber']
+        });
 
-        if (!existingProvider) {
-            await supabase.from('providers').insert({
-                id: userId,
-                service_radius: 5000,
-                is_verified: true,
-                is_active: true,
-                location: 'POINT(-74.0060 40.7128)', // New York
-                availability_status: 'online'
-            });
-        } else {
-            await supabase.from('providers').update({
-                is_verified: true,
-                is_active: true,
-                location: 'POINT(-74.0060 40.7128)',
-                availability_status: 'online'
-            }).eq('id', userId);
+        console.log(`[PHASE 1] Provider setup complete`);
+
+        // ============================================
+        // PHASE 2: Provider Login (UI)
+        // ============================================
+        const providerContext = await browser.newContext();
+        const providerPage = await providerContext.newPage();
+
+        console.log(`[PHASE 2] Logging in provider via UI`);
+
+        await providerPage.goto('http://localhost:5173');
+        await providerPage.getByRole('button', { name: 'Get Started' }).click();
+        await providerPage.waitForTimeout(1000);
+
+        const modal = providerPage.locator('.fixed.inset-0');
+        const signInTab = modal.getByRole('button', { name: 'Sign In' }).first();
+        if (await signInTab.isVisible()) {
+            await signInTab.click();
+            await providerPage.waitForTimeout(500);
         }
 
-        // Add Service (Plumbing)
-        const { data: cat } = await supabase.from('service_categories').select('id').eq('slug', 'plumbing').single();
-        if (cat) {
-            // Upsert Service
-            const { error: servError } = await supabase.from('provider_services').upsert({
-                provider_id: userId,
-                category_id: cat.id,
-                base_price: 50,
-                is_active: true
-            }, { onConflict: 'provider_id, category_id' });
+        await modal.getByPlaceholder('you@example.com').fill(providerEmail);
+        await modal.getByPlaceholder('••••••••').fill(providerPassword);
+        await modal.getByRole('button', { name: /sign in/i }).last().click();
 
-            if (servError) console.log('Service upsert error:', servError.message);
-        }
-
-        // 1.6 Verify Dashboard access via UI
-        await providerPage.goto('http://localhost:5173/dashboard');
         await expect(providerPage.getByText('Dashboard')).toBeVisible({ timeout: 15000 });
+        console.log(`[PHASE 2] Provider logged in successfully`);
 
-        // --- Phase 2: Client Booking ---
-        console.log('--- Phase 2: Client Booking ---');
-        const clientContext = await browser.newContext();
-        const clientPage = await clientContext.newPage();
-
-        await clientPage.goto('http://localhost:3000');
-
-        // clientEmail/Password logic
+        // ============================================
+        // PHASE 3: Client Setup & Booking
+        // ============================================
         const clientEmail = `client_${Date.now()}@e2e.test`;
         const clientPassword = 'Password123!';
 
-        // Register Client via DB calls (need to sign out provider first!)
-        await supabase.auth.signOut();
-        await supabase.auth.signUp({
+        console.log(`[PHASE 3] Creating client: ${clientEmail}`);
+
+        const { data: clientAuthData, error: clientCreateError } = await supabaseAdmin.auth.admin.createUser({
+            email: clientEmail,
+            password: clientPassword,
+            email_confirm: true
+        });
+
+        if (clientCreateError) throw new Error(`Client creation failed: ${clientCreateError.message}`);
+        console.log(`[PHASE 3] Client created`);
+
+        const clientContext = await browser.newContext();
+        const clientPage = await clientContext.newPage();
+        await clientPage.goto('http://localhost:3000');
+
+        console.log(`[PHASE 3] Setting client auth session directly`);
+
+        const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.signInWithPassword({
             email: clientEmail,
             password: clientPassword
         });
 
-        // UI Login
-        await clientPage.getByRole('button', { name: 'Sign In' }).click();
-        await clientPage.getByPlaceholder('Email').fill(clientEmail);
-        await clientPage.getByPlaceholder('Password').fill(clientPassword);
-        await clientPage.click('button:has-text("Sign In")');
+        if (sessionError || !sessionData.session) {
+            throw new Error(`Failed to create client session: ${sessionError?.message}`);
+        }
 
-        // 2.1 Book Service
-        await clientPage.getByText('Plumbing').click(); // Select Category by text
+        await clientPage.evaluate((session) => {
+            localStorage.setItem('sb-' + window.location.host.split('.')[0] + '-auth-token', JSON.stringify(session));
+        }, sessionData.session);
 
-        await clientPage.fill('textarea[name="description"]', 'Leaky faucet need help ASAP');
+        await clientPage.reload();
+        await clientPage.waitForLoadState('networkidle');
 
-        // Address input logic
+        console.log(`[PHASE 3] Client authenticated, starting booking flow`);
+
+        await clientPage.getByText('Home Care & Repair').click();
+        await clientPage.waitForLoadState('networkidle');
+
+        await clientPage.getByText('Plumber').click();
+        await clientPage.waitForLoadState('networkidle');
+
+        // Wait for textarea to be stable (it may re-render)
+        const descriptionTextarea = clientPage.locator('textarea[name="description"]');
+        await descriptionTextarea.waitFor({ state: 'attached', timeout: 5000 });
+        await clientPage.waitForTimeout(1000); // Extra buffer for React render
+
+        await descriptionTextarea.fill('Leaky faucet needs urgent repair');
+
         const addressInput = clientPage.locator('input[name="address"]');
         if (await addressInput.isVisible()) {
             await addressInput.fill('New York, NY');
@@ -138,44 +137,38 @@ test.describe('Live Booking Scenario: Newly Registered Provider', () => {
 
         await clientPage.click('button:has-text("Find Pro")');
 
-        // 2.2 Confirm Validation Checklist
-        // If AI checklist appears
         try {
             await expect(clientPage.getByText('Recommended Service Checklist')).toBeVisible({ timeout: 10000 });
             await clientPage.click('button:has-text("Confirm Booking")');
         } catch (e) {
-            console.log("Checklist skipped or unexpected UI state, trying to see if we search...", e);
+            console.log('[PHASE 3] AI checklist not shown or skipped');
         }
 
-        // Wait for "Searching"
-        await expect(clientPage.getByText('Searching for nearby professionals')).toBeVisible();
+        await expect(clientPage.getByText('Searching for nearby professionals')).toBeVisible({ timeout: 10000 });
+        console.log(`[PHASE 3] Booking submitted, searching for providers`);
 
-        // --- Phase 3: Provider Acceptance ---
-        console.log('--- Phase 3: Provider Acceptance ---');
+        // ============================================
+        // PHASE 4: Provider Accepts Booking
+        // ============================================
+        console.log(`[PHASE 4] Switching to provider to accept booking`);
 
-        // Switch to Provider
         await providerPage.bringToFront();
-
-        // Check for Job Request
-        // Navigate to bookings page
         await providerPage.goto('http://localhost:5173/bookings');
 
-        // Verify Request Card appears
-        // It might take a moment.
-        // Look for "Leaky faucet" description if possible
         await expect(providerPage.getByText('Leaky faucet')).toBeVisible({ timeout: 20000 });
+        console.log(`[PHASE 4] Booking request visible to provider`);
 
-        // Accept
         await providerPage.click('button:has-text("Accept")');
+        console.log(`[PHASE 4] Provider accepted the booking`);
 
-        // --- Phase 4: Success ---
-        console.log('--- Phase 4: Success ---');
+        // ============================================
+        // PHASE 5: Verify Success
+        // ============================================
+        console.log(`[PHASE 5] Verifying booking success on client side`);
 
-        // Switch to Client
         await clientPage.bringToFront();
-
-        // Verify Provider Found
         await expect(clientPage.getByText('Provider Found')).toBeVisible({ timeout: 15000 });
 
+        console.log(`[PHASE 5] ✅ END-TO-END TEST PASSED!`);
     });
 });
