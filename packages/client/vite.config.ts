@@ -101,6 +101,10 @@ export default defineConfig(({ mode }) => {
               icons: [{ src: '/web-app-manifest-192x192.png', sizes: '192x192' }]
             }
           ]
+        },
+        devOptions: {
+          enabled: true,
+          type: 'module'
         }
       })
       // Temporarily disabled for Cloudflare Pages compatibility

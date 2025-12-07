@@ -94,6 +94,10 @@ export default defineConfig(({ mode }) => {
               },
             }
           ]
+        },
+        devOptions: {
+          enabled: true,
+          type: 'module'
         }
       })
       // Temporarily disabled for Cloudflare Pages compatibility
