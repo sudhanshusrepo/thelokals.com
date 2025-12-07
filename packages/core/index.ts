@@ -4,7 +4,8 @@ export * from './services/bookingService';
 export * from './services/workerService';
 export * from './services/geminiService';
 export * from './services/adminService';
-export * from './services/firebaseAuth';
+// Firebase auth should only be dynamically imported to reduce bundle size
+// export * from './services/firebaseAuth';
 export * from './services/authBridge';
 export * from './services/geoService';
 export * from './databaseTypes';
