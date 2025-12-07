@@ -121,7 +121,7 @@ test.describe('API Integration Tests', () => {
             const response = await request.post('/api/auth/login', {
                 data: {
                     email: 'test@example.com',
-                    password: 'password123',
+                    password: 'Test@123456',
                 },
             });
 
@@ -146,7 +146,7 @@ test.describe('API Integration Tests', () => {
             const response = await request.post('/api/auth/register', {
                 data: {
                     email: `test-${Date.now()}@example.com`,
-                    password: 'password123',
+                    password: 'Test@123456',
                     name: 'Test User',
                 },
             });
@@ -247,7 +247,7 @@ test.describe('API Integration Tests', () => {
             const response = await request.post('/api/auth/register', {
                 data: {
                     email: 'invalid-email',
-                    password: 'password123',
+                    password: 'Test@123456',
                 },
             });
 

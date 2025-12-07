@@ -36,7 +36,7 @@ export const test = base.extend<{
     testBooking: TestBooking;
 }>({
     // Authenticated page fixture
-    authenticatedPage: async ({ page }, use) => {
+    authenticatedPage: async ({ page }: { page: any }, use: (arg: any) => Promise<void>) => {
         // Login before each test
         await page.goto('/');
 
@@ -47,7 +47,7 @@ export const test = base.extend<{
 
             // Fill in credentials
             await page.fill('input[type="email"]', 'test@example.com');
-            await page.fill('input[type="password"]', 'password123');
+            await page.fill('input[type="password"]', 'Test@123456');
             await page.click('button[type="submit"]');
 
             // Wait for authentication

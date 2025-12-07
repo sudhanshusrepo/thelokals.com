@@ -17,7 +17,7 @@ test.describe('Authentication Flow - Enhanced', () => {
             await homePage.clickSignIn();
 
             // Fill credentials
-            await authPage.login('test@example.com', 'password123');
+            await authPage.login('test@example.com', 'Test@123456');
 
             // Verify successful login
             await expect(page).toHaveURL(/\/(dashboard)?/);
@@ -30,7 +30,7 @@ test.describe('Authentication Flow - Enhanced', () => {
         test('should show error with invalid email', async ({ page }) => {
             await homePage.clickSignIn();
 
-            await authPage.login('invalid-email', 'password123');
+            await authPage.login('invalid-email', 'Test@123456');
 
             // Check for error message
             const errorMsg = await authPage.getErrorMessage();
@@ -61,7 +61,7 @@ test.describe('Authentication Flow - Enhanced', () => {
         test('should toggle password visibility', async ({ page }) => {
             await homePage.clickSignIn();
 
-            await authPage.passwordInput.fill('password123');
+            await authPage.passwordInput.fill('Test@123456');
 
             // Find toggle button
             const toggleButton = page.locator('button[aria-label*="password"], .password-toggle');
@@ -132,7 +132,7 @@ test.describe('Authentication Flow - Enhanced', () => {
 
             // Try to register with existing email
             await authPage.emailInput.fill('test@example.com');
-            await authPage.passwordInput.fill('password123');
+            await authPage.passwordInput.fill('Test@123456');
             await authPage.submitButton.click();
 
             // Check for error

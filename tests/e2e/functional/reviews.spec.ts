@@ -5,7 +5,7 @@ test.describe('Reviews and Ratings', () => {
         // Login as test client
         await page.goto('/login');
         await page.fill('input[name="email"]', 'client@example.com');
-        await page.fill('input[name="password"]', 'password123');
+        await page.fill('input[name="password"]', 'Test@123456');
         await page.click('button[type="submit"]');
     });
 
@@ -35,7 +35,10 @@ test.describe('Reviews and Ratings', () => {
 
         // Verify reviews section
         await expect(page.locator('.reviews-section')).toBeVisible();
-        await expect(page.locator('.review-card')).toHaveCountGreaterThan(0);
+
+        // Verify at least one review exists
+        const reviewCount = await page.locator('.review-card').count();
+        expect(reviewCount).toBeGreaterThan(0);
 
         // Verify review details
         const firstReview = page.locator('.review-card').first();

@@ -28,7 +28,7 @@ test.describe('Full Live Booking Flow', () => {
             const email = `provider_${Date.now()}@test.com`;
             const { data: user, error: userError } = await supabase.auth.signUp({
                 email,
-                password: 'password123',
+                password: 'Provider@123456!',
             });
 
             if (userError || !user.user) {
