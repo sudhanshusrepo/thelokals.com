@@ -101,34 +101,43 @@ export const RegistrationWizard: React.FC<RegistrationWizardProps> = ({ onComple
     }
 
     return (
-        <div className="min-h-screen bg-[#f0fdf4] flex flex-col items-center py-6 sm:py-12">
-            <div className="w-full max-w-lg bg-white sm:rounded-2xl sm:shadow-xl overflow-hidden min-h-screen sm:min-h-[600px] flex flex-col">
+        <div className="min-h-screen bg-slate-50 flex flex-col">
+            <Header title="Provider Registration" showAutoSaving={true} />
 
-                <div className="flex items-center justify-between p-4 border-b">
-                    <button
-                        onClick={onCancel}
-                        className="text-slate-600 hover:text-slate-900 font-semibold"
-                    >
-                        ← Cancel
-                    </button>
-                    <Header title="Provider Registration" showAutoSaving={true} />
-                </div>
+            <div className="flex-1 flex flex-col items-center py-6 sm:py-12 px-4">
+                <div className="w-full max-w-lg bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col min-h-[600px]">
 
-                <div className="p-6 flex-1 flex flex-col">
-                    <Stepper currentStep={step} totalSteps={totalSteps} />
-
-                    <div className="flex-1">
-                        {step === 1 && <PhoneStep data={formData} updateData={updateData} onNext={nextStep} onBack={prevStep} />}
-                        {step === 2 && <BasicDetailsStep data={formData} updateData={updateData} onNext={nextStep} onBack={prevStep} />}
-                        {step === 3 && <ServiceSelectionStep data={formData} updateData={updateData} onNext={nextStep} onBack={prevStep} />}
-                        {step === 4 && <DocumentStep data={formData} updateData={updateData} onNext={nextStep} onBack={prevStep} />}
-                        {step === 5 && <GuidelinesStep data={formData} updateData={updateData} onNext={nextStep} onBack={prevStep} />}
-                        {step === 6 && <ReviewStep data={formData} updateData={updateData} onNext={handleComplete} onBack={prevStep} />}
+                    <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-white relative z-10">
+                        <button
+                            onClick={onCancel}
+                            className="text-slate-500 hover:text-slate-800 font-medium flex items-center gap-1 transition-colors"
+                        >
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                            </svg>
+                            Back
+                        </button>
+                        <div className="text-sm font-semibold text-orange-600 bg-orange-50 px-3 py-1 rounded-full">
+                            Step {step} of {totalSteps}
+                        </div>
                     </div>
-                </div>
 
-                <div className="bg-slate-50 px-6 py-3 text-center text-xs text-slate-400 border-t border-slate-100">
-                    Step {step} of {totalSteps} • Secure 256-bit Connection
+                    <div className="p-6 flex-1 flex flex-col">
+                        <Stepper currentStep={step} totalSteps={totalSteps} />
+
+                        <div className="flex-1 mt-6">
+                            {step === 1 && <PhoneStep data={formData} updateData={updateData} onNext={nextStep} onBack={prevStep} />}
+                            {step === 2 && <BasicDetailsStep data={formData} updateData={updateData} onNext={nextStep} onBack={prevStep} />}
+                            {step === 3 && <ServiceSelectionStep data={formData} updateData={updateData} onNext={nextStep} onBack={prevStep} />}
+                            {step === 4 && <DocumentStep data={formData} updateData={updateData} onNext={nextStep} onBack={prevStep} />}
+                            {step === 5 && <GuidelinesStep data={formData} updateData={updateData} onNext={nextStep} onBack={prevStep} />}
+                            {step === 6 && <ReviewStep data={formData} updateData={updateData} onNext={handleComplete} onBack={prevStep} />}
+                        </div>
+                    </div>
+
+                    <div className="bg-slate-50 px-6 py-3 text-center text-xs text-slate-400 border-t border-slate-100">
+                        Secure 256-bit Connection • Auto-saving enabled
+                    </div>
                 </div>
             </div>
         </div>

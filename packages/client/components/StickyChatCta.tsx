@@ -132,9 +132,9 @@ export const StickyChatCta: React.FC<StickyChatCtaProps> = ({ serviceCategory, o
                     setTimeout(() => {
                         setIsProcessing(false);
                         onSend(content);
-                    }, 500);
+                    }, 1500);
                 }
-            }, 400); // Faster animation (was 1200)
+            }, 1200);
             return;
         }
 
@@ -228,7 +228,6 @@ export const StickyChatCta: React.FC<StickyChatCtaProps> = ({ serviceCategory, o
                             onSend={handleInputSend}
                             isLoading={false} // We handle loading with the overlay now
                             hideMedia={false}
-                            animate={false}
                             className="!relative !bottom-auto !left-auto !right-auto !bg-transparent !border-0 !shadow-none !p-2"
                             placeholder={placeholder || "Ask anything... e.g., 'Book a cleaner for tomorrow'"}
                         />

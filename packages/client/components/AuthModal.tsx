@@ -5,7 +5,6 @@ import { AuthLayout, AuthField, AuthOAuthButton, AuthDivider } from '@thelocals/
 import { validateEmail, validatePassword, validateName } from '../utils/validation';
 import { useAuth } from '../contexts/AuthContext';
 import { initializeRecaptcha, cleanupRecaptcha, isFirebaseConfigured } from '@thelocals/core/services/firebaseAuth';
-import { sanitizeInput } from '../utils/sanitize';
 
 interface AuthModalProps {
   onClose: () => void;
@@ -149,7 +148,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
         <div className="flex border-b border-slate-100 dark:border-slate-700">
           <button
             onClick={() => { setActiveTab('signin'); setOtpSent(false); }}
-            data-testid="sign-in-tab"
             className={`flex-1 py-4 text-sm font-bold uppercase tracking-wider transition-colors relative ${activeTab === 'signin'
               ? 'text-teal-600 dark:text-teal-400 bg-slate-50 dark:bg-slate-800/50'
               : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50'
@@ -162,7 +160,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
           </button>
           <button
             onClick={() => { setActiveTab('signup'); setOtpSent(false); }}
-            data-testid="sign-up-tab"
             className={`flex-1 py-4 text-sm font-bold uppercase tracking-wider transition-colors relative ${activeTab === 'signup'
               ? 'text-teal-600 dark:text-teal-400 bg-slate-50 dark:bg-slate-800/50'
               : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50'
@@ -227,7 +224,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
                   type="email"
                   required
                   value={email}
-                  onChange={(e) => setEmail(sanitizeInput(e.target.value))}
+                  onChange={(e) => setEmail(e.target.value)}
                   data-testid="email-input"
                   placeholder="john@example.com"
                 />

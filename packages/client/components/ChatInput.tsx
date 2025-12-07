@@ -8,10 +8,9 @@ interface ChatInputProps {
     placeholder?: string;
     className?: string;
     hideMedia?: boolean;
-    animate?: boolean;
 }
 
-export const ChatInput: React.FC<ChatInputProps> = ({ onSend, isLoading = false, placeholder = "Type or record your request...", className = "", hideMedia = false, animate = true }) => {
+export const ChatInput: React.FC<ChatInputProps> = ({ onSend, isLoading = false, placeholder = "Type or record your request...", className = "", hideMedia = false }) => {
     const [text, setText] = useState('');
     const [mode, setMode] = useState<'text' | 'audio' | 'video'>('text');
 
@@ -56,7 +55,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend, isLoading = false,
     // Audio Recording UI
     if (mode === 'audio') {
         return (
-            <div className={`fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 p-4 border-t dark:border-slate-700 shadow-lg z-50 ${animate ? 'animate-slide-up' : ''} ${className}`}>
+            <div className={`fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 p-4 border-t dark:border-slate-700 shadow-lg z-50 animate-slide-up ${className}`}>
                 <div className="max-w-3xl mx-auto flex flex-col items-center gap-4">
                     <div className="text-red-500 font-mono text-xl animate-pulse">
                         {formatTime(audioRecorder.recordingTime)} / 01:00
@@ -177,7 +176,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend, isLoading = false,
 
     // Default Text Input UI
     return (
-        <div className={`fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t dark:border-slate-700 p-3 sm:p-4 pb-safe z-40 ${animate ? 'animate-slide-up' : ''} ${className}`}>
+        <div className={`fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t dark:border-slate-700 p-3 sm:p-4 pb-safe z-40 ${className}`}>
             <div className="max-w-3xl mx-auto flex items-end gap-2 sm:gap-3">
                 {/* Media Buttons */}
                 {!hideMedia && (

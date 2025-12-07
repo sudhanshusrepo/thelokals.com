@@ -41,6 +41,11 @@ export const backend = {
       return Promise.resolve();
     },
 
+    clearDraft: async (): Promise<void> => {
+      // Alias for deleteDraft
+      return Promise.resolve();
+    },
+
     saveProfile: async (profile: ProviderProfile): Promise<void> => {
       // Alias for saveDraft
       const { data, error } = await supabase.from('profiles').upsert(profile)
@@ -50,12 +55,29 @@ export const backend = {
     },
 
     submitApplication: async (profile: ProviderProfile): Promise<{ data: any; error: any }> => {
-      const { data, error } = await supabase.from('applications').insert({ ...profile, status: 'PENDING' })
+      // 1. Submit application
+      const { data, error } = await supabase.from('applications').insert({ ...profile, status: 'PENDING' });
       if (error) {
         return { data: null, error };
       }
+
+      // 2. Auto-verify for now to allow immediate booking access
+      const { error: profileError } = await supabase.from('profiles').update({
+        registration_status: 'verified'
+      }).eq('id', (await supabase.auth.getUser()).data.user?.id);
+
+      if (profileError) {
+        console.error("Failed to auto-verify profile", profileError);
+      }
+
       return { data, error: null };
     }
+  },
+
+  submitRegistration: async (profile: ProviderProfile): Promise<void> => {
+    // Top level alias for db.submitApplication
+    const { error } = await backend.db.submitApplication(profile);
+    if (error) throw error;
   },
 
   auth: {

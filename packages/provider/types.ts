@@ -8,9 +8,11 @@ export enum DocType {
     GovtID = 'GovtID',
     PAN = 'PAN',
     Selfie = 'Selfie',
+    BankDetails = 'BankDetails',
 }
 
 export enum RegistrationStatus {
+    Draft = 'draft',
     Incomplete = 'incomplete',
     Pending = 'pending',
     Submitted = 'submitted',

@@ -5,8 +5,9 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig(({ mode }) => {
-  // Load env file from monorepo root (two levels up from packages/client)
-  const env = loadEnv(mode, path.resolve(__dirname, '../..'), '');
+  // Load env file based on `mode` in the current working directory.
+  // Set the third parameter to '' to load all env regardless of the `VITE_` prefix.
+  const env = loadEnv(mode, '.', '');
 
   return {
     server: {
@@ -15,27 +16,12 @@ export default defineConfig(({ mode }) => {
       historyApiFallback: true,
     },
     build: {
-      outDir: './dist',
+      outDir: '../../dist/client', // Output to root dist/client for Cloudflare
       emptyOutDir: true,
       target: 'esnext',
-      minify: 'terser',
+      minify: false, // Keep false for debugging until fully stable
       sourcemap: true,
       chunkSizeWarningLimit: 1000,
-      rollupOptions: {
-        output: {
-          manualChunks: {
-            'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-            'ui-vendor': ['framer-motion', 'react-hot-toast', 'react-helmet'],
-            'map-vendor': ['leaflet', 'react-leaflet'],
-            '3d-vendor': ['three', '@react-three/fiber', '@react-three/drei'],
-          }
-        }
-      },
-      terserOptions: {
-        compress: {
-          drop_console: process.env.NODE_ENV === 'production',
-        }
-      }
     },
     plugins: [
       react(),
@@ -94,7 +80,6 @@ export default defineConfig(({ mode }) => {
         '@core': path.resolve(__dirname, '../core'),
         '@thelocals/core': path.resolve(__dirname, '../core'),
       }
-    },
-    envDir: path.resolve(__dirname, '../..'), // Load .env from monorepo root
+    }
   };
 });
