@@ -102,6 +102,19 @@ export const backend = {
     }
   },
 
+  location: {
+    update: async (lat: number, lng: number): Promise<void> => {
+      const { error } = await supabase.rpc('update_provider_location', {
+        p_lat: lat,
+        p_lng: lng
+      });
+      if (error) {
+        console.error('Location update failed:', error);
+        throw new Error(error.message);
+      }
+    }
+  },
+
   storage: {
     upload: async (file: File, path?: string): Promise<string> => {
       const filePath = path || `${Date.now()}-${file.name}`;

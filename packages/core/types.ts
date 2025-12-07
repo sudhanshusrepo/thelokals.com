@@ -67,9 +67,10 @@ export interface WorkerProfile {
   reviewCount: number;
   isVerified: boolean;
   location: Coordinates;
+  availabilitySchedule?: Record<string, any>; // New field
 }
 
-export type BookingStatus = 'PENDING' | 'CONFIRMED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+export type BookingStatus = 'REQUESTED' | 'PENDING' | 'CONFIRMED' | 'EN_ROUTE' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'EXPIRED';
 export type BookingType = 'AI_ENHANCED' | 'LIVE' | 'SCHEDULED';
 export type PaymentStatus = 'PENDING' | 'PAID' | 'REFUNDED' | 'FAILED';
 
@@ -93,7 +94,9 @@ export interface Booking {
   client_id: string;
   provider_id?: string;
   service_category: string;
+  service_category_id?: string; // New field
   booking_type: BookingType;
+  delivery_mode?: 'LOCAL' | 'ONLINE'; // New field
   status: BookingStatus;
   requirements?: object;
   ai_checklist?: string[];
@@ -105,6 +108,8 @@ export interface Booking {
   location?: Coordinates,
   address?: object;
   notes?: string;
+  meeting_link?: string; // New field
+  meeting_provider?: string; // New field
   payment_status: PaymentStatus;
   created_at: string;
   updated_at: string;
@@ -158,7 +163,7 @@ export interface Provider {
   location: Coordinates;
 }
 
-export type LiveBookingStatus = 'REQUESTED' | 'ACCEPTED' | 'OTP_SENT' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'CONFIRMED' | 'EXPIRED';
+export type LiveBookingStatus = BookingStatus;
 
 export interface LiveBooking {
   id: string;
@@ -192,4 +197,51 @@ export interface NearbyProviderResponse {
   rating: number;
   total_jobs: number;
   is_verified: boolean;
+}
+
+export type AdminRole = 'super_admin' | 'ops_admin' | 'support_admin' | 'finance_admin' | 'read_only';
+
+export interface AdminUser {
+  id: string;
+  email: string;
+  role: AdminRole;
+  full_name?: string;
+  avatar_url?: string;
+  created_at: string;
+}
+
+export interface ServiceAvailability {
+  id: string;
+  service_category_id: string;
+  location_type: 'city' | 'area' | 'pincode';
+  location_value: string;
+  status: 'ENABLED' | 'DISABLED';
+  reason?: string;
+  disabled_by?: string;
+  disabled_at?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ActiveSession {
+  id: string;
+  user_id: string;
+  user_type: 'customer' | 'provider';
+  session_state?: string;
+  city?: string;
+  current_booking_id?: string;
+  last_activity: string;
+  metadata?: Record<string, any>;
+  created_at: string;
+}
+
+export interface AdminAuditLog {
+  id: string;
+  admin_user_id: string;
+  action: string;
+  resource_type: string;
+  resource_id?: string;
+  changes?: Record<string, any>;
+  ip_address?: string;
+  created_at: string;
 }

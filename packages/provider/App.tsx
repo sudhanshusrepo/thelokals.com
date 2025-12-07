@@ -16,6 +16,7 @@ const BookingRequestsPage = lazy(() => import('./components/BookingRequestsPage'
 const BookingDetailsPage = lazy(() => import('./components/BookingDetailsPage'));
 const PaymentPage = lazy(() => import('./components/PaymentPage'));
 const NotificationsPage = lazy(() => import('./components/NotificationsPage'));
+const AvailabilitySettings = lazy(() => import('./components/AvailabilitySettings'));
 
 // Loading skeleton
 const LoadingSkeleton = () => (
@@ -139,6 +140,7 @@ const MainLayout: React.FC = () => {
     { label: 'Requests', to: '/bookings', icon: '📋', badge: 0 },
     { label: 'Payments', to: '/payments', icon: '💰' },
     { label: 'Alerts', to: '/notifications', icon: '🔔', badge: 0 },
+    { label: 'Calendar', to: '/calendar', icon: '📅' },
     { label: 'Profile', to: '/profile', icon: '👤' },
   ];
 
@@ -269,6 +271,16 @@ const MainLayout: React.FC = () => {
             element={
               user ? (
                 <div>Profile Page</div>
+              ) : (
+                <AuthRequiredPlaceholder onSignIn={() => navigate('/')} />
+              )
+            }
+          />
+          <Route
+            path="/calendar"
+            element={
+              user ? (
+                <AvailabilitySettings />
               ) : (
                 <AuthRequiredPlaceholder onSignIn={() => navigate('/')} />
               )

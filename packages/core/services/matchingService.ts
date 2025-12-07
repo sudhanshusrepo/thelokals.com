@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { geoService } from './geoService';
 
 export interface MatchingResult {
     matchedProviderIds: string[];
@@ -19,31 +20,53 @@ export const matchingService = {
 
         if (bookingError || !booking) throw new Error('Booking not found');
 
-        let query = supabase
-            .from('providers')
-            .select('id')
-            .eq('is_active', true)
-            .contains('services', [booking.service_category]); // Assuming services is an array or jsonb
+        let providerIds: string[] = [];
 
-        // 2. Filter by Service Mode & Location
-        if (booking.service_mode === 'local' && booking.location) {
-            // Use RPC for PostGIS distance search if available, or client-side filter for MVP
-            // For MVP: We'll assume providers have a 'city' field and match on that
-            // Ideally: .rpc('nearby_providers', { lat, lng, radius })
+        if (booking.delivery_mode === 'ONLINE') {
+            // For ONLINE: Find active providers offering this service, regardless of location
+            // TODO: Add timezone/schedule matching logic in Phase 3 iterations
+            const { data, error } = await supabase
+                .from('providers')
+                .select('id')
+                .eq('is_active', true)
+                .contains('services', [booking.service_category])
+                .limit(20);
 
-            // Extract city from booking address or location if available
-            // This is a simplification. In production, use PostGIS.
-            if (booking.address && booking.address.city) {
-                query = query.eq('city', booking.address.city);
+            if (error) throw error;
+            providerIds = data.map(p => p.id);
+        } else {
+            // For LOCAL: Use GeoService (PostGIS)
+            // Defaulting to 15km radius if not specified
+            const lat = booking.location?.coordinates?.[1] || 0;
+            const lng = booking.location?.coordinates?.[0] || 0;
+
+            if (lat !== 0 || lng !== 0) {
+                // Use newly created findNearbyProviders RPC via GeoService
+                // Note: We need to import geoService at the top
+                const nearby = await geoService.findNearbyProviders(
+                    booking.service_category,
+                    lat,
+                    lng,
+                    15 // radiusKm
+                );
+                providerIds = nearby.map(p => p.id);
+            } else {
+                // Fallback if no location: Match by City if available (Legacy/MVP)
+                let query = supabase
+                    .from('providers')
+                    .select('id')
+                    .eq('is_active', true)
+                    .contains('services', [booking.service_category]);
+
+                if (booking.address && booking.address.city) {
+                    query = query.eq('city', booking.address.city);
+                }
+
+                const { data, error } = await query;
+                if (error) throw error;
+                providerIds = data.map(p => p.id);
             }
         }
-
-        // 3. Execute Query
-        const { data: providers, error: providerError } = await query;
-
-        if (providerError) throw providerError;
-
-        const providerIds = providers.map(p => p.id);
 
         return {
             matchedProviderIds: providerIds,

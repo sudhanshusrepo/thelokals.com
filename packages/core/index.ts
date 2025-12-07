@@ -6,6 +6,7 @@ export * from './services/geminiService';
 export * from './services/adminService';
 export * from './services/firebaseAuth';
 export * from './services/authBridge';
+export * from './services/geoService';
 export * from './databaseTypes';
 export * from './utils/headerUtils';
 export * from './components/auth';

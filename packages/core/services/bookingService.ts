@@ -1,7 +1,7 @@
 
 import { supabase } from './supabase';
-import { Booking, BookingStatus, LiveBooking, LiveBookingStatus, Service } from '../types';
-import { BookingWithWorkerResponse, DbNearbyProviderResponse } from '../databaseTypes';
+import { Booking, BookingStatus, LiveBooking, Service } from '../types';
+import { DbNearbyProviderResponse } from '../databaseTypes';
 import { logger } from './logger';
 
 /**
@@ -10,14 +10,32 @@ import { logger } from './logger';
  */
 export const bookingService = {
   /**
+   * Validates if a status transition is allowed.
+   */
+  validateTransition(currentStatus: BookingStatus, newStatus: BookingStatus): boolean {
+    const allowedTransitions: Record<string, string[]> = {
+      'REQUESTED': ['PENDING', 'CANCELLED'],
+      'PENDING': ['CONFIRMED', 'CANCELLED', 'EXPIRED'],
+      'CONFIRMED': ['EN_ROUTE', 'IN_PROGRESS', 'CANCELLED'],
+      'EN_ROUTE': ['IN_PROGRESS', 'CANCELLED'],
+      'IN_PROGRESS': ['COMPLETED', 'CANCELLED'],
+      'COMPLETED': [],
+      'CANCELLED': [],
+      'EXPIRED': []
+    };
+
+    const allowed = allowedTransitions[currentStatus] || [];
+    return allowed.includes(newStatus);
+  },
+
+  /**
    * Creates a new AI-enhanced booking.
-   * @param {object} params - The booking parameters.
-   * @returns {Promise<{ bookingId: string }>} The newly created booking ID.
-   * @throws {Error} If the booking creation fails.
    */
   async createAIBooking(params: {
     clientId: string;
     serviceCategory: string;
+    serviceCategoryId?: string;
+    deliveryMode?: 'LOCAL' | 'ONLINE';
     requirements: object;
     aiChecklist: string[];
     estimatedCost: number;
@@ -43,6 +61,8 @@ export const bookingService = {
       p_location: `POINT(${params.location.lng} ${params.location.lat})`,
       p_address: params.address,
       p_notes: params.notes,
+      p_service_category_id: params.serviceCategoryId,
+      p_delivery_mode: params.deliveryMode || 'LOCAL',
     });
 
     if (error) {
@@ -54,9 +74,6 @@ export const bookingService = {
 
   /**
    * Retrieves a specific booking by its ID.
-   * @param {string} bookingId - The ID of the booking to retrieve.
-   * @returns {Promise<Booking>} The booking object.
-   * @throws {Error} If the database query fails.
    */
   async getBooking(bookingId: string): Promise<Booking> {
     const { data, error } = await supabase
@@ -74,9 +91,6 @@ export const bookingService = {
 
   /**
    * Subscribes to real-time updates for a specific booking.
-   * @param {string} bookingId - The ID of the booking to subscribe to.
-   * @param {function} callback - The function to call with the updated booking data.
-   * @returns {() => void} A function to unsubscribe from the channel.
    */
   subscribeToBookingUpdates(bookingId: string, callback: (booking: Booking) => void) {
     const channel = supabase
@@ -96,12 +110,6 @@ export const bookingService = {
 
   /**
    * Creates a new booking.
-   * @param {string} workerId - The ID of the worker being booked.
-   * @param {string} userId - The ID of the user making the booking.
-   * @param {string} note - A note or special instructions for the booking.
-   * @param {number} price - The total price of the booking.
-   * @returns {Promise<Booking>} The newly created booking object.
-   * @throws {Error} If the booking creation fails.
    */
   async createBooking(workerId: string, userId: string, note: string, price: number) {
     const { data, error } = await supabase
@@ -125,16 +133,13 @@ export const bookingService = {
 
   /**
    * Retrieves all bookings for a specific user.
-   * @param {string} userId - The ID of the user.
-   * @returns {Promise<Booking[]>} A list of bookings for the user.
-   * @throws {Error} If the database query fails.
    */
   async getUserBookings(userId: string): Promise<Booking[]> {
     const { data, error } = await supabase
       .from('bookings')
       .select(`
         *,
-        workers(*)
+        providers(*)
       `)
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
@@ -144,25 +149,25 @@ export const bookingService = {
       throw error;
     }
 
-    // Map the nested worker data to match WorkerProfile structure
-    return (data as unknown as BookingWithWorkerResponse[]).map((b) => ({
+    // Map the nested provider data to match WorkerProfile structure
+    return (data as any[]).map((b) => ({
       ...b,
-      worker: b.workers ? {
-        id: b.workers.id,
-        name: b.workers.name,
-        category: b.workers.category as any,
-        description: b.workers.description,
-        price: b.workers.price,
-        priceUnit: b.workers.price_unit,
-        rating: b.workers.rating,
-        status: b.workers.status as any,
-        imageUrl: b.workers.image_url,
-        expertise: b.workers.expertise,
-        reviewCount: b.workers.review_count,
-        isVerified: b.workers.is_verified,
+      worker: b.providers ? {
+        id: b.providers.id,
+        name: b.providers.name || 'Provider',
+        category: b.providers.services?.[0] || 'General',
+        description: b.providers.description || '',
+        price: 0,
+        priceUnit: 'hr',
+        rating: 4.5,
+        status: b.providers.is_active ? 'AVAILABLE' : 'OFFLINE',
+        imageUrl: b.providers.avatar_url,
+        expertise: b.providers.services,
+        reviewCount: 0,
+        isVerified: true,
         location: {
-          lat: b.workers.location_lat,
-          lng: b.workers.location_lng
+          lat: b.providers.location?.coordinates?.[1] || 0,
+          lng: b.providers.location?.coordinates?.[0] || 0
         }
       } : undefined
     }));
@@ -170,9 +175,6 @@ export const bookingService = {
 
   /**
    * Retrieves all bookings for a specific worker.
-   * @param {string} workerId - The ID of the worker.
-   * @returns {Promise<Booking[]>} A list of bookings for the worker.
-   * @throws {Error} If the database query fails.
    */
   async getWorkerBookings(workerId: string): Promise<Booking[]> {
     const { data, error } = await supabase
@@ -190,11 +192,14 @@ export const bookingService = {
 
   /**
    * Updates the status of a specific booking.
-   * @param {string} bookingId - The ID of the booking to update.
-   * @param {BookingStatus} status - The new status of the booking.
-   * @throws {Error} If the database update fails.
    */
   async updateBookingStatus(bookingId: string, status: BookingStatus) {
+    // Validate Transition (Fetch current first)
+    const currentBooking = await this.getBooking(bookingId);
+    if (currentBooking && !this.validateTransition(currentBooking.status, status)) {
+      logger.warn(`Invalid status transition from ${currentBooking.status} to ${status}`);
+    }
+
     const { error } = await supabase
       .from('bookings')
       .update({ status })
@@ -208,12 +213,6 @@ export const bookingService = {
 
   /**
    * Submits a review for a booking.
-   * @param {string} bookingId - The ID of the booking being reviewed.
-   * @param {string} workerId - The ID of the worker being reviewed.
-   * @param {string} userId - The ID of the user submitting the review.
-   * @param {number} rating - The rating given to the worker (e.g., 1-5).
-   * @param {string} comment - A written comment for the review.
-   * @throws {Error} If the review submission fails.
    */
   async submitReview(bookingId: string, workerId: string, userId: string, rating: number, comment: string) {
     const { error } = await supabase
@@ -231,14 +230,11 @@ export const bookingService = {
       throw error;
     }
 
-    // Ensure booking is marked as completed if it wasn't already (though flow usually ensures this)
     await this.updateBookingStatus(bookingId, 'COMPLETED');
   },
 
   /**
    * Process payment for a booking
-   * @param {string} bookingId - The ID of the booking to process payment for.
-   * @throws {Error} If the payment processing fails.
    */
   async processPayment(bookingId: string) {
     const { error } = await supabase
@@ -252,16 +248,8 @@ export const bookingService = {
     }
   },
 
-  // NEW LIVE BOOKING SYSTEM FUNCTIONS
-
   /**
    * Finds nearby providers for a given service and location.
-   * @param {string} serviceId - The ID of the service.
-   * @param {number} lat - The latitude of the user's location.
-   * @param {number} lng - The longitude of the user's location.
-   * @param {number} distance - The search radius in meters.
-   * @returns {Promise<DbNearbyProviderResponse[]>} A list of nearby providers.
-   * @throws {Error} If the database query fails.
    */
   async findNearbyProviders(serviceId: string, lat: number, lng: number, distance: number): Promise<DbNearbyProviderResponse[]> {
     const { data, error } = await supabase
@@ -281,15 +269,11 @@ export const bookingService = {
 
   /**
    * Creates a new live booking request.
-   * @param {Service} service - The service being requested.
-   * @param {string} clientId - The ID of the client making the request.
-   * @param {object} requirements - The service-specific requirements.
-   * @returns {Promise<LiveBooking>} The newly created live booking object.
-   * @throws {Error} If the booking creation fails.
+   * Simple wrapper for createAIBooking logic or direct insert if simpler.
    */
   async createLiveBooking(service: Service, clientId: string, requirements: object): Promise<LiveBooking> {
     const { data, error } = await supabase
-      .from('bookings') // Note: Using a single 'bookings' table for simplicity
+      .from('bookings')
       .insert({
         serviceId: service.id,
         clientId: clientId,
@@ -307,50 +291,37 @@ export const bookingService = {
   },
 
   /**
-   * Accepts a live booking.
-   * @param {string} bookingId - The ID of the booking to accept.
-   * @param {string} providerId - The ID of the provider accepting the booking.
-   * @returns {Promise<LiveBooking>} The updated live booking object.
-   * @throws {Error} If the booking acceptance fails.
+   * Accepts a booking (Provider Side).
    */
-  async acceptLiveBooking(bookingId: string, providerId: string): Promise<LiveBooking> {
+  async acceptBooking(bookingId: string, providerId: string): Promise<void> {
     const { data, error } = await supabase
-      .rpc('accept_booking', { booking_id: bookingId, provider_id: providerId })
+      .rpc('accept_booking', { booking_id: bookingId, provider_id: providerId });
 
     if (error) {
-      logger.error('Error accepting live booking', { error, bookingId, providerId });
+      logger.error('Error accepting booking', { error, bookingId, providerId });
       throw error;
     }
     return data;
   },
 
   /**
-   * Updates the status of a live booking.
-   * @param {string} bookingId - The ID of the booking to update.
-   * @param {LiveBookingStatus} status - The new status of the booking.
-   * @returns {Promise<LiveBooking>} The updated live booking object.
-   * @throws {Error} If the booking status update fails.
+   * Rejects a booking (Provider Side).
    */
-  async updateLiveBookingStatus(bookingId: string, status: LiveBookingStatus): Promise<LiveBooking> {
-    const { data, error } = await supabase
-      .from('bookings')
-      .update({ status: status })
-      .eq('id', bookingId)
-      .select()
-      .single();
+  async rejectBooking(bookingId: string, providerId: string): Promise<void> {
+    const { error } = await supabase
+      .from('booking_requests')
+      .update({ status: 'REJECTED' })
+      .eq('booking_id', bookingId)
+      .eq('provider_id', providerId);
 
     if (error) {
-      logger.error('Error updating live booking status', { error, bookingId, status });
+      logger.error('Error rejecting booking', { error, bookingId, providerId });
       throw error;
     }
-    return data;
   },
 
   /**
    * Checks if a service is available in a given location
-   * @param {string} serviceCategoryId - The ID of the service category
-   * @param {string} city - The city to check availability for
-   * @returns {Promise<boolean>} True if service is available, false otherwise
    */
   async checkServiceAvailability(serviceCategoryId: string, city: string): Promise<boolean> {
     const { data, error } = await supabase
@@ -361,7 +332,6 @@ export const bookingService = {
       .eq('location_type', 'city')
       .single();
 
-    // If no record exists, service is available by default
     if (error || !data) {
       return true;
     }

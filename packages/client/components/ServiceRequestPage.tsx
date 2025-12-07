@@ -12,6 +12,7 @@ import { SmartServiceInput } from './SmartServiceInput';
 import { AILoadingOverlay } from './AILoadingOverlay';
 import { mediaUploadService } from '../services/mediaUploadService';
 import { AuthModal } from './AuthModal';
+import { OnlineSlotPicker } from './OnlineSlotPicker';
 import { useToast } from '../contexts/ToastContext';
 import { pricingService, DynamicPriceResponse } from '../services/pricingService';
 
@@ -26,6 +27,10 @@ export const ServiceRequestPage: React.FC = () => {
     const [userInput, setUserInput] = useState('');
     const [analysis, setAnalysis] = useState<AIAnalysisResult | null>(null);
 
+    // Online Slot State
+    const [selectedDate, setSelectedDate] = useState<Date>();
+    const [selectedTime, setSelectedTime] = useState<string>();
+
     // Detailed Loading States
     const [loadingStep, setLoadingStep] = useState<'idle' | 'transcribing' | 'analyzing' | 'pricing' | 'complete'>('idle');
     const [statusMessage, setStatusMessage] = useState('');
@@ -38,6 +43,7 @@ export const ServiceRequestPage: React.FC = () => {
     const [checkedItems, setCheckedItems] = useState<Record<number, boolean>>({});
 
     const selectedCategory = category ? LOWERCASE_TO_WORKER_CATEGORY[category.toLowerCase()] : undefined;
+    const isOnlineService = selectedCategory && ONLINE_CATEGORIES.has(selectedCategory);
 
     // Get service type details
     const serviceType = useMemo(() => {
@@ -221,7 +227,6 @@ export const ServiceRequestPage: React.FC = () => {
 
         // Check if location is available
         let bookingLocation = location;
-        const isOnlineService = selectedCategory && ONLINE_CATEGORIES.has(selectedCategory);
 
         if (!isOnlineService && !bookingLocation) {
             try {
@@ -233,8 +238,14 @@ export const ServiceRequestPage: React.FC = () => {
             }
         }
 
-        if (isOnlineService && !bookingLocation) {
-            bookingLocation = { lat: 0, lng: 0 };
+        if (isOnlineService) {
+            if (!bookingLocation) {
+                bookingLocation = { lat: 0, lng: 0 };
+            }
+            if (!selectedDate || !selectedTime) {
+                showToast('Please select a date and time for your online session.', 'warning');
+                return;
+            }
         }
 
         const hasSelectedItems = Object.values(checkedItems).some(Boolean);
@@ -247,13 +258,25 @@ export const ServiceRequestPage: React.FC = () => {
         try {
             const finalChecklist = analysis.checklist.filter((_, idx) => checkedItems[idx]);
 
+            // Construct scheduled date
+            let scheduledDateStr: string | undefined;
+            if (selectedDate && selectedTime) {
+                const [hours, minutes] = selectedTime.split(':').map(Number);
+                const d = new Date(selectedDate);
+                d.setHours(hours, minutes, 0, 0);
+                scheduledDateStr = d.toISOString();
+            }
+
             const { bookingId } = await bookingService.createAIBooking({
                 clientId: user.id,
                 serviceCategory: selectedCategory,
+                deliveryMode: isOnlineService ? 'ONLINE' : 'LOCAL',
+                serviceCategoryId: undefined, // Let backend resolver handle this using name
                 requirements: {
                     description: userInput,
                     serviceType: serviceTypeId,
-                    isOnline: isOnlineService // Tag as online
+                    isOnline: isOnlineService,
+                    scheduledDate: scheduledDateStr
                 },
                 aiChecklist: finalChecklist,
                 estimatedCost: currentPrice,
@@ -387,8 +410,8 @@ export const ServiceRequestPage: React.FC = () => {
                                     <label
                                         key={idx}
                                         className={`flex items-start gap-4 p-4 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer transition-all ${checkedItems[idx]
-                                                ? 'bg-teal-50 dark:bg-teal-900/10 border-teal-200 dark:border-teal-800'
-                                                : 'bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750'
+                                            ? 'bg-teal-50 dark:bg-teal-900/10 border-teal-200 dark:border-teal-800'
+                                            : 'bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750'
                                             }`}
                                     >
                                         <div className="pt-0.5">
@@ -418,6 +441,20 @@ export const ServiceRequestPage: React.FC = () => {
                                 ))}
                             </div>
                         </div>
+
+                        {/* Online Slot Picker */}
+                        {isOnlineService && (
+                            <div className="px-6 pb-2">
+                                <OnlineSlotPicker
+                                    selectedDate={selectedDate}
+                                    selectedTime={selectedTime}
+                                    onSelect={(d, t) => {
+                                        setSelectedDate(d);
+                                        setSelectedTime(t);
+                                    }}
+                                />
+                            </div>
+                        )}
 
                         <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border-t dark:border-slate-700 sticky bottom-0">
                             <button

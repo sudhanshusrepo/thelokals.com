@@ -8,6 +8,7 @@ import { supabase } from '@core/services/supabase';
 
 import { ProfileTab } from './ProfileTab';
 import { ProviderProfile } from '../types';
+import { LocationTracker } from './LocationTracker';
 
 type Tab = 'Requests' | 'Bookings' | 'Profile';
 type BookingFilter = 'Upcoming' | 'Active' | 'Past' | 'Pending';
@@ -97,6 +98,8 @@ export const ProviderDashboard: React.FC = () => {
         <h2 className="text-2xl font-bold">Provider Dashboard</h2>
         <EarningsCard earnings={totalEarnings} />
       </div>
+
+      <LocationTracker />
 
       <div className="border-b border-gray-200">
         <nav className="-mb-px flex space-x-6 overflow-x-auto" aria-label="Tabs">
@@ -237,8 +240,13 @@ const ProviderBookingCard: React.FC<{ booking: Booking, onUpdateStatus?: (bookin
           </button>
         )}
         {status === 'CONFIRMED' && onUpdateStatus && (
+          <button onClick={() => onUpdateStatus(booking.id, 'EN_ROUTE')} className="text-sm font-bold text-white bg-teal-600 px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors">
+            On My Way
+          </button>
+        )}
+        {status === 'EN_ROUTE' && onUpdateStatus && (
           <button onClick={() => onUpdateStatus(booking.id, 'IN_PROGRESS')} className="text-sm font-bold text-white bg-indigo-600 px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
-            Start Job
+            Arrived / Start
           </button>
         )}
         {status === 'IN_PROGRESS' && onUpdateStatus && (
@@ -252,6 +260,6 @@ const ProviderBookingCard: React.FC<{ booking: Booking, onUpdateStatus?: (bookin
           </div>
         )}
       </div>
-    </div>
+    </div >
   )
 }

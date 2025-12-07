@@ -10,6 +10,7 @@ import { PrivacyPolicy } from './PrivacyPolicy';
 import { Support } from './Support';
 import { User } from '@supabase/supabase-js';
 import { ICONS } from '../constants';
+import { LiveTracker } from './LiveTracker';
 
 export type DashboardView = 'Bookings' | 'Profile' | 'Terms & Conditions' | 'Privacy Policy' | 'Support';
 type Tab = 'Upcoming' | 'Active' | 'Past';
@@ -267,6 +268,15 @@ const BookingCard: React.FC<{ booking: Booking, setPaymentBooking: (b: Booking) 
         </div>
       </div>
 
+      {status === 'EN_ROUTE' && booking.worker?.location && (
+        <div className="mt-4">
+          <LiveTracker
+            providerLocation={booking.worker.location}
+            providerName={booking.worker.name}
+          />
+        </div>
+      )}
+
       <div className="flex items-center justify-between mt-4">
         <p className="text-sm font-bold text-slate-800 dark:text-slate-100">Total: ${booking.final_cost || booking.estimated_cost || 0}</p>
         <div className="flex gap-2">
@@ -289,7 +299,7 @@ const BookingCard: React.FC<{ booking: Booking, setPaymentBooking: (b: Booking) 
               )}
             </>
           )}
-          {(status === 'CONFIRMED' || status === 'IN_PROGRESS') && (
+          {(status === 'CONFIRMED' || status === 'IN_PROGRESS' || status === 'EN_ROUTE') && (
             <button className="text-sm font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 px-4 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors flex items-center gap-2">
               <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
               Call Expert

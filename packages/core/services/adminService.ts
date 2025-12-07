@@ -1,53 +1,10 @@
 import { supabase } from './supabase';
+import { AdminRole, AdminUser, ServiceAvailability, ActiveSession, AdminAuditLog } from '../types';
 
-export type AdminRole = 'super_admin' | 'ops_admin' | 'read_only';
+// Removed local AdminUser/AdminRole/ServiceAvailability definitions to use shared types
 
-export interface AdminUser {
-    id: string;
-    email: string;
-    google_id?: string;
-    role: AdminRole;
-    full_name?: string;
-    avatar_url?: string;
-    created_at: string;
-    updated_at: string;
-}
 
-export interface ServiceAvailability {
-    id: string;
-    service_category_id: string;
-    location_type: 'city' | 'area' | 'pincode';
-    location_value: string;
-    status: 'ENABLED' | 'DISABLED';
-    reason?: string;
-    disabled_by?: string;
-    disabled_at?: string;
-    created_at: string;
-    updated_at: string;
-}
 
-export interface ActiveSession {
-    id: string;
-    user_id: string;
-    user_type: 'customer' | 'provider';
-    session_state?: string;
-    city?: string;
-    current_booking_id?: string;
-    last_activity: string;
-    metadata?: Record<string, any>;
-    created_at: string;
-}
-
-export interface AdminAuditLog {
-    id: string;
-    admin_user_id: string;
-    action: string;
-    resource_type: string;
-    resource_id?: string;
-    changes?: Record<string, any>;
-    ip_address?: string;
-    created_at: string;
-}
 
 /**
  * Admin Service - Handles all admin panel operations

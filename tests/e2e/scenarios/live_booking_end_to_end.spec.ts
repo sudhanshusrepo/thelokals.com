@@ -10,31 +10,29 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseAdminKey, {
     }
 });
 
-test.describe('Live Booking E2E Flow', () => {
-    test('Complete booking flow: Provider setup → Client booking → Provider acceptance', async ({ browser }) => {
-        test.setTimeout(120000);
+test.describe('Unified Booking Lifecycle E2E', () => {
+    test.setTimeout(120000);
 
+    test('Full Lifecycle: Request -> Accept -> En Route -> In Progress -> Complete', async ({ browser }) => {
         // ============================================
-        // PHASE 1: Provider Setup (Admin API)
+        // SETUP: Create Provider & Client
         // ============================================
         const providerEmail = `provider_${Date.now()}@e2e.test`;
         const providerPassword = 'StrongPass123!';
+        const clientEmail = `client_${Date.now()}@e2e.test`;
+        const clientPassword = 'Password123!';
 
-        console.log(`[PHASE 1] Creating provider: ${providerEmail}`);
-
-        const { data: providerAuthData, error: providerCreateError } = await supabaseAdmin.auth.admin.createUser({
+        console.log(`[SETUP] Creating provider: ${providerEmail}`);
+        const { data: providerAuth } = await supabaseAdmin.auth.admin.createUser({
             email: providerEmail,
             password: providerPassword,
             email_confirm: true
         });
+        const providerId = providerAuth.user!.id;
 
-        if (providerCreateError) throw new Error(`Provider creation failed: ${providerCreateError.message}`);
-        const providerId = providerAuthData.user.id;
-
-        console.log(`[PHASE 1] Provider created with ID: ${providerId}`);
-
+        // Setup Provider Profile & Service
         await supabaseAdmin.from('profiles').update({
-            full_name: 'E2E Test Provider',
+            full_name: 'E2E Provider',
             registration_status: 'verified',
         }).eq('id', providerId);
 
@@ -43,145 +41,159 @@ test.describe('Live Booking E2E Flow', () => {
             service_radius: 5000,
             is_verified: true,
             is_active: true,
-            location: 'POINT(-74.0060 40.7128)',
-            availability_status: 'online',
+            location: 'POINT(-74.0060 40.7128)', // NYC
             services: ['PLUMBER', 'plumber']
         });
 
-        console.log(`[PHASE 1] Provider setup complete`);
-
-        // ============================================
-        // PHASE 2: Provider Login (UI)
-        // ============================================
-        const providerContext = await browser.newContext();
-        const providerPage = await providerContext.newPage();
-
-        console.log(`[PHASE 2] Logging in provider via UI`);
-
-        await providerPage.goto('http://localhost:5173');
-        await providerPage.getByRole('button', { name: 'Get Started' }).click();
-        await providerPage.waitForTimeout(1000);
-
-        const modal = providerPage.locator('.fixed.inset-0');
-        const signInTab = modal.getByRole('button', { name: 'Sign In' }).first();
-        if (await signInTab.isVisible()) {
-            await signInTab.click();
-            await providerPage.waitForTimeout(500);
-        }
-
-        await modal.getByPlaceholder('you@example.com').fill(providerEmail);
-        await modal.getByPlaceholder('••••••••').fill(providerPassword);
-        await modal.getByRole('button', { name: /sign in/i }).last().click();
-
-        await expect(providerPage.getByText('Dashboard')).toBeVisible({ timeout: 15000 });
-        console.log(`[PHASE 2] Provider logged in successfully`);
-
-        // ============================================
-        // PHASE 3: Client Setup & Booking
-        // ============================================
-        const clientEmail = `client_${Date.now()}@e2e.test`;
-        const clientPassword = 'Password123!';
-
-        console.log(`[PHASE 3] Creating client: ${clientEmail}`);
-
-        const { data: clientAuthData, error: clientCreateError } = await supabaseAdmin.auth.admin.createUser({
+        console.log(`[SETUP] Creating client: ${clientEmail}`);
+        const { data: clientAuth } = await supabaseAdmin.auth.admin.createUser({
             email: clientEmail,
             password: clientPassword,
             email_confirm: true
         });
+        const clientId = clientAuth.user!.id;
 
-        if (clientCreateError) throw new Error(`Client creation failed: ${clientCreateError.message}`);
-        console.log(`[PHASE 3] Client created`);
+        // ============================================
+        // PHASE 1: Provider Login
+        // ============================================
+        const providerContext = await browser.newContext();
+        const providerPage = await providerContext.newPage();
+        await providerPage.goto('http://localhost:5173');
 
+        // Login Flow
+        await providerPage.getByRole('button', { name: 'Get Started' }).click();
+        const modal = providerPage.locator('.fixed.inset-0');
+        await modal.getByRole('button', { name: 'Sign In' }).first().click();
+        await modal.getByPlaceholder('you@example.com').fill(providerEmail);
+        await modal.getByPlaceholder('••••••••').fill(providerPassword);
+        await modal.getByRole('button', { name: /sign in/i }).last().click();
+        await expect(providerPage.getByText('Dashboard')).toBeVisible({ timeout: 15000 });
+
+        // Navigate to Requests Page specifically
+        await providerPage.goto('http://localhost:5173/bookings');
+        console.log('[PHASE 1] Provider logged in and on Requests page');
+
+        // ============================================
+        // PHASE 2: Client Booking (AI Flow)
+        // ============================================
         const clientContext = await browser.newContext();
         const clientPage = await clientContext.newPage();
         await clientPage.goto('http://localhost:3000');
 
-        console.log(`[PHASE 3] Setting client auth session directly`);
+        // Login Helper
+        const logInClient = async () => {
+            const { data } = await supabaseAdmin.auth.signInWithPassword({ email: clientEmail, password: clientPassword });
+            await clientPage.evaluate((session) => {
+                localStorage.setItem('sb-' + window.location.host.split('.')[0] + '-auth-token', JSON.stringify(session));
+            }, data.session);
+            await clientPage.reload();
+        };
+        await logInClient();
 
-        const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.signInWithPassword({
-            email: clientEmail,
-            password: clientPassword
-        });
-
-        if (sessionError || !sessionData.session) {
-            throw new Error(`Failed to create client session: ${sessionError?.message}`);
-        }
-
-        await clientPage.evaluate((session) => {
-            localStorage.setItem('sb-' + window.location.host.split('.')[0] + '-auth-token', JSON.stringify(session));
-        }, sessionData.session);
-
-        await clientPage.reload();
-        await clientPage.waitForLoadState('networkidle');
-
-        console.log(`[PHASE 3] Client authenticated, starting booking flow`);
-
-        // Navigate to Plumber service (Home Care -> Plumber)
+        // Create Booking
         await clientPage.getByText('Home Care & Repair').click();
-        await clientPage.waitForLoadState('networkidle');
-
         await clientPage.getByText('Plumber').click();
-
-        // Use the chat input (SmartServiceInput component)
         const chatInput = clientPage.locator('textarea[data-testid="chat-input-textarea"]');
-
-        // Wait for page to fully load the new route
-        await expect(clientPage.getByRole('heading', { name: 'Plumber Services' })).toBeVisible({ timeout: 15000 });
-
-        // Wait for input to be attached before any action
-        await chatInput.waitFor({ state: 'attached', timeout: 10000 });
-
-        // Ensure we scroll to it if needed (sticky input might initially be at bottom)
-        await chatInput.scrollIntoViewIfNeeded();
-        await chatInput.waitFor({ state: 'visible', timeout: 5000 });
-
-        // Fill and send
-        await chatInput.fill('Leaky faucet needs urgent repair', { force: true });
+        await expect(chatInput).toBeVisible({ timeout: 10000 });
+        await chatInput.fill('Fix leaking faucet urgency high');
         await chatInput.press('Enter');
 
-        console.log('[PHASE 3] Chat input sent, waiting for AI analysis...');
+        // Check for AI Response & Checklist
+        await expect(clientPage.locator('[data-testid="ai-checklist-section"]')).toBeVisible({ timeout: 30000 });
+        await clientPage.locator('button[data-testid="book-now-button"]').click();
 
-        // Wait for Checklist Section to appear (means analysis is done)
-        const checklistSection = clientPage.locator('[data-testid="ai-checklist-section"]');
-        await checklistSection.waitFor({ state: 'visible', timeout: 30000 }); // Longer timeout for AI chain
-
-        console.log('[PHASE 3] Analysis complete, checklist visible.');
-
-        // Optional: Toggle a checklist item to test dynamic price?
-        // Let's just proceed to book for now to keep E2E simple.
-
-        // Click Book Now
-        const bookNowButton = clientPage.locator('button[data-testid="book-now-button"]');
-        await bookNowButton.waitFor({ state: 'visible', timeout: 5000 });
-        await bookNowButton.click();
-
-        // Wait for Search Screen
-        await expect(clientPage.getByText('Searching for nearby professionals')).toBeVisible({ timeout: 15000 });
-        console.log(`[PHASE 3] Booking submitted, searching for providers`);
+        // Wait for "Booking Request Sent" or "Searching for available providers"
+        await expect(clientPage.getByText(/Searching for available providers/i)).toBeVisible({ timeout: 20000 });
+        const bookingIdText = await clientPage.getByTestId('booking-id').textContent();
+        console.log(`[PHASE 2] Booking Created. ID: ${bookingIdText}`);
 
         // ============================================
-        // PHASE 4: Provider Accepts Booking
+        // PHASE 3: Provider Acceptance
         // ============================================
-        console.log(`[PHASE 4] Switching to provider to accept booking`);
-
         await providerPage.bringToFront();
-        await providerPage.goto('http://localhost:5173/bookings');
+        // Allow time for realtime event
+        await expect(providerPage.getByText('Plumber')).toBeVisible({ timeout: 20000 }); // Service name
+        await expect(providerPage.getByText('PENDING')).toBeVisible();
 
-        await expect(providerPage.getByText('Leaky faucet')).toBeVisible({ timeout: 20000 });
-        console.log(`[PHASE 4] Booking request visible to provider`);
+        // Click "View & Accept"
+        await providerPage.getByRole('button', { name: 'View & Accept' }).click();
 
-        await providerPage.click('button:has-text("Accept")');
-        console.log(`[PHASE 4] Provider accepted the booking`);
+        // Modal Action
+        await providerPage.getByRole('button', { name: 'Accept Job' }).click();
+        await expect(providerPage.getByText('Booking Accepted!')).toBeVisible();
+        console.log('[PHASE 3] Provider accepted booking');
 
         // ============================================
-        // PHASE 5: Verify Success
+        // PHASE 4: Client Verification (Confirmed)
         // ============================================
-        console.log(`[PHASE 5] Verifying booking success on client side`);
+        await clientPage.bringToFront();
+        // Client should see "Provider confirmed"
+        await expect(clientPage.getByText(/Provider confirmed/i)).toBeVisible({ timeout: 10000 });
+        console.log('[PHASE 4] Client sees CONFIRMED status');
+
+        // ============================================
+        // PHASE 5: Provider "On My Way" (EN_ROUTE)
+        // ============================================
+        await providerPage.bringToFront();
+        // Navigate to details if not auto-redirected (BookingRequestsPage logic might just refresh list)
+        // Since we accepted, it should be in "ACCEPTED" tab or we navigate to details.
+        // Let's assume we need to click "Go to Job" or similar if still on requests page.
+        // Or if we implemented auto-nav:
+
+        // Based on my implementation: "navigate(`/booking/${requestId}`);" happens on Accept, but wait, 
+        // in my last edit to BookingRequestsPage.tsx I commented out navigate!
+        // " // navigate(`/booking/${request.booking_id}`); // Navigate to details"
+        // And refreshed list. So requests list should show "ACCEPTED" status and "Go to Job".
+
+        await providerPage.getByRole('button', { name: 'Accepted' }).click(); // Filter tab
+        await providerPage.getByRole('button', { name: 'Go to Job' }).click();
+
+        // Now on BookingDetailsPage
+        await expect(providerPage.getByText("I'm on my way")).toBeVisible();
+        await providerPage.getByRole('button', { name: "I'm on my way" }).click();
+        await expect(providerPage.getByText('Start Job')).toBeVisible(); // Next state button
+        console.log('[PHASE 5] Provider marked EN_ROUTE');
+
+        // ============================================
+        // PHASE 6: Client Verification (En Route)
+        // ============================================
+        await clientPage.bringToFront();
+        await expect(clientPage.getByText(/Provider is On The Way/i)).toBeVisible({ timeout: 10000 });
+        console.log('[PHASE 6] Client sees EN_ROUTE status');
+
+        // ============================================
+        // PHASE 7: Start Job (IN_PROGRESS)
+        // ============================================
+        await providerPage.bringToFront();
+        await providerPage.getByRole('button', { name: 'Start Job' }).click();
+        await expect(providerPage.getByText('Mark as Completed')).toBeVisible();
+        console.log('[PHASE 7] Provider started job');
 
         await clientPage.bringToFront();
-        await expect(clientPage.getByText('Provider Found')).toBeVisible({ timeout: 15000 });
+        await expect(clientPage.getByText(/Job is in progress/i)).toBeVisible();
 
-        console.log(`[PHASE 5] ✅ END-TO-END TEST PASSED!`);
+        // ============================================
+        // PHASE 8: Complete Job (COMPLETED)
+        // ============================================
+        await providerPage.bringToFront();
+        // Must complete checklist first?
+        // "disabled={progressPercentage < 100}"
+
+        // Check all checkboxes
+        const checkboxes = await providerPage.locator('input[type="checkbox"]').all();
+        for (const box of checkboxes) {
+            await box.check();
+        }
+
+        await providerPage.getByRole('button', { name: 'Mark as Completed' }).click();
+        await expect(providerPage.getByText('Job Completed Successfully')).toBeVisible();
+        console.log('[PHASE 8] Job completed');
+
+        // ============================================
+        // PHASE 9: Final Client Verification
+        // ============================================
+        await clientPage.bringToFront();
+        await expect(clientPage.getByText(/Job completed successfully/i)).toBeVisible();
+        console.log('[PHASE 9] Client sees COMPLETED status. Full cycle success!');
     });
 });
