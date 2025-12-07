@@ -9,8 +9,7 @@
     "extends": [
         "eslint:recommended",
         "plugin:@typescript-eslint/recommended",
-        "plugin:react/recommended",
-        "plugin:react-hooks/recommended"
+        "plugin:react/recommended"
     ],
     "settings": {
         "react": {
@@ -31,7 +30,9 @@
                 "argsIgnorePattern": "^_"
             }
         ],
-        "react/prop-types": "off"
+        "react/prop-types": "off",
+        "react-hooks/exhaustive-deps": "warn",
+        "react-hooks/rules-of-hooks": "error"
     },
     "ignorePatterns": [
         "dist",
