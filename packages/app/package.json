@@ -1,12 +1,17 @@
 {
-  "name": "app",
+  "name": "thelokals-mobile",
   "main": "expo-router/entry",
   "version": "1.0.0",
+  "description": "thelokals - Discover and book local services",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "build:android": "eas build --platform android",
+    "build:ios": "eas build --platform ios",
+    "submit:android": "eas submit --platform android",
+    "submit:ios": "eas submit --platform ios"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",

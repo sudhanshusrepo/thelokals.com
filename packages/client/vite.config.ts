@@ -55,6 +55,10 @@ export default defineConfig(({ mode }) => {
           theme_color: '#0d9488',
           background_color: '#ffffff',
           display: 'standalone',
+          start_url: '/',
+          scope: '/',
+          orientation: 'portrait',
+          categories: ['lifestyle', 'utilities'],
           icons: [
             {
               src: '/web-app-manifest-192x192.png',
@@ -67,6 +71,22 @@ export default defineConfig(({ mode }) => {
               sizes: '512x512',
               type: 'image/png',
               purpose: 'any maskable'
+            }
+          ],
+          shortcuts: [
+            {
+              name: 'Book Service',
+              short_name: 'Book',
+              description: 'Book a local service',
+              url: '/services',
+              icons: [{ src: '/web-app-manifest-192x192.png', sizes: '192x192' }]
+            },
+            {
+              name: 'My Bookings',
+              short_name: 'Bookings',
+              description: 'View your bookings',
+              url: '/bookings',
+              icons: [{ src: '/web-app-manifest-192x192.png', sizes: '192x192' }]
             }
           ]
         }
