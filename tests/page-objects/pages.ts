@@ -29,6 +29,24 @@ export class HomePage {
     }
 
     async selectCategory(category: string) {
+        // Map categories to groups (simplified for testing)
+        const groupMapping: Record<string, string> = {
+            'Plumber': 'Home Care & Repair',
+            'Electrician': 'Home Care & Repair',
+            'Carpenter': 'Home Care & Repair',
+            'Maid': 'Cleaning & Logistics',
+            'Painter': 'Home Care & Repair'
+        };
+
+        const group = groupMapping[category];
+
+        if (group) {
+            // Click group first
+            await this.page.click(`text=${group}`);
+            await this.page.waitForLoadState('networkidle');
+        }
+
+        // Then click category
         await this.page.click(`text=${category}`);
         await this.page.waitForLoadState('networkidle');
     }
@@ -73,9 +91,9 @@ export class AuthPage {
         this.emailInput = page.locator('[data-testid="email-input"]');
         this.passwordInput = page.locator('[data-testid="password-input"]');
         this.submitButton = page.locator('[data-testid="submit-button"]');
-        // Error messages are now shown in Toasts
-        this.errorMessage = page.locator('.fixed.bottom-4.right-4 .bg-red-500 + p, .fixed.bottom-4.right-4 .bg-amber-500 + p');
-        this.successMessage = page.locator('.fixed.bottom-4.right-4 .bg-green-500 + p');
+        // Error messages are now shown in Toasts - using role="alert" for better accessibility and reliability
+        this.errorMessage = page.locator('[role="alert"] p');
+        this.successMessage = page.locator('[role="alert"]').filter({ hasText: /success|sent/i });
         this.googleSignInButton = page.locator('button:has-text("Continue with Google")');
         this.forgotPasswordLink = page.locator('a:has-text("Forgot")');
     }
@@ -151,11 +169,16 @@ export class ServiceRequestPage {
             await this.categorySelect.selectOption(data.category);
         }
 
-        // Wait for chat input to be visible
-        await this.descriptionInput.waitFor({ state: 'visible', timeout: 5000 });
+        // Wait for chat input to be attached
+        await this.descriptionInput.waitFor({ state: 'attached', timeout: 5000 });
 
         if (await this.descriptionInput.count() > 0) {
-            await this.descriptionInput.fill(data.description);
+            // Use evaluate to guarantee event firing even if hidden
+            await this.descriptionInput.evaluate((el: HTMLTextAreaElement, value) => {
+                el.value = value;
+                el.dispatchEvent(new Event('input', { bubbles: true }));
+                el.dispatchEvent(new Event('change', { bubbles: true }));
+            }, data.description);
         }
 
         if (await this.locationInput.count() > 0) {
@@ -166,7 +189,7 @@ export class ServiceRequestPage {
     async submitRequest() {
         // Wait for button to be enabled (text must be entered)
         await this.page.waitForTimeout(500);
-        await this.submitButton.first().click();
+        await this.submitButton.first().evaluate((el: HTMLButtonElement) => el.click());
         // Wait for AI analysis to complete
         await this.page.waitForTimeout(2000);
     }

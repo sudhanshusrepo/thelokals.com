@@ -22,15 +22,20 @@ export interface AIAnalysisResult {
  */
 export const estimateService = async (input: string, category: string): Promise<AIAnalysisResult> => {
   try {
-    const { data, error } = await supabase.functions.invoke('estimate-service', {
+    // Create a timeout promise (5 seconds)
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Function invocation timeout')), 5000)
+    );
+
+    const invokePromise = supabase.functions.invoke('estimate-service', {
       body: {
         action: 'estimateService',
-        payload: {
-          input,
-          category
-        }
+        payload: { input, category }
       }
     });
+
+    // Race the invocation against the timeout
+    const { data, error } = await Promise.race([invokePromise, timeoutPromise]) as any;
 
     if (error) throw error;
     return data as AIAnalysisResult;
