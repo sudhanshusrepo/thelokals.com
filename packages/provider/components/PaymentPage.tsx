@@ -155,8 +155,8 @@ const PaymentPage: React.FC = () => {
                         key={status}
                         onClick={() => setFilter(status)}
                         className={`px-4 py-2 rounded-lg font-semibold whitespace-nowrap transition-all ${filter === status
-                                ? 'bg-teal-600 text-white shadow-md'
-                                : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
+                            ? 'bg-teal-600 text-white shadow-md'
+                            : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
                             }`}
                     >
                         {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -236,4 +236,5 @@ const PaymentPage: React.FC = () => {
     );
 };
 
+export { PaymentPage };
 export default PaymentPage;

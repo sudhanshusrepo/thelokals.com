@@ -128,7 +128,7 @@ const BookingDetailsPage: React.FC = () => {
                             {/* Address placeholder as structured address might be empty in initial AI booking */}
                             <p className="text-slate-900 text-sm">Location provided via map</p>
                             <a
-                                href={`https://www.google.com/maps/search/?api=1&query=${booking.location?.coordinates[1]},${booking.location?.coordinates[0]}`}
+                                href={`https://www.google.com/maps/search/?api=1&query=${(booking.location as any)?.coordinates?.[1]},${(booking.location as any)?.coordinates?.[0]}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-teal-600 text-sm hover:underline font-semibold"
@@ -237,4 +237,5 @@ const BookingDetailsPage: React.FC = () => {
     );
 };
 
+export { BookingDetailsPage };
 export default BookingDetailsPage;

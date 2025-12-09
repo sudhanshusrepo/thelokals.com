@@ -1,5 +1,5 @@
 import { ProviderProfile } from '../types';
-import { supabase } from '@core/services/supabase';
+import { supabase } from '@thelocals/core';
 
 const STORAGE_KEY = 'thelocals_provider_draft';
 
@@ -113,6 +113,11 @@ export const backend = {
         throw new Error(error.message);
       }
     }
+  },
+
+  availability: {
+    getSchedule: async (): Promise<any> => { return {}; },
+    updateSchedule: async (schedule: any): Promise<void> => { console.log('Update schedule', schedule); }
   },
 
   storage: {

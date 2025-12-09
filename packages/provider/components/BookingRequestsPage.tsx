@@ -253,4 +253,5 @@ const BookingRequestsPage: React.FC = () => {
     );
 };
 
+export { BookingRequestsPage };
 export default BookingRequestsPage;

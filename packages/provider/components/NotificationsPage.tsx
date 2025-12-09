@@ -159,8 +159,8 @@ const NotificationsPage: React.FC = () => {
                         key={key}
                         onClick={() => setFilter(key as any)}
                         className={`px-4 py-2 rounded-lg font-semibold whitespace-nowrap transition-all ${filter === key
-                                ? 'bg-teal-600 text-white shadow-md'
-                                : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
+                            ? 'bg-teal-600 text-white shadow-md'
+                            : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
                             }`}
                     >
                         {label}
@@ -279,4 +279,5 @@ const NotificationsPage: React.FC = () => {
     );
 };
 
+export { NotificationsPage };
 export default NotificationsPage;

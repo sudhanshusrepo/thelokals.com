@@ -209,7 +209,7 @@ export const SmartServiceInput: React.FC<SmartServiceInputProps> = ({
                         }}
                         placeholder={placeholder}
                         disabled={isLoading}
-                        data-testid="chat-input-textarea"
+                        data-testid="smart-service-input-textarea"
                         rows={1}
                         className="w-full bg-transparent text-slate-900 dark:text-white placeholder-slate-400 resize-none focus:outline-none py-2.5 max-h-32 min-h-[44px]"
                     />

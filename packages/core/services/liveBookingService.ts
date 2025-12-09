@@ -17,8 +17,8 @@ export const liveBookingService = {
    */
   async findNearbyProviders(booking: LiveBooking): Promise<NearbyProviderResponse[]> {
     const { data, error } = await supabase.rpc('find_nearby_providers', {
-      lat: booking.requirements.location.lat,
-      lng: booking.requirements.location.lng,
+      lat: (booking.requirements as any)?.location?.lat,
+      lng: (booking.requirements as any)?.location?.lng,
       service_id: booking.serviceId,
       max_distance: GEOGRAPHY_PROXIMITY_THRESHOLD
     });
@@ -36,6 +36,7 @@ export const liveBookingService = {
    * @returns {Promise<LiveBooking>} The created booking.
    */
   async createLiveBooking(bookingData: Partial<LiveBooking>): Promise<LiveBooking> {
+    const requirements = bookingData.requirements as any;
     const { data, error } = await supabase
       .from('bookings')
       .insert({
@@ -44,7 +45,7 @@ export const liveBookingService = {
         booking_type: 'LIVE',
         status: 'PENDING', // Initial status in DB
         requirements: bookingData.requirements,
-        location: `POINT(${bookingData.requirements?.location.lng} ${bookingData.requirements?.location.lat})`,
+        location: `POINT(${requirements?.location?.lng} ${requirements?.location?.lat})`,
       })
       .select()
       .single();

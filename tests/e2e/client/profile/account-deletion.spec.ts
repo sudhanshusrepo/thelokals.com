@@ -1,4 +1,4 @@
-import { test, expect } from '../../fixtures/test-fixtures';
+import { test, expect } from '../../../fixtures/test-fixtures';
 
 test.describe('Account Deletion - Play Store Compliance', () => {
     // authenticatedPage fixture automatically logs in a test user

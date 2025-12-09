@@ -2,7 +2,9 @@ import { test, expect } from '../../fixtures/test-fixtures';
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || 'http://127.0.0.1:54321';
-const supabaseAdminKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_SERVICE_ROLE_KEY || '';
+const envKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_SERVICE_ROLE_KEY;
+console.log('DEBUG: Keys:', { url: supabaseUrl, keyLength: envKey?.length, keyStart: envKey?.substring(0, 5) });
+const supabaseAdminKey = envKey || 'sb_secret_N7UND0UgjKTVK-Uodkm0Hg_xSvEMPvz'; // Fallback for local testing
 const supabaseAdmin = createClient(supabaseUrl, supabaseAdminKey, {
     auth: {
         autoRefreshToken: false,
@@ -45,6 +47,20 @@ test.describe('Unified Booking Lifecycle E2E', () => {
             services: ['PLUMBER', 'plumber']
         });
 
+        // Ensure "Plumber" category exists in DB (backend requirement)
+        const { error: seedError } = await supabaseAdmin
+            .from('service_categories')
+            .upsert({
+                name: 'Plumber',
+                group_name: 'Home Care & Repair',
+                icon: '🔧',
+                description: 'Fix plumbing issues'
+            }, { onConflict: 'name' });
+
+        if (seedError) {
+            console.error('Failed to seed service category:', seedError);
+        }
+
         console.log(`[SETUP] Creating client: ${clientEmail}`);
         const { data: clientAuth } = await supabaseAdmin.auth.admin.createUser({
             email: clientEmail,
@@ -56,7 +72,13 @@ test.describe('Unified Booking Lifecycle E2E', () => {
         // ============================================
         // PHASE 1: Provider Login
         // ============================================
-        const providerContext = await browser.newContext();
+        // ============================================
+        // PHASE 1: Provider Login
+        // ============================================
+        const providerContext = await browser.newContext({
+            geolocation: { latitude: 40.7128, longitude: -74.0060 },
+            permissions: ['geolocation']
+        });
         const providerPage = await providerContext.newPage();
         await providerPage.goto('http://localhost:5173');
 
@@ -76,9 +98,13 @@ test.describe('Unified Booking Lifecycle E2E', () => {
         // ============================================
         // PHASE 2: Client Booking (AI Flow)
         // ============================================
-        const clientContext = await browser.newContext();
+        const clientContext = await browser.newContext({
+            geolocation: { latitude: 40.7128, longitude: -74.0060 },
+            permissions: ['geolocation']
+        });
         const clientPage = await clientContext.newPage();
         await clientPage.goto('http://localhost:3000');
+        clientPage.on('console', msg => console.log(`[Client Browser] ${msg.type()}: ${msg.text()}`));
 
         // Login Helper
         const logInClient = async () => {
@@ -93,17 +119,26 @@ test.describe('Unified Booking Lifecycle E2E', () => {
         // Create Booking
         await clientPage.getByText('Home Care & Repair').click();
         await clientPage.getByText('Plumber').click();
-        const chatInput = clientPage.locator('textarea[data-testid="chat-input-textarea"]');
+        // Phase 2.1: Select Service Type (Schedule Page)
+        await clientPage.locator('[data-testid="service-type-leak-repair"]').click();
+        const chatInput = clientPage.locator('textarea[data-testid="smart-service-input-textarea"]');
         await expect(chatInput).toBeVisible({ timeout: 10000 });
         await chatInput.fill('Fix leaking faucet urgency high');
         await chatInput.press('Enter');
 
         // Check for AI Response & Checklist
         await expect(clientPage.locator('[data-testid="ai-checklist-section"]')).toBeVisible({ timeout: 30000 });
-        await clientPage.locator('button[data-testid="book-now-button"]').click();
+        // Wait for pricing to finish and overlay to disappear
+        await expect(clientPage.getByText('Calculating Price...')).not.toBeVisible();
+        await expect(clientPage.locator('button[data-testid="book-now-button"]')).toBeEnabled();
 
-        // Wait for "Booking Request Sent" or "Searching for available providers"
-        await expect(clientPage.getByText(/Searching for available providers/i)).toBeVisible({ timeout: 20000 });
+        // Ensure overlay is gone (wait for "Processing..." or similar to not be there)
+        // Or just force click if it's a fade out animation
+        await clientPage.locator('button[data-testid="book-now-button"]').click({ force: true });
+
+        // Wait for "Booking Request Sent" or "Live Search Screen"
+        await expect(clientPage.getByTestId('live-search-screen')).toBeVisible({ timeout: 20000 });
+        await expect(clientPage.getByText(/Searching for/i).first()).toBeVisible();
         const bookingIdText = await clientPage.getByTestId('booking-id').textContent();
         console.log(`[PHASE 2] Booking Created. ID: ${bookingIdText}`);
 

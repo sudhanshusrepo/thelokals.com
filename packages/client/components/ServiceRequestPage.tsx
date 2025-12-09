@@ -215,6 +215,7 @@ export const ServiceRequestPage: React.FC = () => {
     };
 
     const handleBook = async () => {
+        console.log('DEBUG: handleBook called');
         if (!user) {
             setShowAuthModal(true);
             return;
@@ -231,6 +232,7 @@ export const ServiceRequestPage: React.FC = () => {
         if (!isOnlineService && !bookingLocation) {
             try {
                 bookingLocation = await getLocationPromise();
+                if (!bookingLocation) console.log('DEBUG: getLocationPromise returned null');
             } catch (error) {
                 console.error("Failed to get location:", error);
                 showToast("We need your location to find nearby providers.", "warning");
@@ -255,6 +257,7 @@ export const ServiceRequestPage: React.FC = () => {
         }
 
         setIsBooking(true);
+        console.log('DEBUG: setIsBooking(true) called (optimistic)');
         try {
             const finalChecklist = analysis.checklist.filter((_, idx) => checkedItems[idx]);
 
@@ -267,6 +270,7 @@ export const ServiceRequestPage: React.FC = () => {
                 scheduledDateStr = d.toISOString();
             }
 
+            console.log('DEBUG: calling createAIBooking');
             const { bookingId } = await bookingService.createAIBooking({
                 clientId: user.id,
                 serviceCategory: selectedCategory,
@@ -284,10 +288,12 @@ export const ServiceRequestPage: React.FC = () => {
                 address: {},
                 notes: `AI Analysis Reasoning: ${analysis.reasoning}${isOnlineService ? ' [ONLINE SERVICE]' : ''}`
             });
+            console.log('DEBUG: createAIBooking success, id:', bookingId);
             setCreatedBookingId(bookingId);
             showToast('Booking created! Searching for providers...', 'success');
         } catch (error: unknown) {
             console.error('Booking creation failed:', error);
+            console.log('DEBUG: Booking creation failed:', error);
             showToast('Failed to create booking. Please try again.', 'error');
             setIsBooking(false);
         }

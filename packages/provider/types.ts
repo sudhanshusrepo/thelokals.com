@@ -1,4 +1,4 @@
-import { WorkerCategory } from '@core/types';
+import { WorkerCategory } from '@thelocals/core';
 
 export { WorkerCategory };
 
