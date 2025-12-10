@@ -123,6 +123,7 @@ export default defineConfig(({ mode }) => {
         '@core': path.resolve(__dirname, '../core'),
         '@thelocals/core': path.resolve(__dirname, '../core'),
       }
-    }
+    },
+    envDir: path.resolve(__dirname, '../..'), // Load .env from monorepo root
   };
 });

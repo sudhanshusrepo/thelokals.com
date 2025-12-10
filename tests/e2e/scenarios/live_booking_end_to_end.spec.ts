@@ -136,6 +136,11 @@ test.describe('Unified Booking Lifecycle E2E', () => {
         // Or just force click if it's a fade out animation
         await clientPage.locator('button[data-testid="book-now-button"]').click({ force: true });
 
+        // Debug: capture page state
+        await clientPage.waitForTimeout(2000);
+        const pageContent = await clientPage.content();
+        console.log('[DEBUG] Page HTML after Book Now:', pageContent.substring(0, 500));
+
         // Wait for "Booking Request Sent" or "Live Search Screen"
         await expect(clientPage.getByTestId('live-search-screen')).toBeVisible({ timeout: 20000 });
         await expect(clientPage.getByText(/Searching for/i).first()).toBeVisible();
