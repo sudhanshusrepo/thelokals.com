@@ -1,10 +1,10 @@
 import { test, expect } from '../../fixtures/test-fixtures';
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.VITE_SUPABASE_URL || 'http://127.0.0.1:54321';
-const envKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_SERVICE_ROLE_KEY;
-console.log('DEBUG: Keys:', { url: supabaseUrl, keyLength: envKey?.length, keyStart: envKey?.substring(0, 5) });
-const supabaseAdminKey = envKey || 'sb_secret_N7UND0UgjKTVK-Uodkm0Hg_xSvEMPvz'; // Fallback for local testing
+// Force local Supabase for E2E tests
+const supabaseUrl = 'http://127.0.0.1:54321';
+const supabaseAdminKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU';
+console.log('DEBUG: Using local Supabase:', { url: supabaseUrl, keyStart: supabaseAdminKey.substring(0, 10) });
 const supabaseAdmin = createClient(supabaseUrl, supabaseAdminKey, {
     auth: {
         autoRefreshToken: false,
