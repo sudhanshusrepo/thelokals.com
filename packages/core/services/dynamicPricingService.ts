@@ -71,4 +71,22 @@ export const dynamicPricingService = {
             currency: 'INR'
         };
     }
+    /**
+     * Calculate fallback price when API fails or for offline estimation
+     */
+    calculateFallbackPrice(params: {
+        estimatedCost: number;
+        checklistItems: number; // Total items count
+        checkedItemsCount: number; // Selected items count
+    }): number {
+        // Base price is 50% of estimated cost
+        const basePrice = Math.round(params.estimatedCost * 0.5);
+
+        if (params.checklistItems === 0) return basePrice;
+
+        // Each item contributes to the remaining 50%
+        const itemValue = Math.round((params.estimatedCost * 0.5) / params.checklistItems);
+
+        return basePrice + (params.checkedItemsCount * itemValue);
+    }
 };

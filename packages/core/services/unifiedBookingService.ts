@@ -149,8 +149,35 @@ export const unifiedBookingService = {
      * Get city from coordinates (reverse geocoding)
      */
     async getCityFromCoordinates(location: { lat: number; lng: number }): Promise<string | null> {
-        // TODO: Implement reverse geocoding
-        // For now, return null to skip city check
-        return null;
+        try {
+            // Use OpenStreetMap Nominatim API for free reverse geocoding
+            // Note: Limit usage to 1 request per second as per OSM usage policy
+            const response = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${location.lat}&lon=${location.lng}&zoom=10&addressdetails=1`,
+                {
+                    headers: {
+                        'User-Agent': 'TheLokals/1.0 (internal@thelokals.com)'
+                    }
+                }
+            );
+
+            if (!response.ok) {
+                console.warn('Geocoding failed:', response.statusText);
+                return null;
+            }
+
+            const data = await response.json();
+
+            // Extract city from address object
+            // OSM returns city, town, village, or county depending on location
+            const address = data.address || {};
+            const city = address.city || address.town || address.village || address.suburb || address.county;
+
+            return city || null;
+        } catch (error) {
+            console.error('Reverse geocoding error:', error);
+            // Fail gracefully to allow booking flow to continue even if city check is skipped
+            return null;
+        }
     }
 };
