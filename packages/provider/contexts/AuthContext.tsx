@@ -4,12 +4,16 @@ import { supabase } from '@thelocals/core';
 
 interface ProviderProfile {
   id: string;
-  user_id: string;
   full_name: string;
-  registration_status: 'unregistered' | 'pending' | 'verified' | 'rejected';
-  digilocker_verified: boolean;
-  profile_photo_verified: boolean;
-  is_available: boolean;
+  phone: string | null;
+  email: string | null;
+  category: string;
+  is_verified: boolean;
+  is_active: boolean;
+  registration_completed: boolean;
+  phone_verified: boolean;
+  business_name: string | null;
+  description: string | null;
   created_at: string;
 }
 
@@ -45,7 +49,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const { data, error } = await supabase
         .from('providers')
         .select('*')
-        .eq('user_id', userId)
+        .eq('id', userId) // Changed from user_id to id
         .single();
 
       if (error) {

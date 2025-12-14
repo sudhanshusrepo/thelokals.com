@@ -199,6 +199,15 @@ export interface BookingRequest {
   status: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'EXPIRED';
 }
 
+export interface DbBookingRequest {
+  id: string;
+  booking_id: string;
+  provider_id: string;
+  status: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'EXPIRED';
+  created_at: string;
+  bookings: Booking; // Joined data
+}
+
 export interface NearbyProviderResponse {
   provider_id: string;
   provider_name: string;

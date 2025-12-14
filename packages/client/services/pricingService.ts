@@ -26,6 +26,21 @@ export interface DynamicPriceResponse {
 
 export const pricingService = {
     async getDynamicPrice(request: DynamicPriceRequest): Promise<DynamicPriceResponse> {
+        // Test Mode Bypass
+        const isTestMode = (typeof import.meta !== 'undefined' && import.meta.env && (import.meta.env.VITE_TEST_MODE === 'true' || import.meta.env.VITE_ENABLE_OTP_BYPASS === 'true'));
+
+        if (isTestMode) {
+            console.log('[Test Mode] Bypassing Pricing Edge Function');
+            return {
+                success: true,
+                price: 500,
+                breakdown: { base: 400, timingMultiplier: 1, locationMultiplier: 1, demandMultiplier: 1.1, aiAdjustment: 1.15 },
+                reasoning: "Test mode estimate",
+                currency: 'INR',
+                isFallback: false
+            };
+        }
+
         try {
             const { data, error } = await supabase.functions.invoke('calculate-dynamic-price', {
                 body: request,

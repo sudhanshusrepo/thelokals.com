@@ -163,11 +163,15 @@ CREATE TABLE public.providers (
   service_radius_km numeric DEFAULT 10,
   is_verified boolean DEFAULT false,
   is_active boolean DEFAULT true,
+  registration_completed boolean DEFAULT false,
+  phone_verified boolean DEFAULT false,
   rating_average numeric(3, 2) DEFAULT 0.0,
   total_jobs integer DEFAULT 0,
   total_earnings numeric(10, 2) DEFAULT 0,
   profile_image_url text,
   bio text,
+  business_name text,
+  description text,
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now()
 );

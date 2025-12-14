@@ -5,22 +5,13 @@ import { IncomingRequestModal } from './IncomingRequestModal';
 import { supabase, bookingService } from '@thelocals/core';
 import { useAuth } from '../contexts/AuthContext';
 import { toast } from 'react-hot-toast';
-import { Booking } from '@thelocals/core/types';
-
-interface BookingRequest {
-    id: string; // request id
-    booking_id: string;
-    provider_id: string;
-    status: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'EXPIRED';
-    created_at: string;
-    bookings: Booking; // Joined data
-}
+import { Booking, DbBookingRequest } from '@thelocals/core/types';
 
 const BookingRequestsPage: React.FC = () => {
     const navigate = useNavigate();
     const { user } = useAuth(); // Assuming useAuth returns { user: User | null }
-    const [requests, setRequests] = useState<BookingRequest[]>([]);
-    const [selectedRequest, setSelectedRequest] = useState<BookingRequest | null>(null);
+    const [requests, setRequests] = useState<DbBookingRequest[]>([]);
+    const [selectedRequest, setSelectedRequest] = useState<DbBookingRequest | null>(null);
     const [filter, setFilter] = useState<'pending' | 'accepted' | 'rejected'>('pending');
     const [loading, setLoading] = useState(true);
 
@@ -35,9 +26,10 @@ const BookingRequestsPage: React.FC = () => {
 
         if (error) {
             toast.error('Failed to fetch requests');
-            console.error(error);
         } else {
-            setRequests(data as any as BookingRequest[]);
+            // calculated move: supabase returns data as any[] or generic T[], 
+            // but we know the structure because of the select query.
+            setRequests(data as unknown as DbBookingRequest[]);
         }
         setLoading(false);
     };
@@ -77,20 +69,19 @@ const BookingRequestsPage: React.FC = () => {
         return true;
     });
 
-    const handleAccept = async (request: BookingRequest) => {
+    const handleAccept = async (request: DbBookingRequest) => {
         if (!user?.id) return;
         try {
             await bookingService.acceptBooking(request.booking_id, user.id);
             toast.success('Booking Accepted!');
             setSelectedRequest(null);
-            // navigate(`/booking/${request.booking_id}`); // Navigate to details
-            fetchRequests();
+            navigate(`/booking/${request.booking_id}`); // Navigate to details
         } catch (error) {
             toast.error('Failed to accept booking. It might be taken.');
         }
     };
 
-    const handleReject = async (request: BookingRequest) => {
+    const handleReject = async (request: DbBookingRequest) => {
         if (!user?.id) return;
         try {
             await bookingService.rejectBooking(request.booking_id, user.id);

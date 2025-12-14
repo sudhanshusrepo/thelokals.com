@@ -76,6 +76,12 @@ export const ServiceRequestPage: React.FC = () => {
         }
     }, [analysis, selectedCategory, location]);
 
+    // Debug: Track isBooking state changes
+    useEffect(() => {
+        console.log('[DEBUG] isBooking state changed to:', isBooking);
+        console.log('[DEBUG] createdBookingId:', createdBookingId);
+    }, [isBooking, createdBookingId]);
+
     const fetchDynamicPrice = async () => {
         if (!selectedCategory || !analysis) return;
 
@@ -254,7 +260,10 @@ export const ServiceRequestPage: React.FC = () => {
             return;
         }
 
+        console.log('[DEBUG] handleBook: Starting booking creation');
         setIsBooking(true);
+        console.log('[DEBUG] handleBook: isBooking set to true');
+
         try {
             const finalChecklist = analysis.checklist.filter((_, idx) => checkedItems[idx]);
 
@@ -284,10 +293,16 @@ export const ServiceRequestPage: React.FC = () => {
                 address: {},
                 notes: `AI Analysis Reasoning: ${analysis.reasoning}${isOnlineService ? ' [ONLINE SERVICE]' : ''}`
             });
+
+            console.log('[DEBUG] Booking created successfully:', bookingId);
             setCreatedBookingId(bookingId);
+            console.log('[DEBUG] createdBookingId set to:', bookingId);
+            console.log('[DEBUG] isBooking should still be true');
+
             showToast('Booking created! Searching for providers...', 'success');
+            // isBooking remains true, which will trigger LiveSearch render
         } catch (error: unknown) {
-            console.error('Booking creation failed:', error);
+            console.error('[DEBUG] Booking creation failed:', error);
             showToast('Failed to create booking. Please try again.', 'error');
             setIsBooking(false);
         }
@@ -308,6 +323,9 @@ export const ServiceRequestPage: React.FC = () => {
     };
 
     if (isBooking) {
+        console.log('[DEBUG] Rendering LiveSearch component');
+        console.log('[DEBUG] bookingId:', createdBookingId);
+        console.log('[DEBUG] isBooking:', isBooking);
         return <LiveSearch onCancel={handleCancelSearch} bookingId={createdBookingId || undefined} />;
     }
 

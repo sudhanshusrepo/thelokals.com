@@ -16,6 +16,7 @@ interface LiveSearchProps {
 }
 
 export const LiveSearch: React.FC<LiveSearchProps> = ({ onCancel, bookingId }) => {
+
     const [status, setStatus] = useState('Searching for nearby professionals...');
     const [progress, setProgress] = useState(0);
     const navigate = useNavigate();
@@ -55,7 +56,7 @@ export const LiveSearch: React.FC<LiveSearchProps> = ({ onCancel, bookingId }) =
                     }
                 }
             } catch (err) {
-                console.error('Search error:', err);
+                // Ensure silent fail or toast in real app
                 if (mounted) setStatus('Error searching for providers.');
             }
         };

@@ -3,6 +3,7 @@ import { ProviderProfile } from '../../types';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../contexts/AuthContext';
 import { initializeRecaptcha, cleanupRecaptcha } from '@thelocals/core/services/firebaseAuth';
+import { OTPService } from '@thelocals/core/services/otp';
 
 interface StepProps {
   data: ProviderProfile;
@@ -20,6 +21,8 @@ export const PhoneStep: React.FC<StepProps> = ({ data, updateData, onNext }) => 
   const [confirmationResult, setConfirmationResult] = useState<any>(null);
   const { signInWithPhone, verifyOtp } = useAuth();
 
+  const isTestMode = OTPService.getTestOTP() !== null;
+
   useEffect(() => {
     return () => {
       cleanupRecaptcha();
@@ -33,12 +36,24 @@ export const PhoneStep: React.FC<StepProps> = ({ data, updateData, onNext }) => 
     }
     setIsSending(true);
     try {
-      const recaptchaVerifier = initializeRecaptcha('recaptcha-container', 'invisible');
-      const result = await signInWithPhone(`+91${phone}`, recaptchaVerifier);
-      setConfirmationResult(result);
-      setOtpSent(true);
-      updateData({ phoneNumber: phone });
-      toast.success('OTP sent successfully!');
+      // Use OTP bypass in test mode
+      if (isTestMode) {
+        const result = await OTPService.sendOTP(`+91${phone}`);
+        if (result.success) {
+          setOtpSent(true);
+          updateData({ phoneNumber: phone });
+          toast.success(result.message || 'OTP sent successfully!');
+        } else {
+          toast.error(result.message || 'Failed to send OTP');
+        }
+      } else {
+        const recaptchaVerifier = initializeRecaptcha('recaptcha-container', 'invisible');
+        const result = await signInWithPhone(`+91${phone}`, recaptchaVerifier);
+        setConfirmationResult(result);
+        setOtpSent(true);
+        updateData({ phoneNumber: phone });
+        toast.success('OTP sent successfully!');
+      }
     } catch (err) {
       toast.error((err as Error).message);
     } finally {
@@ -53,10 +68,22 @@ export const PhoneStep: React.FC<StepProps> = ({ data, updateData, onNext }) => 
     }
     setIsVerifying(true);
     try {
-      await verifyOtp(confirmationResult, otp);
-      updateData({ isPhoneVerified: true });
-      toast.success('Phone number verified!');
-      onNext();
+      // Use OTP bypass in test mode
+      if (isTestMode) {
+        const isValid = await OTPService.verifyOTP(`+91${phone}`, otp);
+        if (isValid) {
+          updateData({ isPhoneVerified: true });
+          toast.success('Phone number verified!');
+          onNext();
+        } else {
+          toast.error('Invalid OTP. Please try again.');
+        }
+      } else {
+        await verifyOtp(confirmationResult, otp);
+        updateData({ isPhoneVerified: true });
+        toast.success('Phone number verified!');
+        onNext();
+      }
     } catch (err) {
       toast.error((err as Error).message);
     } finally {
@@ -69,6 +96,20 @@ export const PhoneStep: React.FC<StepProps> = ({ data, updateData, onNext }) => 
       <div className="flex-1">
         <h2 className="text-xl font-semibold text-slate-700">Verify your Phone Number</h2>
         <p className="text-slate-500 mt-2">We'll send you a one-time password (OTP) to your mobile number.</p>
+
+        {isTestMode && (
+          <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+            <div className="flex items-center gap-2">
+              <svg className="w-5 h-5 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+              </svg>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-amber-800">Test Mode Active</p>
+                <p className="text-xs text-amber-600 mt-0.5">Use OTP code: <span className="font-mono font-bold">123456</span></p>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="mt-6">
           <label htmlFor="phone" className="block text-sm font-medium text-slate-600">Phone Number</label>
@@ -105,7 +146,7 @@ export const PhoneStep: React.FC<StepProps> = ({ data, updateData, onNext }) => 
         )}
 
         {/* Recaptcha Container */}
-        <div id="recaptcha-container"></div>
+        {!isTestMode && <div id="recaptcha-container"></div>}
       </div>
 
       <div className="mt-8">

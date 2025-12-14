@@ -87,12 +87,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setCustomer(null);
   };
 
-  const signInWithPhone = async (phone: string, recaptchaVerifier: any) => {
+  const signInWithPhone = React.useCallback(async (phone: string, recaptchaVerifier: any) => {
     const { sendPhoneOTP } = await import('@thelocals/core/services/firebaseAuth');
     return sendPhoneOTP(phone, recaptchaVerifier);
-  };
+  }, []);
 
-  const verifyPhoneOTP = async (confirmationResult: any, code: string) => {
+  const verifyPhoneOTP = React.useCallback(async (confirmationResult: any, code: string) => {
     const { verifyPhoneOTP: verifyOTP } = await import('@thelocals/core/services/firebaseAuth');
     const { authenticateWithPhone } = await import('@thelocals/core/services/authBridge');
 
@@ -104,10 +104,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     setSession(newSession);
     setUser(newUser);
-  };
+  }, []);
+
+  const value = React.useMemo(() => ({
+    session,
+    user,
+    customer,
+    loading,
+    signOut,
+    signInWithPhone,
+    verifyPhoneOTP
+  }), [session, user, customer, loading, signOut, signInWithPhone, verifyPhoneOTP]);
 
   return (
-    <AuthContext.Provider value={{ session, user, customer, loading, signOut, signInWithPhone, verifyPhoneOTP }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

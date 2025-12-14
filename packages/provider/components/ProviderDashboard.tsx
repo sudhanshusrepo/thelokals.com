@@ -37,7 +37,7 @@ export const ProviderDashboard: React.FC = () => {
       setTotalEarnings(earnings);
 
     } catch (error) {
-      console.error("Error fetching provider data:", error);
+      // Silent fail or toast
     } finally {
       setLoading(false);
     }

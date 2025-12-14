@@ -68,9 +68,9 @@ const MainLayout: React.FC = () => {
   const [isRestoring, setIsRestoring] = useState(true);
 
   // Check registration status
-  const isRegistered = profile?.registration_status === 'verified';
-  const isUnregistered = !profile || profile.registration_status === 'unregistered';
-  const isPending = profile?.registration_status === 'pending';
+  const isRegistered = profile?.registration_completed === true;
+  const isUnregistered = !profile || profile.registration_completed === false;
+  const isPending = false; // No longer using pending status
 
   useEffect(() => {
     // Restore any draft data

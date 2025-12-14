@@ -32,20 +32,34 @@ test.describe('Unified Booking Lifecycle E2E', () => {
         });
         const providerId = providerAuth.user!.id;
 
-        // Setup Provider Profile & Service
-        await supabaseAdmin.from('profiles').update({
-            full_name: 'E2E Provider',
-            registration_status: 'verified',
-        }).eq('id', providerId);
-
-        await supabaseAdmin.from('providers').upsert({
+        // Setup Provider Profile & Service with CORRECT column names
+        await supabaseAdmin.from('profiles').upsert({
             id: providerId,
-            service_radius: 5000,
+            full_name: 'E2E Provider',
+            phone: '+919876543210',
+            email: providerEmail
+        });
+
+        const { data: providerData, error: providerError } = await supabaseAdmin.from('providers').upsert({
+            id: providerId,
+            full_name: 'E2E Provider',
+            phone: '+919876543210',
+            email: providerEmail,
+            category: 'Plumber', // Single category, not array
+            operating_location: 'POINT(-74.0060 40.7128)', // Correct column name
+            service_radius_km: 5, // Correct column name
             is_verified: true,
             is_active: true,
-            location: 'POINT(-74.0060 40.7128)', // NYC
-            services: ['PLUMBER', 'plumber']
-        });
+            registration_completed: true, // Mark as registered
+            phone_verified: true,
+            business_name: 'E2E Plumbing Services',
+            description: 'Test provider for E2E testing'
+        }).select();
+
+        if (providerError) {
+            throw new Error(`Provider creation failed: ${providerError.message}`);
+        }
+        console.log(`[SETUP] Provider created and verified:`, providerData);
 
         // Ensure "Plumber" category exists in DB (backend requirement)
         const { error: seedError } = await supabaseAdmin
@@ -135,15 +149,46 @@ test.describe('Unified Booking Lifecycle E2E', () => {
         // Ensure overlay is gone (wait for "Processing..." or similar to not be there)
         // Or just force click if it's a fade out animation
         await clientPage.locator('button[data-testid="book-now-button"]').click({ force: true });
+        console.log('[PHASE 2] Book Now button clicked');
 
-        // Debug: capture page state
-        await clientPage.waitForTimeout(2000);
-        const pageContent = await clientPage.content();
-        console.log('[DEBUG] Page HTML after Book Now:', pageContent.substring(0, 500));
+        // Wait a moment for state to update
+        await clientPage.waitForTimeout(1000);
 
-        // Wait for "Booking Request Sent" or "Live Search Screen"
-        await expect(clientPage.getByTestId('live-search-screen')).toBeVisible({ timeout: 20000 });
-        await expect(clientPage.getByText(/Searching for/i).first()).toBeVisible();
+        // Take screenshot for debugging
+        await clientPage.screenshot({ path: 'test-results/after-book-now-click.png', fullPage: true });
+        console.log('[DEBUG] Screenshot saved: after-book-now-click.png');
+
+        // Wait for LiveSearch screen with better error handling
+        try {
+            // First, wait for the element to exist in DOM
+            await clientPage.waitForSelector('[data-testid="live-search-screen"]', {
+                state: 'attached',
+                timeout: 30000
+            });
+            console.log('[DEBUG] live-search-screen element found in DOM');
+
+            // Then wait for it to be visible
+            await expect(clientPage.getByTestId('live-search-screen')).toBeVisible({ timeout: 10000 });
+            console.log('[DEBUG] live-search-screen is now visible');
+
+            // Verify the "Searching for" text is present
+            await expect(clientPage.getByText(/Searching for/i).first()).toBeVisible({ timeout: 5000 });
+            console.log('[PHASE 2] ✓ LiveSearch screen displayed successfully');
+        } catch (error) {
+            console.error('[ERROR] Failed to find LiveSearch screen');
+            console.error('Error details:', error);
+
+            // Capture page state for debugging
+            const pageContent = await clientPage.content();
+            console.log('[DEBUG] Page HTML (first 1000 chars):', pageContent.substring(0, 1000));
+
+            // Take another screenshot
+            await clientPage.screenshot({ path: 'test-results/livesearch-error.png', fullPage: true });
+            console.log('[DEBUG] Error screenshot saved: livesearch-error.png');
+
+            throw error;
+        }
+
         const bookingIdText = await clientPage.getByTestId('booking-id').textContent();
         console.log(`[PHASE 2] Booking Created. ID: ${bookingIdText}`);
 
@@ -175,21 +220,13 @@ test.describe('Unified Booking Lifecycle E2E', () => {
         // PHASE 5: Provider "On My Way" (EN_ROUTE)
         // ============================================
         await providerPage.bringToFront();
-        // Navigate to details if not auto-redirected (BookingRequestsPage logic might just refresh list)
-        // Since we accepted, it should be in "ACCEPTED" tab or we navigate to details.
-        // Let's assume we need to click "Go to Job" or similar if still on requests page.
-        // Or if we implemented auto-nav:
 
-        // Based on my implementation: "navigate(`/booking/${requestId}`);" happens on Accept, but wait, 
-        // in my last edit to BookingRequestsPage.tsx I commented out navigate!
-        // " // navigate(`/booking/${request.booking_id}`); // Navigate to details"
-        // And refreshed list. So requests list should show "ACCEPTED" status and "Go to Job".
+        // VERIFICATION: Check for Auto-Navigation
+        // The provider should now be on the BookingDetailsPage automatically.
+        // We verify this by looking for the "I'm on my way" button immediately.
+        await expect(providerPage.getByRole('button', { name: "I'm on my way" })).toBeVisible({ timeout: 10000 });
+        console.log('[PHASE 5] Auto-navigation verified. Provider is on details page.');
 
-        await providerPage.getByRole('button', { name: 'Accepted' }).click(); // Filter tab
-        await providerPage.getByRole('button', { name: 'Go to Job' }).click();
-
-        // Now on BookingDetailsPage
-        await expect(providerPage.getByText("I'm on my way")).toBeVisible();
         await providerPage.getByRole('button', { name: "I'm on my way" }).click();
         await expect(providerPage.getByText('Start Job')).toBeVisible(); // Next state button
         console.log('[PHASE 5] Provider marked EN_ROUTE');
