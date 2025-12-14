@@ -110,8 +110,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose, initialMode = 'si
                     <button
                         onClick={() => setActiveTab('signin')}
                         className={`flex-1 py-4 text-sm font-bold uppercase tracking-wider transition-colors relative ${activeTab === 'signin'
-                                ? 'text-orange-600 dark:text-orange-400 bg-orange-50/50 dark:bg-slate-800/50'
-                                : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50'
+                            ? 'text-orange-600 dark:text-orange-400 bg-orange-50/50 dark:bg-slate-800/50'
+                            : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50'
                             }`}
                     >
                         Sign In
@@ -122,8 +122,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose, initialMode = 'si
                     <button
                         onClick={() => setActiveTab('signup')}
                         className={`flex-1 py-4 text-sm font-bold uppercase tracking-wider transition-colors relative ${activeTab === 'signup'
-                                ? 'text-orange-600 dark:text-orange-400 bg-orange-50/50 dark:bg-slate-800/50'
-                                : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50'
+                            ? 'text-orange-600 dark:text-orange-400 bg-orange-50/50 dark:bg-slate-800/50'
+                            : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50'
                             }`}
                     >
                         Sign Up

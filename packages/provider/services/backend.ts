@@ -117,22 +117,7 @@ export const backend = {
 
   availability: {
     getSchedule: async (): Promise<any> => { return {}; },
-    updateSchedule: async (schedule: any): Promise<void> => {
-      const { data: { user } } = await supabase.auth.getUser();
-      const { error } = await supabase
-        .from('provider_availability')
-        .upsert(
-          schedule.map((slot: any) => ({
-            provider_id: user?.id,
-            day_of_week: slot.dayOfWeek,
-            start_time: slot.startTime,
-            end_time: slot.endTime,
-            is_available: slot.isAvailable
-          }))
-        );
-
-      if (error) throw error;
-    },
+    updateSchedule: async (schedule: any): Promise<void> => { console.log('Update schedule', schedule); }
   },
 
   storage: {
