@@ -180,4 +180,41 @@ export const unifiedBookingService = {
             return null;
         }
     }
+    ,
+
+    /**
+     * Geocode an address to coordinates (Forward Geocoding)
+     */
+    async geocodeAddress(address: string): Promise<{ lat: number; lng: number } | null> {
+        try {
+            const encodedAddress = encodeURIComponent(address);
+            const response = await fetch(
+                `https://nominatim.openstreetmap.org/search?q=${encodedAddress}&format=json&limit=1`,
+                {
+                    headers: {
+                        'User-Agent': 'TheLokals/1.0 (internal@thelokals.com)'
+                    }
+                }
+            );
+
+            if (!response.ok) {
+                console.warn('Forward geocoding failed:', response.statusText);
+                return null;
+            }
+
+            const data = await response.json();
+
+            if (data && data.length > 0) {
+                return {
+                    lat: parseFloat(data[0].lat),
+                    lng: parseFloat(data[0].lon)
+                };
+            }
+
+            return null;
+        } catch (error) {
+            console.error('Forward geocoding error:', error);
+            return null;
+        }
+    }
 };

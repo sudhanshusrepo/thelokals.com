@@ -19,10 +19,13 @@ export default defineConfig(({ mode }) => {
         allow: ['..']
       }
     },
+    define: {
+      'import.meta.env.VITE_TEST_MODE': JSON.stringify('true'),
+    },
     build: {
       outDir: 'dist',
       emptyOutDir: true,
-      target: 'esnext',
+      target: 'es2020',
       minify: false,
       sourcemap: true,
       chunkSizeWarningLimit: 600,

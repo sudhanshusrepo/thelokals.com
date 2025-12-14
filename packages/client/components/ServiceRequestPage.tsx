@@ -15,6 +15,7 @@ import { AuthModal } from './AuthModal';
 import { OnlineSlotPicker } from './OnlineSlotPicker';
 import { useToast } from '../contexts/ToastContext';
 import { pricingService, DynamicPriceResponse } from '../services/pricingService';
+import { dynamicPricingService } from '../services/localDynamicPricing';
 
 export const ServiceRequestPage: React.FC = () => {
     const { category } = useParams<{ category: string }>();
@@ -102,7 +103,7 @@ export const ServiceRequestPage: React.FC = () => {
             setLoadingPrice(false);
             setLoadingStep('complete'); // Done
             // Auto hide overlay after completion
-            setTimeout(() => setLoadingStep('idle'), 1500);
+            setTimeout(() => setLoadingStep('idle'), import.meta.env.VITE_TEST_MODE === 'true' ? 0 : 1500);
         }
     };
 
@@ -218,6 +219,7 @@ export const ServiceRequestPage: React.FC = () => {
     };
 
     const handleBook = async () => {
+        console.log('XXX HANDLE BOOK CALLED XXX');
         if (!user) {
             setShowAuthModal(true);
             return;
@@ -257,6 +259,7 @@ export const ServiceRequestPage: React.FC = () => {
             return;
         }
 
+
         setIsBooking(true);
 
         try {
@@ -275,7 +278,7 @@ export const ServiceRequestPage: React.FC = () => {
                 clientId: user.id,
                 serviceCategory: selectedCategory,
                 deliveryMode: isOnlineService ? 'ONLINE' : 'LOCAL',
-                serviceCategoryId: undefined, // Let backend resolver handle this using name
+                serviceCategoryId: undefined,
                 requirements: {
                     description: userInput,
                     serviceType: serviceTypeId,

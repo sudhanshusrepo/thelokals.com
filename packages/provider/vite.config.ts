@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: 'dist',
       emptyOutDir: true,
-      target: 'esnext',
+      target: 'es2020',
       sourcemap: true,
       chunkSizeWarningLimit: 600,
       rollupOptions: {

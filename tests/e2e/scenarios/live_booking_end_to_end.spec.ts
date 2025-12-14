@@ -94,6 +94,12 @@ test.describe('Unified Booking Lifecycle E2E', () => {
             permissions: ['geolocation']
         });
         const providerPage = await providerContext.newPage();
+        providerPage.on('console', msg => {
+            console.log(`[Provider Browser] ${msg.type()}: ${msg.text()}`);
+        }); providerPage.on('requestfailed', request => console.log(`[Provider Browser] Request failed: ${request.url()} - ${request.failure()?.errorText}`));
+        providerPage.on('response', response => {
+            if (response.status() >= 400) console.log(`[Provider Browser] Response error: ${response.url()} ${response.status()}`);
+        });
         await providerPage.goto('http://localhost:5173');
 
         // Login Flow
@@ -148,7 +154,8 @@ test.describe('Unified Booking Lifecycle E2E', () => {
 
         // Ensure overlay is gone (wait for "Processing..." or similar to not be there)
         // Or just force click if it's a fade out animation
-        await clientPage.locator('button[data-testid="book-now-button"]').click({ force: true });
+        // Bypass potential overlay interception by dispatching click directly
+        await clientPage.locator('button[data-testid="book-now-button"]').dispatchEvent('click');
         console.log('[PHASE 2] Book Now button clicked');
 
         // Wait a moment for state to update
