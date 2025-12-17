@@ -1,5 +1,6 @@
 import React, { ReactNode } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
 
 interface LayoutProps {
@@ -8,7 +9,7 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
     const { adminUser, signOut } = useAuth();
-    const location = useLocation();
+    const pathname = usePathname();
 
     const navigation = [
         { name: 'Dashboard', path: '/', icon: '📊' },
@@ -40,10 +41,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                         {filteredNav.map(item => (
                             <Link
                                 key={item.path}
-                                to={item.path}
-                                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${location.pathname === item.path
-                                        ? 'bg-indigo-600 text-white'
-                                        : 'text-gray-300 hover:bg-gray-800'
+                                href={item.path}
+                                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${pathname === item.path
+                                    ? 'bg-indigo-600 text-white'
+                                    : 'text-gray-300 hover:bg-gray-800'
                                     }`}
                             >
                                 <span className="text-xl">{item.icon}</span>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 
 interface Location {
     id: string;
@@ -131,7 +131,7 @@ export default function EmergencyControls() {
             <header className="bg-slate-800/50 backdrop-blur-xl border-b border-red-900/50">
                 <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <Link to="/" className="w-10 h-10 bg-slate-700 rounded-lg flex items-center justify-center text-white hover:bg-slate-600 transition">
+                        <Link href="/" className="text-purple-400 font-semibold border-b-2 border-purple-400 pb-3 h-10 w-10 bg-slate-700 rounded-lg flex items-center justify-center text-white hover:bg-slate-600 transition">
                             ←
                         </Link>
                         <div>
@@ -213,8 +213,8 @@ export default function EmergencyControls() {
                                 onClick={handleTriggerEmergency}
                                 disabled={!selectedLocation || !reason || processing}
                                 className={`w-full py-3 rounded-xl font-bold transition flex items-center justify-center gap-2 ${!selectedLocation || !reason || processing
-                                        ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
-                                        : 'bg-red-600 hover:bg-red-500 text-white shadow-lg shadow-red-900/20'
+                                    ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                                    : 'bg-red-600 hover:bg-red-500 text-white shadow-lg shadow-red-900/20'
                                     }`}
                             >
                                 {processing ? 'Processing...' : '⚠️ Trigger Emergency Shutdown'}

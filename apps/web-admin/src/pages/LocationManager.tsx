@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 
 interface LocationConfig {
     id: string;
@@ -94,7 +94,7 @@ export default function LocationManager() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex items-center justify-between">
                         <h1 className="text-2xl font-bold text-white">Location Manager</h1>
-                        <Link to="/" className="text-slate-400 hover:text-white transition">
+                        <Link href="/" className="text-slate-400 hover:text-white transition">
                             ← Back to Dashboard
                         </Link>
                     </div>
@@ -128,8 +128,8 @@ export default function LocationManager() {
                                         <button
                                             onClick={() => toggleLocationStatus(location.id, location.is_active)}
                                             className={`px-4 py-2 rounded-lg font-semibold transition ${location.is_active
-                                                    ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
-                                                    : 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
+                                                ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
+                                                : 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
                                                 }`}
                                         >
                                             {location.is_active ? 'Active' : 'Inactive'}
@@ -145,8 +145,8 @@ export default function LocationManager() {
                                                     key={service}
                                                     onClick={() => toggleService(location.id, service, available)}
                                                     className={`p-3 rounded-lg border transition ${available
-                                                            ? 'bg-green-500/10 border-green-500/30 text-green-400'
-                                                            : 'bg-slate-700/50 border-slate-600 text-slate-400'
+                                                        ? 'bg-green-500/10 border-green-500/30 text-green-400'
+                                                        : 'bg-slate-700/50 border-slate-600 text-slate-400'
                                                         }`}
                                                 >
                                                     <div className="flex items-center justify-between">
@@ -167,8 +167,8 @@ export default function LocationManager() {
                                                     <span
                                                         key={flag}
                                                         className={`px-3 py-1 rounded-full text-xs font-medium ${enabled
-                                                                ? 'bg-purple-500/20 text-purple-400'
-                                                                : 'bg-slate-700 text-slate-400'
+                                                            ? 'bg-purple-500/20 text-purple-400'
+                                                            : 'bg-slate-700 text-slate-400'
                                                             }`}
                                                     >
                                                         {flag}: {enabled ? 'ON' : 'OFF'}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase, getAdminRole } from '../lib/supabase';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 
 interface Stats {
     activeUsers: number;
@@ -124,19 +124,19 @@ export default function Dashboard() {
             <nav className="bg-slate-800/30 backdrop-blur-sm border-b border-slate-700">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex gap-6 py-3">
-                        <Link to="/" className="text-purple-400 font-semibold border-b-2 border-purple-400 pb-3">
+                        <Link href="/" className="text-purple-400 font-semibold border-b-2 border-purple-400 pb-3">
                             Dashboard
                         </Link>
-                        <Link to="/locations" className="text-slate-400 hover:text-white transition pb-3">
+                        <Link href="/locations" className="text-slate-400 hover:text-white transition pb-3">
                             Locations
                         </Link>
-                        <Link to="/analytics" className="text-slate-400 hover:text-white transition pb-3">
+                        <Link href="/analytics" className="text-slate-400 hover:text-white transition pb-3">
                             Analytics
                         </Link>
-                        <Link to="/audit-logs" className="text-slate-400 hover:text-white transition pb-3">
+                        <Link href="/audit-logs" className="text-slate-400 hover:text-white transition pb-3">
                             Audit Logs
                         </Link>
-                        <Link to="/emergency" className="text-red-400 hover:text-red-300 transition pb-3 font-medium">
+                        <Link href="/emergency" className="text-red-400 hover:text-red-300 transition pb-3 font-medium">
                             🚨 Emergency
                         </Link>
                     </div>
@@ -191,7 +191,7 @@ export default function Dashboard() {
                     <h2 className="text-xl font-bold text-white mb-4">Quick Actions</h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <Link
-                            to="/locations"
+                            href="/locations"
                             className="p-4 bg-slate-700/50 hover:bg-slate-700 rounded-xl border border-slate-600 transition group"
                         >
                             <div className="flex items-center gap-3">
@@ -205,7 +205,7 @@ export default function Dashboard() {
                             </div>
                         </Link>
                         <Link
-                            to="/analytics"
+                            href="/analytics"
                             className="p-4 bg-slate-700/50 hover:bg-slate-700 rounded-xl border border-slate-600 transition group"
                         >
                             <div className="flex items-center gap-3">
@@ -219,7 +219,7 @@ export default function Dashboard() {
                             </div>
                         </Link>
                         <Link
-                            to="/audit-logs"
+                            href="/audit-logs"
                             className="p-4 bg-slate-700/50 hover:bg-slate-700 rounded-xl border border-slate-600 transition group"
                         >
                             <div className="flex items-center gap-3">
@@ -233,7 +233,7 @@ export default function Dashboard() {
                             </div>
                         </Link>
                         <Link
-                            to="/emergency"
+                            href="/emergency"
                             className="p-4 bg-red-500/10 hover:bg-red-500/20 rounded-xl border border-red-500/30 transition group"
                         >
                             <div className="flex items-center gap-3">
