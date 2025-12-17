@@ -183,7 +183,7 @@ CREATE TABLE public.providers (
 -- Bookings Table
 CREATE TABLE public.bookings (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-  client_id uuid REFERENCES auth.users NOT NULL,
+  user_id uuid REFERENCES auth.users NOT NULL,
   provider_id uuid REFERENCES public.providers,
   service_category text NOT NULL,
   booking_type booking_type DEFAULT 'SCHEDULED',
@@ -243,7 +243,7 @@ CREATE TABLE public.booking_otp (
 CREATE TABLE public.reviews (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   booking_id uuid REFERENCES public.bookings ON DELETE CASCADE NOT NULL UNIQUE,
-  client_id uuid REFERENCES auth.users ON DELETE CASCADE NOT NULL,
+  user_id uuid REFERENCES auth.users ON DELETE CASCADE NOT NULL,
   provider_id uuid REFERENCES public.providers ON DELETE CASCADE NOT NULL,
   rating integer NOT NULL CHECK (rating >= 1 AND rating <= 5),
   comment text,
@@ -313,7 +313,7 @@ CREATE TABLE public.provider_earnings (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   provider_id uuid REFERENCES public.providers ON DELETE CASCADE NOT NULL,
   booking_id uuid REFERENCES public.bookings ON DELETE CASCADE,
-  client_id uuid REFERENCES public.profiles ON DELETE CASCADE,
+  user_id uuid REFERENCES public.profiles ON DELETE CASCADE,
   amount numeric(10, 2) NOT NULL,
   commission numeric(10, 2) DEFAULT 0,
   net_amount numeric(10, 2) NOT NULL,
@@ -471,7 +471,7 @@ CREATE INDEX idx_providers_active ON public.providers(is_active, is_verified);
 CREATE INDEX idx_providers_rating ON public.providers(rating_average DESC);
 
 -- Bookings Indexes
-CREATE INDEX idx_bookings_client ON public.bookings(client_id);
+CREATE INDEX idx_bookings_user ON public.bookings(user_id);
 CREATE INDEX idx_bookings_provider ON public.bookings(provider_id);
 CREATE INDEX idx_bookings_status ON public.bookings(status);
 CREATE INDEX idx_bookings_date ON public.bookings(scheduled_date);
@@ -488,7 +488,7 @@ CREATE INDEX idx_booking_otp_code ON public.booking_otp(otp_code);
 
 -- Reviews Indexes
 CREATE INDEX idx_reviews_provider ON public.reviews(provider_id);
-CREATE INDEX idx_reviews_client ON public.reviews(client_id);
+CREATE INDEX idx_reviews_user ON public.reviews(user_id);
 CREATE INDEX idx_reviews_booking ON public.reviews(booking_id);
 
 -- Payment Indexes
@@ -552,7 +552,7 @@ $$ LANGUAGE plpgsql STABLE SECURITY DEFINER;
 
 -- AI Booking Creation Function
 CREATE OR REPLACE FUNCTION create_ai_booking(
-  p_client_id uuid,
+  p_user_id uuid,
   p_service_category text,
   p_requirements jsonb,
   p_ai_checklist text[],
@@ -566,7 +566,7 @@ DECLARE
   v_booking_id uuid;
 BEGIN
   INSERT INTO public.bookings (
-    client_id,
+    user_id,
     service_category,
     booking_type,
     requirements,
@@ -577,7 +577,7 @@ BEGIN
     notes,
     status
   ) VALUES (
-    p_client_id,
+    p_user_id,
     p_service_category,
     'AI_ENHANCED',
     p_requirements,
@@ -919,17 +919,17 @@ CREATE POLICY "service_categories_select_active" ON public.service_categories
 
 -- Bookings Policies
 CREATE POLICY "bookings_select_own_client" ON public.bookings
-  FOR SELECT USING (auth.uid() = client_id);
+  FOR SELECT USING (auth.uid() = user_id);
 
 CREATE POLICY "bookings_select_own_provider" ON public.bookings
   FOR SELECT USING (auth.uid() = provider_id);
 
 CREATE POLICY "bookings_insert_own" ON public.bookings
-  FOR INSERT WITH CHECK (auth.uid() = client_id);
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
 
 CREATE POLICY "bookings_update_own_client" ON public.bookings
   FOR UPDATE USING (
-    auth.uid() = client_id 
+    auth.uid() = user_id 
     AND status IN ('PENDING', 'CONFIRMED')
   );
 
@@ -952,7 +952,7 @@ CREATE POLICY "live_requests_update_own" ON public.live_booking_requests
 -- Booking OTP Policies
 CREATE POLICY "booking_otp_select_client" ON public.booking_otp
   FOR SELECT USING (
-    auth.uid() = (SELECT client_id FROM public.bookings WHERE id = booking_id)
+    auth.uid() = (SELECT user_id FROM public.bookings WHERE id = booking_id)
   );
 
 CREATE POLICY "booking_otp_select_provider" ON public.booking_otp
@@ -974,13 +974,13 @@ CREATE POLICY "reviews_select_all" ON public.reviews
 
 CREATE POLICY "reviews_insert_own" ON public.reviews
   FOR INSERT WITH CHECK (
-    auth.uid() = client_id 
+    auth.uid() = user_id 
     AND (SELECT status FROM public.bookings WHERE id = booking_id) = 'COMPLETED'
   );
 
 CREATE POLICY "reviews_update_own" ON public.reviews
   FOR UPDATE USING (
-    auth.uid() = client_id 
+    auth.uid() = user_id 
     AND created_at > now() - interval '24 hours'
   );
 

@@ -1,6 +1,7 @@
 import { supabase } from './supabase';
 import { aiClassificationService } from './aiClassificationService';
 import { dynamicPricingService } from './dynamicPricingService';
+import { geoService } from './geoService';
 
 export interface BookingRequestParams {
     userId: string;
@@ -13,8 +14,8 @@ export interface BookingRequestParams {
 export interface BookingRequestResult {
     bookingId: string;
     status: 'REQUESTED';
-    estimatedPrice: { min: number; max: number };
-    estimatedDuration: { min: number; max: number };
+    estimatedPrice: number;
+    tierReached: string;
     suggestedQuestions: string[];
     serviceCategory: string;
     serviceMode: 'local' | 'online';
@@ -35,54 +36,50 @@ export const unifiedBookingService = {
                 params.location
             );
 
-            // 2. Check service availability
+            // 2. Resolve Location & Check availability
+            let locationId: string | undefined;
             if (params.location) {
-                const city = await this.getCityFromCoordinates(params.location);
-                if (city) {
-                    const isAvailable = await this.checkServiceAvailability(
-                        classification.serviceCategory,
-                        city
-                    );
-                    if (!isAvailable) {
+                locationId = await geoService.getLocationId(params.location.lat, params.location.lng) || undefined;
+
+                // Bible Flow 2: Emergency Shutdown Check
+                if (locationId) {
+                    const { data: loc } = await supabase
+                        .from('locations')
+                        .select('is_emergency_disabled, emergency_reason')
+                        .eq('id', locationId)
+                        .single();
+
+                    if (loc?.is_emergency_disabled) {
                         throw new Error(
-                            `${classification.serviceCategory} is currently unavailable in ${city}. Please try again later.`
+                            `Service is temporarily unavailable in this area: ${loc.emergency_reason || 'Emergency maintenance'}.`
                         );
                     }
                 }
             }
 
-            // 3. Dynamic Pricing
+            // 3. Dynamic Pricing (3-Tier Fallback)
             const pricing = await dynamicPricingService.calculatePrice({
-                serviceCategory: classification.serviceCategory,
-                serviceMode: classification.serviceMode,
-                urgency: classification.urgency,
-                location: params.location,
-                preferredTime: params.preferredTime
+                serviceCode: classification.serviceCode || classification.serviceCategory, // Use code if AI provided it
+                locationId: locationId
             });
 
-            // 4. Create booking record
+            // 4. Create booking record (Bible Schema v1.0)
             const { data: booking, error } = await supabase
                 .from('bookings')
                 .insert({
-                    client_id: params.userId,
-                    service_category: classification.serviceCategory,
-                    service_mode: classification.serviceMode,
-                    input_method: params.inputMethod,
-                    voice_transcript: params.inputMethod === 'voice' ? params.input : null,
-                    notes: params.inputMethod === 'text' ? params.input : null,
+                    user_id: params.userId,
+                    service_code: classification.serviceCode || classification.serviceCategory,
+                    service_name: classification.serviceCategory, // Friendly name
+                    booking_type: 'AI_ENHANCED',
                     status: 'REQUESTED',
-                    urgency: classification.urgency,
-                    estimated_price_min: pricing.totalMin,
-                    estimated_price_max: pricing.totalMax,
-                    estimated_duration_min: classification.estimatedDuration.min,
-                    estimated_duration_max: classification.estimatedDuration.max,
+                    requirements: classification,
+                    base_price_cents: pricing.basePrice * 100,
+                    surge_multiplier: pricing.demandMultiplier,
+                    final_price_cents: pricing.finalPrice * 100,
                     location: params.location
                         ? `POINT(${params.location.lng} ${params.location.lat})`
                         : null,
                     preferred_time: params.preferredTime,
-                    ai_classification: classification,
-                    pricing_breakdown: pricing,
-                    booking_type: 'AI_ENHANCED',
                     payment_status: 'PENDING'
                 })
                 .select()
@@ -94,14 +91,14 @@ export const unifiedBookingService = {
             await this.logLifecycleEvent(booking.id, 'REQUEST', 'booking_created', {
                 classification,
                 pricing,
-                inputMethod: params.inputMethod
+                locationId
             });
 
             return {
                 bookingId: booking.id,
                 status: 'REQUESTED',
-                estimatedPrice: { min: pricing.totalMin, max: pricing.totalMax },
-                estimatedDuration: classification.estimatedDuration,
+                estimatedPrice: pricing.finalPrice,
+                tierReached: pricing.tierReached,
                 suggestedQuestions: classification.suggestedQuestions,
                 serviceCategory: classification.serviceCategory,
                 serviceMode: classification.serviceMode
@@ -130,19 +127,20 @@ export const unifiedBookingService = {
     },
 
     /**
-     * Check service availability (integration with admin panel)
+     * Check service availability (integration with new locations table)
      */
-    async checkServiceAvailability(serviceCategory: string, city: string): Promise<boolean> {
+    async checkServiceAvailability(serviceCode: string, locationId: string): Promise<boolean> {
         const { data, error } = await supabase
-            .from('service_availability')
-            .select('status')
-            .eq('service_category_id', serviceCategory)
-            .eq('location_value', city)
-            .eq('location_type', 'city')
+            .from('locations')
+            .select('enabled_services')
+            .eq('id', locationId)
             .single();
 
-        if (error || !data) return true; // Default to available
-        return data.status === 'ENABLED';
+        if (error || !data) return true; // Default to available if check fails (fail open)
+
+        // enabled_services is a JSON array of strings e.g. ["plumbing", "electrical"]
+        const enabledServices = data.enabled_services as string[];
+        return Array.isArray(enabledServices) && enabledServices.includes(serviceCode);
     },
 
     /**

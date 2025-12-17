@@ -1,7 +1,8 @@
 // AI Classification Service - currently using fallback only
 
 export interface ClassificationResult {
-    serviceCategory: string;
+    serviceCategory: string; // Friendly name
+    serviceCode: string; // db code like 'ac_repair'
     serviceMode: 'local' | 'online';
     urgency: 'low' | 'normal' | 'high' | 'emergency';
     estimatedDuration: { min: number; max: number }; // minutes
@@ -27,25 +28,26 @@ Customer request: "${input}"
 ${location ? `Customer location: ${location.lat}, ${location.lng}` : ''}
 
 Analyze this request and provide:
-1. Service category (use snake_case: cleaning, plumbing, tax_consulting, web_development, etc.)
-2. Service mode: "local" (physical, on-location) or "online" (remote, digital)
-3. Urgency level: 
+1. Service category (Friendly display name)
+2. Service code (use snake_case: cleaning, plumbing, tax_consulting, web_development, ac_repair, etc.)
+3. Service mode: "local" (physical, on-location) or "online" (remote, digital)
+4. Urgency level: 
    - "low": Can wait days/weeks
    - "normal": Within 1-2 days
    - "high": Same day needed
    - "emergency": Immediate (water leak, electrical issue, etc.)
-4. Estimated duration range in minutes (min and max)
-5. 2-3 clarifying questions to ask the customer
-6. Confidence score (0-1)
+5. Estimated duration range in minutes (min and max)
+6. 2-3 clarifying questions to ask the customer
+7. Confidence score (0-1)
 
 Examples:
-- "My sink is leaking" → cleaning/plumbing, local, high urgency
-- "Need tax filing help" → tax_consulting, online, normal urgency
-- "Website design needed" → web_development, online, low urgency
+- "My sink is leaking" → Plumbing, plumbing, local, high urgency
+- "Need tax filing help" → Tax Consulting, tax_consulting, online, normal urgency
 
 Respond ONLY with valid JSON (no markdown, no code blocks):
 {
   "serviceCategory": "string",
+  "serviceCode": "string",
   "serviceMode": "local" | "online",
   "urgency": "low" | "normal" | "high" | "emergency",
   "estimatedDuration": { "min": number, "max": number },
@@ -77,7 +79,8 @@ Respond ONLY with valid JSON (no markdown, no code blocks):
 
             // Fallback classification
             return {
-                serviceCategory: 'general_service',
+                serviceCategory: 'General Service',
+                serviceCode: 'general_service',
                 serviceMode: location ? 'local' : 'online',
                 urgency: 'normal',
                 estimatedDuration: { min: 30, max: 120 },

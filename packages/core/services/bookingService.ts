@@ -53,19 +53,26 @@ export const bookingService = {
     }
 
     const { data, error } = await supabase.rpc('create_ai_booking', {
-      p_client_id: params.clientId,
+      p_user_id: params.clientId,
       p_service_category: params.serviceCategory,
       p_requirements: params.requirements,
       p_ai_checklist: params.aiChecklist,
       p_estimated_cost: params.estimatedCost,
       p_location: `POINT(${params.location.lng} ${params.location.lat})`,
       p_address: params.address,
-      p_notes: params.notes,
-      p_service_category_id: params.serviceCategoryId,
+      p_notes: params.notes || null,
+      p_service_category_id: params.serviceCategoryId || null,
       p_delivery_mode: params.deliveryMode || 'LOCAL',
     });
 
     if (error) {
+      console.error('CRITICAL: Error creating AI booking via RPC', {
+        code: error.code,
+        msg: error.message,
+        details: error.details,
+        hint: error.hint,
+        params
+      });
       logger.error('Error creating AI booking', { error, params });
       throw error;
     }
@@ -100,7 +107,7 @@ export const bookingService = {
         schema: 'public',
         table: 'bookings',
         filter: `id=eq.${bookingId}`,
-      }, (payload) => {
+      }, (payload: any) => {
         callback(payload.new as Booking);
       })
       .subscribe();
@@ -115,7 +122,7 @@ export const bookingService = {
     const { data, error } = await supabase
       .from('bookings')
       .insert({
-        worker_id: workerId,
+        provider_id: workerId,
         user_id: userId,
         status: 'pending',
         note: note,
@@ -180,7 +187,7 @@ export const bookingService = {
     const { data, error } = await supabase
       .from('bookings')
       .select('*')
-      .eq('worker_id', workerId)
+      .eq('provider_id', workerId)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -219,7 +226,7 @@ export const bookingService = {
       .from('reviews')
       .insert({
         booking_id: bookingId,
-        worker_id: workerId,
+        provider_id: workerId,
         user_id: userId,
         rating,
         comment
@@ -234,17 +241,72 @@ export const bookingService = {
   },
 
   /**
-   * Process payment for a booking
+   * Calculates platform commission based on provider tier.
+   * Tier 1: 12%
+   * Tier 2/3: 15%
+   */
+  async calculateCommission(providerId: string, amount: number): Promise<{ commission: number; netAmount: number; tier: string }> {
+    const { data: provider, error } = await supabase
+      .from('providers')
+      .select('tier')
+      .eq('id', providerId)
+      .single();
+
+    if (error || !provider) {
+      logger.warn('Could not fetch provider tier, defaulting to Tier 3 (15%)', { providerId, error });
+      // Default to 15%
+      const commission = amount * 0.15;
+      return { commission, netAmount: amount - commission, tier: 'tier3' };
+    }
+
+    const rate = provider.tier === 'tier1' ? 0.12 : 0.15;
+    const commission = amount * rate;
+
+    return {
+      commission: Number(commission.toFixed(2)),
+      netAmount: Number((amount - commission).toFixed(2)),
+      tier: provider.tier
+    };
+  },
+
+  /**
+   * Process payment for a booking and record earnings
    */
   async processPayment(bookingId: string) {
-    const { error } = await supabase
+    // 1. Fetch booking details to get provider and amount
+    const booking = await this.getBooking(bookingId);
+    if (!booking || !booking.provider_id || !booking.final_cost) {
+      throw new Error('Invalid booking data for payment processing');
+    }
+
+    // 2. Calculate Commission
+    const { commission, netAmount, tier } = await this.calculateCommission(booking.provider_id, booking.final_cost);
+
+    // 3. Update Booking Payment Status
+    const { error: bookingError } = await supabase
       .from('bookings')
-      .update({ payment_status: 'PAID' })
+      .update({
+        payment_status: 'PAID',
+        platform_commission: commission,
+        provider_earnings: netAmount
+      })
       .eq('id', bookingId);
 
-    if (error) {
-      logger.error('Error processing payment', { error, bookingId });
-      throw error;
+    if (bookingError) {
+      logger.error('Error processing payment', { error: bookingError, bookingId });
+      throw bookingError;
+    }
+
+    // 4. Update Provider Earnings (Ledger)
+    const { error: earningsError } = await supabase
+      .rpc('update_provider_earnings', {
+        p_provider_id: booking.provider_id,
+        p_amount: netAmount
+      });
+
+    if (earningsError) {
+      logger.error('Error updating provider earnings ledger', { error: earningsError, providerId: booking.provider_id });
+      // Non-blocking, can be reconciled later
     }
   },
 
@@ -276,7 +338,7 @@ export const bookingService = {
       .from('bookings')
       .insert({
         serviceId: service.id,
-        clientId: clientId,
+        user_id: clientId,
         status: 'REQUESTED',
         requirements: requirements,
       })

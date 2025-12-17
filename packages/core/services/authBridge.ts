@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { CONFIG } from '../config';
 import { Session, User } from '@supabase/supabase-js';
 
 /**
@@ -11,7 +12,40 @@ export const createSupabaseSession = async (
     phone: string
 ): Promise<{ session: Session; user: User }> => {
     try {
-        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+        // Test Mode Bypass
+        if (firebaseToken === 'MOCK_FIREBASE_TOKEN_123456') {
+            console.log('[TEST MODE] Bypassing auth bridge with mock session');
+            return {
+                session: {
+                    access_token: 'mock-access-token',
+                    refresh_token: 'mock-refresh-token',
+                    expires_in: 3600,
+                    token_type: 'bearer',
+                    user: {
+                        id: 'mock-user-id',
+                        aud: 'authenticated',
+                        role: 'authenticated',
+                        email: 'test@example.com',
+                        phone: phone,
+                        app_metadata: {},
+                        user_metadata: {},
+                        created_at: new Date().toISOString(),
+                    }
+                } as unknown as Session,
+                user: {
+                    id: 'mock-user-id',
+                    aud: 'authenticated',
+                    role: 'authenticated',
+                    email: 'test@example.com',
+                    phone: phone,
+                    app_metadata: {},
+                    user_metadata: {},
+                    created_at: new Date().toISOString(),
+                } as User
+            };
+        }
+
+        const supabaseUrl = CONFIG.SUPABASE_URL;
 
         if (!supabaseUrl) {
             throw new Error('Supabase URL not configured');
@@ -22,7 +56,7 @@ export const createSupabaseSession = async (
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY || '',
+                'apikey': CONFIG.SUPABASE_ANON_KEY || '',
             },
             body: JSON.stringify({
                 firebaseToken,

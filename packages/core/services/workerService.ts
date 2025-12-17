@@ -45,7 +45,7 @@ export const workerService = {
       }));
     } else {
       const { data, error } = await supabase
-        .from('workers')
+        .from('providers')
         .select('*')
         .order('rating', { ascending: false })
         .limit(20);
@@ -66,7 +66,7 @@ export const workerService = {
    */
   async getWorkerProfile(workerId: string): Promise<WorkerProfile | null> {
     const { data, error } = await supabase
-      .from('workers')
+      .from('providers')
       .select('*')
       .eq('id', workerId)
       .single();

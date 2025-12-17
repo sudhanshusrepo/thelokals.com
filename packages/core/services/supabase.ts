@@ -1,4 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
+import { Database } from '../types/supabase';
+import { CONFIG } from '../config';
 
 /**
  * @module supabase
@@ -6,9 +8,9 @@ import { createClient } from '@supabase/supabase-js';
  * Handles missing environment variables gracefully to prevent app crashes.
  */
 
-// Safe retrieval of env vars with fallback
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder';
+// Initialize the Supabase client
+const supabaseUrl = CONFIG.SUPABASE_URL || 'https://placeholder.supabase.co';
+const supabaseAnonKey = CONFIG.SUPABASE_ANON_KEY || 'placeholder';
 
 // Log warning if utilizing placeholders (critical for debugging)
 if (supabaseUrl === 'https://placeholder.supabase.co') {
@@ -16,7 +18,7 @@ if (supabaseUrl === 'https://placeholder.supabase.co') {
 }
 
 // Create client with robust configuration
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
     auth: {
         persistSession: true,
         autoRefreshToken: true,
@@ -27,7 +29,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
             'Accept': 'application/json',
         }
     }
-});
+}) as any;
 
 /**
  * Helper to check if Supabase is properly configured

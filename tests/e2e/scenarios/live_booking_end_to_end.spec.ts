@@ -3,8 +3,12 @@ import { createClient } from '@supabase/supabase-js';
 
 // Force local Supabase for E2E tests
 const supabaseUrl = 'http://127.0.0.1:54321';
-const supabaseAdminKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU';
-console.log('DEBUG: Using local Supabase:', { url: supabaseUrl, keyStart: supabaseAdminKey.substring(0, 10) });
+const supabaseAdminKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder';
+console.log('DEBUG: Using local Supabase:', {
+    url: supabaseUrl,
+    keyStart: supabaseAdminKey ? supabaseAdminKey.substring(0, 10) + '...' : 'NULL',
+    keyLength: supabaseAdminKey ? supabaseAdminKey.length : 0
+});
 const supabaseAdmin = createClient(supabaseUrl, supabaseAdminKey, {
     auth: {
         autoRefreshToken: false,
@@ -30,6 +34,17 @@ test.describe('Unified Booking Lifecycle E2E', () => {
             password: providerPassword,
             email_confirm: true
         });
+        if (!providerAuth.user) {
+            console.error('Provider creation failed. Auth response:', JSON.stringify(providerAuth, null, 2));
+            // Also check if there was an error returned alongside data (though destructured above)
+            const { error } = await supabaseAdmin.auth.admin.createUser({
+                email: providerEmail,
+                password: providerPassword,
+                email_confirm: true
+            });
+            if (error) console.error('Provider creation error object:', error);
+            throw new Error('Provider creation failed - user is null');
+        }
         const providerId = providerAuth.user!.id;
 
         // Setup Provider Profile & Service with CORRECT column names
@@ -126,15 +141,8 @@ test.describe('Unified Booking Lifecycle E2E', () => {
         await clientPage.goto('http://localhost:3000');
         clientPage.on('console', msg => console.log(`[Client Browser] ${msg.type()}: ${msg.text()}`));
 
-        // Login Helper
-        const logInClient = async () => {
-            const { data } = await supabaseAdmin.auth.signInWithPassword({ email: clientEmail, password: clientPassword });
-            await clientPage.evaluate((session) => {
-                localStorage.setItem('sb-' + window.location.host.split('.')[0] + '-auth-token', JSON.stringify(session));
-            }, data.session);
-            await clientPage.reload();
-        };
-        await logInClient();
+        // Login Helper - REMOVED (Unreliable LocalStorage Key)
+        // We will login via the UI flow triggered by Book Now
 
         // Create Booking
         await clientPage.getByText('Home Care & Repair').click();
@@ -152,11 +160,32 @@ test.describe('Unified Booking Lifecycle E2E', () => {
         await expect(clientPage.getByText('Calculating Price...')).not.toBeVisible();
         await expect(clientPage.locator('button[data-testid="book-now-button"]')).toBeEnabled();
 
-        // Ensure overlay is gone (wait for "Processing..." or similar to not be there)
-        // Or just force click if it's a fade out animation
-        // Bypass potential overlay interception by dispatching click directly
+        // CLICK 1: Triggers Auth Modal
         await clientPage.locator('button[data-testid="book-now-button"]').dispatchEvent('click');
-        console.log('[PHASE 2] Book Now button clicked');
+        console.log('[PHASE 2] Book Now clicked (Triggering Auth)');
+
+        // Handle Auth Modal
+        const authModal = clientPage.locator('[data-testid="auth-modal-overlay"]'); // Modal overlay
+        await expect(authModal).toBeVisible({ timeout: 5000 });
+
+        // Fill Login Form
+        await authModal.getByTestId('email-input').fill(clientEmail);
+        await authModal.getByTestId('password-input').fill(clientPassword);
+
+        // Submit Login (Force to bypass animation issues)
+        const submitBtn = authModal.getByTestId('submit-button');
+        await expect(submitBtn).toBeVisible();
+        await submitBtn.click({ force: true });
+
+        // Wait for Modal to Close (Login Success)
+        await expect(authModal).not.toBeVisible({ timeout: 15000 });
+        console.log('[PHASE 2] Client Logged In via UI');
+
+        // CLICK 2: Actual Booking
+        // Wait a small moment for state to settle
+        await clientPage.waitForTimeout(1000);
+        await clientPage.locator('button[data-testid="book-now-button"]').dispatchEvent('click');
+        console.log('[PHASE 2] Book Now clicked (Authenticated)');
 
         // Wait a moment for state to update
         await clientPage.waitForTimeout(1000);
@@ -165,34 +194,36 @@ test.describe('Unified Booking Lifecycle E2E', () => {
         await clientPage.screenshot({ path: 'test-results/after-book-now-click.png', fullPage: true });
         console.log('[DEBUG] Screenshot saved: after-book-now-click.png');
 
-        // Wait for LiveSearch screen with better error handling
+        // Wait for LiveSearch screen OR Error
         try {
-            // First, wait for the element to exist in DOM
-            await clientPage.waitForSelector('[data-testid="live-search-screen"]', {
-                state: 'attached',
+            const liveSearchPromise = clientPage.waitForSelector('[data-testid="live-search-screen"]', {
+                state: 'visible',
                 timeout: 30000
             });
-            console.log('[DEBUG] live-search-screen element found in DOM');
+            const errorPromise = clientPage.waitForSelector('[data-testid="booking-error"]', {
+                state: 'visible',
+                timeout: 30000
+            });
 
-            // Then wait for it to be visible
-            await expect(clientPage.getByTestId('live-search-screen')).toBeVisible({ timeout: 10000 });
-            console.log('[DEBUG] live-search-screen is now visible');
+            const result = await Promise.race([liveSearchPromise, errorPromise]);
+
+            // Check if it was an error
+            const isError = await clientPage.isVisible('[data-testid="booking-error"]');
+            if (isError) {
+                const errorText = await clientPage.textContent('[data-testid="booking-error"]');
+                console.error(`[CRITICAL] Booking Failed visible in UI: ${errorText}`);
+                throw new Error(`Booking Failed: ${errorText}`);
+            }
+
+            console.log('[DEBUG] live-search-screen is visible');
 
             // Verify the "Searching for" text is present
             await expect(clientPage.getByText(/Searching for/i).first()).toBeVisible({ timeout: 5000 });
             console.log('[PHASE 2] ✓ LiveSearch screen displayed successfully');
         } catch (error) {
-            console.error('[ERROR] Failed to find LiveSearch screen');
+            console.error('[ERROR] Failed to find LiveSearch screen or found error');
             console.error('Error details:', error);
-
-            // Capture page state for debugging
-            const pageContent = await clientPage.content();
-            console.log('[DEBUG] Page HTML (first 1000 chars):', pageContent.substring(0, 1000));
-
-            // Take another screenshot
             await clientPage.screenshot({ path: 'test-results/livesearch-error.png', fullPage: true });
-            console.log('[DEBUG] Error screenshot saved: livesearch-error.png');
-
             throw error;
         }
 

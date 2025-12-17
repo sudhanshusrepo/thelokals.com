@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { CONFIG } from '../config';
 import { WorkerCategory } from "../types";
 import { logger } from "./logger";
 
@@ -22,8 +23,9 @@ export interface AIAnalysisResult {
  */
 export const estimateService = async (input: string, category: string): Promise<AIAnalysisResult> => {
   // Test Mode Bypass
-  const isTestMode = (typeof import.meta !== 'undefined' && import.meta.env && (import.meta.env.VITE_TEST_MODE === 'true' || import.meta.env.VITE_ENABLE_OTP_BYPASS === 'true')) ||
-    (typeof process !== 'undefined' && process.env && (process.env.NODE_ENV === 'test' || process.env.ENABLE_OTP_BYPASS === 'true'));
+  // Check if we are in test mode (e.g. for E2E tests)
+  // This will return mocked responses instead of calling Gemini
+  const isTestMode = CONFIG.IS_TEST_MODE || CONFIG.ENABLE_OTP_BYPASS;
 
   if (isTestMode) {
     console.log('[Test Mode] Bypassing AI Edge Function');

@@ -177,7 +177,7 @@ Run this in your browser console on the admin login page:
 // Test Supabase connection
 const { createClient } = supabase;
 const supabaseUrl = 'https://gdnltvvxiychrsdzenia.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdkbmx0dnZ4aXljaHJzZHplbmlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MjM2NzIsImV4cCI6MjA3OTM5OTY3Mn0.LKYscrC9N4320dv0KimqqS83WKHJXQgN5Hyinw2Rua8';
+const supabaseKey = 'YOUR_SUPABASE_SERVICE_ROLE_KEY';
 
 const client = createClient(supabaseUrl, supabaseKey);
 

@@ -1,19 +1,21 @@
+import { supabase } from './supabase';
+import { Session } from '@supabase/supabase-js';
+
+export interface OTPConfirmation {
+    confirm: (code: string) => Promise<{ session: Session | null; user: any }>;
+}
+
 /**
  * OTP Service with Test Mode Support
  * 
  * Provides OTP generation and verification with automatic bypass in test environments.
- * In test mode, uses a fixed OTP code '123456' for easy testing.
+ * Uses Supabase Native Auth (replacing Firebase).
  */
-
 export class OTPService {
     private static readonly TEST_OTP = '123456';
-    private static readonly OTP_EXPIRY_MINUTES = 15;
 
     /**
      * Check if we're in test mode
-     * Test mode is enabled when:
-     * - ENABLE_OTP_BYPASS environment variable is 'true'
-     * - NODE_ENV is 'test'
      */
     private static isTestMode(): boolean {
         return (
@@ -24,49 +26,55 @@ export class OTPService {
     }
 
     /**
-     * Send OTP to phone number
-     * In test mode, logs OTP to console instead of sending SMS
+     * Send OTP to phone number using Supabase Auth
+     * @param phone - Phone number
+     * @param _appVerifier - Ignored (Legacy Firebase arg)
      */
-    static async sendOTP(phone: string): Promise<{ success: boolean; message?: string }> {
+    static async sendOTP(phone: string, _appVerifier?: any): Promise<OTPConfirmation> {
         if (this.isTestMode()) {
             console.log(`[TEST MODE] OTP for ${phone}: ${this.TEST_OTP}`);
-            console.log('[TEST MODE] OTP bypass is enabled - use code: 123456');
             return {
-                success: true,
-                message: `Test OTP sent (use ${this.TEST_OTP})`
+                confirm: async (code: string) => {
+                    if (code === this.TEST_OTP) {
+                        // In test mode, we might not get a real session without a real existing user.
+                        // For fully offline dev, this mock needs to be handled by the caller or we rely on the bridge still?
+                        // Actually, if we use Supabase Auth, we can't easily fake a session LOCALLY without the emulator verifying a token.
+                        // However, since we are moving to Supabase Native, 'isTestMode' is essentially 'mock behavior'.
+                        // For now, let's throw if we expect real sessions, or return a mock structure.
+
+                        // NOTE: If using Local Supabase, we can just use the real flow!
+                        // "Test Mode" here was for bypassing Firebase limits. 
+                        // With Local Supabase, we don't need to bypass, we can just use the Inbucket OTP.
+                        // But to keep '123456' working without checking Inbucket:
+                        console.warn('Returning mock session for Test OTP');
+                        return { session: null, user: { id: 'test-user', phone } };
+                    }
+                    throw new Error('Invalid OTP code');
+                }
             };
         }
 
-        // TODO: Implement real OTP sending via SMS gateway
-        // For now, return error in production
-        console.error('[OTP] Real OTP sending not implemented yet');
+        // Real Supabase Auth Flow
+        const { error } = await supabase.auth.signInWithOtp({
+            phone,
+            options: {
+                shouldCreateUser: true
+            }
+        });
+
+        if (error) throw error;
+
         return {
-            success: false,
-            message: 'OTP service not configured'
+            confirm: async (code: string) => {
+                const { data, error } = await supabase.auth.verifyOtp({
+                    phone,
+                    token: code,
+                    type: 'sms'
+                });
+
+                if (error) throw error;
+                return { session: data.session, user: data.user };
+            }
         };
-    }
-
-    /**
-     * Verify OTP code
-     * In test mode, accepts the fixed test OTP
-     */
-    static async verifyOTP(phone: string, otp: string): Promise<boolean> {
-        if (this.isTestMode()) {
-            const isValid = otp === this.TEST_OTP;
-            console.log(`[TEST MODE] OTP verification for ${phone}: ${isValid ? 'VALID' : 'INVALID'}`);
-            return isValid;
-        }
-
-        // TODO: Implement real OTP verification
-        // For now, return false in production
-        console.error('[OTP] Real OTP verification not implemented yet');
-        return false;
-    }
-
-    /**
-     * Get test OTP code (only in test mode)
-     */
-    static getTestOTP(): string | null {
-        return this.isTestMode() ? this.TEST_OTP : null;
     }
 }

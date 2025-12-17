@@ -2,91 +2,101 @@ import { supabase } from './supabase';
 
 export interface PricingBreakdown {
     basePrice: number;
-    modifiers: {
-        urgency?: number;
-        timeOfDay?: number;
-        demand?: number;
-    };
-    totalMin: number;
-    totalMax: number;
+    dynamicPrice?: number;
+    demandMultiplier: number;
+    finalPrice: number;
+    tierReached: 'tier1_base' | 'tier2_ml' | 'tier3_demand';
     currency: 'INR';
 }
 
 /**
- * Dynamic Pricing Service with reduced rates
+ * Enhanced Dynamic Pricing Service following 3-Tier Fallback Strategy (Bible v1.0 Section 6)
  */
 export const dynamicPricingService = {
     /**
-     * Calculate dynamic price for a service
+     * Calculate 3-tier fallback price
      */
     async calculatePrice(params: {
-        serviceCategory: string;
-        serviceMode: 'local' | 'online';
-        urgency: string;
-        location?: { lat: number; lng: number };
-        preferredTime?: string;
+        serviceCode: string;
+        locationId?: string; // UUID from locations table
+        pincode?: string;
     }): Promise<PricingBreakdown> {
-        // 1. Get base price from service_pricing table
-        const { data: pricingData } = await supabase
-            .from('service_pricing')
-            .select('base_price')
-            .eq('service_category', params.serviceCategory)
+        // TIER 1: Base Price (Source of Truth)
+        const { data: service } = await supabase
+            .from('services')
+            .select('*')
+            .eq('code', params.serviceCode)
             .single();
 
-        // Fallback to default reduced rates
-        const basePrice = pricingData?.base_price || (params.serviceMode === 'local' ? 200 : 300);
-
-        // 2. Calculate modifiers (reduced from original)
-        const modifiers: PricingBreakdown['modifiers'] = {};
-
-        // Urgency modifier (reduced)
-        if (params.urgency === 'high') modifiers.urgency = 0.15; // +15% (was 25%)
-        if (params.urgency === 'emergency') modifiers.urgency = 0.30; // +30% (was 50%)
-
-        // Time of day modifier (reduced)
-        const hour = new Date(params.preferredTime || Date.now()).getHours();
-        if (hour < 8 || hour > 20) modifiers.timeOfDay = 0.10; // +10% (was 15%)
-
-        // Demand modifier (reduced)
-        if (params.location) {
-            const { count } = await supabase
-                .from('bookings')
-                .select('*', { count: 'exact', head: true })
-                .eq('status', 'IN_PROGRESS')
-                .eq('service_category', params.serviceCategory);
-
-            if (count && count > 15) modifiers.demand = 0.08; // +8% (was 10%)
+        if (!service) {
+            throw new Error(`Service not found: ${params.serviceCode}`);
         }
 
-        // 3. Calculate total with reduced variance
-        const totalModifier = Object.values(modifiers).reduce((sum, val) => sum + val, 0);
-        const totalMin = Math.round(basePrice * (1 + totalModifier * 0.7)); // Reduced variance
-        const totalMax = Math.round(basePrice * (1 + totalModifier * 1.1)); // Reduced variance
+        const basePrice = service.base_price_cents / 100;
+        let finalBasePrice = basePrice;
+        let tierReached: PricingBreakdown['tierReached'] = 'tier1_base';
+
+        // TIER 2: ML-Operated Price (Fallback if crawler is active)
+        const isMLFresh = service.price_last_updated &&
+            (new Date().getTime() - new Date(service.price_last_updated).getTime() < 24 * 60 * 60 * 1000);
+
+        if (isMLFresh && service.dynamic_base_price_cents) {
+            finalBasePrice = service.dynamic_base_price_cents / 100;
+            tierReached = 'tier2_ml';
+        }
+
+        // TIER 3: Demand-Adjusted Pricing
+        let demandMultiplier = 1.0;
+
+        // Check real-time demand analytics
+        const { data: demandData } = await supabase
+            .from('demand_analytics')
+            .select('demand_multiplier')
+            .eq('service_type', params.serviceCode)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
+
+        if (demandData?.demand_multiplier) {
+            demandMultiplier = Number(demandData.demand_multiplier);
+            tierReached = 'tier3_demand';
+        } else if (params.locationId) {
+            // Fallback to location-level surge
+            const { data: loc } = await supabase
+                .from('locations')
+                .select('surge_multiplier')
+                .eq('id', params.locationId)
+                .single();
+
+            if (loc?.surge_multiplier && Number(loc.surge_multiplier) > 1) {
+                demandMultiplier = Number(loc.surge_multiplier);
+                tierReached = 'tier3_demand';
+            }
+        }
+
+        const finalPrice = Math.round(finalBasePrice * demandMultiplier);
 
         return {
             basePrice,
-            modifiers,
-            totalMin,
-            totalMax,
+            dynamicPrice: tierReached === 'tier2_ml' ? finalBasePrice : undefined,
+            demandMultiplier,
+            finalPrice,
+            tierReached,
             currency: 'INR'
         };
-    }
+    },
+
     /**
-     * Calculate fallback price when API fails or for offline estimation
+     * Legacy/Simplified calculation for quick estimates
      */
     calculateFallbackPrice(params: {
         estimatedCost: number;
-        checklistItems: number; // Total items count
-        checkedItemsCount: number; // Selected items count
+        checklistItems: number;
+        checkedItemsCount: number;
     }): number {
-        // Base price is 50% of estimated cost
         const basePrice = Math.round(params.estimatedCost * 0.5);
-
         if (params.checklistItems === 0) return basePrice;
-
-        // Each item contributes to the remaining 50%
         const itemValue = Math.round((params.estimatedCost * 0.5) / params.checklistItems);
-
         return basePrice + (params.checkedItemsCount * itemValue);
     }
 };

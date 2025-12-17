@@ -23,3 +23,5 @@ export { useTheme as useThemeHook } from './hooks/useTheme';
 
 // Services are usually imported directly to avoid circular dependencies or large bundles, but we can export them if needed.
 // For now, I'll just export the types and components.
+export { ErrorFallback } from './components/ErrorFallback';
+export { logger } from './services/logger';

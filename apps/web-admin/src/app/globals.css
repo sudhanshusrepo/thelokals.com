@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+:root {
+  /* Standard Slate Palette for Admin */
+  --background: #f8fafc;
+  /* slate-50 */
+  --foreground: #0f172a;
+  /* slate-900 */
+
+  --primary: #334155;
+  /* slate-700 */
+  --primary-foreground: #ffffff;
+
+  --secondary: #e2e8f0;
+  /* slate-200 */
+  --secondary-foreground: #1e293b;
+  /* slate-800 */
+
+  --accent: #475569;
+  /* slate-600 */
+  --accent-foreground: #ffffff;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #020617;
+    /* slate-950 */
+    --foreground: #f8fafc;
+    --primary: #94a3b8;
+    /* slate-400 */
+    --secondary: #1e293b;
+    /* slate-800 */
+    --secondary-foreground: #f8fafc;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), Arial, sans-serif;
+}

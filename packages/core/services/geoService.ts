@@ -62,5 +62,22 @@ export const geoService = {
             Math.sin(dLng / 2) * Math.sin(dLng / 2);
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return R * c;
+    },
+
+    /**
+     * Finds the L4_ZONE or L3_CITY location ID for a given coordinate.
+     */
+    getLocationId: async (lat: number, lng: number): Promise<string | null> => {
+        const { data, error } = await supabase.rpc('get_location_from_coords', {
+            p_lat: lat,
+            p_lng: lng
+        });
+
+        if (error) {
+            console.error('Error in getLocationId:', error);
+            return null;
+        }
+
+        return data || null;
     }
 };
