@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { supabase } from '@thelocals/core/services/supabase';
-import { AuthLayout, AuthField, AuthOAuthButton, AuthDivider } from '@thelocals/core/components/auth';
+import { AuthLayout, AuthField, AuthOAuthButton, AuthDivider } from '@thelocals/core';
 
 interface AuthModalProps {
     onClose: () => void;
