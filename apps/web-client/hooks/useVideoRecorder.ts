@@ -10,7 +10,7 @@ interface UseVideoRecorderReturn {
     stopRecording: () => void;
     resetRecording: () => void;
     error: string | null;
-    videoRef: React.RefObject<HTMLVideoElement>;
+    videoRef: React.RefObject<HTMLVideoElement | null>;
 }
 
 export const useVideoRecorder = (maxDurationSeconds: number = 30): UseVideoRecorderReturn => {
@@ -23,7 +23,7 @@ export const useVideoRecorder = (maxDurationSeconds: number = 30): UseVideoRecor
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const chunksRef = useRef<Blob[]>([]);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
-    const videoRef = useRef<HTMLVideoElement>(null);
+    const videoRef = useRef<HTMLVideoElement | null>(null);
     const streamRef = useRef<MediaStream | null>(null);
 
     const checkPermission = async () => {
