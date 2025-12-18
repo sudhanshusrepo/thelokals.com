@@ -3,7 +3,7 @@ import { supabase } from '@thelocals/core/services/supabase';
 import { Booking } from '@thelocals/core/types';
 import { Layout } from '../components/Layout';
 
-export const LiveJobs: React.FC = () => {
+const LiveJobs: React.FC = () => {
     const [bookings, setBookings] = useState<Booking[]>([]);
     const [filter, setFilter] = useState<'all' | 'PENDING' | 'CONFIRMED' | 'IN_PROGRESS'>('all');
     const [loading, setLoading] = useState(true);
@@ -17,7 +17,7 @@ export const LiveJobs: React.FC = () => {
             .on(
                 'postgres_changes',
                 { event: '*', schema: 'public', table: 'bookings' },
-                (payload) => {
+                (payload: any) => {
                     console.log('Booking update:', payload);
 
                     if (payload.eventType === 'INSERT') {
@@ -102,8 +102,8 @@ export const LiveJobs: React.FC = () => {
                                 key={status}
                                 onClick={() => setFilter(status)}
                                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${filter === status
-                                        ? 'bg-indigo-600 text-white'
-                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                    ? 'bg-indigo-600 text-white'
+                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                     }`}
                             >
                                 {status === 'all' ? 'All' : status.replace('_', ' ')}
@@ -210,3 +210,5 @@ const StatCard: React.FC<StatCardProps> = ({ title, count, color }) => {
         </div>
     );
 };
+
+export default LiveJobs;
