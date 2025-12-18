@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "pages:build": "cd ../.. && INIT_CWD=$(pwd) npx @cloudflare/next-on-pages apps/web-admin",
+    "pages:build": "npx @cloudflare/next-on-pages $(pwd)",
     "start": "next start",
     "lint": "eslint"
   },
