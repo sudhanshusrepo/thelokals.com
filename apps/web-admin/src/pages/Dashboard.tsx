@@ -65,7 +65,7 @@ export default function Dashboard() {
                 .eq('status', 'COMPLETED')
                 .gte('created_at', monthAgo.toISOString());
 
-            const revenue = revenueData?.reduce((sum, b) => sum + (Number(b.final_cost) || 0), 0) || 0;
+            const revenue = revenueData?.reduce((sum: number, b: any) => sum + (Number(b.final_cost) || 0), 0) || 0;
 
             setStats({
                 activeUsers: usersCount || 0,

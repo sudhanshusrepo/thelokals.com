@@ -1,9 +1,9 @@
 export const getEnvVar = (key: string, defaultValue: string = ''): string => {
     // Check for Vite's import.meta.env
 
-    if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env[key]) {
+    if (typeof import.meta !== 'undefined' && (import.meta as any).env && (import.meta as any).env[key]) {
 
-        return import.meta.env[key];
+        return (import.meta as any).env[key];
     }
 
     // Check for React Native / Node process.env
