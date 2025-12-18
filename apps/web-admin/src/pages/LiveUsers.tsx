@@ -3,7 +3,7 @@ import { adminService } from '@thelocals/core/services/adminService';
 import { ActiveSession } from '@thelocals/core/types';
 import { Layout } from '../components/Layout';
 
-export const LiveUsers: React.FC = () => {
+const LiveUsers: React.FC = () => {
     const [sessions, setSessions] = useState<ActiveSession[]>([]);
     const [filters, setFilters] = useState({ city: '', userType: '' });
     const [loading, setLoading] = useState(true);
@@ -33,7 +33,7 @@ export const LiveUsers: React.FC = () => {
         setLoading(true);
         try {
             const data = await adminService.getActiveSessions(
-                filters.city || filters.userType ? filters : undefined
+                (filters.city || filters.userType ? filters : undefined) as any
             );
             setSessions(data);
         } catch (error) {
@@ -152,8 +152,8 @@ export const LiveUsers: React.FC = () => {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className={`px-2 py-1 text-xs font-semibold rounded-full ${session.user_type === 'customer'
-                                                    ? 'bg-blue-100 text-blue-800'
-                                                    : 'bg-green-100 text-green-800'
+                                                ? 'bg-blue-100 text-blue-800'
+                                                : 'bg-green-100 text-green-800'
                                                 }`}>
                                                 {session.user_type}
                                             </span>
@@ -206,3 +206,5 @@ const StatCard: React.FC<StatCardProps> = ({ title, count, icon, color }) => {
         </div>
     );
 };
+
+export default LiveUsers;
