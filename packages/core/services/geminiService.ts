@@ -28,7 +28,7 @@ export const estimateService = async (input: string, category: string): Promise<
   const isTestMode = CONFIG.IS_TEST_MODE || CONFIG.ENABLE_OTP_BYPASS;
 
   if (isTestMode) {
-    console.log('[Test Mode] Bypassing AI Edge Function');
+
     return fallbackEstimation(input, category);
   }
 

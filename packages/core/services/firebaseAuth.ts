@@ -78,11 +78,11 @@ export const initializeRecaptcha = (
         size,
         callback: () => {
             // reCAPTCHA solved
-            console.log('reCAPTCHA verified');
+
         },
         'expired-callback': () => {
             // Response expired
-            console.log('reCAPTCHA expired');
+
         },
     });
 

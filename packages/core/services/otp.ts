@@ -32,7 +32,7 @@ export class OTPService {
      */
     static async sendOTP(phone: string, _appVerifier?: any): Promise<OTPConfirmation> {
         if (this.isTestMode()) {
-            console.log(`[TEST MODE] OTP for ${phone}: ${this.TEST_OTP}`);
+
             return {
                 confirm: async (code: string) => {
                     if (code === this.TEST_OTP) {

@@ -14,7 +14,7 @@ export const createSupabaseSession = async (
     try {
         // Test Mode Bypass
         if (firebaseToken === 'MOCK_FIREBASE_TOKEN_123456') {
-            console.log('[TEST MODE] Bypassing auth bridge with mock session');
+
             return {
                 session: {
                     access_token: 'mock-access-token',
