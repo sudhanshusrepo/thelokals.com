@@ -17,12 +17,18 @@ export class OTPService {
     /**
      * Check if we're in test mode
      */
-    private static isTestMode(): boolean {
+    public static isTestMode(): boolean {
+        // Safe check for import.meta.env or process.env
+        const env = (typeof import.meta !== 'undefined' && (import.meta as any).env) ? (import.meta as any).env : (typeof process !== 'undefined' ? process.env : {});
         return (
-            import.meta.env.VITE_ENABLE_OTP_BYPASS === 'true' ||
-            import.meta.env.MODE === 'test' ||
-            import.meta.env.DEV === true // Enable in development by default
+            env.VITE_ENABLE_OTP_BYPASS === 'true' ||
+            env.MODE === 'test' ||
+            env.DEV === true
         );
+    }
+
+    public static getTestOTP(): string | null {
+        return this.isTestMode() ? this.TEST_OTP : null;
     }
 
     /**

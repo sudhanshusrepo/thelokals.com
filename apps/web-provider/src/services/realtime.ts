@@ -54,7 +54,7 @@ class RealtimeService {
                     table: 'bookings',
                     filter: `provider_id=eq.${providerId}`,
                 },
-                (payload) => {
+                (payload: any) => {
                     // console.log('New booking request:', payload.new);
                     onNewBooking(payload.new as BookingRequest);
                 }
@@ -67,12 +67,12 @@ class RealtimeService {
                     table: 'bookings',
                     filter: `provider_id=eq.${providerId}`,
                 },
-                (payload) => {
+                (payload: any) => {
                     // console.log('Booking updated:', payload.new);
                     onBookingUpdate(payload.new as BookingRequest);
                 }
             )
-            .subscribe((status) => {
+            .subscribe((status: any) => {
                 // console.log('Booking subscription status:', status);
             });
 
@@ -105,7 +105,7 @@ class RealtimeService {
                     table: 'provider_notifications',
                     filter: `provider_id=eq.${providerId}`,
                 },
-                (payload) => {
+                (payload: any) => {
                     // console.log('New notification:', payload.new);
                     onNewNotification(payload.new as ProviderNotification);
                 }
@@ -118,12 +118,12 @@ class RealtimeService {
                     table: 'provider_notifications',
                     filter: `provider_id=eq.${providerId}`,
                 },
-                (payload) => {
+                (payload: any) => {
                     // console.log('Notification updated:', payload.new);
                     onNotificationUpdate(payload.new as ProviderNotification);
                 }
             )
-            .subscribe((status) => {
+            .subscribe((status: any) => {
                 // console.log('Notification subscription status:', status);
             });
 

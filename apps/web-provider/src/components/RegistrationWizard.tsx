@@ -15,27 +15,39 @@ interface RegistrationWizardProps {
     onCancel: () => void;
 }
 
-const initialData: ProviderProfile = {
-    phoneNumber: '',
+interface WizardState extends ProviderProfile {
+    isPhoneVerified: boolean;
+    dob?: string;
+    gender?: string;
+    guidelinesAccepted: boolean;
+    registrationStatus: RegistrationStatus;
+}
+
+const initialData: WizardState = {
+    id: '', // Add explicit initialized id
+    phone: '',
     isPhoneVerified: false,
-    fullName: '',
+    full_name: '',
+    email: '',
+    category: '',
+    is_verified: false,
     dob: '',
     gender: '',
     city: '',
     locality: '',
     documents: {
-        [DocType.GovtID]: { type: DocType.GovtID, status: 'empty' },
-        [DocType.PAN]: { type: DocType.PAN, status: 'empty' },
-        [DocType.BankDetails]: { type: DocType.BankDetails, status: 'empty' },
-        [DocType.Selfie]: { type: DocType.Selfie, status: 'empty' }
+        [DocType.GovtID]: { type: DocType.GovtID, status: 'empty', url: '', verified: false },
+        [DocType.PAN]: { type: DocType.PAN, status: 'empty', url: '', verified: false },
+        [DocType.BankDetails]: { type: DocType.BankDetails, status: 'empty', url: '', verified: false },
+        [DocType.Selfie]: { type: DocType.Selfie, status: 'empty', url: '', verified: false }
     },
     guidelinesAccepted: false,
-    registrationStatus: RegistrationStatus.Draft
+    registrationStatus: RegistrationStatus.DRAFT
 };
 
 export const RegistrationWizard: React.FC<RegistrationWizardProps> = ({ onComplete, onCancel }) => {
     const [step, setStep] = useState(1);
-    const [formData, setFormData] = useState<ProviderProfile>(initialData);
+    const [formData, setFormData] = useState<WizardState>(initialData);
     const [isRestoring, setIsRestoring] = useState(true);
 
     const totalSteps = 6; // Phone, Basic Details, Services, Documents, Guidelines, Review
@@ -80,7 +92,7 @@ export const RegistrationWizard: React.FC<RegistrationWizardProps> = ({ onComple
     const handleComplete = async () => {
         // Submit registration
         try {
-            await backend.submitRegistration(formData);
+            await backend.db.submitApplication(formData);
             await backend.db.clearDraft();
             onComplete();
         } catch (error) {

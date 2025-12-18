@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { bookingService } from '../services/bookingService';
 import { liveBookingService as providerLiveBookingService } from '../services/liveBookingService';
-import { liveBookingService as coreLiveBookingService } from '../../core/services/liveBookingService';
-import { Booking, BookingStatus, BookingRequest } from '../../core/types';
-import { supabase } from '@core/services/supabase';
+import { liveBookingService as coreLiveBookingService } from '@thelocals/core/services/liveBookingService';
+import { Booking, BookingStatus, BookingRequest } from '@thelocals/core';
+import { supabase } from '@thelocals/core/services/supabase';
 
 import { ProfileTab } from './ProfileTab';
 import { ProviderProfile } from '../types';

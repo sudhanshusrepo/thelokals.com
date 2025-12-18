@@ -75,7 +75,14 @@ export const backend = {
   // ...
 
   availability: {
-    getSchedule: async (): Promise<AvailabilitySchedule> => { return {}; },
+    getSchedule: async (): Promise<AvailabilitySchedule> => {
+      return {
+        days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+        startTime: '09:00',
+        endTime: '17:00',
+        enabled: true
+      };
+    },
     updateSchedule: async (schedule: AvailabilitySchedule): Promise<void> => { }
   },
 

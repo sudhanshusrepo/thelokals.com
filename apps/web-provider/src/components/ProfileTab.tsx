@@ -23,8 +23,8 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({ profile, onUpdate }) => 
                     <button
                         onClick={() => isEditing ? handleSave() : setIsEditing(true)}
                         className={`px-4 py-2 rounded-lg font-bold text-sm transition-colors ${isEditing
-                                ? 'bg-teal-600 text-white hover:bg-teal-700'
-                                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                            ? 'bg-teal-600 text-white hover:bg-teal-700'
+                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                             }`}
                     >
                         {isEditing ? 'Save Changes' : 'Edit Profile'}
@@ -38,12 +38,12 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({ profile, onUpdate }) => 
                             {isEditing ? (
                                 <input
                                     type="text"
-                                    value={editForm.fullName}
-                                    onChange={e => setEditForm({ ...editForm, fullName: e.target.value })}
+                                    value={editForm.full_name}
+                                    onChange={e => setEditForm({ ...editForm, full_name: e.target.value })}
                                     className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-teal-500"
                                 />
                             ) : (
-                                <p className="text-lg font-medium text-slate-900">{profile.fullName}</p>
+                                <p className="text-lg font-medium text-slate-900">{profile.full_name}</p>
                             )}
                         </div>
 
@@ -58,14 +58,14 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({ profile, onUpdate }) => 
                                 <div className="flex items-center gap-2">
                                     <input
                                         type="number"
-                                        value={editForm.experienceYears || 0}
-                                        onChange={e => setEditForm({ ...editForm, experienceYears: parseInt(e.target.value) })}
+                                        value={editForm.experience_years || 0}
+                                        onChange={e => setEditForm({ ...editForm, experience_years: parseInt(e.target.value) })}
                                         className="w-20 p-2 border rounded-lg focus:ring-2 focus:ring-teal-500"
                                     />
                                     <span className="text-slate-500">Years</span>
                                 </div>
                             ) : (
-                                <p className="text-lg font-medium text-slate-900">{profile.experienceYears || 0} Years</p>
+                                <p className="text-lg font-medium text-slate-900">{profile.experience_years || 0} Years</p>
                             )}
                         </div>
                     </div>

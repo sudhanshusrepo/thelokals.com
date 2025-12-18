@@ -16,7 +16,7 @@ export const ReviewStep: React.FC<StepProps> = ({ data, updateData, onBack }) =>
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
-      const finalData = { ...data, registrationStatus: RegistrationStatus.Submitted };
+      const finalData = { ...data, registrationStatus: RegistrationStatus.PENDING };
       updateData(finalData);
       await backend.db.saveProfile(finalData);
       await backend.db.deleteDraft(); // Clear draft on successful submission
@@ -37,11 +37,11 @@ export const ReviewStep: React.FC<StepProps> = ({ data, updateData, onBack }) =>
         <div className="mt-6 bg-white border border-slate-200 rounded-lg divide-y divide-slate-200">
           <div className="p-4 flex justify-between items-center">
             <span className="text-sm font-medium text-slate-600">Full Name</span>
-            <span className="text-sm text-slate-800 font-semibold">{data.fullName}</span>
+            <span className="text-sm text-slate-800 font-semibold">{data.full_name}</span>
           </div>
           <div className="p-4 flex justify-between items-center">
             <span className="text-sm font-medium text-slate-600">Phone</span>
-            <span className="text-sm text-slate-800 font-semibold">{data.phoneNumber}</span>
+            <span className="text-sm text-slate-800 font-semibold">{data.phone}</span>
           </div>
           <div className="p-4 flex justify-between items-center">
             <span className="text-sm font-medium text-slate-600">Date of Birth</span>
@@ -53,7 +53,7 @@ export const ReviewStep: React.FC<StepProps> = ({ data, updateData, onBack }) =>
           </div>
           <div className="p-4 flex justify-between items-center">
             <span className="text-sm font-medium text-slate-600">Documents</span>
-            <span className="text-sm text-green-600 font-semibold">{Object.values(data.documents).filter(d => d.status === 'uploaded').length} files uploaded</span>
+            <span className="text-sm text-green-600 font-semibold">{Object.values(data.documents || {}).filter(d => d.status === 'uploaded').length} files uploaded</span>
           </div>
           <div className="p-4 flex justify-between items-center">
             <span className="text-sm font-medium text-slate-600">Guidelines</span>

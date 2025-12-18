@@ -1,6 +1,6 @@
-import { supabase } from '@core/services/supabase';
+import { supabase } from '@thelocals/core/services/supabase';
 import { logger } from '@thelocals/core/services/logger';
-import { Booking, BookingStatus } from '@core/types';
+import { Booking, BookingStatus } from '@thelocals/core';
 
 export const bookingService = {
 

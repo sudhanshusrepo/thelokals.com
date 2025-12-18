@@ -63,12 +63,13 @@ const DocUpload: React.FC<{ doc: ProviderDocument, onUpdate: (update: Partial<Pr
 }
 
 export const DocumentStep: React.FC<StepProps> = ({ data, updateData, onNext, onBack }) => {
-    const allDocsUploaded = Object.values(data.documents).every(d => d.status === 'uploaded');
+    const allDocsUploaded = Object.values(data.documents || {}).every(d => d.status === 'uploaded');
 
     const handleDocUpdate = (docType: DocType, updates: Partial<ProviderDocument>) => {
+        const currentDocs = data.documents || {};
         const updatedDocs = {
-            ...data.documents,
-            [docType]: { ...data.documents[docType], ...updates }
+            ...currentDocs,
+            [docType]: { ...(currentDocs[docType] || {}), ...updates }
         };
         updateData({ documents: updatedDocs });
     };
@@ -80,11 +81,11 @@ export const DocumentStep: React.FC<StepProps> = ({ data, updateData, onNext, on
                 <p className="text-slate-500 mt-2">We need these to verify your identity and process payments. Your data is safe with us.</p>
 
                 <div className="mt-6 space-y-3">
-                    {Object.values(data.documents).map(doc =>
+                    {Object.entries(data.documents || {}).map(([key, doc]) =>
                         <DocUpload
-                            key={doc.type}
+                            key={key}
                             doc={doc}
-                            onUpdate={(updates) => handleDocUpdate(doc.type, updates)}
+                            onUpdate={(updates) => handleDocUpdate(key as DocType, updates)}
                         />
                     )}
                 </div>

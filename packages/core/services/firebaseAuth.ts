@@ -8,14 +8,21 @@ import {
     ApplicationVerifier
 } from 'firebase/auth';
 
+// Helper to get env vars safely in both Vite and Next.js environments
+const getEnv = (key: string) => {
+    // Safe check for import.meta.env or process.env
+    const env = (typeof import.meta !== 'undefined' && (import.meta as any).env) ? (import.meta as any).env : (typeof process !== 'undefined' ? process.env : {});
+    return env[key] || '';
+};
+
 // Firebase configuration
 const firebaseConfig = {
-    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-    appId: import.meta.env.VITE_FIREBASE_APP_ID,
+    apiKey: getEnv('VITE_FIREBASE_API_KEY'),
+    authDomain: getEnv('VITE_FIREBASE_AUTH_DOMAIN'),
+    projectId: getEnv('VITE_FIREBASE_PROJECT_ID'),
+    storageBucket: getEnv('VITE_FIREBASE_STORAGE_BUCKET'),
+    messagingSenderId: getEnv('VITE_FIREBASE_MESSAGING_SENDER_ID'),
+    appId: getEnv('VITE_FIREBASE_APP_ID'),
 };
 
 let app: FirebaseApp | null = null;

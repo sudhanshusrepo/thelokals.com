@@ -10,6 +10,8 @@ export interface ProviderDocument {
     url: string;
     verified: boolean;
     uploaded_at?: string;
+    type?: string;
+    status?: string;
 }
 
 export interface ProviderProfile {
@@ -19,7 +21,17 @@ export interface ProviderProfile {
     phone: string;
     category: string;
     is_verified: boolean;
+    city?: string;
+    locality?: string;
+    experience_years?: number;
     documents?: Record<string, ProviderDocument>;
+
+    // Wizard/Draft fields
+    isPhoneVerified?: boolean;
+    dob?: string;
+    gender?: string;
+    guidelinesAccepted?: boolean;
+    registrationStatus?: RegistrationStatus;
     // Add other fields as needed
 }
 
@@ -35,9 +47,16 @@ export interface Application extends ProviderProfile {
     submitted_at: string;
 }
 
+export enum RegistrationStatus {
+    DRAFT = 'DRAFT',
+    PENDING = 'PENDING',
+    APPROVED = 'APPROVED',
+    REJECTED = 'REJECTED'
+}
+
 export interface AvailabilitySchedule {
-    [date: string]: {
-        start: string;
-        end: string;
-    }[];
+    days: string[];
+    startTime: string;
+    endTime: string;
+    enabled: boolean;
 }
