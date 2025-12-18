@@ -36,7 +36,7 @@ export const LocationTracker: React.FC = () => {
             async (position) => {
                 try {
                     const { latitude, longitude } = position.coords;
-                    await backend.location.update(latitude, longitude);
+                    await (backend as any).location.update(latitude, longitude);
                 } catch (error) {
                     console.error('Failed to update location', error);
                 }
