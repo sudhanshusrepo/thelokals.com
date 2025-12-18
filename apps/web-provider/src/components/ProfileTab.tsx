@@ -23,7 +23,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({ profile, onUpdate }) => 
                     <button
                         onClick={() => isEditing ? handleSave() : setIsEditing(true)}
                         className={`px-4 py-2 rounded-lg font-bold text-sm transition-colors ${isEditing
-                            ? 'bg-teal-600 text-white hover:bg-teal-700'
+                            ? 'bg-primary text-white hover:bg-blue-700'
                             : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                             }`}
                     >
@@ -40,7 +40,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({ profile, onUpdate }) => 
                                     type="text"
                                     value={editForm.full_name}
                                     onChange={e => setEditForm({ ...editForm, full_name: e.target.value })}
-                                    className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-teal-500"
+                                    className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-primary"
                                 />
                             ) : (
                                 <p className="text-lg font-medium text-slate-900">{profile.full_name}</p>
@@ -60,7 +60,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({ profile, onUpdate }) => 
                                         type="number"
                                         value={editForm.experience_years || 0}
                                         onChange={e => setEditForm({ ...editForm, experience_years: parseInt(e.target.value) })}
-                                        className="w-20 p-2 border rounded-lg focus:ring-2 focus:ring-teal-500"
+                                        className="w-20 p-2 border rounded-lg focus:ring-2 focus:ring-primary"
                                     />
                                     <span className="text-slate-500">Years</span>
                                 </div>
@@ -78,7 +78,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({ profile, onUpdate }) => 
                                     type="text"
                                     value={editForm.city}
                                     onChange={e => setEditForm({ ...editForm, city: e.target.value })}
-                                    className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-teal-500"
+                                    className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-primary"
                                 />
                             ) : (
                                 <p className="text-lg font-medium text-slate-900">{profile.city}</p>
@@ -91,7 +91,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({ profile, onUpdate }) => 
                                     type="text"
                                     value={editForm.locality}
                                     onChange={e => setEditForm({ ...editForm, locality: e.target.value })}
-                                    className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-teal-500"
+                                    className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-primary"
                                 />
                             ) : (
                                 <p className="text-lg font-medium text-slate-900">{profile.locality}</p>
@@ -105,15 +105,15 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({ profile, onUpdate }) => 
                 <h3 className="text-xl font-bold text-slate-900 mb-6">Performance & Feedback</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="p-4 bg-slate-50 rounded-xl text-center">
-                        <div className="text-3xl font-bold text-teal-600 mb-1">4.8</div>
+                        <div className="text-3xl font-bold text-primary mb-1">4.8</div>
                         <div className="text-sm text-slate-500 font-medium">Average Rating</div>
                     </div>
                     <div className="p-4 bg-slate-50 rounded-xl text-center">
-                        <div className="text-3xl font-bold text-teal-600 mb-1">124</div>
+                        <div className="text-3xl font-bold text-primary mb-1">124</div>
                         <div className="text-sm text-slate-500 font-medium">Jobs Completed</div>
                     </div>
                     <div className="p-4 bg-slate-50 rounded-xl text-center">
-                        <div className="text-3xl font-bold text-teal-600 mb-1">98%</div>
+                        <div className="text-3xl font-bold text-primary mb-1">98%</div>
                         <div className="text-sm text-slate-500 font-medium">Response Rate</div>
                     </div>
                 </div>

@@ -78,7 +78,7 @@ export const LocationTracker: React.FC = () => {
                     onClick={isTracking ? stopTracking : startTracking}
                     className={`px-4 py-2 rounded-lg font-bold text-sm transition-all ${isTracking
                         ? 'bg-red-100 text-red-600 hover:bg-red-200'
-                        : 'bg-teal-600 text-white hover:bg-teal-700 shadow-md'
+                        : 'bg-primary text-white hover:bg-blue-700 shadow-md'
                         }`}
                 >
                     {isTracking ? 'Stop' : 'Go Online'}

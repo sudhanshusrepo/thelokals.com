@@ -78,7 +78,7 @@ export const AvailabilitySettings: React.FC = () => {
                     </div>
                     <button
                         onClick={() => setSchedule(s => ({ ...s, enabled: !s.enabled }))}
-                        className={`w-14 h-8 rounded-full transition-colors relative ${schedule.enabled ? 'bg-teal-500' : 'bg-slate-300'
+                        className={`w-14 h-8 rounded-full transition-colors relative ${schedule.enabled ? 'bg-primary' : 'bg-slate-300'
                             }`}
                     >
                         <div className={`absolute top-1 w-6 h-6 bg-white rounded-full transition-transform shadow-sm ${schedule.enabled ? 'left-7' : 'left-1'
@@ -97,8 +97,8 @@ export const AvailabilitySettings: React.FC = () => {
                                 key={day}
                                 onClick={() => toggleDay(day)}
                                 className={`w-10 h-10 rounded-full font-medium transition-all ${schedule.days.includes(day)
-                                        ? 'bg-teal-600 text-white shadow-md transform scale-105'
-                                        : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                                    ? 'bg-blue-600 text-white shadow-md transform scale-105'
+                                    : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
                                     }`}
                             >
                                 {day.charAt(0)}
@@ -115,7 +115,7 @@ export const AvailabilitySettings: React.FC = () => {
                             type="time"
                             value={schedule.startTime}
                             onChange={(e) => setSchedule(s => ({ ...s, startTime: e.target.value }))}
-                            className="w-full rounded-lg border-slate-300 focus:ring-teal-500 focus:border-teal-500"
+                            className="w-full rounded-lg border-slate-300 focus:ring-primary focus:border-primary"
                         />
                     </div>
                     <div>
@@ -124,7 +124,7 @@ export const AvailabilitySettings: React.FC = () => {
                             type="time"
                             value={schedule.endTime}
                             onChange={(e) => setSchedule(s => ({ ...s, endTime: e.target.value }))}
-                            className="w-full rounded-lg border-slate-300 focus:ring-teal-500 focus:border-teal-500"
+                            className="w-full rounded-lg border-slate-300 focus:ring-primary focus:border-primary"
                         />
                     </div>
                 </div>
@@ -134,7 +134,7 @@ export const AvailabilitySettings: React.FC = () => {
                     <button
                         onClick={handleSave}
                         disabled={saving}
-                        className={`w-full py-3 rounded-xl font-bold text-white transition-all shadow-lg ${saving ? 'bg-slate-400 cursor-not-allowed' : 'bg-teal-600 hover:bg-teal-700 hover:shadow-xl'
+                        className={`w-full py-3 rounded-xl font-bold text-white transition-all shadow-lg ${saving ? 'bg-slate-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 hover:shadow-xl'
                             }`}
                     >
                         {saving ? 'Saving...' : 'Save Changes'}

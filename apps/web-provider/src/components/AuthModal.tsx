@@ -111,25 +111,25 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose, initialMode = 'si
                     <button
                         onClick={() => setActiveTab('signin')}
                         className={`flex-1 py-4 text-sm font-bold uppercase tracking-wider transition-colors relative ${activeTab === 'signin'
-                            ? 'text-teal-600 dark:text-teal-400 bg-teal-50/50 dark:bg-slate-800/50'
+                            ? 'text-primary dark:text-blue-400 bg-blue-50/50 dark:bg-slate-800/50'
                             : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50'
                             }`}
                     >
                         Sign In
                         {activeTab === 'signin' && (
-                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-teal-600 dark:bg-teal-400"></div>
+                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary dark:bg-blue-400"></div>
                         )}
                     </button>
                     <button
                         onClick={() => setActiveTab('signup')}
                         className={`flex-1 py-4 text-sm font-bold uppercase tracking-wider transition-colors relative ${activeTab === 'signup'
-                            ? 'text-teal-600 dark:text-teal-400 bg-teal-50/50 dark:bg-slate-800/50'
+                            ? 'text-primary dark:text-blue-400 bg-blue-50/50 dark:bg-slate-800/50'
                             : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50'
                             }`}
                     >
                         Sign Up
                         {activeTab === 'signup' && (
-                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-teal-600 dark:bg-teal-400"></div>
+                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary dark:bg-blue-400"></div>
                         )}
                     </button>
                 </div>
@@ -188,7 +188,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose, initialMode = 'si
                         <button
                             type="submit"
                             disabled={loading}
-                            className={`w-full py-3 px-4 bg-teal-500 hover:bg-teal-600 text-white font-bold rounded-xl shadow-lg shadow-teal-500/20 transition-all transform active:scale-[0.98] flex items-center justify-center ${loading ? 'opacity-70 cursor-not-allowed' : ''
+                            className={`w-full py-3 px-4 bg-primary hover:bg-blue-600 text-white font-bold rounded-xl shadow-lg shadow-blue-500/20 transition-all transform active:scale-[0.98] flex items-center justify-center ${loading ? 'opacity-70 cursor-not-allowed' : ''
                                 }`}
                         >
                             {loading ? (

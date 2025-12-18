@@ -28,7 +28,7 @@ export const IncomingRequestModal: React.FC<IncomingRequestModalProps> = ({ serv
             <div className="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl animate-slide-up">
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-xl font-bold text-slate-900">New Job Request!</h2>
-                    <div className="w-10 h-10 rounded-full border-4 border-teal-500 flex items-center justify-center font-bold text-teal-600">
+                    <div className="w-10 h-10 rounded-full border-4 border-primary flex items-center justify-center font-bold text-primary">
                         {timeLeft}
                     </div>
                 </div>
@@ -41,7 +41,7 @@ export const IncomingRequestModal: React.FC<IncomingRequestModalProps> = ({ serv
                         <div className="flex items-center gap-2">
                             <span>📍 {distance} away</span>
                         </div>
-                        <div className="flex items-center gap-2 text-teal-600 font-bold text-lg">
+                        <div className="flex items-center gap-2 text-primary font-bold text-lg">
                             <span>💰 ₹{estimatedCost || earnings}</span>
                         </div>
                     </div>
@@ -52,7 +52,7 @@ export const IncomingRequestModal: React.FC<IncomingRequestModalProps> = ({ serv
                             <ul className="space-y-1">
                                 {checklist.map((item, idx) => (
                                     <li key={idx} className="text-sm text-slate-700 flex items-start gap-2">
-                                        <span className="text-teal-500 mt-1">✓</span> {item}
+                                        <span className="text-primary mt-1">✓</span> {item}
                                     </li>
                                 ))}
                             </ul>
@@ -69,7 +69,7 @@ export const IncomingRequestModal: React.FC<IncomingRequestModalProps> = ({ serv
                     </button>
                     <button
                         onClick={onAccept}
-                        className="py-4 rounded-xl font-bold text-white bg-teal-600 hover:bg-teal-700 shadow-lg shadow-teal-200 transition-all transform active:scale-95"
+                        className="py-4 rounded-xl font-bold text-white bg-primary hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all transform active:scale-95"
                     >
                         Accept Job
                     </button>

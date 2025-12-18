@@ -86,17 +86,17 @@ export const ProviderLanding: React.FC<ProviderLandingProps> = ({ onRegisterClic
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-teal-50 to-white">
+        <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
             {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
 
             {/* Hero Section */}
             <section className="relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-teal-200/20 to-amber-200/20"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-200/20 to-amber-200/20"></div>
                 <div className="relative max-w-7xl mx-auto px-4 py-16 sm:py-24">
                     <div className="text-center">
                         <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-slate-900 mb-6 tracking-tight">
                             Grow Your Business with
-                            <span className="block text-teal-500 mt-2">thelokals</span>
+                            <span className="block text-primary mt-2">thelokals</span>
                         </h1>
                         <p className="text-xl sm:text-2xl text-slate-600 mb-8 max-w-3xl mx-auto">
                             Join thousands of service providers earning more by connecting with customers in your area
@@ -104,13 +104,13 @@ export const ProviderLanding: React.FC<ProviderLandingProps> = ({ onRegisterClic
                         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                             <button
                                 onClick={handleGetStarted}
-                                className="px-8 py-4 bg-teal-500 text-white text-lg font-bold rounded-xl hover:bg-teal-600 transition-all transform hover:scale-105 shadow-lg hover:shadow-teal-500/25"
+                                className="px-8 py-4 bg-primary text-white text-lg font-bold rounded-xl hover:bg-blue-600 transition-all transform hover:scale-105 shadow-lg hover:shadow-blue-500/25"
                             >
                                 {user ? 'Complete Registration' : 'Get Started'}
                             </button>
                             <a
                                 href="#how-it-works"
-                                className="px-8 py-4 bg-white text-teal-600 text-lg font-bold rounded-xl hover:bg-teal-50 transition-all border-2 border-teal-100"
+                                className="px-8 py-4 bg-white text-primary text-lg font-bold rounded-xl hover:bg-blue-50 transition-all border-2 border-blue-100"
                             >
                                 Learn More
                             </a>
@@ -134,24 +134,24 @@ export const ProviderLanding: React.FC<ProviderLandingProps> = ({ onRegisterClic
             </section>
 
             {/* Stats Section */}
-            <section className="bg-teal-500 text-white py-12">
+            <section className="bg-primary text-white py-12">
                 <div className="max-w-7xl mx-auto px-4">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
                         <div>
                             <div className="text-4xl font-bold mb-2">10,000+</div>
-                            <div className="text-teal-100">Active Providers</div>
+                            <div className="text-blue-100">Active Providers</div>
                         </div>
                         <div>
                             <div className="text-4xl font-bold mb-2">50,000+</div>
-                            <div className="text-teal-100">Jobs Completed</div>
+                            <div className="text-blue-100">Jobs Completed</div>
                         </div>
                         <div>
                             <div className="text-4xl font-bold mb-2">₹2.5Cr+</div>
-                            <div className="text-teal-100">Earnings Paid</div>
+                            <div className="text-blue-100">Earnings Paid</div>
                         </div>
                         <div>
                             <div className="text-4xl font-bold mb-2">4.8★</div>
-                            <div className="text-teal-100">Average Rating</div>
+                            <div className="text-blue-100">Average Rating</div>
                         </div>
                     </div>
                 </div>
@@ -167,9 +167,9 @@ export const ProviderLanding: React.FC<ProviderLandingProps> = ({ onRegisterClic
                         {features.map((feature, index) => (
                             <div
                                 key={index}
-                                className="bg-white border border-slate-100 rounded-2xl p-6 hover:shadow-xl transition-all transform hover:-translate-y-1 hover:border-teal-200"
+                                className="bg-white border border-slate-100 rounded-2xl p-6 hover:shadow-xl transition-all transform hover:-translate-y-1 hover:border-blue-200"
                             >
-                                <div className="text-5xl mb-4 bg-teal-50 w-20 h-20 flex items-center justify-center rounded-2xl">{feature.icon}</div>
+                                <div className="text-5xl mb-4 bg-blue-50 w-20 h-20 flex items-center justify-center rounded-2xl">{feature.icon}</div>
                                 <h3 className="text-xl font-bold text-slate-900 mb-2">{feature.title}</h3>
                                 <p className="text-slate-600">{feature.description}</p>
                             </div>
@@ -193,10 +193,10 @@ export const ProviderLanding: React.FC<ProviderLandingProps> = ({ onRegisterClic
                         ].map((item, index) => (
                             <div key={index} className="text-center group">
                                 <div className="relative mb-6 inline-block">
-                                    <div className="w-20 h-20 bg-white border-2 border-teal-100 text-teal-600 rounded-2xl flex items-center justify-center text-3xl font-bold mx-auto shadow-sm group-hover:border-teal-500 transition-colors">
+                                    <div className="w-20 h-20 bg-white border-2 border-blue-100 text-primary rounded-2xl flex items-center justify-center text-3xl font-bold mx-auto shadow-sm group-hover:border-primary transition-colors">
                                         {item.step}
                                     </div>
-                                    <div className="text-4xl absolute -bottom-2 -right-2 bg-teal-50 rounded-full p-1 border-2 border-white">{item.icon}</div>
+                                    <div className="text-4xl absolute -bottom-2 -right-2 bg-blue-50 rounded-full p-1 border-2 border-white">{item.icon}</div>
                                 </div>
                                 <h3 className="text-xl font-bold text-slate-900 mb-2">{item.title}</h3>
                                 <p className="text-slate-600">{item.desc}</p>
@@ -214,8 +214,8 @@ export const ProviderLanding: React.FC<ProviderLandingProps> = ({ onRegisterClic
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
                         {benefits.map((benefit, index) => (
-                            <div key={index} className="flex items-start gap-3 bg-teal-50/50 border border-teal-100/50 rounded-xl p-4 hover:bg-teal-50 transition-colors">
-                                <span className="text-2xl text-teal-500">✓</span>
+                            <div key={index} className="flex items-start gap-3 bg-blue-50/50 border border-blue-100/50 rounded-xl p-4 hover:bg-blue-50 transition-colors">
+                                <span className="text-2xl text-primary">✓</span>
                                 <span className="text-slate-700 font-medium">{benefit}</span>
                             </div>
                         ))}
@@ -236,7 +236,7 @@ export const ProviderLanding: React.FC<ProviderLandingProps> = ({ onRegisterClic
                                     <div className="text-5xl bg-slate-50 rounded-full p-2">{testimonial.image}</div>
                                     <div>
                                         <h4 className="font-bold text-slate-900">{testimonial.name}</h4>
-                                        <p className="text-sm text-teal-600 font-medium">{testimonial.role}</p>
+                                        <p className="text-sm text-primary font-medium">{testimonial.role}</p>
                                         <div className="flex gap-1 mt-1">
                                             {[...Array(testimonial.rating)].map((_, i) => (
                                                 <span key={i} className="text-amber-400">★</span>
@@ -253,7 +253,7 @@ export const ProviderLanding: React.FC<ProviderLandingProps> = ({ onRegisterClic
 
             {/* CTA Section */}
             <section className="py-20 bg-slate-900 text-white relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-96 h-96 bg-teal-500/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+                <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
                 <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
 
                 <div className="relative max-w-4xl mx-auto px-4 text-center">
@@ -265,7 +265,7 @@ export const ProviderLanding: React.FC<ProviderLandingProps> = ({ onRegisterClic
                     </p>
                     <button
                         onClick={handleGetStarted}
-                        className="px-8 py-4 bg-teal-500 text-white text-lg font-bold rounded-xl hover:bg-teal-600 transition-all transform hover:scale-105 shadow-lg shadow-teal-500/25"
+                        className="px-8 py-4 bg-primary text-white text-lg font-bold rounded-xl hover:bg-blue-600 transition-all transform hover:scale-105 shadow-lg shadow-blue-500/25"
                     >
                         {user ? 'Complete Registration' : 'Register as Provider'}
                     </button>
@@ -275,12 +275,12 @@ export const ProviderLanding: React.FC<ProviderLandingProps> = ({ onRegisterClic
             {/* Footer */}
             <footer className="bg-slate-950 text-white py-12 border-t border-slate-900">
                 <div className="max-w-7xl mx-auto px-4 text-center">
-                    <div className="font-bold text-2xl mb-4">thelokals<span className="text-teal-500">.com</span></div>
+                    <div className="font-bold text-2xl mb-4">thelokals<span className="text-primary">.com</span></div>
                     <p className="text-slate-500 mb-8">© 2025 thelokals. All rights reserved.</p>
                     <div className="flex justify-center gap-8 text-sm font-medium">
-                        <a href="#" className="text-slate-400 hover:text-teal-500 transition-colors">Privacy Policy</a>
-                        <a href="#" className="text-slate-400 hover:text-teal-500 transition-colors">Terms of Service</a>
-                        <a href="#" className="text-slate-400 hover:text-teal-500 transition-colors">Support</a>
+                        <a href="#" className="text-slate-400 hover:text-primary transition-colors">Privacy Policy</a>
+                        <a href="#" className="text-slate-400 hover:text-primary transition-colors">Terms of Service</a>
+                        <a href="#" className="text-slate-400 hover:text-primary transition-colors">Support</a>
                     </div>
                 </div>
             </footer>

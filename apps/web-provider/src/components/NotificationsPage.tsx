@@ -140,7 +140,7 @@ const NotificationsPage: React.FC = () => {
                 {unreadCount > 0 && (
                     <button
                         onClick={markAllAsRead}
-                        className="px-4 py-2 text-teal-600 font-semibold hover:bg-teal-50 rounded-lg transition-all"
+                        className="px-4 py-2 text-primary font-semibold hover:bg-blue-50 rounded-lg transition-all"
                     >
                         Mark all as read
                     </button>
@@ -159,7 +159,7 @@ const NotificationsPage: React.FC = () => {
                         key={key}
                         onClick={() => setFilter(key as any)}
                         className={`px-4 py-2 rounded-lg font-semibold whitespace-nowrap transition-all ${filter === key
-                            ? 'bg-teal-600 text-white shadow-md'
+                            ? 'bg-primary text-white shadow-md'
                             : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
                             }`}
                     >
@@ -205,7 +205,7 @@ const NotificationsPage: React.FC = () => {
                                                 {notification.title}
                                             </h3>
                                             {!notification.read && (
-                                                <span className="flex-shrink-0 h-2 w-2 bg-teal-500 rounded-full"></span>
+                                                <span className="flex-shrink-0 h-2 w-2 bg-primary rounded-full"></span>
                                             )}
                                         </div>
                                         <p className={`text-sm mb-2 ${!notification.read ? 'text-slate-700' : 'text-slate-600'}`}>
@@ -214,7 +214,7 @@ const NotificationsPage: React.FC = () => {
                                         <div className="flex items-center justify-between">
                                             <span className="text-xs text-slate-500">{getTimeAgo(notification.createdAt)}</span>
                                             {notification.actionUrl && (
-                                                <span className="text-xs text-teal-600 font-semibold">
+                                                <span className="text-xs text-primary font-semibold">
                                                     View Details →
                                                 </span>
                                             )}
@@ -231,7 +231,7 @@ const NotificationsPage: React.FC = () => {
                                             e.stopPropagation();
                                             markAsRead(notification.id);
                                         }}
-                                        className="flex-1 px-4 py-2 text-sm text-teal-600 font-semibold hover:bg-teal-50 transition-colors"
+                                        className="flex-1 px-4 py-2 text-sm text-primary font-semibold hover:bg-blue-50 transition-colors"
                                     >
                                         Mark as read
                                     </button>

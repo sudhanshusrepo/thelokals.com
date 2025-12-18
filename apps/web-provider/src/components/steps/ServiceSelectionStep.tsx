@@ -74,8 +74,8 @@ export const ServiceSelectionStep: React.FC<ServiceSelectionStepProps> = ({
                         key={service.id}
                         onClick={() => toggleService(service.id)}
                         className={`text-left p-4 rounded-xl border-2 transition-all transform hover:scale-105 ${selectedServices.includes(service.id)
-                                ? 'border-teal-600 bg-teal-50 shadow-md'
-                                : 'border-slate-200 bg-white hover:border-teal-300'
+                            ? 'border-primary bg-blue-50 shadow-md'
+                            : 'border-slate-200 bg-white hover:border-blue-300'
                             }`}
                     >
                         <div className="flex items-start gap-3">
@@ -85,17 +85,17 @@ export const ServiceSelectionStep: React.FC<ServiceSelectionStepProps> = ({
                                 <p className="text-sm text-slate-600">{service.description}</p>
                             </div>
                             {selectedServices.includes(service.id) && (
-                                <div className="text-teal-600 text-xl flex-shrink-0">✓</div>
+                                <div className="text-primary text-xl flex-shrink-0">✓</div>
                             )}
                         </div>
                     </button>
                 ))}
             </div>
 
-            <div className="bg-teal-50 border border-teal-200 rounded-lg p-4">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <div className="flex items-start gap-3">
                     <span className="text-2xl">💡</span>
-                    <div className="text-sm text-teal-900">
+                    <div className="text-sm text-blue-900">
                         <p className="font-semibold mb-1">Pro Tip:</p>
                         <p>Selecting multiple services increases your chances of getting more bookings!</p>
                     </div>
@@ -113,7 +113,7 @@ export const ServiceSelectionStep: React.FC<ServiceSelectionStepProps> = ({
                             return (
                                 <span
                                     key={serviceId}
-                                    className="inline-flex items-center gap-1 px-3 py-1 bg-teal-100 text-teal-800 rounded-full text-sm font-medium"
+                                    className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium"
                                 >
                                     <span>{service?.icon}</span>
                                     <span>{service?.name}</span>

@@ -123,7 +123,7 @@ const BookingRequestsPage: React.FC = () => {
                         key={status}
                         onClick={() => setFilter(status)}
                         className={`px-4 py-2 rounded-lg font-semibold whitespace-nowrap transition-all ${filter === status
-                            ? 'bg-teal-600 text-white shadow-md'
+                            ? 'bg-primary text-white shadow-md'
                             : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
                             }`}
                     >
@@ -153,7 +153,7 @@ const BookingRequestsPage: React.FC = () => {
                         return (
                             <div
                                 key={req.id}
-                                className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-all p-6 border-l-4 border-teal-500"
+                                className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-all p-6 border-l-4 border-primary"
                             >
                                 <div className="flex items-start justify-between mb-4">
                                     <div className="flex-1">
@@ -180,7 +180,7 @@ const BookingRequestsPage: React.FC = () => {
                                             </div>
                                             <div className="flex items-center gap-1">
                                                 <span>💰</span>
-                                                <span className="font-bold text-teal-600">₹{booking.final_cost || booking.estimated_cost || 0}</span>
+                                                <span className="font-bold text-primary">₹{booking.final_cost || booking.estimated_cost || 0}</span>
                                             </div>
                                             <div className="flex items-center gap-1">
                                                 <span>📍</span>
@@ -196,7 +196,7 @@ const BookingRequestsPage: React.FC = () => {
                                     <div className="flex gap-3 pt-4 border-t">
                                         <button
                                             onClick={() => setSelectedRequest(req)}
-                                            className="flex-1 px-4 py-2 bg-teal-600 text-white font-bold rounded-lg hover:bg-teal-700 transition-all"
+                                            className="flex-1 px-4 py-2 bg-primary text-white font-bold rounded-lg hover:bg-blue-700 transition-all"
                                         >
                                             View & Accept
                                         </button>
@@ -212,7 +212,7 @@ const BookingRequestsPage: React.FC = () => {
                                 {req.status === 'ACCEPTED' && (
                                     <button
                                         onClick={() => router.push(`/booking/${req.booking_id}`)}
-                                        className="w-full px-4 py-2 bg-teal-50 text-teal-700 font-bold rounded-lg hover:bg-teal-100 transition-all"
+                                        className="w-full px-4 py-2 bg-blue-50 text-blue-700 font-bold rounded-lg hover:bg-blue-100 transition-all"
                                     >
                                         Go to Job
                                     </button>

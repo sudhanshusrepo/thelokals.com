@@ -1,23 +1,23 @@
 @import "tailwindcss";
 
 :root {
-  /* Teal Green Palette for Providers */
-  --background: #f0fdfa;
-  /* teal-50 */
-  --foreground: #134e4a;
-  /* teal-900 */
+  /* Blue Palette for Providers (from theme/colors.ts) */
+  --background: #eff6ff;
+  /* blue-50 */
+  --foreground: #1e3a8a;
+  /* blue-900 */
 
-  --primary: #0d9488;
-  /* teal-600 */
+  --primary: #3b82f6;
+  /* blue-500 */
   --primary-foreground: #ffffff;
 
-  --secondary: #ccfbf1;
-  /* teal-100 */
-  --secondary-foreground: #115e59;
-  /* teal-800 */
+  --secondary: #dbeafe;
+  /* blue-100 */
+  --secondary-foreground: #1e40af;
+  /* blue-800 */
 
-  --accent: #2dd4bf;
-  /* teal-400 */
+  --accent: #60a5fa;
+  /* blue-400 */
   --accent-foreground: #ffffff;
 }
 
@@ -34,14 +34,14 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #042f2e;
-    /* teal-950 */
-    --foreground: #f0fdfa;
-    --primary: #14b8a6;
-    /* teal-500 */
-    --secondary: #115e59;
-    /* teal-800 */
-    --secondary-foreground: #ccfbf1;
+    --background: #0f172a;
+    /* slate-900 */
+    --foreground: #eff6ff;
+    --primary: #60a5fa;
+    /* blue-400 */
+    --secondary: #1e40af;
+    /* blue-800 */
+    --secondary-foreground: #dbeafe;
   }
 }
 

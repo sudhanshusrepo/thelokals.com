@@ -240,7 +240,7 @@ const ProviderBookingCard: React.FC<{ booking: Booking, onUpdateStatus?: (bookin
           </button>
         )}
         {status === 'CONFIRMED' && onUpdateStatus && (
-          <button onClick={() => onUpdateStatus(booking.id, 'EN_ROUTE')} className="text-sm font-bold text-white bg-teal-600 px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors">
+          <button onClick={() => onUpdateStatus(booking.id, 'EN_ROUTE')} className="text-sm font-bold text-white bg-blue-600 px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
             On My Way
           </button>
         )}

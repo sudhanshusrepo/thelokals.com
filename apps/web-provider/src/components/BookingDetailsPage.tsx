@@ -100,9 +100,9 @@ const BookingDetailsPage: React.FC = () => {
 
                 {/* Earnings */}
                 <div className="grid grid-cols-2 gap-4 mt-4">
-                    <div className="bg-teal-50 p-4 rounded-lg">
-                        <p className="text-sm text-teal-700 font-semibold mb-1">Your Earnings</p>
-                        <p className="text-3xl font-bold text-teal-600">₹{booking.final_cost || booking.estimated_cost}</p>
+                    <div className="bg-blue-50 p-4 rounded-lg">
+                        <p className="text-sm text-blue-700 font-semibold mb-1">Your Earnings</p>
+                        <p className="text-3xl font-bold text-primary">₹{booking.final_cost || booking.estimated_cost}</p>
                     </div>
                     {/* 
                     <div className="bg-slate-50 p-4 rounded-lg">
@@ -132,7 +132,7 @@ const BookingDetailsPage: React.FC = () => {
                                 href={`https://www.google.com/maps/search/?api=1&query=${(booking.location as any)?.coordinates?.[1]},${(booking.location as any)?.coordinates?.[0]}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-teal-600 text-sm hover:underline font-semibold"
+                                className="text-primary text-sm hover:underline font-semibold"
                             >
                                 Open Coordinates in Maps →
                             </a>
@@ -146,7 +146,7 @@ const BookingDetailsPage: React.FC = () => {
                 <div className="bg-white rounded-2xl shadow-md p-6">
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-xl font-bold text-slate-900">AI-Generated Checklist</h2>
-                        <span className="text-sm font-semibold text-teal-600">
+                        <span className="text-sm font-semibold text-primary">
                             {completedItems}/{checklist.length} completed
                         </span>
                     </div>
@@ -155,7 +155,7 @@ const BookingDetailsPage: React.FC = () => {
                     <div className="mb-6">
                         <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
                             <div
-                                className="h-full bg-gradient-to-r from-teal-500 to-emerald-500 transition-all duration-500"
+                                className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-500"
                                 style={{ width: `${progressPercentage}%` }}
                             ></div>
                         </div>
@@ -166,7 +166,7 @@ const BookingDetailsPage: React.FC = () => {
                             <label
                                 key={index}
                                 className={`flex items-start gap-3 p-4 rounded-lg cursor-pointer transition-all ${checklistProgress[index]
-                                    ? 'bg-teal-50 border-2 border-teal-500'
+                                    ? 'bg-blue-50 border-2 border-primary'
                                     : 'bg-slate-50 border-2 border-transparent hover:border-slate-200'
                                     }`}
                             >
@@ -174,7 +174,7 @@ const BookingDetailsPage: React.FC = () => {
                                     type="checkbox"
                                     checked={checklistProgress[index]}
                                     onChange={() => toggleChecklistItem(index)}
-                                    className="mt-1 h-5 w-5 text-teal-600 rounded focus:ring-teal-500"
+                                    className="mt-1 h-5 w-5 text-primary rounded focus:ring-primary"
                                 />
                                 <span className={`flex-1 ${checklistProgress[index] ? 'line-through text-slate-500' : 'text-slate-900'}`}>
                                     {item}

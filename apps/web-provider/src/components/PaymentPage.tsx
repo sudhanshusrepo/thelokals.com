@@ -111,8 +111,8 @@ const PaymentPage: React.FC = () => {
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-gradient-to-br from-teal-500 to-emerald-500 text-white rounded-2xl p-6 shadow-lg">
-                    <p className="text-teal-100 text-sm font-semibold mb-2">Total Earnings</p>
+                <div className="bg-gradient-to-br from-blue-500 to-indigo-500 text-white rounded-2xl p-6 shadow-lg">
+                    <p className="text-blue-100 text-sm font-semibold mb-2">Total Earnings</p>
                     <p className="text-4xl font-bold">₹{stats.totalEarnings.toLocaleString()}</p>
                 </div>
                 <div className="bg-white rounded-2xl p-6 shadow-md border-2 border-yellow-200">
@@ -135,10 +135,10 @@ const PaymentPage: React.FC = () => {
                     <div>
                         <h3 className="text-xl font-bold text-slate-900 mb-2">Request Withdrawal</h3>
                         <p className="text-slate-600 mb-4">
-                            Available balance: <span className="font-bold text-teal-600">₹{stats.totalEarnings.toLocaleString()}</span>
+                            Available balance: <span className="font-bold text-blue-200">₹{stats.totalEarnings.toLocaleString()}</span>
                         </p>
                     </div>
-                    <button className="px-6 py-3 bg-teal-600 text-white font-bold rounded-lg hover:bg-teal-700 transition-all shadow-md">
+                    <button className="px-6 py-3 bg-white text-primary font-bold rounded-lg hover:bg-blue-50 transition-all shadow-md">
                         Withdraw Funds
                     </button>
                 </div>
@@ -155,7 +155,7 @@ const PaymentPage: React.FC = () => {
                         key={status}
                         onClick={() => setFilter(status)}
                         className={`px-4 py-2 rounded-lg font-semibold whitespace-nowrap transition-all ${filter === status
-                            ? 'bg-teal-600 text-white shadow-md'
+                            ? 'bg-primary text-white shadow-md'
                             : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
                             }`}
                     >
@@ -202,7 +202,7 @@ const PaymentPage: React.FC = () => {
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <p className="text-2xl font-bold text-teal-600">₹{payment.amount}</p>
+                                        <p className="text-2xl font-bold text-primary">₹{payment.amount}</p>
                                     </div>
                                 </div>
                             </div>
@@ -228,7 +228,7 @@ const PaymentPage: React.FC = () => {
                         <span className="font-semibold text-slate-900">HDFC0001234</span>
                     </div>
                 </div>
-                <button className="mt-4 text-teal-600 font-semibold hover:underline">
+                <button className="mt-4 text-primary font-semibold hover:underline">
                     Update Bank Details →
                 </button>
             </div>
