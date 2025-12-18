@@ -4,6 +4,8 @@ import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { Toaster } from "react-hot-toast";
 
+export const runtime = 'edge';
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
