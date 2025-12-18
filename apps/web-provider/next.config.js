@@ -4,9 +4,6 @@ const path = require("path");
 const nextConfig = {
   transpilePackages: ['@thelocals/core'],
   outputFileTracingRoot: path.join(__dirname, "../../"),
-  webpack: (config) => {
-    return config;
-  },
 };
 
 module.exports = nextConfig;
