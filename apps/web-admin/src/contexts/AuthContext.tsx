@@ -1,3 +1,4 @@
+'use client';
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@thelocals/core/services/supabase';
 import { adminService } from '@thelocals/core/services/adminService';
