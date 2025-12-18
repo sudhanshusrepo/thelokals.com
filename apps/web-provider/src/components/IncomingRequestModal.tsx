@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ServiceType } from '@core/types';
+import { ServiceType } from '@thelocals/core';
 
 interface IncomingRequestModalProps {
     service: ServiceType;
