@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build --no-turbo",
     "pages:build": "npm run build && mkdir -p apps/web-provider && cp -r .next apps/web-provider/ && npx @cloudflare/next-on-pages",
     "start": "next start",
     "lint": "eslint"
