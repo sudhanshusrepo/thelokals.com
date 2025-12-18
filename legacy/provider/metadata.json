@@ -1,7 +1,0 @@
-{
-  "name": "TheLocals Provider Portal",
-  "description": "Registration and management portal for local service providers.",
-  "requestFramePermissions": [
-    "camera"
-  ]
-}

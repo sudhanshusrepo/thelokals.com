@@ -33,7 +33,7 @@ export const matchingService = {
                 .limit(20);
 
             if (error) throw error;
-            providerIds = data.map(p => p.id);
+            providerIds = data.map((p: { id: string }) => p.id);
         } else {
             // For LOCAL: Use GeoService (PostGIS)
             // Defaulting to 15km radius if not specified
@@ -64,7 +64,7 @@ export const matchingService = {
 
                 const { data, error } = await query;
                 if (error) throw error;
-                providerIds = data.map(p => p.id);
+                providerIds = data.map((p: { id: string }) => p.id);
             }
         }
 

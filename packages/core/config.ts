@@ -1,8 +1,8 @@
 export const getEnvVar = (key: string, defaultValue: string = ''): string => {
     // Check for Vite's import.meta.env
-    // @ts-ignore
+
     if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env[key]) {
-        // @ts-ignore
+
         return import.meta.env[key];
     }
 
