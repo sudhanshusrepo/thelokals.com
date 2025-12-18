@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useRouter } from 'next/navigation';
 import { bookingService } from '@thelocals/core/services/bookingService';
 import { Booking, BookingStatus } from '@thelocals/core/types';
 import { toast } from 'react-hot-toast';
 
 const BookingDetailsPage: React.FC = () => {
-    const { bookingId } = useParams<{ bookingId: string }>();
-    const navigate = useNavigate();
+    const params = useParams();
+    const bookingId = params?.bookingId as string;
+    const router = useRouter();
     const [booking, setBooking] = useState<Booking | null>(null);
     const [checklistProgress, setChecklistProgress] = useState<boolean[]>([]);
     const [loading, setLoading] = useState(true);
@@ -226,7 +227,7 @@ const BookingDetailsPage: React.FC = () => {
 
 
                     <button
-                        onClick={() => navigate('/bookings')}
+                        onClick={() => router.push('/bookings')}
                         className="px-6 py-3 bg-slate-200 text-slate-700 font-bold rounded-lg hover:bg-slate-300 transition-all"
                     >
                         Back to requests

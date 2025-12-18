@@ -1,5 +1,5 @@
-import React, { ReactNode } from 'react';
-import { Navigate } from 'react-router-dom';
+import React, { ReactNode, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
 import { AdminRole } from '@thelocals/core/types';
 
@@ -10,6 +10,13 @@ interface ProtectedRouteProps {
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, roles }) => {
     const { adminUser, loading } = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (!loading && !adminUser) {
+            router.replace('/login');
+        }
+    }, [loading, adminUser, router]);
 
     if (loading) {
         return (
@@ -23,7 +30,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, roles 
     }
 
     if (!adminUser) {
-        return <Navigate to="/login" replace />;
+        return null; // Will redirect via useEffect
     }
 
     // Check role-based access
@@ -34,7 +41,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, roles 
                     <h1 className="text-4xl font-bold text-gray-800 mb-4">403</h1>
                     <p className="text-gray-600">You don't have permission to access this page.</p>
                     <button
-                        onClick={() => window.history.back()}
+                        onClick={() => router.back()}
                         className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
                     >
                         Go Back

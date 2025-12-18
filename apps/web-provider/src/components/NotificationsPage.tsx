@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 
 interface Notification {
     id: string;
@@ -13,7 +13,7 @@ interface Notification {
 }
 
 const NotificationsPage: React.FC = () => {
-    const navigate = useNavigate();
+    const router = useRouter();
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [filter, setFilter] = useState<'all' | 'unread' | 'booking_request' | 'payment'>('all');
 
@@ -91,7 +91,7 @@ const NotificationsPage: React.FC = () => {
     const handleNotificationClick = (notification: Notification) => {
         markAsRead(notification.id);
         if (notification.actionUrl) {
-            navigate(notification.actionUrl);
+            router.push(notification.actionUrl);
         }
     };
 

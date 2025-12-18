@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { IncomingRequestModal } from './IncomingRequestModal';
 import { supabase, bookingService } from '@thelocals/core';
 import { useAuth } from '../contexts/AuthContext';
@@ -8,7 +8,7 @@ import { toast } from 'react-hot-toast';
 import { Booking, DbBookingRequest } from '@thelocals/core/types';
 
 const BookingRequestsPage: React.FC = () => {
-    const navigate = useNavigate();
+    const router = useRouter();
     const { user } = useAuth(); // Assuming useAuth returns { user: User | null }
     const [requests, setRequests] = useState<DbBookingRequest[]>([]);
     const [selectedRequest, setSelectedRequest] = useState<DbBookingRequest | null>(null);
@@ -47,7 +47,8 @@ const BookingRequestsPage: React.FC = () => {
                 schema: 'public',
                 table: 'booking_requests',
                 filter: `provider_id=eq.${user.id}`
-            }, (payload) => {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            }, (payload: any) => {
                 // Refresh full list on any change for simplicity (or handle optimistic updates)
                 fetchRequests();
                 if (payload.eventType === 'INSERT') {
@@ -75,7 +76,7 @@ const BookingRequestsPage: React.FC = () => {
             await bookingService.acceptBooking(request.booking_id, user.id);
             toast.success('Booking Accepted!');
             setSelectedRequest(null);
-            navigate(`/booking/${request.booking_id}`); // Navigate to details
+            router.push(`/booking/${request.booking_id}`); // Navigate to details
         } catch (error) {
             toast.error('Failed to accept booking. It might be taken.');
         }
@@ -210,7 +211,7 @@ const BookingRequestsPage: React.FC = () => {
 
                                 {req.status === 'ACCEPTED' && (
                                     <button
-                                        onClick={() => navigate(`/booking/${req.booking_id}`)}
+                                        onClick={() => router.push(`/booking/${req.booking_id}`)}
                                         className="w-full px-4 py-2 bg-teal-50 text-teal-700 font-bold rounded-lg hover:bg-teal-100 transition-all"
                                     >
                                         Go to Job

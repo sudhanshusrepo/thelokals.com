@@ -17,9 +17,7 @@ export default function LocationManager() {
     const [loading, setLoading] = useState(true);
     const [editingId, setEditingId] = useState<string | null>(null);
 
-    useEffect(() => {
-        loadLocations();
-    }, []);
+
 
     const loadLocations = async () => {
         const { data, error } = await supabase
@@ -32,6 +30,10 @@ export default function LocationManager() {
         }
         setLoading(false);
     };
+
+    useEffect(() => {
+        loadLocations();
+    }, []);
 
     const toggleLocationStatus = async (id: string, currentStatus: boolean) => {
         const { error } = await supabase
