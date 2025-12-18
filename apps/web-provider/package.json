@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "pages:build": "npx @cloudflare/next-on-pages .",
     "start": "next start",
     "lint": "eslint"
   },
@@ -21,7 +22,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
+    "@types/node": "^20.19.27",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
