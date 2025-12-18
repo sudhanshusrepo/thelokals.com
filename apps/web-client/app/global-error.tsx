@@ -3,7 +3,8 @@
 import { useEffect } from "react";
 
 // Explicitly set the runtime to edge
-export const runtime = "experimental-edge";
+export const runtime = "edge";
+export const dynamic = "force-dynamic";
 
 export default function GlobalError({
     error,
