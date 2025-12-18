@@ -22,3 +22,22 @@ export interface ProviderProfile {
     documents?: Record<string, ProviderDocument>;
     // Add other fields as needed
 }
+
+export enum WorkerCategory {
+    Plumbing = 'plumbing',
+    Electrical = 'electrical',
+    Cleaning = 'cleaning',
+    Moving = 'moving'
+}
+
+export interface Application extends ProviderProfile {
+    status: 'PENDING' | 'APPROVED' | 'REJECTED';
+    submitted_at: string;
+}
+
+export interface AvailabilitySchedule {
+    [date: string]: {
+        start: string;
+        end: string;
+    }[];
+}
