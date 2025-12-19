@@ -17,6 +17,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         { name: 'Live Jobs', path: '/live-jobs', icon: '🔧' },
         { name: 'Service Control', path: '/service-control', icon: '⚙️', roles: ['super_admin', 'ops_admin'] },
         { name: 'Locations', path: '/locations', icon: '📍' },
+        { name: 'Verifications', path: '/verifications', icon: '🛡️' },
+        { name: 'Bookings', path: '/bookings', icon: '📅' },
         { name: 'Analytics', path: '/analytics', icon: '📈' },
         { name: 'Audit Logs', path: '/audit-logs', icon: '📝' },
     ];
