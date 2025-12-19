@@ -1,5 +1,7 @@
 'use client';
 
+import React, { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import ServiceGrid from '../components/ServiceGrid';
 
 
@@ -71,6 +73,56 @@ export default function Home() {
           <div className="flex justify-between items-end mb-4">
             <h2 className="font-bold text-xl text-slate-900">Our Services</h2>
             <span className="text-xs text-indigo-600 font-bold cursor-pointer hover:underline">View All</span>
+          </div>
+
+          {/* Nearby Providers (Bible 6.2) */}
+          <div className="mb-8">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="font-bold text-sm text-slate-700 uppercase tracking-wider">Nearby Providers</h3>
+            </div>
+            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
+              {/* Mock Data for MVP Phase 5 */}
+              {[
+                { name: "Rajesh Kumar", role: "Plumber", rating: "4.9", jobs: "340", dist: "14 min", color: "bg-blue-100 text-blue-700" },
+                { name: "Suresh Electric", role: "Electrician", rating: "4.8", jobs: "120", dist: "8 min", color: "bg-amber-100 text-amber-700" },
+                { name: "Amit AC Repair", role: "Technician", rating: "4.7", jobs: "89", dist: "22 min", color: "bg-cyan-100 text-cyan-700" },
+              ].map((p, i) => (
+                <div key={i} className="min-w-[200px] bg-white rounded-xl p-4 shadow-sm border border-slate-100 snap-center hover:shadow-md transition-shadow">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className={`w-10 h-10 rounded-full ${p.color} flex items-center justify-center font-bold text-lg`}>
+                      {p.name[0]}
+                    </div>
+                    <div>
+                      <div className="font-bold text-slate-900 text-sm truncate w-24">{p.name}</div>
+                      <div className="text-[10px] text-slate-500 font-medium">{p.role}</div>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center text-xs">
+                    <div className="flex items-center gap-1 font-bold text-slate-700">
+                      <span className="text-amber-400">★</span> {p.rating} <span className="text-slate-400 font-normal">({p.jobs})</span>
+                    </div>
+                    <div className="bg-slate-100 px-2 py-1 rounded-md font-medium text-slate-600">
+                      ⏱ {p.dist}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Offers Section (Bible 6.2) */}
+          <div className="mb-8 bg-gradient-to-r from-pink-500 to-rose-500 rounded-2xl p-5 text-white relative overflow-hidden shadow-lg shadow-pink-200">
+            <div className="relative z-10 flex justify-between items-center">
+              <div>
+                <h3 className="font-bold text-lg mb-1">Refer & Earn ₹100</h3>
+                <p className="text-pink-100 text-xs mb-3 max-w-[200px]">Invite your neighbors to TheLokals and get free service credits.</p>
+                <div className="bg-white/20 backdrop-blur-sm inline-block px-3 py-1 rounded-lg text-xs font-mono border border-white/30">
+                  CODE: LOKAL2025
+                </div>
+              </div>
+              <div className="text-4xl">🎁</div>
+            </div>
+            <div className="absolute -right-4 -bottom-8 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
           </div>
           <ServiceGrid />
         </div>
