@@ -22,7 +22,9 @@ export class OTPService {
         const env = (typeof import.meta !== 'undefined' && (import.meta as any).env) ? (import.meta as any).env : (typeof process !== 'undefined' ? process.env : {});
         return (
             env.VITE_ENABLE_OTP_BYPASS === 'true' ||
+            env.NEXT_PUBLIC_ENABLE_OTP_BYPASS === 'true' ||
             env.MODE === 'test' ||
+            env.NODE_ENV === 'test' ||
             env.DEV === true
         );
     }
@@ -42,17 +44,22 @@ export class OTPService {
             return {
                 confirm: async (code: string) => {
                     if (code === this.TEST_OTP) {
-                        // In test mode, we might not get a real session without a real existing user.
-                        // For fully offline dev, this mock needs to be handled by the caller or we rely on the bridge still?
-                        // Actually, if we use Supabase Auth, we can't easily fake a session LOCALLY without the emulator verifying a token.
-                        // However, since we are moving to Supabase Native, 'isTestMode' is essentially 'mock behavior'.
-                        // For now, let's throw if we expect real sessions, or return a mock structure.
+                        console.log(`[OTPService] Test Mode Confirmation for ${phone}`);
 
-                        // NOTE: If using Local Supabase, we can just use the real flow!
-                        // "Test Mode" here was for bypassing Firebase limits. 
-                        // With Local Supabase, we don't need to bypass, we can just use the Inbucket OTP.
-                        // But to keep '123456' working without checking Inbucket:
-                        console.warn('Returning mock session for Test OTP');
+                        // HACK: For E2E tests, we map the test phone to a test email account
+                        // so we can get a REAL Supabase Session via Password login.
+                        // This allows RLS and Row-Level security to work properly in tests.
+                        if (phone === '+919999999999') {
+                            const { data, error } = await supabase.auth.signInWithPassword({
+                                email: 'provider_test@example.com',
+                                password: 'password'
+                            });
+                            if (error) throw error;
+                            return { session: data.session, user: data.user };
+                        }
+
+                        // Fallback for other test numbers (Mock Session - might break RLS)
+                        console.warn('Returning mock session for Test OTP (RLS might fail)');
                         return { session: null, user: { id: 'test-user', phone } };
                     }
                     throw new Error('Invalid OTP code');

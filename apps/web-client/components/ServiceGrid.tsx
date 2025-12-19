@@ -34,7 +34,7 @@ export default function ServiceGrid() {
     if (loading) return <div className="p-4 text-center text-gray-500">Loading services...</div>;
 
     return (
-    return (
+
         <div className="grid grid-cols-2 gap-4 pb-4">
             {services.map((service) => (
                 <Link
@@ -68,5 +68,5 @@ export default function ServiceGrid() {
             ))}
         </div>
     );
-    );
+
 }

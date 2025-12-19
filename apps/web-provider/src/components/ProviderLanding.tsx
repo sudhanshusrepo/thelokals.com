@@ -1,5 +1,6 @@
 'use client';
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { AuthModal } from './AuthModal';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -10,6 +11,7 @@ interface ProviderLandingProps {
 export const ProviderLanding: React.FC<ProviderLandingProps> = ({ onRegisterClick }) => {
     const [showAuthModal, setShowAuthModal] = useState(false);
     const { user } = useAuth();
+    const router = useRouter();
 
     const features = [
         {
@@ -81,7 +83,7 @@ export const ProviderLanding: React.FC<ProviderLandingProps> = ({ onRegisterClic
         if (user) {
             onRegisterClick();
         } else {
-            setShowAuthModal(true);
+            router.push('/auth');
         }
     };
 

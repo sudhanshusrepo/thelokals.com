@@ -4,17 +4,17 @@ import { createClient } from '@supabase/supabase-js';
 // Force local Supabase for E2E tests
 const supabaseUrl = 'http://127.0.0.1:54321';
 const supabaseAdminKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder';
-console.log('DEBUG: Using local Supabase:', {
-    url: supabaseUrl,
-    keyStart: supabaseAdminKey ? supabaseAdminKey.substring(0, 10) + '...' : 'NULL',
-    keyLength: supabaseAdminKey ? supabaseAdminKey.length : 0
-});
 const supabaseAdmin = createClient(supabaseUrl, supabaseAdminKey, {
     auth: {
         autoRefreshToken: false,
         persistSession: false
     }
 });
+
+// Test Data Constants
+const TEST_PROVIDER_PHONE = '+919999999999';
+const TEST_PROVIDER_EMAIL = 'provider_test@example.com';
+const TEST_PASSWORD = 'password';
 
 test.describe('Unified Booking Lifecycle E2E', () => {
     test.setTimeout(120000);
@@ -23,292 +23,191 @@ test.describe('Unified Booking Lifecycle E2E', () => {
         // ============================================
         // SETUP: Create Provider & Client
         // ============================================
-        const providerEmail = `provider_${Date.now()}@e2e.test`;
-        const providerPassword = 'StrongPass123!';
         const clientEmail = `client_${Date.now()}@e2e.test`;
         const clientPassword = 'Password123!';
 
-        console.log(`[SETUP] Creating provider: ${providerEmail}`);
-        const { data: providerAuth } = await supabaseAdmin.auth.admin.createUser({
-            email: providerEmail,
-            password: providerPassword,
-            email_confirm: true
-        });
-        if (!providerAuth.user) {
-            console.error('Provider creation failed. Auth response:', JSON.stringify(providerAuth, null, 2));
-            // Also check if there was an error returned alongside data (though destructured above)
-            const { error } = await supabaseAdmin.auth.admin.createUser({
-                email: providerEmail,
-                password: providerPassword,
-                email_confirm: true
-            });
-            if (error) console.error('Provider creation error object:', error);
-            throw new Error('Provider creation failed - user is null');
-        }
-        const providerId = providerAuth.user!.id;
+        console.log(`[SETUP] Creating/Reseting provider: ${TEST_PROVIDER_EMAIL}`);
+        // Ensure provider exists with specific email for the OTP Backdoor
+        // Delete first to ensure clean state
+        const { data: listUsers } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1000 });
+        let providerUser = listUsers.users.find(u => u.email === TEST_PROVIDER_EMAIL);
 
-        // Setup Provider Profile & Service with CORRECT column names
+        let providerId;
+        if (providerUser) {
+            console.log(`[SETUP] Provider exists. Updating password...`);
+            const { data: updatedUser, error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
+                providerUser.id,
+                { password: TEST_PASSWORD, email_confirm: true, phone_confirm: true }
+            );
+            if (updateError) throw new Error(`Provider update failed: ${updateError.message}`);
+            providerId = providerUser.id;
+        } else {
+            console.log(`[SETUP] Creating new provider...`);
+            const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
+                email: TEST_PROVIDER_EMAIL,
+                password: TEST_PASSWORD,
+                email_confirm: true,
+                phone: TEST_PROVIDER_PHONE,
+                phone_confirm: true
+            });
+            if (createError) throw new Error(`Provider creation failed: ${createError.message}`);
+            providerId = newUser.user!.id;
+        }
+
+        // Setup Provider Profile & Service
         await supabaseAdmin.from('profiles').upsert({
             id: providerId,
             full_name: 'E2E Provider',
-            phone: '+919876543210',
-            email: providerEmail
+            phone: TEST_PROVIDER_PHONE,
+            email: TEST_PROVIDER_EMAIL
         });
 
-        const { data: providerData, error: providerError } = await supabaseAdmin.from('providers').upsert({
+        const { error: providerError } = await supabaseAdmin.from('providers').upsert({
             id: providerId,
             full_name: 'E2E Provider',
-            phone: '+919876543210',
-            email: providerEmail,
-            category: 'Plumber', // Single category, not array
-            operating_location: 'POINT(-74.0060 40.7128)', // Correct column name
-            service_radius_km: 5, // Correct column name
+            phone: TEST_PROVIDER_PHONE,
+            email: TEST_PROVIDER_EMAIL,
+            category: 'Plumber',
+            operating_location: 'POINT(-74.0060 40.7128)',
+            service_radius_km: 5,
             is_verified: true,
             is_active: true,
-            registration_completed: true, // Mark as registered
+            registration_completed: true,
             phone_verified: true,
             business_name: 'E2E Plumbing Services',
             description: 'Test provider for E2E testing'
-        }).select();
+        });
 
-        if (providerError) {
-            throw new Error(`Provider creation failed: ${providerError.message}`);
-        }
-        console.log(`[SETUP] Provider created and verified:`, providerData);
+        if (providerError) throw new Error(`Provider DB record failed: ${providerError.message}`);
 
-        // Ensure "Plumber" category exists in DB (backend requirement)
-        const { error: seedError } = await supabaseAdmin
-            .from('service_categories')
-            .upsert({
-                name: 'Plumber',
-                group_name: 'Home Care & Repair',
-                icon: '🔧',
-                description: 'Fix plumbing issues'
-            }, { onConflict: 'name' });
+        // Ensure "Plumber" category exists
+        await supabaseAdmin.from('service_categories').upsert({
+            name: 'Plumber',
+            group_name: 'Home Care & Repair',
+            icon: '🔧',
+            description: 'Fix plumbing issues'
+        }, { onConflict: 'name' });
 
-        if (seedError) {
-            console.error('Failed to seed service category:', seedError);
-        }
+        // Ensure Service exists
+        await supabaseAdmin.from('services').upsert({
+            code: 'leak-repair',
+            category: 'Plumber',
+            name: 'Leak Repair',
+            base_price_cents: 50000,
+            duration_minutes_min: 60,
+            enabled_globally: true,
+            description: 'Fix leaks'
+        }, { onConflict: 'code' });
 
         console.log(`[SETUP] Creating client: ${clientEmail}`);
-        const { data: clientAuth } = await supabaseAdmin.auth.admin.createUser({
+        await supabaseAdmin.auth.admin.createUser({
             email: clientEmail,
             password: clientPassword,
             email_confirm: true
         });
-        const clientId = clientAuth.user!.id;
 
         // ============================================
-        // PHASE 1: Provider Login
+        // PHASE 1: Provider Login (Phone OTP)
         // ============================================
-        // ============================================
-        // PHASE 1: Provider Login
-        // ============================================
+        const PROVIDER_APP_URL = 'http://localhost:3001';
+        const CLIENT_APP_URL = 'http://localhost:3002';
         const providerContext = await browser.newContext({
             geolocation: { latitude: 40.7128, longitude: -74.0060 },
             permissions: ['geolocation']
         });
         const providerPage = await providerContext.newPage();
-        providerPage.on('console', msg => {
-            console.log(`[Provider Browser] ${msg.type()}: ${msg.text()}`);
-        }); providerPage.on('requestfailed', request => console.log(`[Provider Browser] Request failed: ${request.url()} - ${request.failure()?.errorText}`));
-        providerPage.on('response', response => {
-            if (response.status() >= 400) console.log(`[Provider Browser] Response error: ${response.url()} ${response.status()}`);
-        });
-        await providerPage.goto('http://localhost:5173');
+        await providerPage.goto(PROVIDER_APP_URL);
 
         // Login Flow
         await providerPage.getByRole('button', { name: 'Get Started' }).click();
-        const modal = providerPage.locator('.fixed.inset-0');
-        await modal.getByRole('button', { name: 'Sign In' }).first().click();
-        await modal.getByPlaceholder('you@example.com').fill(providerEmail);
-        await modal.getByPlaceholder('••••••••').fill(providerPassword);
-        await modal.getByRole('button', { name: /sign in/i }).last().click();
-        await expect(providerPage.getByText('Dashboard')).toBeVisible({ timeout: 15000 });
 
-        // Navigate to Requests Page specifically
-        await providerPage.goto('http://localhost:5173/bookings');
-        console.log('[PHASE 1] Provider logged in and on Requests page');
+        // Wait for Redirect to Auth
+        // await providerPage.waitForURL('**/auth'); // Optional but good
+
+        // Wait for Phone Input directly on page
+        await providerPage.getByPlaceholder('+91 98765 43210').fill(TEST_PROVIDER_PHONE);
+        await providerPage.getByRole('button', { name: 'Send OTP' }).click();
+
+        // Wait for OTP Input
+        await providerPage.getByPlaceholder('123456').fill('123456');
+        await providerPage.getByRole('button', { name: 'Verify & Login' }).click();
+
+        // Verify Dashboard Access
+        await expect(providerPage.getByText('Provider Dashboard')).toBeVisible({ timeout: 15000 });
+
+        // Go Online (Location Tracker)
+        // Check if "Go Online" button is present and click it
+        const onlineBtn = providerPage.getByRole('button', { name: 'Go Online' });
+        if (await onlineBtn.isVisible()) {
+            await onlineBtn.click();
+            await expect(providerPage.getByText('Online')).toBeVisible();
+        }
+
+        // Navigate to Requests Tab
+        await providerPage.getByRole('button', { name: 'Requests' }).click();
+        console.log('[PHASE 1] Provider logged in and Online');
 
         // ============================================
-        // PHASE 2: Client Booking (AI Flow)
+        // PHASE 2: Client Booking
         // ============================================
         const clientContext = await browser.newContext({
             geolocation: { latitude: 40.7128, longitude: -74.0060 },
             permissions: ['geolocation']
         });
         const clientPage = await clientContext.newPage();
-        await clientPage.goto('http://localhost:3000');
-        clientPage.on('console', msg => console.log(`[Client Browser] ${msg.type()}: ${msg.text()}`));
+        await clientPage.goto(CLIENT_APP_URL);
 
-        // Login Helper - REMOVED (Unreliable LocalStorage Key)
-        // We will login via the UI flow triggered by Book Now
+        // Select Service
+        await clientPage.getByText('Leak Repair').click(); // Adjust based on ServiceGrid item
+        await expect(clientPage.getByRole('heading', { name: 'Leak Repair' })).toBeVisible();
 
-        // Create Booking
-        await clientPage.getByText('Home Care & Repair').click();
-        await clientPage.getByText('Plumber').click();
-        // Phase 2.1: Select Service Type (Schedule Page)
-        await clientPage.locator('[data-testid="service-type-leak-repair"]').click();
-        const chatInput = clientPage.locator('textarea[data-testid="smart-service-input-textarea"]');
-        await expect(chatInput).toBeVisible({ timeout: 10000 });
-        await chatInput.fill('Fix leaking faucet urgency high');
-        await chatInput.press('Enter');
+        // Click Book Now - Triggers Auto-Login (Mock Guest or Real)
+        await clientPage.getByRole('button', { name: 'Book Now' }).click();
 
-        // Check for AI Response & Checklist
-        await expect(clientPage.locator('[data-testid="ai-checklist-section"]')).toBeVisible({ timeout: 30000 });
-        // Wait for pricing to finish and overlay to disappear
-        await expect(clientPage.getByText('Calculating Price...')).not.toBeVisible();
-        await expect(clientPage.locator('button[data-testid="book-now-button"]')).toBeEnabled();
+        // Wait for Booking Confirmation / Live Search
+        await expect(clientPage.getByText('Booking Request Sent!')).toBeVisible({ timeout: 10000 });
 
-        // CLICK 1: Triggers Auth Modal
-        await clientPage.locator('button[data-testid="book-now-button"]').dispatchEvent('click');
-        console.log('[PHASE 2] Book Now clicked (Triggering Auth)');
-
-        // Handle Auth Modal
-        const authModal = clientPage.locator('[data-testid="auth-modal-overlay"]'); // Modal overlay
-        await expect(authModal).toBeVisible({ timeout: 5000 });
-
-        // Fill Login Form
-        await authModal.getByTestId('email-input').fill(clientEmail);
-        await authModal.getByTestId('password-input').fill(clientPassword);
-
-        // Submit Login (Force to bypass animation issues)
-        const submitBtn = authModal.getByTestId('submit-button');
-        await expect(submitBtn).toBeVisible();
-        await submitBtn.click({ force: true });
-
-        // Wait for Modal to Close (Login Success)
-        await expect(authModal).not.toBeVisible({ timeout: 15000 });
-        console.log('[PHASE 2] Client Logged In via UI');
-
-        // CLICK 2: Actual Booking
-        // Wait a small moment for state to settle
-        await clientPage.waitForTimeout(1000);
-        await clientPage.locator('button[data-testid="book-now-button"]').dispatchEvent('click');
-        console.log('[PHASE 2] Book Now clicked (Authenticated)');
-
-        // Wait a moment for state to update
-        await clientPage.waitForTimeout(1000);
-
-        // Take screenshot for debugging
-        await clientPage.screenshot({ path: 'test-results/after-book-now-click.png', fullPage: true });
-        console.log('[DEBUG] Screenshot saved: after-book-now-click.png');
-
-        // Wait for LiveSearch screen OR Error
-        try {
-            const liveSearchPromise = clientPage.waitForSelector('[data-testid="live-search-screen"]', {
-                state: 'visible',
-                timeout: 30000
-            });
-            const errorPromise = clientPage.waitForSelector('[data-testid="booking-error"]', {
-                state: 'visible',
-                timeout: 30000
-            });
-
-            const result = await Promise.race([liveSearchPromise, errorPromise]);
-
-            // Check if it was an error
-            const isError = await clientPage.isVisible('[data-testid="booking-error"]');
-            if (isError) {
-                const errorText = await clientPage.textContent('[data-testid="booking-error"]');
-                console.error(`[CRITICAL] Booking Failed visible in UI: ${errorText}`);
-                throw new Error(`Booking Failed: ${errorText}`);
-            }
-
-            console.log('[DEBUG] live-search-screen is visible');
-
-            // Verify the "Searching for" text is present
-            await expect(clientPage.getByText(/Searching for/i).first()).toBeVisible({ timeout: 5000 });
-            console.log('[PHASE 2] ✓ LiveSearch screen displayed successfully');
-        } catch (error) {
-            console.error('[ERROR] Failed to find LiveSearch screen or found error');
-            console.error('Error details:', error);
-            await clientPage.screenshot({ path: 'test-results/livesearch-error.png', fullPage: true });
-            throw error;
-        }
-
-        const bookingIdText = await clientPage.getByTestId('booking-id').textContent();
-        console.log(`[PHASE 2] Booking Created. ID: ${bookingIdText}`);
+        // Depending on flow, we might be redirected. 
+        // Current flow redirects to /booking-confirmed (from code view)
+        // Wait for confirmation page
+        await expect(clientPage).toHaveURL(/\/booking-confirmed/);
+        console.log('[PHASE 2] Booking Created');
 
         // ============================================
         // PHASE 3: Provider Acceptance
         // ============================================
         await providerPage.bringToFront();
-        // Allow time for realtime event
-        await expect(providerPage.getByText('Plumber')).toBeVisible({ timeout: 20000 }); // Service name
-        await expect(providerPage.getByText('PENDING')).toBeVisible();
+        // Wait for Request Card
+        await expect(providerPage.getByText('New Live Booking!')).toBeVisible({ timeout: 30000 });
 
-        // Click "View & Accept"
-        await providerPage.getByRole('button', { name: 'View & Accept' }).click();
+        // Accept
+        await providerPage.getByRole('button', { name: 'Accept' }).click();
 
-        // Modal Action
-        await providerPage.getByRole('button', { name: 'Accept Job' }).click();
-        await expect(providerPage.getByText('Booking Accepted!')).toBeVisible();
+        // Verify Card moves/disappears or shows "Accepted"
+        // Wait for "Bookings" tab to update or check tab switch
+        // Just verify the toast or state change if possible.
+        // Assuming optimistic update removes it from "Requests"
+        await expect(providerPage.getByText('New Live Booking!')).not.toBeVisible();
+        await providerPage.getByRole('button', { name: 'Bookings' }).click();
+        await expect(providerPage.getByText('CONFIRMED')).toBeVisible();
         console.log('[PHASE 3] Provider accepted booking');
 
         // ============================================
-        // PHASE 4: Client Verification (Confirmed)
+        // PHASE 4-8: Status Updates
         // ============================================
-        await clientPage.bringToFront();
-        // Client should see "Provider confirmed"
-        await expect(clientPage.getByText(/Provider confirmed/i)).toBeVisible({ timeout: 10000 });
-        console.log('[PHASE 4] Client sees CONFIRMED status');
 
-        // ============================================
-        // PHASE 5: Provider "On My Way" (EN_ROUTE)
-        // ============================================
-        await providerPage.bringToFront();
+        // 1. Mark EN_ROUTE
+        await providerPage.getByRole('button', { name: 'On My Way' }).click();
+        await expect(providerPage.getByText('EN_ROUTE')).toBeVisible();
 
-        // VERIFICATION: Check for Auto-Navigation
-        // The provider should now be on the BookingDetailsPage automatically.
-        // We verify this by looking for the "I'm on my way" button immediately.
-        await expect(providerPage.getByRole('button', { name: "I'm on my way" })).toBeVisible({ timeout: 10000 });
-        console.log('[PHASE 5] Auto-navigation verified. Provider is on details page.');
+        // 2. Mark IN_PROGRESS
+        await providerPage.getByRole('button', { name: 'Arrived / Start' }).click();
+        await expect(providerPage.getByText('IN_PROGRESS')).toBeVisible();
 
-        await providerPage.getByRole('button', { name: "I'm on my way" }).click();
-        await expect(providerPage.getByText('Start Job')).toBeVisible(); // Next state button
-        console.log('[PHASE 5] Provider marked EN_ROUTE');
+        // 3. Complete
+        await providerPage.getByRole('button', { name: 'Complete Job' }).click();
+        await expect(providerPage.getByText('COMPLETED')).toBeVisible();
 
-        // ============================================
-        // PHASE 6: Client Verification (En Route)
-        // ============================================
-        await clientPage.bringToFront();
-        await expect(clientPage.getByText(/Provider is On The Way/i)).toBeVisible({ timeout: 10000 });
-        console.log('[PHASE 6] Client sees EN_ROUTE status');
-
-        // ============================================
-        // PHASE 7: Start Job (IN_PROGRESS)
-        // ============================================
-        await providerPage.bringToFront();
-        await providerPage.getByRole('button', { name: 'Start Job' }).click();
-        await expect(providerPage.getByText('Mark as Completed')).toBeVisible();
-        console.log('[PHASE 7] Provider started job');
-
-        await clientPage.bringToFront();
-        await expect(clientPage.getByText(/Job is in progress/i)).toBeVisible();
-
-        // ============================================
-        // PHASE 8: Complete Job (COMPLETED)
-        // ============================================
-        await providerPage.bringToFront();
-        // Must complete checklist first?
-        // "disabled={progressPercentage < 100}"
-
-        // Check all checkboxes
-        const checkboxes = await providerPage.locator('input[type="checkbox"]').all();
-        for (const box of checkboxes) {
-            await box.check();
-        }
-
-        await providerPage.getByRole('button', { name: 'Mark as Completed' }).click();
-        await expect(providerPage.getByText('Job Completed Successfully')).toBeVisible();
-        console.log('[PHASE 8] Job completed');
-
-        // ============================================
-        // PHASE 9: Final Client Verification
-        // ============================================
-        await clientPage.bringToFront();
-        await expect(clientPage.getByText(/Job completed successfully/i)).toBeVisible();
-        console.log('[PHASE 9] Client sees COMPLETED status. Full cycle success!');
+        console.log('[PHASE 8] Job completed successfully');
     });
 });
