@@ -17,6 +17,7 @@ export interface ProviderProfile {
   phone_verified: boolean;
   business_name: string | null;
   description: string | null;
+  verification_status: 'pending' | 'approved' | 'rejected';
   created_at: string;
 }
 
