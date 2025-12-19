@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { OTPService, OTPConfirmation } from '@thelocals/core/services/otp';
 import { toast } from 'react-hot-toast';
+import { CONFIG } from '@thelocals/core/config';
 
 export default function LoginPage() {
     const router = useRouter();
@@ -76,7 +77,7 @@ export default function LoginPage() {
                 </p>
                 <div className="mt-2 text-center">
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        {process.env.NODE_ENV === 'development' ? 'Dev Mode' : 'Production'}
+                        {CONFIG.IS_DEV ? 'Dev Mode' : 'Production'}
                     </span>
                 </div>
             </div>

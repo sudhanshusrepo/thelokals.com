@@ -1,7 +1,8 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { logger } from '@thelocals/core/services/logger';
 
-const apiKey = process.env.API_KEY || ''; // Fallback for safety, though strictly required
+import { getEnvVar } from '@thelocals/core/config';
+const apiKey = getEnvVar('GOOGLE_GEMINI_API_KEY') || process.env.API_KEY || '';
 const ai = new GoogleGenAI({ apiKey });
 
 // Helper to convert File to Base64
