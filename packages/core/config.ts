@@ -1,19 +1,21 @@
 export const getEnvVar = (key: string, defaultValue: string = ''): string => {
-    // Check for Vite's import.meta.env
+    try {
+        // 1. Check for Vite's import.meta.env
+        if (typeof import.meta !== 'undefined' && (import.meta as any).env) {
+            const val = (import.meta as any).env[key];
+            if (val !== undefined) return val;
+        }
 
-    if (typeof import.meta !== 'undefined' && (import.meta as any).env && (import.meta as any).env[key]) {
-
-        return (import.meta as any).env[key];
+        // 2. Check for Process Env (Node / Next.js / React Native)
+        // Accessing process directly can sometimes throw in strict edge runtimes if not careful
+        if (typeof process !== 'undefined' && process.env) {
+            const val = process.env[key];
+            if (val !== undefined) return val;
+        }
+    } catch (e) {
+        // Ignore errors accessing env objects in weird runtimes
+        console.warn(`Error accessing env var ${key}:`, e);
     }
-
-    // Check for React Native / Node process.env
-    if (typeof process !== 'undefined' && process.env && process.env[key]) {
-        return process.env[key];
-    }
-
-    // Check for Expo Constants (Manifest) if available
-    // Note: This often requires installing expo-constants, but we can do a safe global check 
-    // or rely on the fact that Expo exposes env vars on process.env in recent versions.
 
     return defaultValue;
 };

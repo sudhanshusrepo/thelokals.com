@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import { Session } from '@supabase/supabase-js';
+import { CONFIG } from '../config';
 
 export interface OTPConfirmation {
     confirm: (code: string) => Promise<{ session: Session | null; user: any }>;
@@ -18,14 +19,10 @@ export class OTPService {
      * Check if we're in test mode
      */
     public static isTestMode(): boolean {
-        // Safe check for import.meta.env or process.env
-        const env = (typeof import.meta !== 'undefined' && (import.meta as any).env) ? (import.meta as any).env : (typeof process !== 'undefined' ? process.env : {});
         return (
-            env.VITE_ENABLE_OTP_BYPASS === 'true' ||
-            env.NEXT_PUBLIC_ENABLE_OTP_BYPASS === 'true' ||
-            env.MODE === 'test' ||
-            env.NODE_ENV === 'test' ||
-            env.DEV === true
+            CONFIG.ENABLE_OTP_BYPASS ||
+            CONFIG.IS_TEST_MODE ||
+            CONFIG.IS_DEV
         );
     }
 
