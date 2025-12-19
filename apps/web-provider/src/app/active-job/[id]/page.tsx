@@ -5,6 +5,9 @@ import { supabase } from '@thelocals/core/services/supabase';
 import { useParams, useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 
+export const runtime = 'edge';
+
+
 export default function ActiveJobPage() {
     const params = useParams();
     const id = params.id as string;
