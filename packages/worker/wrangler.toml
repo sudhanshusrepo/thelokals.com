@@ -5,3 +5,5 @@ compatibility_date = "2024-01-01"
 [vars]
 # Default variables for dev
 ENVIRONMENT = "dev"
+SUPABASE_URL = "http://127.0.0.1:54321" 
+SUPABASE_ANON_KEY = "placeholder" # Will be overridden by .dev.vars locally or secrets in prod

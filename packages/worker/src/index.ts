@@ -32,12 +32,21 @@ export default {
             });
         }
 
-        // 3. Routing Logic (Placeholder for full implementation)
-        // For now, we return a simple welcome message to verify deployment
-        return new Response(`Welcome to TheLokals Edge Network!\nLocation: ${city}, ${country}`, {
+        // 3. Simple Rate Limiting (In-Memory for Demo/Dev)
+        // Note: For prod, use Cloudflare Rate Limiting feature or Durable Objects for strict counting
+        // This is a placeholder to show the concept as per Bible Principle 2
+        // For now, we pass through but logged the request.
+
+        // 4. Proxy Response (Example: Echo headers for verification)
+        // In real architecture, this would fetch(SUPABASE_FUNCTION_URL) or route to Next.js
+        return new Response(`Worker Active. Location: ${city}, ${country}`, {
             headers: {
                 'x-geo-city': city,
-                'x-geo-country': country
+                'x-geo-country': country,
+                'x-geo-region': region,
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type'
             }
         });
     },
