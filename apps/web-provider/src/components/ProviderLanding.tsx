@@ -13,7 +13,71 @@ export const ProviderLanding: React.FC<ProviderLandingProps> = ({ onRegisterClic
     const { user, profile } = useAuth();
     const router = useRouter();
 
-    // ... features array ...
+    const features = [
+        {
+            icon: '💰',
+            title: 'Earn More',
+            description: 'Set your own rates and keep 85% of your earnings. No hidden fees.'
+        },
+        {
+            icon: '📱',
+            title: 'Easy to Use',
+            description: 'Simple app interface to manage bookings, payments, and customer communication.'
+        },
+        {
+            icon: '🎯',
+            title: 'AI-Powered Matching',
+            description: 'Get matched with customers near you based on your skills and availability.'
+        },
+        {
+            icon: '⭐',
+            title: 'Build Your Reputation',
+            description: 'Earn ratings and reviews to grow your business and attract more customers.'
+        },
+        {
+            icon: '🔔',
+            title: 'Real-Time Notifications',
+            description: 'Never miss a booking request with instant push notifications.'
+        },
+        {
+            icon: '📊',
+            title: 'Track Your Growth',
+            description: 'Monitor your earnings, bookings, and performance with detailed analytics.'
+        }
+    ];
+
+    const benefits = [
+        'Flexible working hours - work when you want',
+        'Weekly payouts directly to your bank account',
+        'Free training and support to help you succeed',
+        'Insurance coverage for all jobs',
+        'Access to exclusive offers and promotions',
+        'Growing customer base across your city'
+    ];
+
+    const testimonials = [
+        {
+            name: 'Rajesh Kumar',
+            role: 'Plumber',
+            image: '👨‍🔧',
+            rating: 5,
+            text: 'I\'ve doubled my income since joining thelokals. The app makes it so easy to manage my bookings!'
+        },
+        {
+            name: 'Priya Sharma',
+            role: 'Electrician',
+            image: '👩‍🔧',
+            rating: 5,
+            text: 'Best decision I made for my business. Customers find me easily and payments are always on time.'
+        },
+        {
+            name: 'Mohammed Ali',
+            role: 'Carpenter',
+            image: '👨‍🏭',
+            rating: 5,
+            text: 'The AI matching is amazing! I get jobs that perfectly match my skills and location.'
+        }
+    ];
 
     const handleGetStarted = () => {
         if (user) {
