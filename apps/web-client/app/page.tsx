@@ -5,6 +5,16 @@ import ServiceGrid from '../components/ServiceGrid';
 
 
 export default function Home() {
+  const router = useRouter();
+
+  useEffect(() => {
+    // Check if tutorial has been seen
+    const hasSeenTutorial = localStorage.getItem('has_seen_tutorial');
+    if (!hasSeenTutorial) {
+      router.push('/tutorial');
+    }
+  }, [router]);
+
   return (
     <div className="min-h-screen bg-slate-50 pb-24 animate-fade-in">
       {/* Header / Location Bar */}
