@@ -36,7 +36,7 @@ export default function HomeScreen() {
   const router = useRouter();
 
   const handleChatSend = (content: { type: 'text' | 'audio' | 'video', data: string }) => {
-    // console.log("Chat sent:", content);
+
     router.push({
       pathname: '/(app)/ai-booking',
       params: { type: content.type, data: content.data }

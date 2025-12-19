@@ -305,5 +305,30 @@ export const paymentService = {
         }
 
         return data || [];
+    },
+
+    /**
+     * Get payment history for a provider
+     */
+    async getProviderPaymentHistory(providerId: string): Promise<any[]> {
+        const { data, error } = await supabase
+            .from('payment_transactions')
+            .select(`
+                *,
+                bookings!inner (
+                    provider_id,
+                    services (name),
+                    profiles:customer_id (full_name)
+                )
+            `)
+            .eq('bookings.provider_id', providerId)
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            logger.error('Failed to fetch provider payment history', { error, providerId });
+            return [];
+        }
+
+        return data || [];
     }
 };

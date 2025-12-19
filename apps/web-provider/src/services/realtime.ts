@@ -55,7 +55,7 @@ class RealtimeService {
                     filter: `provider_id=eq.${providerId}`,
                 },
                 (payload: any) => {
-                    // console.log('New booking request:', payload.new);
+
                     onNewBooking(payload.new as BookingRequest);
                 }
             )
@@ -68,12 +68,12 @@ class RealtimeService {
                     filter: `provider_id=eq.${providerId}`,
                 },
                 (payload: any) => {
-                    // console.log('Booking updated:', payload.new);
+
                     onBookingUpdate(payload.new as BookingRequest);
                 }
             )
             .subscribe((status: any) => {
-                // console.log('Booking subscription status:', status);
+
             });
 
         return () => {
@@ -106,7 +106,7 @@ class RealtimeService {
                     filter: `provider_id=eq.${providerId}`,
                 },
                 (payload: any) => {
-                    // console.log('New notification:', payload.new);
+
                     onNewNotification(payload.new as ProviderNotification);
                 }
             )
@@ -119,12 +119,12 @@ class RealtimeService {
                     filter: `provider_id=eq.${providerId}`,
                 },
                 (payload: any) => {
-                    // console.log('Notification updated:', payload.new);
+
                     onNotificationUpdate(payload.new as ProviderNotification);
                 }
             )
             .subscribe((status: any) => {
-                // console.log('Notification subscription status:', status);
+
             });
 
         return () => {
@@ -145,6 +145,54 @@ class RealtimeService {
             this.notificationChannel.unsubscribe();
             this.notificationChannel = null;
         }
+    }
+
+    /**
+     * Fetch existing notifications
+     */
+    async getNotifications(providerId: string): Promise<ProviderNotification[]> {
+        const { data, error } = await supabase
+            .from('provider_notifications')
+            .select('*')
+            .eq('provider_id', providerId)
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            console.error('Error fetching notifications:', error);
+            return [];
+        }
+        return data || [];
+    }
+
+    /**
+     * Mark notification as read
+     */
+    async markAsRead(notificationId: string) {
+        return await supabase
+            .from('provider_notifications')
+            .update({ read: true })
+            .eq('id', notificationId);
+    }
+
+    /**
+     * Mark all notifications as read
+     */
+    async markAllAsRead(providerId: string) {
+        return await supabase
+            .from('provider_notifications')
+            .update({ read: true })
+            .eq('provider_id', providerId)
+            .eq('read', false);
+    }
+
+    /**
+     * Delete notification
+     */
+    async deleteNotification(notificationId: string) {
+        return await supabase
+            .from('provider_notifications')
+            .delete()
+            .eq('id', notificationId);
     }
 }
 

@@ -1,69 +1,64 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { supabase } from '@thelocals/core/services/supabase';
+import { realtimeService, ProviderNotification } from '../services/realtime';
 
-interface Notification {
-    id: string;
-    type: 'booking_request' | 'booking_update' | 'payment' | 'system' | 'promotion';
-    title: string;
-    message: string;
-    read: boolean;
+interface Notification extends ProviderNotification {
     createdAt: Date;
     actionUrl?: string;
-    data?: any;
 }
 
 const NotificationsPage: React.FC = () => {
     const router = useRouter();
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [filter, setFilter] = useState<'all' | 'unread' | 'booking_request' | 'payment'>('all');
+    const [providerId, setProviderId] = useState<string | null>(null);
 
     useEffect(() => {
-        // Mock data - replace with Supabase realtime subscription
-        const mockNotifications: Notification[] = [
-            {
-                id: '1',
-                type: 'booking_request',
-                title: 'New Booking Request',
-                message: 'You have a new booking request from Rajesh Kumar for Leak Repair',
-                read: false,
-                createdAt: new Date(Date.now() - 5 * 60000),
-                actionUrl: '/bookings'
-            },
-            {
-                id: '2',
-                type: 'payment',
-                title: 'Payment Received',
-                message: 'Payment of ₹425 has been credited to your account',
-                read: false,
-                createdAt: new Date(Date.now() - 30 * 60000)
-            },
-            {
-                id: '3',
-                type: 'booking_update',
-                title: 'Booking Confirmed',
-                message: 'Your booking for Fan Installation has been confirmed',
-                read: true,
-                createdAt: new Date(Date.now() - 2 * 60 * 60000),
-                actionUrl: '/booking/2'
-            },
-            {
-                id: '4',
-                type: 'system',
-                title: 'Profile Verified',
-                message: 'Congratulations! Your provider profile has been verified',
-                read: true,
-                createdAt: new Date(Date.now() - 24 * 60 * 60000)
-            },
-            {
-                id: '5',
-                type: 'promotion',
-                title: 'Special Offer',
-                message: 'Complete 10 bookings this week and earn a ₹500 bonus!',
-                read: true,
-                createdAt: new Date(Date.now() - 3 * 24 * 60 * 60000)
-            }
-        ];
-        setNotifications(mockNotifications);
+        const initNotifications = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return;
+            setProviderId(user.id);
+
+            // Fetch initial
+            const data = await realtimeService.getNotifications(user.id);
+            const mapped = data.map(n => ({
+                ...n,
+                createdAt: new Date(n.created_at),
+                actionUrl: n.action_url
+            }));
+            setNotifications(mapped);
+
+            // Subscribe
+            const unsubscribe = realtimeService.subscribeToNotifications(
+                user.id,
+                (newNotif) => {
+                    setNotifications(prev => [{
+                        ...newNotif,
+                        createdAt: new Date(newNotif.created_at),
+                        actionUrl: newNotif.action_url
+                    }, ...prev]);
+                },
+                (updatedNotif) => {
+                    setNotifications(prev => prev.map(n =>
+                        n.id === updatedNotif.id ? {
+                            ...updatedNotif,
+                            createdAt: new Date(updatedNotif.created_at),
+                            actionUrl: updatedNotif.action_url
+                        } : n
+                    ));
+                }
+            );
+
+            return () => {
+                unsubscribe();
+            };
+        };
+
+        const cleanup = initNotifications();
+        return () => {
+            cleanup.then(unsub => unsub && unsub());
+        };
     }, []);
 
     const filteredNotifications = notifications.filter(n => {
@@ -74,18 +69,23 @@ const NotificationsPage: React.FC = () => {
 
     const unreadCount = notifications.filter(n => !n.read).length;
 
-    const markAsRead = (id: string) => {
+    const markAsRead = async (id: string) => {
         setNotifications(prev => prev.map(n =>
             n.id === id ? { ...n, read: true } : n
         ));
+        await realtimeService.markAsRead(id);
     };
 
-    const markAllAsRead = () => {
+    const markAllAsRead = async () => {
         setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+        if (providerId) {
+            await realtimeService.markAllAsRead(providerId);
+        }
     };
 
-    const deleteNotification = (id: string) => {
+    const deleteNotification = async (id: string) => {
         setNotifications(prev => prev.filter(n => n.id !== id));
+        await realtimeService.deleteNotification(id);
     };
 
     const handleNotificationClick = (notification: Notification) => {

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { supabase } from '@thelocals/core/services/supabase';
+import { paymentService } from '@thelocals/core/services/paymentService'; // Ensure export is available
 
 interface Payment {
     id: string;
@@ -26,66 +28,63 @@ const PaymentPage: React.FC = () => {
         thisMonth: 0
     });
     const [filter, setFilter] = useState<'all' | 'pending' | 'completed' | 'failed'>('all');
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Mock data - replace with Supabase query
-        const mockPayments: Payment[] = [
-            {
-                id: '1',
-                bookingId: 'B001',
-                serviceName: 'Leak Repair',
-                amount: 425,
-                status: 'completed',
-                date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-                clientName: 'Rajesh Kumar'
-            },
-            {
-                id: '2',
-                bookingId: 'B002',
-                serviceName: 'Fan Installation',
-                amount: 680,
-                status: 'pending',
-                date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-                clientName: 'Priya Sharma'
-            },
-            {
-                id: '3',
-                bookingId: 'B003',
-                serviceName: 'Electrical Wiring',
-                amount: 1200,
-                status: 'completed',
-                date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-                clientName: 'Mohammed Ali'
+        const fetchPayments = async () => {
+            setLoading(true);
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) return;
+
+                const data = await paymentService.getProviderPaymentHistory(user.id);
+
+                const mappedPayments: Payment[] = data.map((item: any) => ({
+                    id: item.id,
+                    bookingId: item.booking_id,
+                    serviceName: item.bookings?.services?.name || 'Unknown Service',
+                    amount: item.amount,
+                    status: item.status.toLowerCase() as any,
+                    date: new Date(item.created_at),
+                    clientName: item.bookings?.profiles?.full_name || 'Unknown Client'
+                }));
+
+                setPayments(mappedPayments);
+
+                // Calculate stats based on real data
+                const total = mappedPayments
+                    .filter(p => p.status === 'completed' || p.status === 'success' as any) // Handle 'success' from DB mapping if needed
+                    .reduce((sum, p) => sum + p.amount, 0);
+
+                const pending = mappedPayments
+                    .filter(p => p.status === 'pending')
+                    .reduce((sum, p) => sum + p.amount, 0);
+
+                const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+                const weekTotal = mappedPayments
+                    .filter(p => (p.status === 'completed' || p.status === 'success' as any) && p.date.getTime() > weekAgo)
+                    .reduce((sum, p) => sum + p.amount, 0);
+
+                const monthAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
+                const monthTotal = mappedPayments
+                    .filter(p => (p.status === 'completed' || p.status === 'success' as any) && p.date.getTime() > monthAgo)
+                    .reduce((sum, p) => sum + p.amount, 0);
+
+                setStats({
+                    totalEarnings: total,
+                    pendingPayments: pending,
+                    thisWeek: weekTotal,
+                    thisMonth: monthTotal
+                });
+
+            } catch (error) {
+                console.error('Error fetching payments:', error);
+            } finally {
+                setLoading(false);
             }
-        ];
+        };
 
-        setPayments(mockPayments);
-
-        // Calculate stats
-        const total = mockPayments
-            .filter(p => p.status === 'completed')
-            .reduce((sum, p) => sum + p.amount, 0);
-
-        const pending = mockPayments
-            .filter(p => p.status === 'pending')
-            .reduce((sum, p) => sum + p.amount, 0);
-
-        const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-        const weekTotal = mockPayments
-            .filter(p => p.status === 'completed' && p.date.getTime() > weekAgo)
-            .reduce((sum, p) => sum + p.amount, 0);
-
-        const monthAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
-        const monthTotal = mockPayments
-            .filter(p => p.status === 'completed' && p.date.getTime() > monthAgo)
-            .reduce((sum, p) => sum + p.amount, 0);
-
-        setStats({
-            totalEarnings: total,
-            pendingPayments: pending,
-            thisWeek: weekTotal,
-            thisMonth: monthTotal
-        });
+        fetchPayments();
     }, []);
 
     const filteredPayments = payments.filter(p =>
@@ -94,7 +93,8 @@ const PaymentPage: React.FC = () => {
 
     const getStatusColor = (status: string) => {
         switch (status) {
-            case 'completed': return 'bg-green-100 text-green-800';
+            case 'completed':
+            case 'success': return 'bg-green-100 text-green-800';
             case 'pending': return 'bg-yellow-100 text-yellow-800';
             case 'failed': return 'bg-red-100 text-red-800';
             default: return 'bg-slate-100 text-slate-800';

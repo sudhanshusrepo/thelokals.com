@@ -43,39 +43,36 @@ export default function ServiceDetailPage() {
             const { data: { user } } = await supabase.auth.getUser();
 
             if (!user) {
-                // Create a temp user OR redirect to login
-                // For smooth MVP Demo, let's auto-login a Test User if missing (or simulating guest)
-                // OR just fail and say "Login Required". 
-                // Let's assume we need to Login. 
-                toast.error("Please login to book (Mock: You are guest)");
-                // Allow proceeding for DEMO sake if we can bypassed RLS or allow Anon.
-                // But RLS says "authenticated". 
-                // Let's create a dummy booking with a hardcoded customer_id for now if user is null
-                // to unblock the flow (or strictly enforce auth).
-                // Let's strictly enforce auth? No, valid MVP needs Auth. 
-                // Let's assume the user IS logged in from previous or we stub it.
-                // Actually, Phase 1 for User App was ONLY Service Discovery. 
-                // So we missed User Auth in Phase 1. 
-                // I will add a quick "Mock Login" button here if no user.
+                // For MVP Demo: Auto-login with test account if no session exists
+                // In production, this would redirect to /login
+                try {
+                    const { error } = await supabase.auth.signInWithPassword({
+                        email: 'demo@user.com',
+                        password: 'password'
+                    });
+                    if (error) {
+                        toast.error("Please login to book");
+                        return; // Stop if login fails
+                    }
+                } catch (err) {
+                    console.error("Auto-login failed", err);
+                    toast.error("Login required");
+                    return;
+                }
             }
 
-            if (!user) {
-                // Creating a mock user session for demo purposes
-                const { data, error } = await supabase.auth.signInWithPassword({
-                    email: 'demo@user.com',
-                    password: 'password'
-                });
-                // This is unlikely to work if user doesn't exist.
-                // Strategy: "Book as Guest" (not allowed by DB).
-                // Strategy: "Quick Login" (Simulated).
+            // Refetch user after potential auto-login
+            const { data: { user: currentUser } } = await supabase.auth.getUser();
 
-                // Let's try to insert anyway and catch error.
+            if (!currentUser) {
+                toast.error("Authentication failed");
+                return;
             }
 
-            const user_id = user?.id || '00000000-0000-0000-0000-000000000000'; // Fallback will fail FK
+            const user_id = currentUser?.id || '00000000-0000-0000-0000-000000000000'; // Fallback will fail FK
 
             const { data: booking, error } = await supabase.from('bookings').insert({
-                user_id: user?.id, // This needs to be valid.
+                user_id: currentUser.id, // This needs to be valid.
                 service_code: code,
                 status: 'PENDING', // Waiting for provider
                 booking_type: 'LIVE',

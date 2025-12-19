@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { authenticateWithPhone } from '@thelocals/core/services/authBridge';
+import { OTPService, OTPConfirmation } from '@thelocals/core/services/otp';
 import { toast } from 'react-hot-toast';
 
 export default function LoginPage() {
@@ -11,8 +11,8 @@ export default function LoginPage() {
     const [otp, setOtp] = useState('');
     const [isOtpSent, setIsOtpSent] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [confirmation, setConfirmation] = useState<OTPConfirmation | null>(null);
 
-    // Mock implementation for MVP Phase 1
     const handleSendOtp = async (e: React.FormEvent) => {
         e.preventDefault();
         if (phone.length < 10) {
@@ -20,34 +20,46 @@ export default function LoginPage() {
             return;
         }
         setLoading(true);
-        // Simulate API call
-        setTimeout(() => {
+        try {
+            const confirmObj = await OTPService.sendOTP(phone);
+            setConfirmation(confirmObj);
             setIsOtpSent(true);
-            setLoading(false);
             toast.success('OTP sent to ' + phone);
-        }, 1000);
+        } catch (error: any) {
+            console.error('Send OTP Error:', error);
+            toast.error(error.message || 'Failed to send OTP');
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleVerifyOtp = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (otp !== '123456') {
-            toast.error('Invalid OTP. Use 123456 for testing.');
+        if (!confirmation) {
+            toast.error('Session expired, please resend OTP');
+            return;
+        }
+        if (otp.length !== 6) {
+            toast.error('Please enter a 6-digit OTP');
             return;
         }
         setLoading(true);
 
         try {
-            // Use the MOCK token defined in authBridge for Phase 1
-            const { session, user } = await authenticateWithPhone('MOCK_FIREBASE_TOKEN_123456', phone);
+            const { session, user } = await confirmation.confirm(otp);
 
             if (session) {
                 toast.success('Login successful!');
-                // Check if onboarding is needed (mock check for now)
-                router.push('/onboarding');
+                // Check if onboarding is needed (Real check would query provider profile)
+                // For now, we push to onboarding by default unless profile exists logic is added.
+                // Assuming Next.js middleware handles auth protection.
+                router.push('/dashboard');
+            } else {
+                toast.error('Verification failed: No session created');
             }
         } catch (error: any) {
-            console.error(error);
-            toast.error(error.message || 'Login failed');
+            console.error('Verify OTP Error:', error);
+            toast.error(error.message || 'Invalid OTP');
         } finally {
             setLoading(false);
         }
@@ -62,6 +74,11 @@ export default function LoginPage() {
                 <p className="mt-2 text-center text-sm text-gray-600">
                     TheLokals Partner App
                 </p>
+                <div className="mt-2 text-center">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        {process.env.NODE_ENV === 'development' ? 'Dev Mode' : 'Production'}
+                    </span>
+                </div>
             </div>
 
             <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
@@ -115,7 +132,15 @@ export default function LoginPage() {
                                         onChange={(e) => setOtp(e.target.value)}
                                     />
                                 </div>
-                                <p className="text-xs text-gray-500 mt-2">Use 123456 for testing</p>
+                                <div className="flex justify-between items-center mt-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsOtpSent(false)}
+                                        className="text-sm text-indigo-600 hover:text-indigo-500"
+                                    >
+                                        Change Phone Number
+                                    </button>
+                                </div>
                             </div>
 
                             <div>

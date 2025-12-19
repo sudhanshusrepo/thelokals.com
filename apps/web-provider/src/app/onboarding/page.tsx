@@ -4,17 +4,19 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { supabase } from '@thelocals/core/services/supabase';
+import { DigiLockerModal } from '../../components/DigiLockerModal';
 
 // Steps
 // 1. Personal Details
 // 2. Service Selection
-// 3. Document Verification (Mock)
+// 3. Document Verification (DigiLocker)
 
 export default function OnboardingPage() {
     const router = useRouter();
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
     const [services, setServices] = useState<any[]>([]);
+    const [showDigiLocker, setShowDigiLocker] = useState(false);
 
     // Data
     const [formData, setFormData] = useState({
@@ -23,6 +25,8 @@ export default function OnboardingPage() {
         city: 'Gurugram',
         selectedService: '',
         aadhaarNumber: '',
+        verification_status: 'pending',
+        verificationUrl: ''
     });
 
     // Fetch services on load
@@ -150,28 +154,69 @@ export default function OnboardingPage() {
                 {step === 3 && (
                     <div className="space-y-4">
                         <h3 className="text-lg font-medium">DigiLocker Verification</h3>
-                        <div className="bg-blue-50 p-4 rounded border border-blue-100">
-                            <p className="text-sm text-blue-800">
-                                In a production environment, this step would redirect you to DigiLocker to verify your Aadhaar.
-                            </p>
-                            <p className="text-sm text-blue-800 font-bold mt-2">
-                                For MVP Demo: Verification will be auto-approved.
-                            </p>
-                        </div>
 
-                        <input
-                            className="w-full border p-2 rounded"
-                            placeholder="Enter Aadhaar Number (Mock)"
-                            value={formData.aadhaarNumber}
-                            onChange={e => setFormData({ ...formData, aadhaarNumber: e.target.value })}
-                        />
+                        {!formData.verificationUrl ? (
+                            <div className="bg-blue-50 p-6 rounded-lg border border-blue-100 text-center">
+                                <div className="mb-4">
+                                    <svg className="w-12 h-12 mx-auto text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <h4 className="text-lg font-bold text-blue-900 mb-2">Verify Identity with DigiLocker</h4>
+                                <p className="text-sm text-blue-700 mb-6">
+                                    Connect your DigiLocker account to instantly verify your Aadhaar and PAN.
+                                    This is required to activate your provider account.
+                                </p>
+                                <button
+                                    onClick={() => setShowDigiLocker(true)}
+                                    className="bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition shadow-lg w-full sm:w-auto"
+                                >
+                                    Connect DigiLocker
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="bg-green-50 p-6 rounded-lg border border-green-100 text-center animate-in fade-in">
+                                <div className="mb-4">
+                                    <div className="w-12 h-12 mx-auto bg-green-100 rounded-full flex items-center justify-center">
+                                        <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <h4 className="text-lg font-bold text-green-900 mb-1">Verification Successful</h4>
+                                <p className="text-sm text-green-700 mb-4">
+                                    Your identity has been verified via DigiLocker.
+                                </p>
+                                <p className="text-xs text-slate-500 truncate max-w-xs mx-auto mb-6">
+                                    Proof: {formData.verificationUrl}
+                                </p>
+                            </div>
+                        )}
 
                         <div className="flex gap-2 mt-4">
                             <button onClick={() => setStep(2)} className="flex-1 border border-gray-300 p-2 rounded">Back</button>
-                            <button onClick={handleSubmit} disabled={loading} className="flex-1 bg-green-600 text-white p-2 rounded">
+                            <button
+                                onClick={handleSubmit}
+                                disabled={loading || !formData.verificationUrl}
+                                className="flex-1 bg-green-600 text-white p-2 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
                                 {loading ? 'Submitting...' : 'Complete Registration'}
                             </button>
                         </div>
+
+                        <DigiLockerModal
+                            isOpen={showDigiLocker}
+                            onClose={() => setShowDigiLocker(false)}
+                            onSuccess={(data: any) => {
+                                setFormData({
+                                    ...formData,
+                                    verification_status: 'verified',
+                                    verificationUrl: data.url
+                                });
+                                setShowDigiLocker(false);
+                                toast.success('Identity Verified Successfully!');
+                            }}
+                        />
                     </div>
                 )}
             </div>

@@ -19,7 +19,7 @@ class PushNotificationService {
         try {
             // Check if we're in a browser environment
             if (typeof window === 'undefined' || !('Notification' in window)) {
-                // console.log('Push notifications not supported in this environment');
+
                 return false;
             }
 
@@ -27,10 +27,10 @@ class PushNotificationService {
             const permission = await Notification.requestPermission();
 
             if (permission === 'granted') {
-                // console.log('Notification permission granted');
+
                 return true;
             } else {
-                // console.log('Notification permission denied');
+
                 return false;
             }
         } catch (error) {
@@ -62,7 +62,7 @@ class PushNotificationService {
             }
 
             this.token = tokenData.token;
-            // console.log('Push token registered successfully');
+
         } catch (error) {
             logger.error('Failed to register push token:', error);
             throw error;
@@ -92,7 +92,7 @@ class PushNotificationService {
             }
 
             this.token = null;
-            // console.log('Push token unregistered successfully');
+
         } catch (error) {
             logger.error('Failed to unregister push token:', error);
             throw error;
@@ -104,7 +104,7 @@ class PushNotificationService {
      */
     showLocalNotification(title: string, body: string, data?: any): void {
         if (typeof window === 'undefined' || !('Notification' in window)) {
-            // console.log('Notifications not supported');
+
             return;
         }
 
@@ -138,7 +138,7 @@ class PushNotificationService {
             const hasPermission = await this.requestPermission();
 
             if (!hasPermission) {
-                // console.log('Push notifications not enabled - permission denied');
+
                 return;
             }
 
@@ -157,7 +157,7 @@ class PushNotificationService {
                 platform: 'web',
             });
 
-            // console.log('Push notifications initialized');
+
         } catch (error) {
             logger.error('Failed to initialize push notifications:', error);
         }
@@ -169,7 +169,7 @@ class PushNotificationService {
     async cleanup(providerId: string): Promise<void> {
         try {
             await this.unregisterToken(providerId);
-            // console.log('Push notifications cleaned up');
+
         } catch (error) {
             logger.error('Failed to cleanup push notifications:', error);
         }
@@ -184,13 +184,13 @@ export const pushNotificationService = new PushNotificationService();
  */
 export async function registerServiceWorker(): Promise<ServiceWorkerRegistration | null> {
     if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
-        // console.log('Service workers not supported');
+
         return null;
     }
 
     try {
         const registration = await navigator.serviceWorker.register('/sw.js');
-        // console.log('Service worker registered:', registration);
+
         return registration;
     } catch (error) {
         logger.error('Service worker registration failed:', error);

@@ -153,10 +153,19 @@ export const ProviderDashboard: React.FC = () => {
 const LiveRequestList: React.FC<{ requests: BookingRequest[], onAccept: (bookingId: string) => void }> = ({ requests, onAccept }) => {
   if (requests.length === 0) {
     return (
-      <div className="bg-white rounded-2xl p-12 text-center border shadow-sm">
-        <div className="text-5xl mb-4">⚡️</div>
-        <h3 className="text-lg font-semibold">No new live requests</h3>
-        <p className="text-sm text-gray-500">You will be notified when a new request comes in.</p>
+      <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-3xl p-12 text-center flex flex-col items-center justify-center min-h-[300px] animate-fade-in">
+        <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-sm mb-6">
+          <span className="text-4xl opacity-50">⚡️</span>
+        </div>
+        <h3 className="text-xl font-bold text-slate-900 mb-2">No active requests nearby</h3>
+        <p className="text-slate-500 max-w-xs mx-auto">
+          Stay online! We'll notify you via push notification as soon as a customer requests a service in your area.
+        </p>
+        <div className="mt-6 flex gap-2">
+          <div className="h-2 w-2 rounded-full bg-slate-300 animate-bounce"></div>
+          <div className="h-2 w-2 rounded-full bg-slate-300 animate-bounce delay-100"></div>
+          <div className="h-2 w-2 rounded-full bg-slate-300 animate-bounce delay-200"></div>
+        </div>
       </div>
     );
   }
@@ -200,9 +209,14 @@ const TabButton: React.FC<{ title: Tab, count: number, activeTab: Tab, setActive
 const BookingList: React.FC<{ bookings: Booking[], onUpdateStatus?: (bookingId: string, status: BookingStatus) => void }> = ({ bookings, onUpdateStatus }) => {
   if (bookings.length === 0) {
     return (
-      <div className="bg-white rounded-2xl p-12 text-center border shadow-sm">
-        <div className="text-5xl mb-4">🗓️</div>
-        <h3 className="text-lg font-semibold">No jobs in this category</h3>
+      <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-3xl p-12 text-center flex flex-col items-center justify-center min-h-[300px] animate-fade-in">
+        <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-sm mb-6">
+          <span className="text-4xl opacity-50">🗓️</span>
+        </div>
+        <h3 className="text-xl font-bold text-slate-900 mb-2">No bookings found</h3>
+        <p className="text-slate-500 max-w-xs mx-auto">
+          Bookings in this category will appear here. Check the 'Requests' tab for new opportunities.
+        </p>
       </div>
     );
   }

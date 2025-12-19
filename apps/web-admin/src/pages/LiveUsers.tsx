@@ -13,7 +13,7 @@ const LiveUsers: React.FC = () => {
 
         // WebSocket subscription for real-time updates
         const channel = adminService.subscribeToActiveSessions((payload) => {
-            console.log('Session update:', payload);
+
 
             if (payload.eventType === 'INSERT') {
                 setSessions(prev => [payload.new, ...prev]);

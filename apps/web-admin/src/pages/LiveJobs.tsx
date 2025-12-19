@@ -18,7 +18,7 @@ const LiveJobs: React.FC = () => {
                 'postgres_changes',
                 { event: '*', schema: 'public', table: 'bookings' },
                 (payload: any) => {
-                    console.log('Booking update:', payload);
+
 
                     if (payload.eventType === 'INSERT') {
                         setBookings(prev => [payload.new as Booking, ...prev]);

@@ -1,15 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { backend } from '../services/backend';
 import { toast } from 'react-hot-toast';
-
-// Mock backend location service for MVP build fix
-// In real app, this should be properly typed from core or backend service
-// preventing explicit 'any' if possible, but for quick fix:
-(backend as any).location = {
-    update: async (lat: number, lng: number) => {
-        // console.log('Location update:', lat, lng);
-    }
-};
+import { geoService } from '@thelocals/core/services/geoService';
 
 export const LocationTracker: React.FC = () => {
     const [isTracking, setIsTracking] = useState(false);
@@ -36,7 +28,7 @@ export const LocationTracker: React.FC = () => {
             async (position) => {
                 try {
                     const { latitude, longitude } = position.coords;
-                    await (backend as any).location.update(latitude, longitude);
+                    await geoService.updateLocation(latitude, longitude);
                 } catch (error) {
                     console.error('Failed to update location', error);
                 }
