@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3003",
-    "build": "next build --webpack",
+    "dev": "npx next dev -p 3003",
+    "build": "npx next build --webpack",
     "pages:build": "npm run build && mkdir -p apps/web-admin && cp -r .next apps/web-admin/ && npx @cloudflare/next-on-pages",
-    "start": "next start",
+    "start": "npx next start",
     "lint": "eslint"
   },
   "dependencies": {
