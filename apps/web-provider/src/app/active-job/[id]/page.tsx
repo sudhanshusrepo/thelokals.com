@@ -93,8 +93,16 @@ export default function ActiveJobPage() {
         <div className="min-h-screen bg-gray-100 p-4">
             <div className="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6">
                 <h1 className="text-xl font-bold mb-1">Job #{id.slice(0, 8)}</h1>
-                <div className="text-xs font-bold uppercase tracking-wide text-indigo-500 mb-6">
-                    {job.status.replace('_', ' ')}
+                <div className="flex flex-wrap gap-2 mb-6">
+                    <span className="text-xs font-bold uppercase tracking-wide text-indigo-500 bg-indigo-50 px-2 py-1 rounded">
+                        {job.status.replace('_', ' ')}
+                    </span>
+                    {/* Phase 6 Issue Type */}
+                    {job.issue_type && (
+                        <span className={`text-xs font-bold uppercase tracking-wide px-2 py-1 rounded ${job.issue_type === 'Urgent / Emergency' ? 'text-red-600 bg-red-50' : 'text-slate-600 bg-slate-100'}`}>
+                            {job.issue_type}
+                        </span>
+                    )}
                 </div>
 
                 {/* Status: ACCEPTED (Needs OTP) */}
@@ -150,7 +158,23 @@ export default function ActiveJobPage() {
                     <div className="text-center py-10">
                         <div className="text-6xl mb-4 text-green-500">✅</div>
                         <h2 className="text-xl font-bold">Job Done!</h2>
-                        <p className="text-gray-500">Earnings: ₹{job.final_cost / 100}</p>
+                        <p className="text-gray-500 mb-6">Earnings: ₹{job.final_cost / 100}</p>
+
+                        {/* Phase 6 Rating Display */}
+                        {job.customer_rating ? (
+                            <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 mx-4">
+                                <div className="text-xs text-slate-500 font-bold uppercase mb-2">Customer Rating</div>
+                                <div className="text-3xl mb-1">
+                                    {[...Array(job.customer_rating)].map((_, i) => <span key={i} className="text-amber-400">★</span>)}
+                                </div>
+                                {job.customer_review && (
+                                    <p className="text-sm text-slate-600 italic">"{job.customer_review}"</p>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="text-sm text-slate-400 animate-pulse">Waiting for customer feedback...</div>
+                        )}
+
                     </div>
                 )}
 
