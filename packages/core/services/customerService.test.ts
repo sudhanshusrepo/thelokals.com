@@ -1,32 +1,22 @@
-
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { customerService } from './customerService';
 import { UserProfile } from '../types';
 import { supabase } from './supabase';
 
-jest.mock('./supabase', () => ({
+vi.mock('./supabase', () => ({
   supabase: {
-    from: jest.fn(() => ({
-      select: jest.fn(() => ({ 
-        eq: jest.fn(() => ({ 
-          single: jest.fn(), 
-        })),
-        single: jest.fn(),
-      })),
-      insert: jest.fn(() => ({ 
-        select: jest.fn(() => ({ 
-          single: jest.fn(), 
-        })),
-      })),
-      update: jest.fn(() => ({ 
-        eq: jest.fn(), 
-      })),
-    })),
+    from: vi.fn(),
+    insert: vi.fn(),
+    select: vi.fn(),
+    update: vi.fn(),
+    eq: vi.fn(),
+    single: vi.fn(),
   },
 }));
 
 describe('customerService', () => {
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('createCustomer', () => {
@@ -37,10 +27,10 @@ describe('customerService', () => {
         avatarUrl: 'http://example.com/avatar.png',
       };
 
-      const singleMock = jest.fn().mockResolvedValue({ data: newCustomer, error: null });
-      const selectMock = jest.fn(() => ({ single: singleMock }));
-      const insertMock = jest.fn(() => ({ select: selectMock }));
-      (supabase.from as jest.Mock).mockReturnValue({ insert: insertMock });
+      const singleMock = vi.fn().mockResolvedValue({ data: newCustomer, error: null });
+      const selectMock = vi.fn(() => ({ single: singleMock }));
+      const insertMock = vi.fn(() => ({ select: selectMock }));
+      (supabase.from as any).mockReturnValue({ insert: insertMock });
 
       const customer = await customerService.createCustomer(newCustomer);
 
@@ -61,10 +51,10 @@ describe('customerService', () => {
         avatarUrl: 'http://example.com/avatar.png',
       };
 
-      const singleMock = jest.fn().mockResolvedValue({ data: mockCustomer, error: null });
-      const eqMock = jest.fn(() => ({ single: singleMock }));
-      const selectMock = jest.fn(() => ({ eq: eqMock }));
-      (supabase.from as jest.Mock).mockReturnValue({ select: selectMock });
+      const singleMock = vi.fn().mockResolvedValue({ data: mockCustomer, error: null });
+      const eqMock = vi.fn(() => ({ single: singleMock }));
+      const selectMock = vi.fn(() => ({ eq: eqMock }));
+      (supabase.from as any).mockReturnValue({ select: selectMock });
 
       const customer = await customerService.getCustomerById(customerId);
 
@@ -81,9 +71,9 @@ describe('customerService', () => {
       const customerId = '123';
       const updates = { name: 'Updated Customer' };
 
-      const eqMock = jest.fn().mockResolvedValue({ error: null });
-      const updateMock = jest.fn(() => ({ eq: eqMock }));
-      (supabase.from as jest.Mock).mockReturnValue({ update: updateMock });
+      const eqMock = vi.fn().mockResolvedValue({ error: null });
+      const updateMock = vi.fn(() => ({ eq: eqMock }));
+      (supabase.from as any).mockReturnValue({ update: updateMock });
 
       await customerService.updateCustomerProfile(customerId, updates);
 

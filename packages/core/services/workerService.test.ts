@@ -1,35 +1,29 @@
-
 import { workerService } from './workerService';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { WorkerCategory } from '../types';
 import { supabase } from './supabase';
 
-jest.mock('./supabase', () => ({
+vi.mock('./supabase', () => ({
   supabase: {
-    from: jest.fn(() => ({
-      select: jest.fn(() => ({
-        order: jest.fn(() => ({
-          limit: jest.fn(),
-        })),
-      })),
-    })),
+    from: vi.fn(),
   },
 }));
 
-jest.mock('./logger', () => ({
+vi.mock('./logger', () => ({
   logger: {
-    error: jest.fn(),
+    error: vi.fn(),
   },
 }));
 
-jest.mock('./bookingService', () => ({
+vi.mock('./bookingService', () => ({
   bookingService: {
-    findNearbyProviders: jest.fn(),
+    findNearbyProviders: vi.fn(),
   },
 }));
 
 describe('workerService', () => {
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('getTopWorkers', () => {
@@ -50,17 +44,18 @@ describe('workerService', () => {
           is_verified: true,
           location_lat: 12.34,
           location_lng: 56.78,
+          location: { coordinates: [56.78, 12.34], type: 'Point' }
         },
       ];
 
-      const limitMock = jest.fn().mockResolvedValue({ data: mockWorkers, error: null });
-      const orderMock = jest.fn(() => ({ limit: limitMock }));
-      const selectMock = jest.fn(() => ({ order: orderMock }));
-      (supabase.from as jest.Mock).mockReturnValue({ select: selectMock });
+      const limitMock = vi.fn().mockResolvedValue({ data: mockWorkers, error: null });
+      const orderMock = vi.fn(() => ({ limit: limitMock }));
+      const selectMock = vi.fn(() => ({ order: orderMock }));
+      (supabase.from as any).mockReturnValue({ select: selectMock });
 
       const workers = await workerService.getTopWorkers();
 
-      expect(supabase.from).toHaveBeenCalledWith('workers');
+      expect(supabase.from).toHaveBeenCalledWith('providers');
       expect(selectMock).toHaveBeenCalledWith('*');
       expect(orderMock).toHaveBeenCalledWith('rating', { ascending: false });
       expect(limitMock).toHaveBeenCalledWith(20);

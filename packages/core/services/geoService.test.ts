@@ -1,15 +1,16 @@
 import { geoService } from './geoService';
 import { supabase } from './supabase';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-jest.mock('./supabase', () => ({
+vi.mock('./supabase', () => ({
     supabase: {
-        rpc: jest.fn()
+        rpc: vi.fn()
     }
 }));
 
 describe('geoService', () => {
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     describe('getLocationId', () => {
@@ -36,7 +37,7 @@ describe('geoService', () => {
             (supabase.rpc as any).mockResolvedValue({ data: null, error: { message: 'RPC Error' } });
 
             // Spy on console.error to avoid cluttering test output
-            const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
+            const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
 
             const result = await geoService.getLocationId(0, 0);
             expect(result).toBeNull();
