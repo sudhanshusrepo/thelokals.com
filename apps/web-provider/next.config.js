@@ -4,8 +4,6 @@ const path = require("path");
 const nextConfig = {
   transpilePackages: ['@thelocals/core'],
   outputFileTracingRoot: path.join(__dirname, "../../"),
-  transpilePackages: ['@thelocals/core'],
-  outputFileTracingRoot: path.join(__dirname, "../../"),
 };
 
 module.exports = nextConfig;
