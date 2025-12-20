@@ -4,6 +4,9 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@thelocals/core/services/supabase';
 import { toast } from 'react-hot-toast';
 
+// export const runtime = 'edge';
+export const dynamic = 'force-dynamic';
+
 export default function Dashboard() {
     const [jobs, setJobs] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);

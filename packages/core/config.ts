@@ -17,6 +17,12 @@ export const getEnvVar = (key: string, defaultValue: string = ''): string => {
         console.warn(`Error accessing env var ${key}:`, e);
     }
 
+    if (defaultValue) return defaultValue;
+
+    // Build-time fallbacks to prevent Supabase client crash
+    if (key.includes('SUPABASE_URL')) return 'https://placeholder.supabase.co';
+    if (key.includes('SUPABASE_ANON_KEY')) return 'placeholder-key';
+
     return defaultValue;
 };
 

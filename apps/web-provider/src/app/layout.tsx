@@ -4,7 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { Toaster } from "react-hot-toast";
 
-export const runtime = 'edge';
+// export const runtime = 'edge';
 
 
 
