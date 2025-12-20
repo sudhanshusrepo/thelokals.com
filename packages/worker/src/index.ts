@@ -46,7 +46,8 @@ export default {
                 'x-geo-region': region,
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type'
+                'Access-Control-Allow-Headers': 'Content-Type',
+                'Cache-Control': 'public, max-age=60, s-maxage=60' // Cache at cdN/Edge for 60s
             }
         });
     },

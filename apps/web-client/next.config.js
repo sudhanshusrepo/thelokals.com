@@ -4,7 +4,22 @@ const path = require("path");
 const nextConfig = {
   transpilePackages: ['@thelocals/core'],
   outputFileTracingRoot: path.join(__dirname, "../../"),
-  // Standardized config
+  async headers() {
+    return [
+      {
+        source: '/(.*)\\.(jpg|jpeg|png|svg|ico|woff2)$',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+    ];
+  },
+  experimental: {
+    optimizePackageImports: ['@thelocals/core', 'framer-motion', 'lucide-react', 'date-fns'],
+  },
 };
 
 module.exports = nextConfig;
