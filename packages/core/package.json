@@ -11,7 +11,8 @@
         "./*": "./*.ts"
     },
     "scripts": {
-        "build": "tsc"
+        "build": "tsc",
+        "type-check": "tsc --noEmit"
     },
     "peerDependencies": {
         "react": "^19.0.0",

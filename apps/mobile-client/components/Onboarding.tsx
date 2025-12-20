@@ -7,17 +7,19 @@ import { useRouter } from 'expo-router';
 const Onboarding = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const router = useRouter();
-  const slidesRef = useRef(null);
+  const slidesRef = useRef<FlatList>(null);
 
-  const viewableItemsChanged = useRef(({ viewableItems }) => {
-    setCurrentIndex(viewableItems[0].index);
+  const viewableItemsChanged = useRef(({ viewableItems }: { viewableItems: { index: number | null }[] }) => {
+    if (viewableItems[0]?.index != null) {
+      setCurrentIndex(viewableItems[0].index);
+    }
   }).current;
 
   const viewConfig = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
 
   const scrollTo = () => {
     if (currentIndex < slides.length - 1) {
-      slidesRef.current.scrollToIndex({ index: currentIndex + 1 });
+      slidesRef.current?.scrollToIndex({ index: currentIndex + 1 });
     } else {
       router.replace('/(app)');
     }

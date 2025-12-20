@@ -36,7 +36,7 @@ export default function AiBookingScreen() {
             <View style={styles.content}>
                 {status === 'analyzing' && (
                     <View style={styles.stateContainer}>
-                        <ActivityIndicator size="large" color={Colors.teal} />
+                        <ActivityIndicator size="large" color={Colors.teal.DEFAULT} />
                         <Text style={styles.title}>Analyzing Request...</Text>
                         <Text style={styles.subtitle}>
                             {type === 'text' ? `"${data}"` : 'Processing media...'}
@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
         width: 80,
         height: 80,
         borderRadius: 40,
-        backgroundColor: Colors.teal,
+        backgroundColor: Colors.teal.DEFAULT,
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 16,
@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
         width: '100%',
-        backgroundColor: Colors.teal,
+        backgroundColor: Colors.teal.DEFAULT,
         padding: 16,
         borderRadius: 12,
         alignItems: 'center',

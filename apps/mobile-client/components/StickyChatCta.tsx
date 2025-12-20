@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     recordingButton: {
-        backgroundColor: Colors.red,
+        backgroundColor: Colors.red.DEFAULT,
     },
     input: {
         flex: 1,
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
         width: 40,
         height: 40,
         borderRadius: 20,
-        backgroundColor: Colors.teal,
+        backgroundColor: Colors.teal.DEFAULT,
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 2,

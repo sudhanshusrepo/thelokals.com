@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
         width: 64,
         height: 64,
         borderRadius: 32,
-        backgroundColor: Colors.slate[50],
+        backgroundColor: '#F8FAFC', // slate-50
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 16,

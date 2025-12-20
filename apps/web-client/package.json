@@ -7,7 +7,8 @@
     "build": "npx next build --webpack",
     "pages:build": "npm run build && mkdir -p apps/web-client && cp -r .next apps/web-client/ && npx @cloudflare/next-on-pages",
     "start": "npx next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@thelocals/core": "*",

@@ -63,7 +63,7 @@ export default function BookingMatchPage() {
                 return;
             }
             const intent = JSON.parse(bookingIntentStr);
-            console.log('Creating booking with intent:', intent);
+
 
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error("No user found");

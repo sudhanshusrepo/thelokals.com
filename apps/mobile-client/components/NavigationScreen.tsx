@@ -60,11 +60,13 @@ export const NavigationScreen: React.FC<NavigationScreenProps> = ({
                         timeInterval: 5000, // Update every 5 seconds
                         distanceInterval: 10 // Or every 10 meters
                     },
-                    (newLocation) => {
-                        setProviderLocation({
-                            lat: newLocation.coords.latitude,
-                            lng: newLocation.coords.longitude
-                        });
+                    (newLocation: Location.LocationObject) => {
+                        if (newLocation.coords) {
+                            setProviderLocation({
+                                lat: newLocation.coords.latitude,
+                                lng: newLocation.coords.longitude
+                            });
+                        }
                     }
                 );
             } catch (error) {
@@ -158,7 +160,7 @@ export const NavigationScreen: React.FC<NavigationScreenProps> = ({
                         apikey={GOOGLE_MAPS_API_KEY}
                         strokeWidth={4}
                         strokeColor="#0d9488"
-                        onReady={(result) => {
+                        onReady={(result: { distance: number; duration: number }) => {
                             setDistance(result.distance);
                             setDuration(result.duration);
                         }}

@@ -58,7 +58,7 @@ function RootLayoutNav() {
       ...DarkTheme.colors,
       background: Colors.slate[900],
       card: Colors.slate[800],
-      primary: Colors.teal,
+      primary: Colors.teal.DEFAULT,
       text: Colors.slate[100],
     },
   };
@@ -69,7 +69,7 @@ function RootLayoutNav() {
       ...DefaultTheme.colors,
       background: 'white',
       card: Colors.slate[100],
-      primary: Colors.teal,
+      primary: Colors.teal.DEFAULT,
       text: Colors.slate[800],
     },
   };
