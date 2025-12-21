@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { AppBar } from '../../components/home/AppBar';
 
-export default function BookingPage() {
+function BookingContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const serviceCode = searchParams.get('service');
@@ -142,5 +142,17 @@ export default function BookingPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function BookingPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+            </div>
+        }>
+            <BookingContent />
+        </Suspense>
     );
 }
