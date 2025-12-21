@@ -87,17 +87,33 @@ try {
     fs.writeFileSync(routesPath, JSON.stringify(routesConfig, null, 2));
 
     // 4. Ensure _next directory exists
-    // OpenNext usually puts it there, but we verify to be safe
     const nextDirSrc = path.join(process.cwd(), '.next');
     const nextDirDest = path.join(destDir, '_next');
 
     if (!fs.existsSync(nextDirDest) && fs.existsSync(nextDirSrc)) {
         console.log(`Copying .next to ${nextDirDest} as fallback`);
-        // We typically only need 'static' for the CDN
         const staticSrc = path.join(nextDirSrc, 'static');
         const staticDest = path.join(nextDirDest, 'static');
         if (fs.existsSync(staticSrc)) {
             copyDir(staticSrc, staticDest);
+        }
+    }
+
+    // 5. Copy PUBLIC folder contents to assets root
+    // This ensures logos, manifests, and ignored static files are served correctly by Cloudflare
+    const publicDir = path.join(process.cwd(), 'public');
+    if (fs.existsSync(publicDir)) {
+        console.log(`Copying public directory from ${publicDir} to ${destDir}`);
+        const publicFiles = fs.readdirSync(publicDir);
+        for (const file of publicFiles) {
+            const srcPath = path.join(publicDir, file);
+            const destPath = path.join(destDir, file);
+            // Copy if it's a file or directory
+            if (fs.statSync(srcPath).isDirectory()) {
+                copyDir(srcPath, destPath);
+            } else {
+                fs.copyFileSync(srcPath, destPath);
+            }
         }
     }
 
