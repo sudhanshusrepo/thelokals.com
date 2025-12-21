@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { AuthProvider } from "../contexts/AuthContext";
+import { BookingProvider } from "../contexts/BookingContext";
 import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
@@ -34,8 +35,10 @@ export default function RootLayout({
       </head>
       <body className="antialiased">
         <AuthProvider>
-          {children}
-          <Toaster position="top-center" />
+          <BookingProvider>
+            {children}
+            <Toaster position="top-center" />
+          </BookingProvider>
         </AuthProvider>
         <script
           dangerouslySetInnerHTML={{

@@ -6,27 +6,30 @@ import { toast } from 'react-hot-toast';
 import { AppBar } from '../../components/home/AppBar';
 import { AuthGuard } from '../../components/auth/AuthGuard';
 import { useAuth } from '../../contexts/AuthContext';
+import { useBooking } from '../../contexts/BookingContext';
+import { BookingProgress } from '../../components/booking/BookingProgress';
 
 function BookingContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { user } = useAuth();
+    const { bookingData, updateBookingData } = useBooking();
 
-    const serviceCode = searchParams.get('service');
+    const serviceCode = searchParams.get('service') || bookingData?.serviceCode;
     const priceParam = searchParams.get('price');
     const issueParam = searchParams.get('issue');
 
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
-        address: '',
-        date: '',
-        time: '',
-        notes: ''
+        address: bookingData?.address || '',
+        date: bookingData?.scheduledDate || '',
+        time: bookingData?.scheduledTime || '',
+        notes: bookingData?.notes || ''
     });
 
-    const [serviceName, setServiceName] = useState('');
-    const [basePrice, setBasePrice] = useState(0);
-    const [issueType, setIssueType] = useState('General Issue');
+    const [serviceName, setServiceName] = useState(bookingData?.serviceName || '');
+    const [basePrice, setBasePrice] = useState(bookingData?.estimatedPrice || 0);
+    const [issueType, setIssueType] = useState(bookingData?.issueDescription || 'General Issue');
 
     useEffect(() => {
         if (!serviceCode) {
@@ -35,15 +38,23 @@ function BookingContent() {
             return;
         }
 
-        // Get service details from query params or derive from code
-        setServiceName(serviceCode.replace(/-/g, ' ').toUpperCase());
-        setBasePrice(priceParam ? parseInt(priceParam) : 499);
-        setIssueType(issueParam || 'General Issue');
+        // Get service details from query params or booking context
+        if (!serviceName) {
+            setServiceName(serviceCode.replace(/-/g, ' ').toUpperCase());
+        }
+        if (!basePrice) {
+            setBasePrice(priceParam ? parseInt(priceParam) : 499);
+        }
+        if (!issueType || issueType === 'General Issue') {
+            setIssueType(issueParam || 'General Issue');
+        }
 
-        // Set default date to today
-        const today = new Date().toISOString().split('T')[0];
-        setFormData(prev => ({ ...prev, date: today }));
-    }, [serviceCode, priceParam, issueParam, router]);
+        // Set default date to today if not set
+        if (!formData.date) {
+            const today = new Date().toISOString().split('T')[0];
+            setFormData(prev => ({ ...prev, date: today }));
+        }
+    }, [serviceCode, priceParam, issueParam, router, serviceName, basePrice, issueType, formData.date]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -62,19 +73,13 @@ function BookingContent() {
                 throw new Error('Please select a future date and time');
             }
 
-            // Save Intent
-            const bookingIntent = {
-                service_code: serviceCode,
-                service_name: serviceName,
+            // Update booking context
+            updateBookingData({
                 address: formData.address,
-                schedule: `${formData.date} ${formData.time}`,
-                notes: formData.notes,
-                base_price: basePrice,
-                final_price: basePrice, // + taxes
-                issue_type: issueType
-            };
-
-            localStorage.setItem('booking_intent', JSON.stringify(bookingIntent));
+                scheduledDate: formData.date,
+                scheduledTime: formData.time,
+                notes: formData.notes
+            });
 
             // Navigate to AI Match
             router.push('/booking/match');
@@ -91,7 +96,12 @@ function BookingContent() {
             <div className="min-h-screen bg-slate-50">
                 <AppBar />
 
-                <div className="max-w-xl mx-auto px-4 py-8 mt-16">
+                {/* Booking Progress */}
+                <div className="mt-16">
+                    <BookingProgress currentStep={2} />
+                </div>
+
+                <div className="max-w-xl mx-auto px-4 py-8">
                     {/* User Info Card */}
                     {user && (
                         <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 mb-6 flex items-center gap-3">

@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@thelocals/core/services/supabase';
 import { useParams, useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
+import { BookingProgress } from '../../../components/booking/BookingProgress';
+import { useBooking } from '../../../contexts/BookingContext';
 
 export default function ServiceDetailPage() {
     const params = useParams();
@@ -12,6 +14,7 @@ export default function ServiceDetailPage() {
     const [service, setService] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [bookingLoading, setBookingLoading] = useState(false);
+    const { setBookingData } = useBooking();
 
     useEffect(() => {
         async function fetchService() {
@@ -60,6 +63,18 @@ export default function ServiceDetailPage() {
                 return;
             }
 
+            // Initialize booking context with service details
+            setBookingData({
+                serviceCode: code,
+                serviceName: service.name,
+                serviceCategory: service.category || 'Home Services',
+                issueDescription: selectedIssue,
+                estimatedPrice: finalPrice + 9,
+                address: '',
+                scheduledDate: '',
+                scheduledTime: ''
+            });
+
             // Navigate to Booking Form to collect Address & Schedule
             const bookingParams = new URLSearchParams({
                 service: code,
@@ -83,6 +98,9 @@ export default function ServiceDetailPage() {
 
     return (
         <div className="min-h-screen bg-slate-50 pb-28">
+            {/* Booking Progress */}
+            <BookingProgress currentStep={1} />
+
             <div className="bg-white/90 backdrop-blur-sm p-4 sticky top-0 z-10 flex items-center gap-4 border-b border-slate-200">
                 <button onClick={() => router.back()} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100">
                     <span className="text-xl">←</span>
