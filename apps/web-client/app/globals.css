@@ -1,27 +1,30 @@
 @import "tailwindcss";
 
 :root {
-  /* Light Blue + Aesthetic Green Palette */
-  --background: #f0f9ff;
-  /* sky-50 */
-  --foreground: #0f172a;
-  /* slate-900 */
+  /* TheLokals Premium Palette */
+  --background: #F5F7FB; /* Off-white background */
+  --foreground: #020617; /* Text primary */
 
-  --primary: #10b981;
-  /* emerald-500 */
-  --primary-foreground: #ffffff;
+  --primary: #0A2540; /* Deep Blue */
+  --primary-foreground: #FFFFFF;
 
-  --secondary: #e0f2fe;
-  /* sky-100 */
-  --secondary-foreground: #0369a1;
-  /* sky-700 */
+  --secondary: #14B8A6; /* Teal Accent */
+  --secondary-foreground: #FFFFFF;
 
-  --accent: #38bdf8;
-  /* sky-400 */
-  --accent-foreground: #ffffff;
+  --muted: #64748B;
+  --muted-foreground: #FFFFFF;
 
-  --glass-bg: rgba(255, 255, 255, 0.6);
-  --glass-border: rgba(255, 255, 255, 0.5);
+  --card: #FFFFFF;
+  --card-foreground: #020617;
+
+  --popover: #FFFFFF;
+  --popover-foreground: #020617;
+
+  --border: #E2E8F0;
+  --input: #E2E8F0;
+  --ring: #0A2540;
+
+  --radius: 1rem;
 }
 
 @theme inline {
