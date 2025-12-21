@@ -25,8 +25,8 @@ export const Header: React.FC<HeaderProps> = ({ title = "Registration", showAuto
                     <div className="flex-shrink-0 flex items-center">
                         <Link href="/" className="flex items-center gap-2.5 group">
                             <img src="/logo.svg" alt="lokals logo" className="h-8 w-auto group-hover:scale-105 transition-transform" />
-                            <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-200 tracking-tight hidden sm:block">
-                                lokals<span className="text-orange-500">.com</span>
+                            <span className="text-xl font-bold text-[#0A2540] tracking-tight hidden sm:block">
+                                lokals
                             </span>
                         </Link>
                     </div>
@@ -34,7 +34,7 @@ export const Header: React.FC<HeaderProps> = ({ title = "Registration", showAuto
                     {/* Center: Title (Dynamic) */}
                     <div className="flex-1 flex justify-center min-w-0">
                         {title && (
-                            <h1 className="font-semibold text-slate-800 dark:text-white text-base sm:text-lg truncate max-w-[200px] sm:max-w-md text-center">
+                            <h1 className="font-semibold text-[#0A2540] text-base sm:text-lg truncate max-w-[200px] sm:max-w-md text-center">
                                 {title}
                             </h1>
                         )}
@@ -43,17 +43,17 @@ export const Header: React.FC<HeaderProps> = ({ title = "Registration", showAuto
                     {/* Right: Actions */}
                     <div className="flex-shrink-0 flex items-center justify-end min-w-[80px]">
                         {showAutoSaving ? (
-                            <div className="flex items-center gap-2 px-3 py-1.5 bg-orange-50 rounded-full border border-orange-100">
+                            <div className="flex items-center gap-2 px-3 py-1.5 bg-[#F5F7FB] rounded-full border border-[#E2E8F0]">
                                 <span className="flex h-2 w-2 relative">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#12B3A6] opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#12B3A6]"></span>
                                 </span>
-                                <span className="text-xs text-orange-700 font-medium hidden sm:inline">Auto-saving</span>
+                                <span className="text-xs text-[#0A2540] font-medium hidden sm:inline">Auto-saving</span>
                             </div>
                         ) : (
                             <button
                                 onClick={onSignInClick}
-                                className="text-sm font-semibold text-slate-600 hover:text-orange-600 transition-colors px-4 py-2 rounded-lg hover:bg-orange-50"
+                                className="text-sm font-semibold text-[#64748B] hover:text-[#12B3A6] transition-colors px-4 py-2 rounded-lg hover:bg-[#F5F7FB]"
                             >
                                 Sign In
                             </button>
