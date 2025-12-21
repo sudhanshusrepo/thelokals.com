@@ -40,16 +40,16 @@ export default function LocationManager() {
                 .from('service_categories')
                 .select('id, name');
 
-            const servicesMap = new Map(servicesData?.map(s => [s.name, s.id]));
+            const servicesMap = new Map(servicesData?.map((s: { name: string; id: string }) => [s.name, s.id]));
 
             // Merge data
-            const mappedLocations: LocationConfig[] = (locationsData || []).map(loc => {
+            const mappedLocations: LocationConfig[] = (locationsData || []).map((loc: any) => {
                 const locAvailability: Record<string, boolean> = {};
 
                 // For each known service, determine status
-                servicesData?.forEach(service => {
+                servicesData?.forEach((service: { name: string; id: string }) => {
                     const availabilityRecord = availabilityData?.find(
-                        a => a.service_category_id === service.id && a.location_value === loc.name
+                        (a: any) => a.service_category_id === service.id && a.location_value === loc.name
                     );
 
                     // Default to true unless explicitly disabled

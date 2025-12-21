@@ -43,7 +43,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
                 {/* Eyebrow */}
                 <div className="text-center mb-4">
                     <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white/90 text-sm font-semibold tracking-wide">
-                        Get STUFF done! 😊
+                        get STUFF done! 😎
                     </span>
                 </div>
 

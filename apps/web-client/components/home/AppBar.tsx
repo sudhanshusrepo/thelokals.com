@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 
 interface AppBarProps {
     onSignIn?: () => void;
@@ -88,7 +89,14 @@ export const AppBar: React.FC<AppBarProps> = ({ onSignIn, onOpenApp }) => {
             <div className="max-w-7xl mx-auto px-4 h-full flex items-center justify-between">
                 {/* Left: Logo */}
                 <div className="flex items-center gap-2">
-                    <img src="/logo.png" alt="lokals logo" className="w-10 h-10 rounded-lg" />
+                    <Image
+                        src="/logo.svg"
+                        alt="lokals logo"
+                        width={40}
+                        height={40}
+                        priority
+                        className="rounded-lg"
+                    />
                     <span className="text-white font-bold text-lg tracking-tight">lokals</span>
                 </div>
 
