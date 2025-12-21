@@ -1,6 +1,6 @@
 {
-    "name": "TheLokals - Local Services Platform",
-    "short_name": "TheLokals",
+    "name": "lokals - Local Services Platform",
+    "short_name": "lokals",
     "description": "Book trusted local services for AC repair, rides, cleaning, and more in your neighborhood",
     "start_url": "/",
     "display": "standalone",

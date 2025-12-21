@@ -96,7 +96,7 @@ export default function SupportScreen() {
 
                 <View className="items-center mt-12 mb-8">
                     <Text className="text-slate-400 text-xs">Version 1.0.0</Text>
-                    <Text className="text-slate-300 text-[10px] mt-1">© 2025 The Lokals</Text>
+                    <Text className="text-slate-300 text-[10px] mt-1">© 2025 lokals</Text>
                 </View>
             </ScrollView>
         </SafeAreaView>

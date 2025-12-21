@@ -24,7 +24,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "The Lokals - Provider Portal",
+  title: "lokals - Provider Portal",
   description: "Join the network of top local service providers.",
 };
 

@@ -11,7 +11,7 @@ interface AppBarProps {
 
 export const AppBar: React.FC<AppBarProps> = ({
     logo,
-    title = "TheLokals Studio",
+    title = "lokals Studio",
     primaryActionLabel = "Launch App",
     secondaryActionLabel = "Plans",
     onPrimaryAction,

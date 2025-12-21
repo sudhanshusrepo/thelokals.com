@@ -24,9 +24,9 @@ export const Header: React.FC<HeaderProps> = ({ title = "Registration", showAuto
                     {/* Left: Logo */}
                     <div className="flex-shrink-0 flex items-center">
                         <Link href="/" className="flex items-center gap-2.5 group">
-                            <img src="/logo.svg" alt="thelokals logo" className="h-8 w-auto group-hover:scale-105 transition-transform" />
+                            <img src="/logo.svg" alt="lokals logo" className="h-8 w-auto group-hover:scale-105 transition-transform" />
                             <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-200 tracking-tight hidden sm:block">
-                                thelokals<span className="text-orange-500">.com</span>
+                                lokals<span className="text-orange-500">.com</span>
                             </span>
                         </Link>
                     </div>

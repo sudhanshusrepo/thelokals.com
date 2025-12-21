@@ -16,7 +16,7 @@ export default function PrivacyScreen() {
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>1. Introduction</Text>
                     <Text style={styles.paragraph}>
-                        TheLokals.com collects and processes user data to connect busy families, students, bachelors, home chefs, and providers for services like maids, tiffins, repairs, and car maintenance.
+                        lokals collects and processes user data to connect busy families, students, bachelors, home chefs, and providers for services like maids, tiffins, repairs, and car maintenance.
                     </Text>
                     <View style={styles.highlightBox}>
                         <Text style={styles.highlightText}>
@@ -169,7 +169,7 @@ export default function PrivacyScreen() {
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>8. Children's Privacy</Text>
                     <Text style={styles.paragraph}>
-                        TheLokals.com is not intended for children under 18. We do not knowingly collect data from minors without parental consent.
+                        lokals is not intended for children under 18. We do not knowingly collect data from minors without parental consent.
                     </Text>
                 </View>
 
@@ -191,7 +191,7 @@ export default function PrivacyScreen() {
                 {/* Acceptance */}
                 <View style={styles.acceptanceBox}>
                     <Text style={styles.acceptanceText}>
-                        By using TheLokals.com, you acknowledge that you have read, understood, and agree to this Privacy Policy.
+                        By using lokals, you acknowledge that you have read, understood, and agree to this Privacy Policy.
                     </Text>
                 </View>
             </ScrollView>

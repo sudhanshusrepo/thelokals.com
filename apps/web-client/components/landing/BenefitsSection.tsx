@@ -38,7 +38,7 @@ const DEFAULT_BENEFITS: BenefitCardProps[] = [
 ];
 
 export const BenefitsSection: React.FC<BenefitsSectionProps> = ({
-    title = "Why TheLokals?",
+    title = "Why lokals?",
     subtitle = "Experience the best in home services.",
     benefits = DEFAULT_BENEFITS
 }) => {

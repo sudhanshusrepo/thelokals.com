@@ -185,7 +185,7 @@ export async function POST(request: NextRequest) {
                     },
                     body: JSON.stringify({
                         to: email,
-                        subject: 'We received your message - TheLokals',
+                        subject: 'We received your message - lokals',
                         html: `
                             <h2>Thank you for contacting us!</h2>
                             <p>Hi ${name},</p>
@@ -193,7 +193,7 @@ export async function POST(request: NextRequest) {
                             <p><strong>Your message:</strong></p>
                             <p>${message.replace(/\n/g, '<br>')}</p>
                             <hr>
-                            <p>Best regards,<br>The Lokals Team</p>
+                            <p>Best regards,<br>lokals Team</p>
                             <p><small>This is an automated response. Please do not reply to this email.</small></p>
                         `,
                     }),

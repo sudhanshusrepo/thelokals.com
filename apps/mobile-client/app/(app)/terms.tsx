@@ -17,7 +17,7 @@ export default function TermsScreen() {
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>1. Introduction</Text>
                     <Text style={styles.paragraph}>
-                        These Terms and Conditions outline the rules for using TheLokals.com, a platform connecting users with local home services like maids, tiffins, repairs, and car services in India.
+                        These Terms and Conditions outline the rules for using lokals, a platform connecting users with local home services like maids, tiffins, repairs, and car services in India.
                     </Text>
                     <Text style={styles.paragraph}>
                         By accessing or using the site, users agree to these terms, which prioritize safe transactions for busy families, students, working professionals, and neighborhood providers.

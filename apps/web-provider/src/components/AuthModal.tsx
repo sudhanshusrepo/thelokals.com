@@ -142,7 +142,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose, initialMode = 'si
                         <p className="text-slate-500 dark:text-slate-400 text-sm">
                             {activeTab === 'signin'
                                 ? 'Enter your details to manage your business'
-                                : 'Start earning more with thelokals'}
+                                : 'Start earning more with lokals'}
                         </p>
                     </div>
 

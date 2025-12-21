@@ -38,7 +38,7 @@ export const AIAnalysisOverlay: React.FC<AIAnalysisOverlayProps> = ({ isVisible,
 
                     {/* Text Content */}
                     <h3 className="text-2xl font-bold text-white mb-2">
-                        {isComplete ? "Pros Found!" : "thelokals AI is working..."}
+                        {isComplete ? "Pros Found!" : "lokals AI is working..."}
                     </h3>
                     <p className="text-slate-400 mb-8 h-6 flex items-center justify-center">
                         {isComplete

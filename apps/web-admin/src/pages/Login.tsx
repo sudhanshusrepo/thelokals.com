@@ -34,7 +34,7 @@ export default function Login() {
                         </svg>
                     </div>
                     <h1 className="text-3xl font-bold text-white mb-2">Admin Portal</h1>
-                    <p className="text-slate-400">thelokals.com Control Center</p>
+                    <p className="text-slate-400">lokals Control Center</p>
                 </div>
 
                 {/* Login Card */}

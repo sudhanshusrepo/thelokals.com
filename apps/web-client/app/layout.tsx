@@ -1,16 +1,18 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "TheLokals - Trusted Local Services",
-  description: "Book verified providers for AC repair, rides, cleaning, and more in your neighborhood",
+  title: "lokals - Trusted Local Services",
+  description: "Find trusted local professionals for all your home service needs.",
   manifest: "/manifest.json",
-  themeColor: "#6366f1",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: "TheLokals",
-  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#000000",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
@@ -21,11 +23,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="manifest" href="/manifest.json" />
-        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="TheLokals" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="lokals" />
         <meta name="theme-color" content="#6366f1" />
       </head>
       <body className="antialiased">

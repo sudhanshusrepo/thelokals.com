@@ -77,7 +77,7 @@ export default function AuthClient() {
                     Provider Login
                 </h2>
                 <p className="mt-2 text-center text-sm text-gray-600">
-                    TheLokals Partner App
+                    lokals Partner App
                 </p>
                 <div className="mt-2 text-center">
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
