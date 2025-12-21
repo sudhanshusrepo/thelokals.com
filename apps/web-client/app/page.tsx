@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import { AppBar } from '../components/home/AppBar';
 import { HeroSection } from '../components/home/HeroSection';
 import { QuickCategories } from '../components/home/QuickCategories';
@@ -8,29 +9,52 @@ import { WhyLokals } from '../components/home/WhyLokals';
 import { BrowseServices } from '../components/home/BrowseServices';
 import { ContactSection } from '../components/home/ContactSection';
 import { Footer } from '../components/home/Footer';
+import { searchServices } from '../lib/searchServices';
 
 export default function Home() {
-  const handleSearch = (query: string) => {
-    console.log('Search query:', query);
-    // TODO: Navigate to search results or show service selection
+  const router = useRouter();
+
+  const handleSearch = async (query: string) => {
+    if (!query || query.trim().length === 0) return;
+
+    // Search for matching services
+    const results = await searchServices(query);
+
+    if (results.length === 1) {
+      // Single match - go directly to service page
+      router.push(`/service/${results[0].code}`);
+    } else if (results.length > 1) {
+      // Multiple matches - go to search results
+      router.push(`/search?q=${encodeURIComponent(query)}`);
+    } else {
+      // No matches - still go to search page to show "no results"
+      router.push(`/search?q=${encodeURIComponent(query)}`);
+    }
   };
 
   const handleSelectCategory = (categoryId: string) => {
-    console.log('Selected category:', categoryId);
-    // TODO: Navigate to category page
+    router.push(`/category/${categoryId}`);
   };
 
   const handleSelectService = (serviceId: string) => {
-    console.log('Selected service:', serviceId);
-    // TODO: Navigate to service details
+    router.push(`/category/${serviceId}`);
+  };
+
+  const handleSignIn = () => {
+    router.push('/auth/signin');
+  };
+
+  const handleOpenApp = () => {
+    // PWA install will be implemented here
+    console.log('Open app clicked - PWA install prompt');
   };
 
   return (
     <div className="min-h-screen bg-background">
       {/* 1. App Bar */}
       <AppBar
-        onSignIn={() => console.log('Sign in clicked')}
-        onOpenApp={() => console.log('Open app clicked')}
+        onSignIn={handleSignIn}
+        onOpenApp={handleOpenApp}
       />
 
       {/* 2. Hero with AI Search */}

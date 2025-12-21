@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "npx next dev -p 3002",
+    "dev": "npx next dev -p 3000",
     "build": "npx next build --webpack",
-    "pages:build": "npm run build && mkdir -p apps/web-client && cp -r .next apps/web-client/ && npx @cloudflare/next-on-pages",
+    "pages:build": "npx @cloudflare/next-on-pages@1",
     "start": "npx next start",
     "lint": "eslint",
     "type-check": "tsc --noEmit"
