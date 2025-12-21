@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "npx next dev -p 3000",
     "build": "npx next build --webpack",
-    "pages:build": "npx @cloudflare/next-on-pages@1",
+    "pages:build": "npx @opennextjs/cloudflare",
     "start": "npx next start",
     "lint": "eslint",
     "type-check": "tsc --noEmit"
@@ -20,6 +20,7 @@
     "react-hot-toast": "^2.6.0"
   },
   "devDependencies": {
+    "@opennextjs/cloudflare": "^1.14.7",
     "@tailwindcss/postcss": "^4",
     "@types/aria-query": "^5.0.4",
     "@types/jest": "^30.0.0",

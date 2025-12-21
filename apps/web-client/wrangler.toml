@@ -1,7 +1,10 @@
 name = "web-client"
 compatibility_date = "2024-04-05"
 compatibility_flags = ["nodejs_compat"]
-pages_build_output_dir = ".vercel/output/static"
+pages_build_output_dir = ".open-next/output"
+
+[build]
+command = "npx @opennextjs/cloudflare"
 
 [vars]
 NEXT_PUBLIC_SUPABASE_URL = "https://gdnltvvxiychrsdzenia.supabase.co"
