@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "npx next dev -p 3000",
     "build": "npx next build --webpack",
-    "pages:build": "npx @opennextjs/cloudflare build",
+    "pages:build": "npx @opennextjs/cloudflare build && node -e \"const fs=require('fs'); try { fs.renameSync('.open-next/worker.js', '.open-next/assets/_worker.js') } catch (e) { console.error(e); process.exit(1) }\"",
     "start": "npx next start",
     "lint": "eslint",
     "type-check": "tsc --noEmit"

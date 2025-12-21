@@ -58,8 +58,14 @@ const StatBox = ({ label, value, trend, trendValue, icon: Icon, color }: any) =>
     </div>
 );
 
-export const HeroAnalytics = () => {
+export const HeroAnalytics = ({ stats, loading }: HeroAnalyticsProps) => {
     const [view, setView] = useState<'bookings' | 'revenue'>('bookings');
+
+    // Use passed stats or defaults (0) to avoid errors if undefined
+    const activeListings = stats?.activeListings || 0;
+    const newUsers = stats?.newUsers || 0;
+    const totalBookings = stats?.totalBookings || 0;
+    const revenue = stats?.revenue || 0;
 
     return (
         <div className="card w-full">
@@ -88,15 +94,15 @@ export const HeroAnalytics = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 <StatBox
                     label="Active Listings"
-                    value="1,248"
+                    value={activeListings.toLocaleString()} // Use real data
                     trend="up"
-                    trendValue="+12%"
+                    trendValue="+12%" // Keeping static for now as trend data isn't passed yet
                     icon={ShoppingBag}
                     color="blue"
                 />
                 <StatBox
                     label="New Users"
-                    value="84"
+                    value={newUsers.toLocaleString()} // Use real data
                     trend="up"
                     trendValue="+5%"
                     icon={Users}
@@ -104,7 +110,7 @@ export const HeroAnalytics = () => {
                 />
                 <StatBox
                     label="Total Bookings"
-                    value="432"
+                    value={totalBookings.toLocaleString()} // Use real data
                     trend="down"
                     trendValue="-2%"
                     icon={Calendar}
@@ -112,7 +118,7 @@ export const HeroAnalytics = () => {
                 />
                 <StatBox
                     label="Total Revenue"
-                    value="₹1.2M"
+                    value={`₹${revenue.toLocaleString()}`} // Use real data
                     trend="up"
                     trendValue="+8.5%"
                     icon={DollarSign}
