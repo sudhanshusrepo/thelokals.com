@@ -1,9 +1,9 @@
 // Service Worker for lokals PWA
 // Provides offline support and caching for better performance
 
-const CACHE_NAME = 'lokals-v1';
-const STATIC_CACHE = 'lokals-static-v1';
-const DYNAMIC_CACHE = 'lokals-dynamic-v1';
+const CACHE_NAME = 'lokals-v2';
+const STATIC_CACHE = 'lokals-static-v2';
+const DYNAMIC_CACHE = 'lokals-dynamic-v2';
 
 // Assets to cache on install
 const STATIC_ASSETS = [
