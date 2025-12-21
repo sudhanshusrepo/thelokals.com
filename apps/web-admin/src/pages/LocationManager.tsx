@@ -15,20 +15,64 @@ interface LocationConfig {
 export default function LocationManager() {
     const [locations, setLocations] = useState<LocationConfig[]>([]);
     const [loading, setLoading] = useState(true);
-    const [editingId, setEditingId] = useState<string | null>(null);
-
-
 
     const loadLocations = async () => {
-        const { data, error } = await supabase
-            .from('location_configs')
-            .select('*')
-            .order('created_at', { ascending: false });
+        try {
+            // Fetch L3_CITY locations
+            const { data: locationsData, error: locError } = await supabase
+                .from('locations')
+                .select('*')
+                .eq('hierarchy_level', 'L3_CITY')
+                .order('name');
 
-        if (!error && data) {
-            setLocations(data);
+            if (locError) throw locError;
+
+            // Fetch service availability for these cities
+            const { data: availabilityData, error: availError } = await supabase
+                .from('service_availability')
+                .select('*')
+                .eq('location_type', 'city');
+
+            if (availError) throw availError;
+
+            // Fetch service categories with IDs
+            const { data: servicesData } = await supabase
+                .from('service_categories')
+                .select('id, name');
+
+            const servicesMap = new Map(servicesData?.map(s => [s.name, s.id]));
+
+            // Merge data
+            const mappedLocations: LocationConfig[] = (locationsData || []).map(loc => {
+                const locAvailability: Record<string, boolean> = {};
+
+                // For each known service, determine status
+                servicesData?.forEach(service => {
+                    const availabilityRecord = availabilityData?.find(
+                        a => a.service_category_id === service.id && a.location_value === loc.name
+                    );
+
+                    // Default to true unless explicitly disabled
+                    locAvailability[service.name] = availabilityRecord?.status !== 'DISABLED';
+                });
+
+                return {
+                    id: loc.id,
+                    name: loc.name,
+                    is_active: loc.is_active,
+                    service_availability: locAvailability,
+                    feature_flags: {},
+                    radius_km: 10,
+                    created_at: loc.created_at
+                };
+            });
+
+            setLocations(mappedLocations);
+        } catch (error) {
+            console.error('Failed to load locations:', error);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     useEffect(() => {
@@ -37,36 +81,43 @@ export default function LocationManager() {
 
     const toggleLocationStatus = async (id: string, currentStatus: boolean) => {
         const { error } = await supabase
-            .from('location_configs')
+            .from('locations')
             .update({ is_active: !currentStatus })
             .eq('id', id);
 
         if (!error) {
             await loadLocations();
-
-            // Log audit
-            await supabase.from('admin_audit_logs').insert({
-                action: 'location_status_toggle',
-                target_table: 'location_configs',
-                target_id: id,
-                details: { new_status: !currentStatus }
-            });
         }
     };
 
-    const toggleService = async (locationId: string, service: string, currentValue: boolean) => {
+    const toggleService = async (locationId: string, serviceName: string, currentValue: boolean) => {
         const location = locations.find(l => l.id === locationId);
         if (!location) return;
 
-        const newAvailability = {
-            ...location.service_availability,
-            [service]: !currentValue
-        };
+        // We need service ID
+        const { data: serviceData } = await supabase
+            .from('service_categories')
+            .select('id')
+            .eq('name', serviceName)
+            .single();
 
+        if (!serviceData) {
+            console.error('Service not found');
+            return;
+        }
+
+        const newStatus = currentValue ? 'DISABLED' : 'ENABLED';
+
+        // Upsert to service_availability table
         const { error } = await supabase
-            .from('location_configs')
-            .update({ service_availability: newAvailability })
-            .eq('id', locationId);
+            .from('service_availability')
+            .upsert({
+                service_category_id: serviceData.id,
+                location_type: 'city', // Assuming L3_CITY
+                location_value: location.name,
+                status: newStatus,
+                disabled_at: newStatus === 'DISABLED' ? new Date().toISOString() : null
+            }, { onConflict: 'service_category_id, location_type, location_value' });
 
         if (!error) {
             await loadLocations();
@@ -74,10 +125,12 @@ export default function LocationManager() {
             // Log audit
             await supabase.from('admin_audit_logs').insert({
                 action: 'service_availability_toggle',
-                target_table: 'location_configs',
+                target_table: 'service_availability',
                 target_id: locationId,
-                details: { service, new_value: !currentValue }
+                details: { service: serviceName, new_status: newStatus }
             });
+        } else {
+            console.error('Failed to toggle service:', error);
         }
     };
 

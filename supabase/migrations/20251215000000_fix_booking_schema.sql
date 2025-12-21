@@ -9,6 +9,7 @@ ADD COLUMN IF NOT EXISTS delivery_mode text DEFAULT 'LOCAL';
 
 -- 2. Drop old function (cascade to drop dependents if any)
 DROP FUNCTION IF EXISTS public.create_ai_booking(uuid, text, jsonb, text[], numeric, geography, jsonb, text) CASCADE;
+DROP FUNCTION IF EXISTS public.create_ai_booking(uuid, text, jsonb, text[], numeric, geography, jsonb, text, uuid, text) CASCADE;
 
 -- 3. Recreate function with correct signature (10 args)
 CREATE OR REPLACE FUNCTION public.create_ai_booking(
