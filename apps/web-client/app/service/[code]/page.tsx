@@ -72,19 +72,16 @@ export default function ServiceDetailPage() {
                 return;
             }
 
-            // Mock Finding Provider Animation Page
-            // Store simple booking intent in localStorage to pass to next screen
-            const bookingIntent = {
-                service_code: code,
-                service_name: service.name,
-                base_price: basePrice,
-                final_price: finalPrice,
-                issue_type: selectedIssue
-            };
-            localStorage.setItem('booking_intent', JSON.stringify(bookingIntent));
+            // Navigate to Booking Form to collect Address & Schedule
+            const bookingParams = new URLSearchParams({
+                service: code,
+                price: finalPrice.toString(),
+                issue: selectedIssue
+            });
 
-            console.log('[ServicePage] Routing to /booking/match');
-            router.push('/booking/match'); // Route to Match Screen first
+            console.log('[ServicePage] Routing to /book');
+            router.push(`/book?${bookingParams.toString()}`);
+
 
         } catch (e: any) {
             console.error('[ServicePage] Error in handleBookNow:', e);

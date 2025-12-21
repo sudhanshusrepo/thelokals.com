@@ -85,7 +85,7 @@ export default function BookingMatchPage() {
             if (error) throw error;
 
             toast.success("Provider Matched!");
-            router.push('/booking-confirmed'); // Or to /booking/[id]
+            router.push(`/bookings/${booking.id}`);
 
         } catch (e: any) {
             console.error(e);
