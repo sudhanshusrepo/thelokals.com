@@ -25,7 +25,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
     };
 
     return (
-        <section className="relative w-full h-[55vh] min-h-[400px] flex items-end overflow-hidden">
+        <section className="relative w-full h-[55vh] min-h-[400px] flex items-end overflow-hidden rounded-b-3xl shadow-hero">
             {/* Background Image */}
             <div className="absolute inset-0 z-0">
                 <img
@@ -59,7 +59,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
 
                 {/* Search Bar */}
                 <div className="relative max-w-2xl mx-auto">
-                    <div className="relative">
+                    <div className="relative ai-search-container">
                         <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
                             <svg className="w-5 h-5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -78,7 +78,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
                                 }
                             }}
                             placeholder="Search for a service or issue (AC not cooling, cab, electrician…)"
-                            className="w-full pl-12 pr-16 py-4 md:py-5 bg-white text-foreground placeholder:text-muted rounded-[25px] shadow-2xl focus:outline-none focus:ring-2 focus:ring-accent/50 text-sm md:text-base font-medium"
+                            className="w-full pl-12 pr-24 py-4 md:py-5 bg-white text-foreground placeholder:text-muted rounded-[25px] shadow-2xl focus:outline-none focus:ring-2 focus:ring-accent/50 text-sm md:text-base font-medium"
                         />
                         <div className="absolute inset-y-0 right-0 pr-3 flex items-center gap-2">
                             <button className="p-2 hover:bg-slate-100 rounded-full transition-colors">
@@ -87,7 +87,13 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
                                 </svg>
                             </button>
                             <div className="w-px h-6 bg-slate-200"></div>
-                            <span className="text-xs font-bold text-accent px-2">AI</span>
+                            <div className="flex items-center gap-1 px-2">
+                                {/* AI Sparkle Icon */}
+                                <svg className="w-4 h-4 text-accent animate-pulse-slow" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2L9.5 8.5L3 11l6.5 2.5L12 22l2.5-8.5L21 11l-6.5-2.5L12 2z" />
+                                </svg>
+                                <span className="text-xs font-bold text-accent">AI</span>
+                            </div>
                         </div>
                     </div>
 
