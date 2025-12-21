@@ -1,50 +1,55 @@
 'use client';
 
 import React from 'react';
-import { AppBar } from '../components/landing/AppBar';
-import { HeroSection } from '../components/landing/HeroSection';
-import { CategoryCarousel } from '../components/landing/CategoryCarousel';
-import { BenefitsSection } from '../components/landing/BenefitsSection';
-import { CookieBanner } from '../components/landing/CookieBanner';
-
-import { useRouter } from 'next/navigation';
+import { AppBar } from '../components/home/AppBar';
+import { HeroSection } from '../components/home/HeroSection';
+import { QuickCategories } from '../components/home/QuickCategories';
+import { WhyLokals } from '../components/home/WhyLokals';
+import { BrowseServices } from '../components/home/BrowseServices';
+import { ContactSection } from '../components/home/ContactSection';
+import { Footer } from '../components/home/Footer';
 
 export default function Home() {
-  const router = useRouter();
-
   const handleSearch = (query: string) => {
-    // Simple mock routing for prototype/E2E
-    // In real app, this would go to /search?q=...
-    // But since we want to hit the Service Detail for "Leak Repair":
-    if (query.toLowerCase().includes('leak')) {
-      router.push('/service/leak-repair');
-    } else {
-      // Fallback or search page
-      router.push(`/service/${query.toLowerCase().replace(/\s+/g, '-')}`);
-    }
+    console.log('Search query:', query);
+    // TODO: Navigate to search results or show service selection
+  };
+
+  const handleSelectCategory = (categoryId: string) => {
+    console.log('Selected category:', categoryId);
+    // TODO: Navigate to category page
+  };
+
+  const handleSelectService = (serviceId: string) => {
+    console.log('Selected service:', serviceId);
+    // TODO: Navigate to service details
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F7FB] relative pb-20 font-sans">
+    <div className="min-h-screen bg-background">
       {/* 1. App Bar */}
       <AppBar
-        onSecondaryAction={() => console.log('Plans clicked')}
-        onPrimaryAction={() => console.log('Launch App clicked')}
+        onSignIn={() => console.log('Sign in clicked')}
+        onOpenApp={() => console.log('Open app clicked')}
       />
 
-      {/* 2. Hero Section (Includes Search Bar) */}
+      {/* 2. Hero with AI Search */}
       <HeroSection onSearch={handleSearch} />
 
-      {/* 3. Category Carousel */}
-      <div className="mt-8">
-        <CategoryCarousel />
-      </div>
+      {/* 3. Quick Categories Carousel */}
+      <QuickCategories onSelectCategory={handleSelectCategory} />
 
-      {/* 4. Benefits Section */}
-      <BenefitsSection />
+      {/* 4. Why Lokals Trust Band */}
+      <WhyLokals />
 
-      {/* 5. Cookie Consent */}
-      <CookieBanner />
+      {/* 5. Browse Services Grid */}
+      <BrowseServices onSelectService={handleSelectService} />
+
+      {/* 6. Contact Section */}
+      <ContactSection />
+
+      {/* 7. Footer */}
+      <Footer />
     </div>
   );
 }
