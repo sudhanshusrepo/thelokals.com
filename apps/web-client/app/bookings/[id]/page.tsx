@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@thelocals/core/services/supabase';
-import { AppBar } from '../../components/home/AppBar';
+import { AppBar } from '../../../components/home/AppBar';
 
 export default function BookingTrackingPage() {
     const params = useParams();
@@ -40,7 +40,7 @@ export default function BookingTrackingPage() {
                     table: 'bookings',
                     filter: `id=eq.${bookingId}`
                 },
-                (payload) => {
+                (payload: any) => {
                     console.log('Booking Update:', payload);
                     setBooking((prev: any) => ({ ...prev, ...payload.new }));
                 }

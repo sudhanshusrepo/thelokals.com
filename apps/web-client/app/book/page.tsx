@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'react-hot-toast';
-import { AppBar } from '../components/home/AppBar';
+import { AppBar } from '../../components/home/AppBar';
 
 export default function BookingPage() {
     const router = useRouter();
