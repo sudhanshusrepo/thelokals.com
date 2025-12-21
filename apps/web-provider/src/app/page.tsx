@@ -2,7 +2,7 @@
 import { ProviderLanding } from '@/components/ProviderLanding';
 import { useRouter } from 'next/navigation';
 
-// export const runtime = 'edge';
+export const runtime = 'nodejs';
 
 
 

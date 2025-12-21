@@ -1,5 +1,7 @@
 'use client';
 
+export const runtime = 'nodejs';
+
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { AppBar } from '../components/home/AppBar';
