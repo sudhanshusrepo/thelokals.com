@@ -9,7 +9,6 @@ import { HeroSection } from '../components/home/HeroSection';
 import { QuickCategories } from '../components/home/QuickCategories';
 import { WhyLokals } from '../components/home/WhyLokals';
 import { BrowseServices } from '../components/home/BrowseServices';
-import { ContactSection } from '../components/home/ContactSection';
 import { Footer } from '../components/home/Footer';
 import { searchServices } from '../lib/searchServices';
 
@@ -71,10 +70,7 @@ export default function Home() {
       {/* 5. Browse Services Grid */}
       <BrowseServices onSelectService={handleSelectService} />
 
-      {/* 6. Contact Section */}
-      <ContactSection />
-
-      {/* 7. Footer */}
+      {/* 6. Footer */}
       <Footer />
     </div>
   );
