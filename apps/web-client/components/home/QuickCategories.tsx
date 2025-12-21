@@ -33,7 +33,7 @@ export const QuickCategories: React.FC<QuickCategoriesProps> = ({ onSelectCatego
                 if (error) throw error;
 
                 // Map emoji from icon_url if emoji field doesn't exist
-                const mappedData = (data || []).map(cat => ({
+                const mappedData = (data || []).map((cat: any) => ({
                     ...cat,
                     emoji: cat.emoji || cat.icon_url || '🏠'
                 }));
