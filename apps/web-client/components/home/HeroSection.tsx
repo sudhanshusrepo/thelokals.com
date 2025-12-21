@@ -87,12 +87,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
                                 </svg>
                             </button>
                             <div className="w-px h-6 bg-slate-200"></div>
-                            <div className="flex items-center gap-1 px-2">
+                            <div className="flex items-center gap-1.5 px-2">
                                 {/* AI Sparkle Icon */}
                                 <svg className="w-4 h-4 text-accent animate-pulse-slow" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M12 2L9.5 8.5L3 11l6.5 2.5L12 22l2.5-8.5L21 11l-6.5-2.5L12 2z" />
                                 </svg>
-                                <span className="text-xs font-bold text-accent">AI</span>
+                                <span className="text-[10px] font-semibold text-accent whitespace-nowrap">Powered by lokals AI</span>
                             </div>
                         </div>
                     </div>

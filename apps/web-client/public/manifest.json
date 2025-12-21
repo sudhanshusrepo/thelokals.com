@@ -1,7 +1,7 @@
 {
-    "name": "lokals - Local Services Platform",
+    "name": "lokals - Trusted Local Services",
     "short_name": "lokals",
-    "description": "Book trusted local services for AC repair, rides, cleaning, and more in your neighborhood",
+    "description": "Find and book verified local professionals for AC repair, plumbing, electrical work, cleaning, and more. Transparent pricing, same-day service, 100% safe.",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#ffffff",
@@ -9,6 +9,12 @@
     "orientation": "portrait-primary",
     "scope": "/",
     "icons": [
+        {
+            "src": "/logo.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        },
         {
             "src": "/icons/icon-72x72.png",
             "sizes": "72x72",
@@ -97,5 +103,7 @@
             ]
         }
     ],
-    "prefer_related_applications": false
+    "prefer_related_applications": false,
+    "lang": "en-IN",
+    "dir": "ltr"
 }
