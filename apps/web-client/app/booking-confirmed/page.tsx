@@ -2,8 +2,6 @@
 
 import Link from 'next/link';
 
-export const runtime = 'edge';
-
 export default function BookingConfirmed() {
     return (
         <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 text-center">

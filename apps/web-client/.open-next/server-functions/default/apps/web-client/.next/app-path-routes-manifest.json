@@ -1,0 +1,15 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/_global-error/page": "/_global-error",
+  "/favicon.ico/route": "/favicon.ico",
+  "/api/contact/route": "/api/contact",
+  "/booking-confirmed/page": "/booking-confirmed",
+  "/booking/[id]/page": "/booking/[id]",
+  "/booking/match/page": "/booking/match",
+  "/category/[id]/page": "/category/[id]",
+  "/page": "/",
+  "/rating/[id]/page": "/rating/[id]",
+  "/search/page": "/search",
+  "/tutorial/page": "/tutorial",
+  "/service/[code]/page": "/service/[code]"
+}

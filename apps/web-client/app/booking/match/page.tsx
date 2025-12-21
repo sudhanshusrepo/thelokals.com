@@ -5,8 +5,6 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@thelocals/core/services/supabase';
 import { toast } from 'react-hot-toast';
 
-export const runtime = 'edge';
-
 export default function BookingMatchPage() {
     const router = useRouter();
     const [status, setStatus] = useState('Analysing your request...');

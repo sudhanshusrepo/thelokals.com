@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "npx next dev -p 3003",
+    "dev": "npx next dev -p 3002",
     "build": "npx next build --webpack",
     "pages:build": "npm run build && mkdir -p apps/web-admin && cp -r .next apps/web-admin/ && npx @cloudflare/next-on-pages",
     "start": "npx next start",

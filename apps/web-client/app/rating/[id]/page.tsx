@@ -5,8 +5,6 @@ import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@thelocals/core/services/supabase';
 import { toast } from 'react-hot-toast';
 
-export const runtime = 'edge';
-
 export default function RatingPage() {
     const params = useParams();
     const router = useRouter();

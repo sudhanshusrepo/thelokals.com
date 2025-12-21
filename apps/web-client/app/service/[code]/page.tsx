@@ -5,8 +5,6 @@ import { supabase } from '@thelocals/core/services/supabase';
 import { useParams, useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 
-export const runtime = 'edge';
-
 export default function ServiceDetailPage() {
     const params = useParams();
     const router = useRouter();

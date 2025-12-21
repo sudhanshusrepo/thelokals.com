@@ -16,18 +16,22 @@ export default function AuthClient() {
 
     const handleSendOtp = async (e: React.FormEvent) => {
         e.preventDefault();
+        console.log('[AuthClient] handleSendOtp called with:', phone, 'TestMode:', OTPService.isTestMode());
         if (phone.length < 10) {
+            console.log('[AuthClient] Phone validation failed');
             toast.error('Please enter a valid phone number');
             return;
         }
         setLoading(true);
         try {
+            console.log('[AuthClient] calling OTPService.sendOTP');
             const confirmObj = await OTPService.sendOTP(phone);
+            console.log('[AuthClient] OTPService.sendOTP success');
             setConfirmation(confirmObj);
             setIsOtpSent(true);
             toast.success('OTP sent to ' + phone);
         } catch (error: any) {
-            console.error('Send OTP Error:', error);
+            console.error('[AuthClient] Send OTP Error:', error);
             toast.error(error.message || 'Failed to send OTP');
         } finally {
             setLoading(false);
