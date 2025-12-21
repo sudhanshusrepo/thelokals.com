@@ -12,6 +12,15 @@ interface Category {
     display_order: number;
 }
 
+interface SupabaseCategoryResponse {
+    id: string;
+    name: string;
+    icon_url?: string | null;
+    image_url?: string | null;
+    emoji?: string | null;
+    display_order: number;
+}
+
 interface QuickCategoriesProps {
     onSelectCategory?: (categoryId: string) => void;
 }
@@ -33,9 +42,13 @@ export const QuickCategories: React.FC<QuickCategoriesProps> = ({ onSelectCatego
                 if (error) throw error;
 
                 // Map emoji from icon_url if emoji field doesn't exist
-                const mappedData = (data || []).map((cat: any) => ({
-                    ...cat,
-                    emoji: cat.emoji || cat.icon_url || '🏠'
+                const mappedData: Category[] = (data || []).map((cat: SupabaseCategoryResponse): Category => ({
+                    id: cat.id,
+                    name: cat.name,
+                    icon_url: cat.icon_url || undefined,
+                    image_url: cat.image_url || undefined,
+                    emoji: cat.emoji || cat.icon_url || '🏠',
+                    display_order: cat.display_order
                 }));
 
                 setCategories(mappedData);
