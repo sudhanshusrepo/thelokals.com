@@ -1,4 +1,4 @@
-import { test, expect } from '../../fixtures/test-fixtures';
+import { test, expect } from '@playwright/test';
 import { createClient } from '@supabase/supabase-js';
 
 // Force local Supabase for E2E tests
@@ -185,18 +185,26 @@ test.describe('Unified Booking Lifecycle E2E', () => {
         await clientPage.getByPlaceholder('Search for services (AC, cab, electrician...)').press('Enter');
         await expect(clientPage.getByRole('heading', { name: 'Leak Repair', level: 1 })).toBeVisible();
 
-        // Click Book Now - Triggers Auto-Login (Mock Guest or Real)
         // Click Book Now
         await clientPage.getByRole('button', { name: /Book Service/i }).click();
 
-        // Wait for Booking Confirmation / Live Search -> Match Page
+        // 3. BOOKING FORM (/book)
+        await expect(clientPage).toHaveURL(/\/book\?service=/);
+        await clientPage.getByPlaceholder('Enter full address, landmark, etc.').fill('Test Address 123');
+        await clientPage.locator('input[type="date"]').fill('2025-12-25');
+        await clientPage.locator('input[type="time"]').fill('10:00');
+        await clientPage.getByRole('button', { name: 'Find Provider' }).click();
+
+        // 4. MATCHING (/booking/match)
         await expect(clientPage.getByText('Analysing your request...')).toBeVisible({ timeout: 10000 });
 
-        // Depending on flow, we might be redirected. 
-        // Current flow redirects to /booking-confirmed (from code view)
-        // Wait for confirmation page
-        await expect(clientPage).toHaveURL(/\/booking-confirmed/);
-        console.log('[PHASE 2] Booking Created');
+        // 5. TRACKING PAGE (/bookings/[id])
+        await expect(clientPage).toHaveURL(/\/bookings\/.+/);
+        const bookingId = (await clientPage.url()).split('/').pop();
+        console.log(`[PHASE 2] Booking Created with ID: ${bookingId}`);
+
+        // Verify Status Timeline is visible
+        await expect(clientPage.getByText('PENDING')).toBeVisible();
 
         // ============================================
         // PHASE 3: Provider Acceptance
@@ -206,16 +214,17 @@ test.describe('Unified Booking Lifecycle E2E', () => {
         await expect(providerPage.getByText('New Live Booking!')).toBeVisible({ timeout: 30000 });
 
         // Accept
-        await providerPage.getByRole('button', { name: 'Accept' }).click();
+        await providerPage.getByRole('button', { name: 'Accept Request' }).click();
 
         // Verify Card moves/disappears or shows "Accepted"
         // Wait for "Bookings" tab to update or check tab switch
-        // Just verify the toast or state change if possible.
-        // Assuming optimistic update removes it from "Requests"
         await expect(providerPage.getByText('New Live Booking!')).not.toBeVisible();
         await providerPage.getByRole('button', { name: 'Bookings' }).click();
         await expect(providerPage.getByText('CONFIRMED')).toBeVisible();
         console.log('[PHASE 3] Provider accepted booking');
+
+        // Check Client Side for Update
+        await expect(clientPage.getByText('CONFIRMED')).toBeVisible({ timeout: 10000 });
 
         // ============================================
         // PHASE 4-8: Status Updates

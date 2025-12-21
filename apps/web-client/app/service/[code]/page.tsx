@@ -48,27 +48,15 @@ export default function ServiceDetailPage() {
             console.log('[ServicePage] Current User:', user?.id);
 
             if (!user) {
-                console.log('[ServicePage] No user, attempting mock login');
-                try {
-                    const { error } = await supabase.auth.signInWithPassword({
-                        email: 'demo@user.com',
-                        password: 'password'
-                    });
-                    if (error) {
-                        console.error('[ServicePage] Mock login failed:', error);
-                        toast.error("Please login to book");
-                        return;
-                    }
-                } catch (err) {
-                    console.error('[ServicePage] Mock login exception:', err);
-                    toast.error("Login required");
-                    return;
-                }
-            }
-
-            const { data: { user: currentUser } } = await supabase.auth.getUser();
-            if (!currentUser) {
-                console.error('[ServicePage] Still no user after login attempt');
+                console.log('[ServicePage] No user, redirecting to auth');
+                // Redirect to auth with return URL
+                const bookingParams = new URLSearchParams({
+                    service: code,
+                    price: finalPrice.toString(),
+                    issue: selectedIssue
+                });
+                const redirectUrl = `/book?${bookingParams.toString()}`;
+                router.push(`/auth?redirect=${encodeURIComponent(redirectUrl)}`);
                 return;
             }
 
@@ -81,7 +69,6 @@ export default function ServiceDetailPage() {
 
             console.log('[ServicePage] Routing to /book');
             router.push(`/book?${bookingParams.toString()}`);
-
 
         } catch (e: any) {
             console.error('[ServicePage] Error in handleBookNow:', e);

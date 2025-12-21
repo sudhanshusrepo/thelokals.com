@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { AuthProvider } from "../contexts/AuthContext";
+import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
   title: "lokals - Trusted Local Services",
@@ -31,7 +33,10 @@ export default function RootLayout({
         <meta name="theme-color" content="#6366f1" />
       </head>
       <body className="antialiased">
-        {children}
+        <AuthProvider>
+          {children}
+          <Toaster position="top-center" />
+        </AuthProvider>
         <script
           dangerouslySetInnerHTML={{
             __html: `

@@ -12,6 +12,7 @@ export default function ActiveJobClient() {
 
     const [job, setJob] = useState<any>(null);
     const [otp, setOtp] = useState('');
+    const [eta, setEta] = useState('15');
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(false);
 
@@ -27,7 +28,51 @@ export default function ActiveJobClient() {
             setLoading(false);
         };
         fetchJob();
+
+        // Subscribe to realtime updates
+        const channel = supabase
+            .channel(`job-${id}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'bookings',
+                    filter: `id=eq.${id}`
+                },
+                (payload: any) => {
+                    console.log('Job Update:', payload);
+                    setJob((prev: any) => ({ ...prev, ...payload.new }));
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
     }, [id]);
+
+    const handleOnMyWay = async () => {
+        setActionLoading(true);
+        try {
+            const { error } = await supabase
+                .from('bookings')
+                .update({
+                    status: 'EN_ROUTE',
+                    metadata: { ...job.metadata, eta_minutes: parseInt(eta) }
+                })
+                .eq('id', id);
+
+            if (error) throw error;
+
+            toast.success(`Status updated! ETA: ${eta} minutes`);
+            setJob({ ...job, status: 'EN_ROUTE' });
+        } catch (e: any) {
+            toast.error(e.message);
+        } finally {
+            setActionLoading(false);
+        }
+    };
 
     const handleStartJob = async () => {
         if (otp.length !== 6) {
@@ -102,7 +147,75 @@ export default function ActiveJobClient() {
                     )}
                 </div>
 
-                {/* Status: ACCEPTED (Needs OTP) */}
+                {/* Status: CONFIRMED (On My Way) */}
+                {job.status === 'CONFIRMED' && (
+                    <div>
+                        <div className="bg-indigo-50 p-4 rounded-lg mb-6 border border-indigo-200">
+                            <p className="text-sm text-indigo-800 font-semibold mb-2">
+                                🚗 Navigate to customer location
+                            </p>
+                            <p className="text-xs text-indigo-600">
+                                Update your status when you're on the way
+                            </p>
+                        </div>
+
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Estimated Time of Arrival (minutes)</label>
+                        <input
+                            type="number"
+                            className="w-full text-center text-2xl font-bold border-2 border-gray-300 rounded-lg p-3 focus:border-indigo-500 outline-none mb-6"
+                            placeholder="15"
+                            min="5"
+                            max="60"
+                            value={eta}
+                            onChange={e => setEta(e.target.value)}
+                        />
+
+                        <button
+                            onClick={handleOnMyWay}
+                            disabled={actionLoading}
+                            className="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl hover:bg-indigo-700 transition disabled:opacity-50"
+                        >
+                            {actionLoading ? 'Updating...' : '🚗 On My Way'}
+                        </button>
+                    </div>
+                )}
+
+                {/* Status: EN_ROUTE */}
+                {job.status === 'EN_ROUTE' && (
+                    <div>
+                        <div className="text-center py-10">
+                            <div className="animate-bounce text-6xl mb-4">🚗</div>
+                            <h2 className="text-xl font-bold">On the Way</h2>
+                            <p className="text-gray-500">ETA: {job.metadata?.eta_minutes || 15} minutes</p>
+                        </div>
+
+                        <div className="bg-yellow-50 p-4 rounded-lg mb-6 border border-yellow-200">
+                            <p className="text-sm text-yellow-800">
+                                Ask the customer for the start PIN when you arrive.
+                            </p>
+                        </div>
+
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Enter OTP</label>
+                        <input
+                            type="text"
+                            className="w-full text-center text-3xl tracking-[0.5em] font-mono border-2 border-gray-300 rounded-lg p-3 focus:border-indigo-500 outline-none mb-6"
+                            placeholder="......"
+                            maxLength={6}
+                            value={otp}
+                            onChange={e => setOtp(e.target.value)}
+                        />
+
+                        <button
+                            onClick={handleStartJob}
+                            disabled={actionLoading}
+                            className="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl hover:bg-indigo-700 transition"
+                        >
+                            {actionLoading ? 'Verifying...' : 'Verify & Start Job'}
+                        </button>
+                    </div>
+                )}
+
+                {/* Status: ACCEPTED (Legacy - kept for backwards compatibility) */}
                 {job.status === 'ACCEPTED' && (
                     <div>
                         <div className="bg-yellow-50 p-4 rounded-lg mb-6 border border-yellow-200">

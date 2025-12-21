@@ -57,7 +57,14 @@ export class OTPService {
 
                         // Fallback for other test numbers (Mock Session - might break RLS)
                         console.warn('Returning mock session for Test OTP (RLS might fail)');
-                        return { session: null, user: { id: 'test-user', phone } };
+                        const mockSession: any = {
+                            access_token: 'mock-token',
+                            refresh_token: 'mock-refresh-token',
+                            expires_in: 3600,
+                            token_type: 'bearer',
+                            user: { id: 'test-user', phone }
+                        };
+                        return { session: mockSession, user: { id: 'test-user', phone } };
                     }
                     throw new Error('Invalid OTP code');
                 }
