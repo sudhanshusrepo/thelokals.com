@@ -88,18 +88,18 @@ export const QuickCategories: React.FC<QuickCategoriesProps> = ({ onSelectCatego
     }
 
     return (
-        <section className="relative -mt-8 pb-8 bg-gradient-to-b from-transparent via-background/50 to-background">
-            <div className="max-w-7xl mx-auto px-4">
+        <section className="relative z-30 -mt-20 pb-8 pointer-events-none">
+            <div className="max-w-7xl mx-auto px-4 pointer-events-auto">
                 {/* Scrollable Container */}
-                <div className="overflow-x-auto scrollbar-hide pb-4">
-                    <div className="flex gap-4 min-w-max">
+                <div className="overflow-x-auto scrollbar-hide pb-4 pt-4">
+                    <div className="flex gap-4 min-w-max px-2">
                         {categories.map((category) => (
                             <button
                                 key={category.id}
                                 onClick={() => onSelectCategory?.(category.id)}
-                                className="group flex flex-col items-center gap-2 w-20 focus:outline-none"
+                                className="group flex flex-col items-center gap-2 w-24 focus:outline-none transition-transform hover:-translate-y-1"
                             >
-                                <div className="relative w-20 h-20 rounded-2xl overflow-hidden shadow-md group-hover:shadow-xl transition-all group-active:scale-95">
+                                <div className="relative w-20 h-20 rounded-2xl overflow-hidden shadow-lg group-hover:shadow-2xl transition-all border-2 border-white/20 bg-white/10 backdrop-blur-md">
                                     {category.image_url ? (
                                         <>
                                             <img

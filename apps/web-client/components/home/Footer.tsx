@@ -93,7 +93,7 @@ export const Footer: React.FC = () => {
                 <div className="border-t border-white/10 pt-6">
                     <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                         <p className="text-white/70 text-sm">
-                            © 2025 🏠 lokals. All rights reserved.
+                            © 2025 lokals. All rights reserved.
                         </p>
                         <div className="flex items-center gap-4">
                             <a href="#" className="text-white/70 hover:text-white transition-colors">

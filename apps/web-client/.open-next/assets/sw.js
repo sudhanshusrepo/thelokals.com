@@ -1,9 +1,9 @@
-// Service Worker for TheLokals PWA
+// Service Worker for lokals PWA
 // Provides offline support and caching for better performance
 
-const CACHE_NAME = 'thelokals-v1';
-const STATIC_CACHE = 'thelokals-static-v1';
-const DYNAMIC_CACHE = 'thelokals-dynamic-v1';
+const CACHE_NAME = 'lokals-v2';
+const STATIC_CACHE = 'lokals-static-v2';
+const DYNAMIC_CACHE = 'lokals-dynamic-v2';
 
 // Assets to cache on install
 const STATIC_ASSETS = [
@@ -105,7 +105,7 @@ self.addEventListener('sync', (event) => {
 // Push notifications (future enhancement)
 self.addEventListener('push', (event) => {
     const data = event.data ? event.data.json() : {};
-    const title = data.title || 'TheLokals';
+    const title = data.title || 'lokals';
     const options = {
         body: data.body || 'You have a new notification',
         icon: '/icons/icon-192x192.png',

@@ -1,15 +1,15 @@
 {
-  "/_not-found/page": "/_not-found",
   "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
   "/favicon.ico/route": "/favicon.ico",
   "/api/contact/route": "/api/contact",
-  "/booking/[id]/page": "/booking/[id]",
   "/booking-confirmed/page": "/booking-confirmed",
-  "/booking/match/page": "/booking/match",
+  "/booking/[id]/page": "/booking/[id]",
   "/category/[id]/page": "/category/[id]",
-  "/page": "/",
-  "/search/page": "/search",
+  "/booking/match/page": "/booking/match",
   "/rating/[id]/page": "/rating/[id]",
+  "/page": "/",
   "/tutorial/page": "/tutorial",
-  "/service/[code]/page": "/service/[code]"
+  "/service/[code]/page": "/service/[code]",
+  "/search/page": "/search"
 }

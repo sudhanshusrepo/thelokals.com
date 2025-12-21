@@ -88,9 +88,7 @@ export const AppBar: React.FC<AppBarProps> = ({ onSignIn, onOpenApp }) => {
             <div className="max-w-7xl mx-auto px-4 h-full flex items-center justify-between">
                 {/* Left: Logo */}
                 <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
-                        <span className="text-white text-xl font-bold">🏠</span>
-                    </div>
+                    <img src="/logo.svg" alt="lokals logo" className="w-8 h-8 rounded-lg" />
                     <span className="text-white font-bold text-lg tracking-tight">lokals</span>
                 </div>
 

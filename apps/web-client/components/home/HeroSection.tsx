@@ -39,7 +39,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
             <div className="absolute inset-0 z-10 gradient-hero-overlay"></div>
 
             {/* Content */}
-            <div className="relative z-20 w-full max-w-4xl mx-auto px-4 pb-12">
+            <div className="relative z-20 w-full max-w-4xl mx-auto px-4 pb-28 md:pb-32">
                 {/* Eyebrow */}
                 <div className="text-center mb-4">
                     <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white/90 text-sm font-semibold tracking-wide">
