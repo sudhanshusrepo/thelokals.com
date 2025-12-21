@@ -14,6 +14,8 @@ export async function middleware(request: NextRequest) {
         {
             cookies: {
                 getAll() {
+                    console.log('[Middleware] Anon Key Length:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.length);
+                    console.log('[Middleware] Anon Key Start:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.substring(0, 10));
                     return request.cookies.getAll();
                 },
                 setAll(cookiesToSet) {

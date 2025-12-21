@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  quality-check:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    env:
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+      # Add placeholders for build process to not fail on missing env
+      NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "placeholder"
+      VITE_SUPABASE_URL: "https://placeholder.supabase.co"
+      VITE_SUPABASE_ANON_KEY: "placeholder"
+      
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Type Check & Lint
+        # We run build first because it generates types in some setups, but here we just lint.
+        # Actually, let's run the build:turbo first to catch compilation errors.
+        run: npm run lint
+
+      - name: Unit Tests (Core)
+        run: npm test --workspace=packages/core
+
+      - name: Build All Apps
+        run: npm run build:turbo

@@ -6,13 +6,15 @@ interface HeroSectionProps {
     title?: string;
     description?: string;
     backgroundImage?: string;
+    onSearch?: (query: string) => void;
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({
     eyebrow = "Professional Local Services",
     title = "Expert help,\nright at your doorstep.",
     description = "Book trusted professionals for cleaning, repairs, and grooming instantly.",
-    backgroundImage = "https://images.unsplash.com/photo-1556911220-bff31c812dba?q=80&w=2768&auto=format&fit=crop" // Placeholder Kitchen/Home Service image
+    backgroundImage = "https://images.unsplash.com/photo-1556911220-bff31c812dba?q=80&w=2768&auto=format&fit=crop", // Placeholder Kitchen/Home Service image
+    onSearch
 }) => {
     return (
         <section className="relative w-full h-[460px] flex flex-col justify-end overflow-hidden">
@@ -44,7 +46,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
                 {/* Search Bar - Positioned slightly overlapping or just at the bottom */}
                 <div className="transform translate-y-8">
-                    <SearchBar />
+                    <SearchBar onSubmit={onSearch} />
                 </div>
             </div>
         </section>

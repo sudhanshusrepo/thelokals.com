@@ -180,7 +180,7 @@ export default defineConfig({
   /* Run your local dev server before starting the tests */
   webServer: {
     command: 'npm run dev',
-    url: 'http://localhost:3002',
+    url: 'http://localhost:3000',
     reuseExistingServer: true,
     timeout: 120 * 1000,
     stdout: 'ignore',
@@ -188,7 +188,11 @@ export default defineConfig({
     env: {
       VITE_SUPABASE_URL: 'http://127.0.0.1:54321',
       VITE_SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY || 'placeholder',
-      VITE_TEST_MODE: 'true'
+      VITE_TEST_MODE: 'true',
+      NEXT_PUBLIC_SUPABASE_URL: 'http://127.0.0.1:54321',
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY || 'placeholder',
+      NEXT_PUBLIC_TEST_MODE: 'true',
+      NEXT_PUBLIC_ENABLE_OTP_BYPASS: 'true'
     }
   },
 });

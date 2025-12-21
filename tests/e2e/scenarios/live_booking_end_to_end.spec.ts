@@ -110,12 +110,24 @@ test.describe('Unified Booking Lifecycle E2E', () => {
         // PHASE 1: Provider Login (Phone OTP)
         // ============================================
         const PROVIDER_APP_URL = 'http://localhost:3001';
-        const CLIENT_APP_URL = 'http://localhost:3002';
+        const CLIENT_APP_URL = 'http://localhost:3000';
         const providerContext = await browser.newContext({
             geolocation: { latitude: 40.7128, longitude: -74.0060 },
             permissions: ['geolocation']
         });
         const providerPage = await providerContext.newPage();
+        providerPage.on('console', msg => console.log(`[Browser Console] ${msg.type()}: ${msg.text()}`));
+
+        // Network Debugging
+        await providerPage.route('**/rest/v1/**', async route => {
+            const response = await route.fetch();
+            if (!response.ok()) {
+                console.log(`[Network Error] ${route.request().method()} ${route.request().url()} - ${response.status()}`);
+                console.log(await response.text());
+            }
+            route.fulfill({ response });
+        });
+
         await providerPage.goto(PROVIDER_APP_URL);
 
         // Login Flow
@@ -129,11 +141,12 @@ test.describe('Unified Booking Lifecycle E2E', () => {
         await providerPage.getByRole('button', { name: 'Send OTP' }).click();
 
         // Wait for OTP Input
+        await expect(providerPage.getByLabel(/Enter OTP sent to/)).toBeVisible();
         await providerPage.getByPlaceholder('123456').fill('123456');
         await providerPage.getByRole('button', { name: 'Verify & Login' }).click();
 
         // Verify Dashboard Access
-        await expect(providerPage.getByText('Provider Dashboard')).toBeVisible({ timeout: 15000 });
+        await expect(providerPage.getByText('Available Jobs')).toBeVisible({ timeout: 15000 });
 
         // Go Online (Location Tracker)
         // Check if "Go Online" button is present and click it
@@ -143,8 +156,8 @@ test.describe('Unified Booking Lifecycle E2E', () => {
             await expect(providerPage.getByText('Online')).toBeVisible();
         }
 
-        // Navigate to Requests Tab
-        await providerPage.getByRole('button', { name: 'Requests' }).click();
+        // Navigate to Requests Tab - Skipped as we are already on Requests/Jobs view
+        // await providerPage.getByRole('button', { name: 'Requests' }).click();
         console.log('[PHASE 1] Provider logged in and Online');
 
         // ============================================
@@ -155,17 +168,29 @@ test.describe('Unified Booking Lifecycle E2E', () => {
             permissions: ['geolocation']
         });
         const clientPage = await clientContext.newPage();
+        // Network Debugging
+        await clientPage.route('**/rest/v1/**', async route => {
+            const response = await route.fetch();
+            if (!response.ok()) {
+                console.log(`[Client Network Error] ${route.request().method()} ${route.request().url()} - ${response.status()}`);
+                console.log(await response.text());
+            }
+            route.fulfill({ response });
+        });
         await clientPage.goto(CLIENT_APP_URL);
 
         // Select Service
-        await clientPage.getByText('Leak Repair').click(); // Adjust based on ServiceGrid item
-        await expect(clientPage.getByRole('heading', { name: 'Leak Repair' })).toBeVisible();
+        // Select Service via Search
+        await clientPage.getByPlaceholder('Search for services (AC, cab, electrician...)').fill('Leak Repair');
+        await clientPage.getByPlaceholder('Search for services (AC, cab, electrician...)').press('Enter');
+        await expect(clientPage.getByRole('heading', { name: 'Leak Repair', level: 1 })).toBeVisible();
 
         // Click Book Now - Triggers Auto-Login (Mock Guest or Real)
-        await clientPage.getByRole('button', { name: 'Book Now' }).click();
+        // Click Book Now
+        await clientPage.getByRole('button', { name: /Book Service/i }).click();
 
-        // Wait for Booking Confirmation / Live Search
-        await expect(clientPage.getByText('Booking Request Sent!')).toBeVisible({ timeout: 10000 });
+        // Wait for Booking Confirmation / Live Search -> Match Page
+        await expect(clientPage.getByText('Analysing your request...')).toBeVisible({ timeout: 10000 });
 
         // Depending on flow, we might be redirected. 
         // Current flow redirects to /booking-confirmed (from code view)

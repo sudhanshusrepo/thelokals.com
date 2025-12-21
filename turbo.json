@@ -38,5 +38,13 @@
                 "^build"
             ]
         }
-    }
+    },
+    "globalEnv": [
+        "NEXT_PUBLIC_TEST_MODE",
+        "NEXT_PUBLIC_ENABLE_OTP_BYPASS",
+        "NEXT_PUBLIC_SUPABASE_URL",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "VITE_TEST_MODE",
+        "NODE_ENV"
+    ]
 }

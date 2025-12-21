@@ -43,28 +43,36 @@ export default function ServiceDetailPage() {
     const finalPrice = Math.round((basePrice + issueExtra) * surgeMultiplier);
 
     const handleBookNow = async () => {
+        console.log('[ServicePage] handleBookNow clicked');
         setBookingLoading(true);
         try {
             const { data: { user } } = await supabase.auth.getUser();
+            console.log('[ServicePage] Current User:', user?.id);
 
             if (!user) {
+                console.log('[ServicePage] No user, attempting mock login');
                 try {
                     const { error } = await supabase.auth.signInWithPassword({
                         email: 'demo@user.com',
                         password: 'password'
                     });
                     if (error) {
+                        console.error('[ServicePage] Mock login failed:', error);
                         toast.error("Please login to book");
                         return;
                     }
                 } catch (err) {
+                    console.error('[ServicePage] Mock login exception:', err);
                     toast.error("Login required");
                     return;
                 }
             }
 
             const { data: { user: currentUser } } = await supabase.auth.getUser();
-            if (!currentUser) return;
+            if (!currentUser) {
+                console.error('[ServicePage] Still no user after login attempt');
+                return;
+            }
 
             // Mock Finding Provider Animation Page
             // Store simple booking intent in localStorage to pass to next screen
@@ -77,9 +85,11 @@ export default function ServiceDetailPage() {
             };
             localStorage.setItem('booking_intent', JSON.stringify(bookingIntent));
 
+            console.log('[ServicePage] Routing to /booking/match');
             router.push('/booking/match'); // Route to Match Screen first
 
         } catch (e: any) {
+            console.error('[ServicePage] Error in handleBookNow:', e);
             toast.error(e.message || "Booking Failed");
         } finally {
             setBookingLoading(false);
