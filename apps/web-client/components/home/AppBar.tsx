@@ -7,8 +7,16 @@ interface AppBarProps {
     onOpenApp?: () => void;
 }
 
+interface BeforeInstallPromptEvent extends Event {
+    prompt: () => Promise<void>;
+    userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+}
+
 export const AppBar: React.FC<AppBarProps> = ({ onSignIn, onOpenApp }) => {
     const [isScrolled, setIsScrolled] = useState(false);
+    const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+    const [isInstallable, setIsInstallable] = useState(false);
+    const [isInstalled, setIsInstalled] = useState(false);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -17,6 +25,60 @@ export const AppBar: React.FC<AppBarProps> = ({ onSignIn, onOpenApp }) => {
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
+
+    useEffect(() => {
+        // Check if app is already installed
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            setIsInstalled(true);
+            return;
+        }
+
+        // Listen for install prompt
+        const handleBeforeInstallPrompt = (e: Event) => {
+            e.preventDefault();
+            setDeferredPrompt(e as BeforeInstallPromptEvent);
+            setIsInstallable(true);
+        };
+
+        window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+        // Listen for app installed
+        window.addEventListener('appinstalled', () => {
+            setIsInstalled(true);
+            setIsInstallable(false);
+            setDeferredPrompt(null);
+        });
+
+        return () => {
+            window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+        };
+    }, []);
+
+    const handleInstallClick = async () => {
+        if (!deferredPrompt) {
+            // Fallback for browsers that don't support install prompt
+            if (onOpenApp) {
+                onOpenApp();
+            }
+            return;
+        }
+
+        // Show the install prompt
+        deferredPrompt.prompt();
+
+        // Wait for the user's response
+        const { outcome } = await deferredPrompt.userChoice;
+
+        if (outcome === 'accepted') {
+            console.log('User accepted the install prompt');
+        } else {
+            console.log('User dismissed the install prompt');
+        }
+
+        // Clear the deferred prompt
+        setDeferredPrompt(null);
+        setIsInstallable(false);
+    };
 
     return (
         <header
@@ -40,12 +102,23 @@ export const AppBar: React.FC<AppBarProps> = ({ onSignIn, onOpenApp }) => {
                     >
                         SIGN IN
                     </button>
-                    <button
-                        onClick={onOpenApp}
-                        className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-bold transition-all active:scale-95 border border-white/30"
-                    >
-                        Open App
-                    </button>
+
+                    {/* Show Install button only if installable and not installed */}
+                    {(isInstallable || !isInstalled) && (
+                        <button
+                            onClick={handleInstallClick}
+                            className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-bold transition-all active:scale-95 border border-white/30 flex items-center gap-2"
+                        >
+                            {isInstallable ? (
+                                <>
+                                    <span>📲</span>
+                                    <span>Install App</span>
+                                </>
+                            ) : (
+                                <span>Open App</span>
+                            )}
+                        </button>
+                    )}
                 </div>
             </div>
         </header>
