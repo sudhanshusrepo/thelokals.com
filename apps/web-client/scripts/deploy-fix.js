@@ -60,6 +60,47 @@ try {
         }
     }
 
+    // 3. GENERATE _routes.json
+    // This is CRITICAL for Cloudflare Pages to know which requests to bypass the worker
+    // and serve directly from static assets (reducing 404s and costs)
+    const routesConfig = {
+        version: 1,
+        include: ["/*"],
+        exclude: [
+            "/_next/static/*",
+            "/favicon.ico",
+            "/manifest.json",
+            "/logo.svg",
+            "/globe.svg",
+            "/file.svg",
+            "/next.svg",
+            "/vercel.svg",
+            "/window.svg",
+            "/offline.html",
+            "/sw.js",
+            "/images/*"
+        ]
+    };
+
+    const routesPath = path.join(destDir, '_routes.json');
+    console.log(`Generating ${routesPath}`);
+    fs.writeFileSync(routesPath, JSON.stringify(routesConfig, null, 2));
+
+    // 4. Ensure _next directory exists
+    // OpenNext usually puts it there, but we verify to be safe
+    const nextDirSrc = path.join(process.cwd(), '.next');
+    const nextDirDest = path.join(destDir, '_next');
+
+    if (!fs.existsSync(nextDirDest) && fs.existsSync(nextDirSrc)) {
+        console.log(`Copying .next to ${nextDirDest} as fallback`);
+        // We typically only need 'static' for the CDN
+        const staticSrc = path.join(nextDirSrc, 'static');
+        const staticDest = path.join(nextDirDest, 'static');
+        if (fs.existsSync(staticSrc)) {
+            copyDir(staticSrc, staticDest);
+        }
+    }
+
     console.log('Deploy fix completed successfully.');
 
 } catch (error) {
