@@ -4,7 +4,7 @@ export interface SearchResult {
     code: string;
     name: string;
     description?: string;
-    category_id?: string;
+    category?: string;
 }
 
 /**
@@ -21,7 +21,7 @@ export async function searchServices(query: string): Promise<SearchResult[]> {
     try {
         const { data, error } = await supabase
             .from('services')
-            .select('code, name, description, category_id')
+            .select('code, name, description, category')
             .or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`)
             .eq('is_active', true)
             .limit(10);

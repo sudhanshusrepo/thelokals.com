@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { AuthProvider } from "../contexts/AuthContext";
 import { BookingProvider } from "../contexts/BookingContext";
+import { BottomNav } from "../components/navigation/BottomNav";
 import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
@@ -37,6 +38,7 @@ export default function RootLayout({
         <AuthProvider>
           <BookingProvider>
             {children}
+            <BottomNav />
             <Toaster position="top-center" />
           </BookingProvider>
         </AuthProvider>

@@ -21,7 +21,7 @@ export default function BookingTrackingPage() {
         const fetchBooking = async () => {
             const { data, error } = await supabase
                 .from('bookings')
-                .select('*, service:services(name), provider:users!provider_id(name, phone)')
+                .select('*, provider:users!provider_id(name, phone)') // Removed service:services join as no FK exists
                 .eq('id', bookingId)
                 .single();
 
@@ -153,7 +153,7 @@ export default function BookingTrackingPage() {
                     <div className="space-y-3 text-sm text-slate-600">
                         <div className="flex justify-between">
                             <span>Service</span>
-                            <span className="font-medium text-slate-900">{booking.service?.name || 'Service'}</span>
+                            <span className="font-medium text-slate-900">{booking.service_category || booking.service?.name || 'Service'}</span>
                         </div>
                         <div className="flex justify-between">
                             <span>Total Amount</span>

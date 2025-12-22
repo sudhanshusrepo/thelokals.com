@@ -8,7 +8,7 @@ interface Service {
     code: string;
     name: string;
     description?: string;
-    category_id?: string;
+    category?: string;
     base_price_cents?: number;
 }
 
@@ -31,7 +31,7 @@ function SearchResults() {
                 const searchTerm = query.trim().toLowerCase();
                 const { data, error } = await supabase
                     .from('services')
-                    .select('code, name, description, category_id, base_price_cents')
+                    .select('code, name, description, category, base_price_cents')
                     .or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`)
                     .eq('is_active', true)
                     .limit(20);

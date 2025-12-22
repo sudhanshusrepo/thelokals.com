@@ -17,7 +17,7 @@ interface SupabaseCategoryResponse {
     name: string;
     icon_url?: string | null;
     image_url?: string | null;
-    emoji?: string | null;
+    icon?: string | null;
     display_order: number;
 }
 
@@ -35,7 +35,7 @@ export const QuickCategories: React.FC<QuickCategoriesProps> = ({ onSelectCatego
             try {
                 const { data, error } = await supabase
                     .from('service_categories')
-                    .select('id, name, icon_url, image_url, emoji, display_order')
+                    .select('id, name, icon_url, image_url, icon, display_order')
                     .eq('is_active', true)
                     .order('display_order', { ascending: true })
                     .limit(15); // Increased from 9 to 15
@@ -48,7 +48,7 @@ export const QuickCategories: React.FC<QuickCategoriesProps> = ({ onSelectCatego
                     name: cat.name,
                     icon_url: cat.icon_url || undefined,
                     image_url: cat.image_url || undefined,
-                    emoji: cat.emoji || cat.icon_url || '🏠',
+                    emoji: cat.icon || cat.icon_url || '🏠',
                     display_order: cat.display_order
                 }));
 

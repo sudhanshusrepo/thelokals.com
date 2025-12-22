@@ -33,11 +33,12 @@ function PhoneAuthContent() {
             const formattedPhone = phone.startsWith('+') ? phone : `+91${phone}`;
 
             // Send OTP via Supabase Auth
-            const { error } = await supabase.auth.signInWithOtp({
-                phone: formattedPhone,
-            });
-
-            if (error) throw error;
+            if (!isTestMode) {
+                const { error } = await supabase.auth.signInWithOtp({
+                    phone: formattedPhone,
+                });
+                if (error) throw error;
+            }
 
             toast.success('OTP sent successfully!');
             setStep('otp');

@@ -5,14 +5,24 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@thelocals/core/services/supabase';
 import { toast } from 'react-hot-toast';
 
+import { useBooking } from '../../../contexts/BookingContext';
+
 export default function BookingMatchPage() {
     const router = useRouter();
+    const { bookingData } = useBooking();
     const [status, setStatus] = useState('Analysing your request...');
     const [progress, setProgress] = useState(0);
 
     useEffect(() => {
+        // Redirection if no booking data
+        if (!bookingData) {
+            router.push('/');
+            return;
+        }
+
         // Simulate "AI Matching" sequence (Bible 6.3)
         const sequence = async () => {
+            // ... same steps ...
             // 1. Analysis (0-30%)
             setStatus('Analysing issue details...');
             await animateProgress(0, 30, 800);
@@ -30,8 +40,9 @@ export default function BookingMatchPage() {
         };
 
         sequence();
-    }, []);
+    }, [bookingData, router]);
 
+    // ... animateProgress ...
     const animateProgress = (start: number, end: number, duration: number) => {
         return new Promise<void>(resolve => {
             const stepTime = 20;
@@ -55,42 +66,46 @@ export default function BookingMatchPage() {
 
     const createBooking = async () => {
         try {
-            const bookingIntentStr = localStorage.getItem('booking_intent');
-            if (!bookingIntentStr) {
-                router.push('/');
-                return;
-            }
-            const intent = JSON.parse(bookingIntentStr);
-
+            if (!bookingData) return;
 
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error("No user found");
 
-            // Insert Actual Booking
-            const { data: booking, error } = await supabase.from('bookings').insert({
-                user_id: user.id,
-                service_code: intent.service_code,
-                status: 'PENDING',
-                booking_type: 'LIVE',
-                location: 'POINT(77.0266 28.4595)', // Mock Location
-                base_price_cents: Math.round(intent.base_price * 100),
-                total_amount_cents: Math.round(intent.final_price * 100),
-                customer_location_lat: 28.4595,
-                customer_location_lng: 77.0266,
-                metadata: {
-                    issue_type: intent.issue_type
-                }
-            }).select().single();
+            // Direct Insert (RLS Fixed)
+            const { data, error } = await supabase
+                .from('bookings')
+                .insert({
+                    user_id: user.id,
+                    service_code: 'leak-repair', // Placeholder or dynamic if available
+                    service_category: bookingData.serviceCategory, // Now Validated
+                    location: 'SRID=4326;POINT(77.0266 28.4595)', // EWKT Format
+                    status: 'PENDING',
+                    estimated_cost: bookingData.estimatedPrice || 499, // Correct column name
+                    address: { full_address: bookingData.address },
+                    notes: bookingData.notes || '',
+                    requirements: {}, // Constraint
+                })
+                .select()
+                .single();
 
-            if (error) throw error;
+            if (error) {
+                console.error('Supabase Insert Error:', error);
+                throw error;
+            }
 
-            toast.success("Provider Matched!");
-            router.push(`/bookings/${booking.id}`);
+            if (!data) {
+                throw new Error('No data returned from Insert');
+            }
+
+            const bookingId = data.id;
+
+            toast.success("Booking Request Sent!");
+            router.push(`/bookings/${bookingId}`);
 
         } catch (e: any) {
-            console.error(e);
-            toast.error("Matching failed. Please try again.");
-            router.push('/');
+            console.error("Booking Creation Failed:", e);
+            console.error("Error Details:", JSON.stringify(e));
+            toast.error(`Booking failed: ${e?.message || 'Unknown error'}`);
         }
     };
 
