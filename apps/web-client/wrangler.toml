@@ -1,8 +1,4 @@
 name = "web-client"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
-  pattern = "/*.ico"
-  for = "/*.ico"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
+pages_build_output_dir = ".open-next/assets"
