@@ -62,7 +62,7 @@ export default function VerificationPendingPage() {
                     table: 'providers',
                     filter: `id=eq.${user?.id}`
                 },
-                (payload) => {
+                (payload: any) => {
                     const newStatus = payload.new.verification_status as VerificationStatus;
                     setStatus(newStatus);
                     setRejectionReason(payload.new.rejection_reason || '');
