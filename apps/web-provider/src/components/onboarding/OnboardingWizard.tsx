@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
 
-// Step Components (to be created)
+// Step Components
 import { WelcomeStep } from './steps/WelcomeStep';
 import { PersonalInfoStep } from './steps/PersonalInfoStep';
 import { ProfessionalDetailsStep } from './steps/ProfessionalDetailsStep';
