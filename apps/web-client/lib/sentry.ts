@@ -7,12 +7,17 @@
 
 import * as Sentry from '@sentry/nextjs';
 
-const SENTRY_DSN = process.env.NEXT_PUBLIC_SENTRY_DSN;
-const SENTRY_ENVIRONMENT = process.env.NEXT_PUBLIC_SENTRY_ENVIRONMENT || process.env.NODE_ENV || 'development';
+const SENTRY_DSN = typeof window !== 'undefined' ? process.env.NEXT_PUBLIC_SENTRY_DSN : undefined;
+const SENTRY_ENVIRONMENT = typeof window !== 'undefined' ? (process.env.NEXT_PUBLIC_SENTRY_ENVIRONMENT || process.env.NODE_ENV || 'development') : undefined;
 
 export function initSentry() {
-    if (!SENTRY_DSN) {
-        console.warn('Sentry DSN not configured. Error tracking is disabled.');
+    // Only initialize on client-side to avoid server bundle bloat
+    if (typeof window === 'undefined' || !SENTRY_DSN) {
+        if (typeof window === 'undefined') {
+            console.log('[Sentry] Skipping server-side initialization to reduce bundle size');
+        } else if (!SENTRY_DSN) {
+            console.warn('Sentry DSN not configured. Error tracking is disabled.');
+        }
         return;
     }
 

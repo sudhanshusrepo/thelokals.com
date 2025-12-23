@@ -91,6 +91,17 @@ const nextConfig = {
       },
     ];
   },
+  // Exclude heavy dependencies from server bundle for Cloudflare Workers
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      // Exclude Sentry from server bundle to reduce size
+      config.externals = config.externals || [];
+      config.externals.push({
+        '@sentry/nextjs': 'commonjs @sentry/nextjs',
+      });
+    }
+    return config;
+  },
 };
 
 module.exports = withBundleAnalyzer(nextConfig);
