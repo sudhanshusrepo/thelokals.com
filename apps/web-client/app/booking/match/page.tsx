@@ -68,43 +68,87 @@ export default function BookingMatchPage() {
         try {
             if (!bookingData) return;
 
-            const { data: { user } } = await supabase.auth.getUser();
+            const { data: { user }, data: { session } } = await supabase.auth.getUser();
             if (!user) throw new Error("No user found");
 
-            // Direct Insert (RLS Fixed)
-            const { data, error } = await supabase
-                .from('bookings')
-                .insert({
-                    user_id: user.id,
-                    service_code: 'leak-repair', // Placeholder or dynamic if available
-                    service_category: bookingData.serviceCategory, // Now Validated
-                    location: 'SRID=4326;POINT(77.0266 28.4595)', // EWKT Format
-                    status: 'PENDING',
-                    estimated_cost: bookingData.estimatedPrice || 499, // Correct column name
-                    address: { full_address: bookingData.address },
-                    notes: bookingData.notes || '',
-                    requirements: {}, // Constraint
-                })
-                .select()
-                .single();
+            const payload = {
+                user_id: user.id,
+                service_code: 'bathroom-fitting',
+                service_category: bookingData.serviceCategory,
+                status: 'PENDING',
+                estimated_cost: parseFloat((bookingData.estimatedPrice || 499).toFixed(2)), // Force decimal
+                address: { full_address: bookingData.address },
+                notes: bookingData.notes || null, // NULL instead of empty string
+                requirements: {} as Record<string, unknown>
+            };
 
-            if (error) {
-                console.error('Supabase Insert Error:', error);
-                throw error;
+            console.log('=== BOOKING INSERT PAYLOAD ===');
+            console.log(JSON.stringify(payload, null, 2));
+            console.log('==============================');
+
+            // RAW FETCH API - Bypass Supabase-JS to capture full HTTP response
+            const SUPABASE_URL = 'http://127.0.0.1:54321';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0';
+
+            // Get session token
+            const { data: sessionData } = await supabase.auth.getSession();
+            const accessToken = sessionData.session?.access_token || SUPABASE_ANON_KEY;
+
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/bookings`, {
+                method: 'POST',
+                headers: {
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'return=representation'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            console.log('=== RAW HTTP RESPONSE ===');
+            console.log('Status:', response.status);
+            console.log('Status Text:', response.statusText);
+            console.log('Headers:', Object.fromEntries(response.headers.entries()));
+            console.log('========================');
+
+            const responseText = await response.text();
+            console.log('=== RESPONSE BODY ===');
+            console.log('Raw Text:', responseText);
+            console.log('====================');
+
+            if (!response.ok) {
+                let errorData;
+                try {
+                    errorData = JSON.parse(responseText);
+                    console.error('=== PARSED ERROR ===');
+                    console.error('Code:', errorData.code);
+                    console.error('Message:', errorData.message);
+                    console.error('Details:', errorData.details);
+                    console.error('Hint:', errorData.hint);
+                    console.error('Full Error:', JSON.stringify(errorData, null, 2));
+                    console.error('===================');
+                } catch (parseError) {
+                    console.error('Failed to parse error response:', responseText);
+                }
+                throw new Error(`HTTP ${response.status}: ${errorData?.message || responseText}`);
             }
 
-            if (!data) {
-                throw new Error('No data returned from Insert');
-            }
+            const data = JSON.parse(responseText);
+            const bookingId = data[0]?.id || data.id;
 
-            const bookingId = data.id;
+            if (!bookingId) {
+                throw new Error('No booking ID in response');
+            }
 
             toast.success("Booking Request Sent!");
             router.push(`/bookings/${bookingId}`);
 
         } catch (e: any) {
-            console.error("Booking Creation Failed:", e);
-            console.error("Error Details:", JSON.stringify(e));
+            console.error("=== BOOKING CREATION FAILED ===");
+            console.error("Exception:", e);
+            console.error("Exception Message:", e?.message);
+            console.error("Exception Stack:", e?.stack);
+            console.error("===============================");
             toast.error(`Booking failed: ${e?.message || 'Unknown error'}`);
         }
     };

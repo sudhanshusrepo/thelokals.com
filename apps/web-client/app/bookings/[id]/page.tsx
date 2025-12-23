@@ -21,11 +21,19 @@ export default function BookingTrackingPage() {
         const fetchBooking = async () => {
             const { data, error } = await supabase
                 .from('bookings')
-                .select('*, provider:users!provider_id(name, phone)') // Removed service:services join as no FK exists
+                .select('*') // Removed provider join due to PGRST200 schema cache issue
                 .eq('id', bookingId)
                 .single();
 
-            if (data) setBooking(data);
+            if (error) {
+                console.error('Error fetching booking:', error);
+            }
+            if (data) {
+                console.log('Fetched Booking Data:', data);
+                setBooking(data);
+            } else {
+                console.error('No booking data found for ID:', bookingId);
+            }
             setLoading(false);
         };
 

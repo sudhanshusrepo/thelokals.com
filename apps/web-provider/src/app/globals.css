@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  /* lokals Design System for Provider */
+  /* lokals Design System - Unified across Client & Provider Apps */
   --background: #F5F7FB;
   --foreground: #020617;
 

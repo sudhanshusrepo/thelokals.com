@@ -10,7 +10,11 @@ import { ProfileTab } from './ProfileTab';
 import { ProviderProfile } from '../types';
 import { LocationTracker } from './LocationTracker';
 
-type Tab = 'Requests' | 'Bookings' | 'Profile';
+import { AvailabilitySettings } from './AvailabilitySettings';
+import { PaymentPage } from './PaymentPage';
+import { NotificationsPage } from './NotificationsPage';
+
+type Tab = 'Requests' | 'Bookings' | 'Profile' | 'Availability' | 'Payments' | 'Notifications';
 type BookingFilter = 'Upcoming' | 'Active' | 'Past' | 'Pending';
 
 export const ProviderDashboard: React.FC = () => {
@@ -25,6 +29,14 @@ export const ProviderDashboard: React.FC = () => {
 
   const workerId = user?.id;
 
+  // Helper to map DB snake_case to Domain camelCase
+  const mapToBookingRequest = (data: any): BookingRequest => ({
+    requestId: data.id,
+    bookingId: data.booking_id,
+    providerId: data.provider_id,
+    status: data.status,
+  });
+
   const fetchProviderData = async () => {
     if (!workerId) return;
     try {
@@ -36,8 +48,20 @@ export const ProviderDashboard: React.FC = () => {
         .reduce((acc, b) => acc + (b.final_cost || b.estimated_cost || 0), 0);
       setTotalEarnings(earnings);
 
+      // Fetch pending requests
+      const { data: requests } = await supabase
+        .from('booking_requests')
+        .select('*')
+        .eq('provider_id', workerId)
+        .eq('status', 'PENDING');
+
+      if (requests) {
+        const mappedRequests = requests.map(mapToBookingRequest);
+        setLiveRequests(mappedRequests);
+      }
+
     } catch (error) {
-      // Silent fail or toast
+      console.error("Error fetching provider data", error);
     } finally {
       setLoading(false);
     }
@@ -55,8 +79,10 @@ export const ProviderDashboard: React.FC = () => {
         .subscribe();
 
       const liveRequestsChannel = providerLiveBookingService.subscribeToLiveBookingRequests(workerId, (payload) => {
-        const newRequest = payload.new as BookingRequest;
-        setLiveRequests(prev => [...prev, newRequest]);
+        if (payload.eventType === 'INSERT') {
+          const newRequest = mapToBookingRequest(payload.new);
+          setLiveRequests(prev => [...prev, newRequest]);
+        }
       });
 
       return () => {
@@ -64,7 +90,7 @@ export const ProviderDashboard: React.FC = () => {
         providerLiveBookingService.unsubscribeFromChannel(liveRequestsChannel);
       };
     }
-  }, [workerId]);
+  }, [workerId, fetchProviderData]);
 
   const handleAcceptRequest = async (bookingId: string) => {
     if (!workerId) return;
@@ -101,10 +127,13 @@ export const ProviderDashboard: React.FC = () => {
 
       <LocationTracker />
 
-      <div className="border-b border-[#E2E8F0]">
-        <nav className="-mb-px flex space-x-6 overflow-x-auto scrollbar-hide" aria-label="Tabs">
+      <div className="border-b border-[#E2E8F0] overflow-x-auto scrollbar-hide">
+        <nav className="-mb-px flex space-x-6 min-w-max" aria-label="Tabs">
           <TabButton title="Requests" count={liveRequests.length} activeTab={activeTab} setActiveTab={setActiveTab} />
           <TabButton title="Bookings" count={bookings.length} activeTab={activeTab} setActiveTab={setActiveTab} />
+          <TabButton title="Availability" count={0} activeTab={activeTab} setActiveTab={setActiveTab} />
+          <TabButton title="Payments" count={0} activeTab={activeTab} setActiveTab={setActiveTab} />
+          <TabButton title="Notifications" count={0} activeTab={activeTab} setActiveTab={setActiveTab} />
           <TabButton title="Profile" count={0} activeTab={activeTab} setActiveTab={setActiveTab} />
         </nav>
       </div>
@@ -136,6 +165,10 @@ export const ProviderDashboard: React.FC = () => {
           </div>
         )}
 
+        {activeTab === 'Availability' && <AvailabilitySettings />}
+        {activeTab === 'Payments' && <PaymentPage />}
+        {activeTab === 'Notifications' && <NotificationsPage />}
+
         {activeTab === 'Profile' && profile && (
           <ProfileTab
             profile={profile}
@@ -159,7 +192,7 @@ const LiveRequestList: React.FC<{ requests: BookingRequest[], onAccept: (booking
         </div>
         <h3 className="text-xl font-bold text-[#0A2540] mb-2">No active requests nearby</h3>
         <p className="text-[#64748B] max-w-xs mx-auto">
-          Stay online! We'll notify you via push notification as soon as a customer requests a service in area.
+          Stay online! We&apos;ll notify you via push notification as soon as a customer requests a service in area.
         </p>
         <div className="mt-6 flex gap-2">
           <div className="h-2 w-2 rounded-full bg-[#12B3A6] animate-bounce"></div>
@@ -215,7 +248,7 @@ const BookingList: React.FC<{ bookings: Booking[], onUpdateStatus?: (bookingId: 
         </div>
         <h3 className="text-xl font-bold text-[#0A2540] mb-2">No bookings found</h3>
         <p className="text-[#64748B] max-w-xs mx-auto">
-          Bookings in this category will appear here. Check the 'Requests' tab for new opportunities.
+          Bookings in this category will appear here. Check the &apos;Requests&apos; tab for new opportunities.
         </p>
       </div>
     );
@@ -244,7 +277,7 @@ const ProviderBookingCard: React.FC<{ booking: Booking, onUpdateStatus?: (bookin
           </div>
         </div>
         <div className="bg-[#F5F7FB] rounded-xl p-3 text-sm text-[#64748B] mb-4">
-          <p>"{booking.notes}"</p>
+          <p>&quot;{booking.notes}&quot;</p>
         </div>
       </div>
       <div className="flex items-center justify-end gap-2 mt-2">

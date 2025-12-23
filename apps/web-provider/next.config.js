@@ -7,6 +7,19 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['@thelocals/core', 'lucide-react', 'framer-motion'],
   },
+  async headers() {
+    return [
+      {
+        source: '/(.*)\\.(jpg|jpeg|png|svg|ico|woff2)$',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;

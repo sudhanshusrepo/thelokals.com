@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AuthModal } from './AuthModal';
 import { useAuth } from '../contexts/AuthContext';
+import { AnimatedCounter } from './ui/AnimatedCounter';
 
 interface ProviderLandingProps {
     onRegisterClick: () => void;
@@ -97,21 +98,18 @@ export const ProviderLanding: React.FC<ProviderLandingProps> = ({ onRegisterClic
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
-            <div className="fixed top-0 left-0 bg-black text-white p-2 text-xs z-50">
-                DEBUG: User={user ? 'Yes' : 'No'} | Modal={showAuthModal ? 'On' : 'Off'}
-            </div>
             {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
 
             {/* Hero Section */}
-            <section className="relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-200/20 to-amber-200/20"></div>
+            <section className="relative overflow-hidden bg-gradient-to-br from-[#0A2540] via-[#12B3A6]/20 to-[#0A2540]">
+                <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-10"></div>
                 <div className="relative max-w-7xl mx-auto px-4 py-16 sm:py-24">
                     <div className="text-center">
-                        <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-slate-900 mb-6 tracking-tight">
+                        <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6 tracking-tight">
                             Grow Your Business with
-                            <span className="block text-primary mt-2">lokals</span>
+                            <span className="block text-[#12B3A6] mt-2">lokals</span>
                         </h1>
-                        <p className="text-xl sm:text-2xl text-slate-600 mb-8 max-w-3xl mx-auto">
+                        <p className="text-xl sm:text-2xl text-blue-100 mb-8 max-w-3xl mx-auto">
                             Join thousands of service providers earning more by connecting with customers in your area
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -151,19 +149,19 @@ export const ProviderLanding: React.FC<ProviderLandingProps> = ({ onRegisterClic
                 <div className="max-w-7xl mx-auto px-4">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
                         <div>
-                            <div className="text-4xl font-bold mb-2">10,000+</div>
+                            <AnimatedCounter end={10000} suffix="+" />
                             <div className="text-blue-100">Active Providers</div>
                         </div>
                         <div>
-                            <div className="text-4xl font-bold mb-2">50,000+</div>
+                            <AnimatedCounter end={50000} suffix="+" />
                             <div className="text-blue-100">Jobs Completed</div>
                         </div>
                         <div>
-                            <div className="text-4xl font-bold mb-2">₹2.5Cr+</div>
+                            <AnimatedCounter end={2.5} suffix="Cr+" prefix="₹" />
                             <div className="text-blue-100">Earnings Paid</div>
                         </div>
                         <div>
-                            <div className="text-4xl font-bold mb-2">4.8★</div>
+                            <AnimatedCounter end={4.8} suffix="★" />
                             <div className="text-blue-100">Average Rating</div>
                         </div>
                     </div>
