@@ -1,10 +1,10 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '@thelocals/core/services/supabase';
-import { Card } from '../components/ui/Card';
-import { Badge } from '../components/ui/Badge';
+import { Card } from '../../components/ui/Card';
+import { Badge } from '../../components/ui/Badge';
 
 type VerificationStatus = 'pending' | 'approved' | 'rejected';
 
