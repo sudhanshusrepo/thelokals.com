@@ -1,7 +1,45 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+// Simple in-memory rate limiting (for production, use Redis or similar)
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+const RATE_LIMIT_MAX_REQUESTS = 60; // 60 requests per minute
+
+function checkRateLimit(identifier: string): boolean {
+    const now = Date.now();
+    const record = rateLimitMap.get(identifier);
+
+    if (!record || now > record.resetTime) {
+        rateLimitMap.set(identifier, {
+            count: 1,
+            resetTime: now + RATE_LIMIT_WINDOW,
+        });
+        return true;
+    }
+
+    if (record.count >= RATE_LIMIT_MAX_REQUESTS) {
+        return false;
+    }
+
+    record.count++;
+    return true;
+}
+
 export async function middleware(request: NextRequest) {
+    // Rate limiting
+    const identifier = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'anonymous';
+
+    if (!checkRateLimit(identifier)) {
+        return new NextResponse('Too Many Requests', {
+            status: 429,
+            headers: {
+                'Retry-After': '60',
+            },
+        });
+    }
+
     let response = NextResponse.next({
         request: {
             headers: request.headers,
@@ -14,8 +52,6 @@ export async function middleware(request: NextRequest) {
         {
             cookies: {
                 getAll() {
-                    console.log('[Middleware] Anon Key Length:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.length);
-                    console.log('[Middleware] Anon Key Start:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.substring(0, 10));
                     return request.cookies.getAll();
                 },
                 setAll(cookiesToSet) {

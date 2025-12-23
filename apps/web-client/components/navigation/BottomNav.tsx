@@ -51,7 +51,11 @@ export function BottomNav() {
     ];
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-t border-slate-200 pb-safe shadow-[0_-1px_3px_rgba(0,0,0,0.05)] z-50">
+        <nav
+            className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-t border-slate-200 pb-safe shadow-[0_-1px_3px_rgba(0,0,0,0.05)] z-50"
+            aria-label="Main navigation"
+            role="navigation"
+        >
             <div className="max-w-md mx-auto px-6 h-16 flex items-center justify-between">
                 {tabs.map((tab) => {
                     const Icon = tab.icon;
@@ -65,8 +69,8 @@ export function BottomNav() {
                             key={tab.name}
                             href={tab.href}
                             className={`flex flex-col items-center justify-center gap-1 w-16 h-full transition-colors duration-200 ${isActive
-                                    ? 'text-indigo-600'
-                                    : 'text-slate-400 hover:text-slate-600'
+                                ? 'text-indigo-600'
+                                : 'text-slate-400 hover:text-slate-600'
                                 }`}
                         >
                             <Icon
@@ -81,6 +85,6 @@ export function BottomNav() {
                     );
                 })}
             </div>
-        </div>
+        </nav>
     );
 }

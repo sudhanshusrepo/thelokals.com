@@ -7,9 +7,7 @@ import { useRouter } from 'next/navigation';
 import { AppBar } from '../components/home/AppBar';
 import { HeroSection } from '../components/home/HeroSection';
 import { QuickCategories } from '../components/home/QuickCategories';
-import { WhyLokals } from '../components/home/WhyLokals';
-import { BrowseServices } from '../components/home/BrowseServices';
-import { Footer } from '../components/home/Footer';
+import { LazyWhyLokals, LazyBrowseServices, LazyFooter } from '../components/LazyComponents';
 import { searchServices } from '../lib/searchServices';
 
 export default function Home() {
@@ -64,14 +62,14 @@ export default function Home() {
       {/* 3. Quick Categories Carousel */}
       <QuickCategories onSelectCategory={handleSelectCategory} />
 
-      {/* 4. Why Lokals Trust Band */}
-      <WhyLokals />
+      {/* 4. Why Lokals Trust Band - Lazy loaded */}
+      <LazyWhyLokals />
 
-      {/* 5. Browse Services Grid */}
-      <BrowseServices onSelectService={handleSelectService} />
+      {/* 5. Browse Services Grid - Lazy loaded */}
+      <LazyBrowseServices onSelectService={handleSelectService} />
 
-      {/* 6. Footer */}
-      <Footer />
+      {/* 6. Footer - Lazy loaded */}
+      <LazyFooter />
     </div>
   );
 }

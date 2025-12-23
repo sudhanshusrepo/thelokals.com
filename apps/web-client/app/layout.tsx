@@ -1,9 +1,19 @@
 import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "../contexts/AuthContext";
 import { BookingProvider } from "../contexts/BookingContext";
 import { BottomNav } from "../components/navigation/BottomNav";
 import { Toaster } from "react-hot-toast";
+import { ErrorBoundary } from "../components/ErrorBoundary";
+import { SkipToContent } from "../components/SkipToContent";
+
+// Font optimization
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+});
 
 export const metadata: Metadata = {
   title: "lokals - Trusted Local Services",
@@ -24,8 +34,11 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+  const supabaseDomain = supabaseUrl ? new URL(supabaseUrl).hostname : '';
+
   return (
-    <html lang="en">
+    <html lang="en" className={inter.variable}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
@@ -33,15 +46,29 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="lokals" />
         <meta name="theme-color" content="#6366f1" />
+
+        {/* Resource hints for performance */}
+        {supabaseDomain && (
+          <>
+            <link rel="dns-prefetch" href={`https://${supabaseDomain}`} />
+            <link rel="preconnect" href={`https://${supabaseDomain}`} crossOrigin="anonymous" />
+          </>
+        )}
+        <link rel="dns-prefetch" href="https://api.gemini.google.com" />
       </head>
-      <body className="antialiased">
-        <AuthProvider>
-          <BookingProvider>
-            {children}
-            <BottomNav />
-            <Toaster position="top-center" />
-          </BookingProvider>
-        </AuthProvider>
+      <body className={`${inter.className} antialiased`}>
+        <SkipToContent />
+        <ErrorBoundary>
+          <AuthProvider>
+            <BookingProvider>
+              <main id="main-content">
+                {children}
+              </main>
+              <BottomNav />
+              <Toaster position="top-center" />
+            </BookingProvider>
+          </AuthProvider>
+        </ErrorBoundary>
         <script
           dangerouslySetInnerHTML={{
             __html: `

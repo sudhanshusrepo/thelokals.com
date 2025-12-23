@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { trackFunnelStep, trackFunnelAbandonment } from '../lib/analytics';
 
 export interface BookingData {
     serviceCode: string;
@@ -59,10 +60,39 @@ export const BookingProvider: React.FC<{ children: ReactNode }> = ({ children })
     }, [bookingData]);
 
     const setBookingData = (data: Partial<BookingData>) => {
-        setBookingDataState(prev => ({
-            ...prev,
+        const isNewBooking = !bookingData;
+        const newData = {
+            ...bookingData,
             ...data
-        } as BookingData));
+        } as BookingData;
+
+        setBookingDataState(newData);
+
+        // Track funnel steps
+        if (isNewBooking && data.serviceCode) {
+            trackFunnelStep('booking', 1, 'service_selected', {
+                serviceCode: data.serviceCode,
+                serviceName: data.serviceName,
+            });
+        }
+
+        if (data.address && !bookingData?.address) {
+            trackFunnelStep('booking', 2, 'location_entered', {
+                city: data.city,
+            });
+        }
+
+        if (data.scheduledDate && !bookingData?.scheduledDate) {
+            trackFunnelStep('booking', 3, 'datetime_selected', {
+                date: data.scheduledDate,
+            });
+        }
+
+        if (data.selectedProviderId && !bookingData?.selectedProviderId) {
+            trackFunnelStep('booking', 4, 'provider_selected', {
+                providerId: data.selectedProviderId,
+            });
+        }
     };
 
     const updateBookingData = (updates: Partial<BookingData>) => {
@@ -73,6 +103,15 @@ export const BookingProvider: React.FC<{ children: ReactNode }> = ({ children })
     };
 
     const clearBookingData = () => {
+        // Track abandonment if booking was in progress
+        if (bookingData) {
+            const step = bookingData.selectedProviderId ? 4 :
+                bookingData.scheduledDate ? 3 :
+                    bookingData.address ? 2 : 1;
+
+            trackFunnelAbandonment('booking', step, 'booking_cleared', 'user_cancelled');
+        }
+
         setBookingDataState(null);
         localStorage.removeItem(STORAGE_KEY);
     };

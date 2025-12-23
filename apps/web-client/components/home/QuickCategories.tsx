@@ -93,15 +93,23 @@ export const QuickCategories: React.FC<QuickCategoriesProps> = ({ onSelectCatego
     }
 
     return (
-        <section className="relative -mt-12 pb-8 bg-gradient-to-b from-transparent via-background/50 to-background z-30">
+        <section
+            className="relative -mt-12 pb-8 bg-gradient-to-b from-transparent via-background/50 to-background z-30"
+            aria-label="Popular service categories"
+        >
             <div className="max-w-7xl mx-auto px-4">
-                <div className="overflow-x-auto scrollbar-hide pb-4">
+                <div
+                    className="overflow-x-auto scrollbar-hide pb-4"
+                    role="region"
+                    aria-label="Category carousel"
+                >
                     <div className="flex gap-4 min-w-max">
                         {categories.map((category) => (
                             <button
                                 key={category.id}
                                 onClick={() => onSelectCategory?.(category.id)}
                                 className="flex flex-col items-center gap-2 w-20 group"
+                                aria-label={`Browse ${category.name} services`}
                             >
                                 <div className="relative w-20 h-20 rounded-2xl overflow-hidden bg-white shadow-elevated">
                                     {/* Emoji Placeholder - shown until image loads */}

@@ -71,6 +71,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend, isLoading = false,
                                 setMode('text');
                             }}
                             className="p-3 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200"
+                            aria-label="Cancel audio recording"
                         >
                             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                         </button>
@@ -79,6 +80,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend, isLoading = false,
                             <button
                                 onClick={audioRecorder.stopRecording}
                                 className="p-6 rounded-full bg-red-500 text-white hover:bg-red-600 shadow-lg transform hover:scale-105 transition-all"
+                                aria-label="Stop recording"
                             >
                                 <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" /></svg>
                             </button>
@@ -87,12 +89,14 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend, isLoading = false,
                                 <button
                                     onClick={audioRecorder.startRecording}
                                     className="p-4 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300"
+                                    aria-label="Re-record audio"
                                 >
                                     <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
                                 </button>
                                 <button
                                     onClick={handleSendAudio}
                                     className="p-4 rounded-full bg-teal-600 text-white hover:bg-teal-700 shadow-lg"
+                                    aria-label="Send audio recording"
                                 >
                                     <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                                 </button>
@@ -103,7 +107,12 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend, isLoading = false,
                         {audioRecorder.isRecording ? 'Recording audio...' : 'Review your recording'}
                     </p>
                     {audioRecorder.audioUrl && (
-                        <audio src={audioRecorder.audioUrl} controls className="w-full mt-2" />
+                        <audio
+                            src={audioRecorder.audioUrl}
+                            controls
+                            className="w-full mt-2"
+                            aria-label="Audio recording preview"
+                        />
                     )}
                 </div>
             </div>
@@ -199,6 +208,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend, isLoading = false,
                             disabled={isLoading}
                             className="p-2 sm:p-3 rounded-full text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                             title="Record Audio"
+                            aria-label="Record audio message"
                         >
                             <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
                         </button>
@@ -218,6 +228,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend, isLoading = false,
                             disabled={isLoading}
                             className="p-2 sm:p-3 rounded-full text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                             title="Record Video"
+                            aria-label="Record video message"
                         >
                             <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
                         </button>
@@ -242,7 +253,12 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend, isLoading = false,
                         disabled={isLoading}
                         className="w-full bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white rounded-2xl px-4 py-3 pr-10 focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none max-h-32 min-h-[44px]"
                         rows={1}
+                        aria-label="Type your message"
+                        aria-describedby="chat-input-hint"
                     />
+                    <span id="chat-input-hint" className="sr-only">
+                        Press Enter to send, Shift+Enter for new line
+                    </span>
                 </div>
 
                 {/* Send Button */}

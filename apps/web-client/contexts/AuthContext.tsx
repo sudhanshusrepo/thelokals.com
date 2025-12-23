@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@thelocals/core/services/supabase';
 import type { User, Session } from '@supabase/supabase-js';
+import { analytics } from '../lib/analytics';
 
 interface AuthContextType {
     user: User | null;
@@ -34,9 +35,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Listen for auth changes
         const {
             data: { subscription },
-        } = supabase.auth.onAuthStateChange((_event: string, session: Session | null) => {
-            setUser(session?.user ?? null);
+        } = supabase.auth.onAuthStateChange((event: string, session: Session | null) => {
+            const newUser = session?.user ?? null;
+            setUser(newUser);
             setLoading(false);
+
+            // Track authentication events
+            if (event === 'SIGNED_IN' && newUser) {
+                analytics.track('user_signin', {
+                    method: 'phone',
+                    userId: newUser.id,
+                });
+                analytics.identify(newUser.id, {
+                    phone: newUser.phone,
+                    email: newUser.email,
+                });
+            } else if (event === 'SIGNED_OUT') {
+                analytics.track('user_signout');
+                analytics.reset();
+            } else if (event === 'USER_UPDATED' && newUser) {
+                analytics.identify(newUser.id, {
+                    phone: newUser.phone,
+                    email: newUser.email,
+                });
+            }
         });
 
         return () => subscription.unsubscribe();
