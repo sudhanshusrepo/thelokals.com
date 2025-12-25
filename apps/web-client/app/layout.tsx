@@ -6,7 +6,6 @@ import { BookingProvider } from "../contexts/BookingContext";
 import { BottomNav } from "../components/navigation/BottomNav";
 import { Toaster } from "react-hot-toast";
 import { ErrorBoundary } from "../components/ErrorBoundary";
-import { SkipToContent } from "../components/SkipToContent";
 
 // Font optimization
 const inter = Inter({
@@ -57,7 +56,6 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://api.gemini.google.com" />
       </head>
       <body className={`${inter.className} antialiased`}>
-        <SkipToContent />
         <ErrorBoundary>
           <AuthProvider>
             <BookingProvider>

@@ -20,7 +20,8 @@
     "react": "19.2.1",
     "react-dom": "19.2.1",
     "react-hot-toast": "^2.6.0",
-    "web-vitals": "^4.2.4"
+    "web-vitals": "^4.2.4",
+    "zod": "^3.22.3"
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^16.1.1",
@@ -32,14 +33,11 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@types/react-router": "^5.1.20",
-    "@types/react-router-dom": "^5.3.3",
     "eslint": "^9",
     "eslint-config-next": "16.0.10",
     "postcss": "^8.5.6",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "wrangler": "^4.56.0",
-    "zod": "^3.22.3"
+    "wrangler": "^4.56.0"
   }
 }
