@@ -6,6 +6,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
 import { HowItWorks } from '@/components/HowItWorks';
 import { StickyChatCta } from '@/components/StickyChatCta';
+import { UnicornAnimatedView } from '@/components/UnicornAnimatedView';
 
 const categories = [
   { name: 'Plumbers' },
@@ -49,8 +50,11 @@ export default function HomeScreen() {
         <Text style={styles.headerTitle}>lokals</Text>
       </View>
 
+      <UnicornAnimatedView style={styles.backgroundAnimation} />
+
       <ScrollView
         style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
         onScroll={handleScroll}
         scrollEventThrottle={16}
       >
@@ -94,14 +98,28 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
+  backgroundAnimation: {
+    position: 'absolute',
+    top: 70, // Below header approx
+    left: 0,
+    right: 0,
+    height: '60%',
+    zIndex: 0,
+  },
   scrollView: {
     flex: 1,
+    backgroundColor: 'transparent',
+    zIndex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 20,
   },
   header: {
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: Colors.slate[200],
     backgroundColor: '#fff',
+    zIndex: 2,
   },
   headerTitle: {
     fontSize: 24,
@@ -109,11 +127,12 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     padding: 16,
+    backgroundColor: 'transparent',
   },
   searchWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.slate[100],
+    backgroundColor: 'rgba(241, 245, 249, 0.9)', // slate[100] with opacity
     borderRadius: 12,
     padding: 12,
   },
@@ -124,6 +143,7 @@ const styles = StyleSheet.create({
   },
   categoriesContainer: {
     padding: 16,
+    backgroundColor: 'transparent',
   },
   categoriesTitle: {
     fontSize: 20,
@@ -131,7 +151,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   categoryCard: {
-    backgroundColor: 'white',
+    backgroundColor: 'rgba(255, 255, 255, 0.85)',
     borderRadius: 12,
     padding: 16,
     marginRight: 12,

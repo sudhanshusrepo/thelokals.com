@@ -5,6 +5,7 @@ import { Tabs } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
+import { UnicornAnimatedView } from '@/components/UnicornAnimatedView';
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 function TabBarIcon(props: {
@@ -29,7 +30,12 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <TabBarIcon name="search" color={color} />,
+          tabBarIcon: ({ color, focused }) =>
+            focused ? (
+              <UnicornAnimatedView mini style={{ width: 30, height: 30 }} />
+            ) : (
+              <TabBarIcon name="search" color={color} />
+            ),
         }}
       />
       <Tabs.Screen
