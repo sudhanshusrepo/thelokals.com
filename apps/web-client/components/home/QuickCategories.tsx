@@ -57,9 +57,12 @@ export const QuickCategories: React.FC<QuickCategoriesProps> = ({ onSelectCatego
                 console.error('Error fetching categories:', error);
                 // Fallback to hardcoded data if DB fetch fails
                 setCategories([
-                    { id: 'ac', name: 'AC Repair', image_url: 'https://images.unsplash.com/photo-1621905476059-5f3460b56b3b?q=80&w=200', emoji: '❄️', display_order: 1 },
-                    { id: 'plumbing', name: 'Plumbing', image_url: 'https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?q=80&w=200', emoji: '🔧', display_order: 2 },
-                    { id: 'electrical', name: 'Electrician', image_url: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=200', emoji: '⚡', display_order: 3 },
+                    { id: 'plumber', name: 'Plumbers', image_url: 'https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?q=80&w=200', emoji: '🔧', display_order: 1 },
+                    { id: 'electrician', name: 'Electricians', image_url: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=200', emoji: '⚡', display_order: 2 },
+                    { id: 'cleaner', name: 'Cleaners', image_url: 'https://images.unsplash.com/photo-1581578731117-104f2a921a29?q=80&w=200', emoji: '🧹', display_order: 3 },
+                    { id: 'carpenter', name: 'Carpenters', image_url: 'https://images.unsplash.com/photo-1610513320995-1ad4bbf25e55?q=80&w=200', emoji: '🪚', display_order: 4 },
+                    { id: 'painter', name: 'Painters', image_url: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?q=80&w=200', emoji: '🎨', display_order: 5 },
+                    { id: 'gardener', name: 'Gardeners', image_url: 'https://images.unsplash.com/photo-1611735341450-74d61e66ee62?q=80&w=200', emoji: '🌿', display_order: 6 },
                 ]);
             } finally {
                 setLoading(false);

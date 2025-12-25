@@ -64,30 +64,38 @@ const styles = StyleSheet.create({
     },
     card: {
         width: '48%', // Approx half with spacing
-        backgroundColor: Colors.slate[50],
+        backgroundColor: '#fff',
         padding: 16,
         borderRadius: 16,
         marginBottom: 16,
+        // Premium Card Style
         borderWidth: 1,
         borderColor: Colors.slate[100],
+        shadowColor: Colors.teal.DEFAULT,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.05,
+        shadowRadius: 12,
+        elevation: 3,
     },
     iconBox: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: Colors.teal[50],
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        backgroundColor: Colors.teal[50], // Soft teal background
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 12,
+        borderWidth: 1,
+        borderColor: Colors.teal[100],
     },
     cardTitle: {
-        fontSize: 14,
+        fontSize: 15,
         fontWeight: '700',
-        color: Colors.slate[800],
-        marginBottom: 4,
+        color: Colors.slate[900],
+        marginBottom: 6,
     },
     cardDesc: {
-        fontSize: 12,
+        fontSize: 13,
         color: Colors.slate[500],
         lineHeight: 18,
     }

@@ -34,9 +34,9 @@ export default function ServiceDetailPage() {
     const [surgeMultiplier, setSurgeMultiplier] = useState(1.0);
 
     const issueTypes = [
+        { id: 'small', label: 'Minor Issue', extra: -100 },
         { id: 'standard', label: 'Standard Service', extra: 0 },
-        { id: 'urgent', label: 'Urgent / Emergency', extra: 150 },
-        { id: 'inspection', label: 'Inspection / Advice', extra: -100 },
+        { id: 'major', label: 'Major Repair', extra: 200 },
     ];
 
     const basePrice = service ? service.base_price_cents / 100 : 0;
