@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { FontAwesome } from '@expo/vector-icons';
 import { ServiceCard } from '@/components/browse/ServiceCard';
@@ -16,9 +16,14 @@ const services = [
 
 export default function BrowseScreen() {
     const router = useRouter();
+    const { category } = useLocalSearchParams();
     const [mode, setMode] = useState<'online' | 'offline'>('offline');
 
-    const filteredServices = services.filter(s => s.type === mode);
+    const filteredServices = services.filter(s => {
+        const matchesMode = s.type === mode;
+        const matchesCategory = category ? s.name.toLowerCase().includes((category as string).toLowerCase()) : true;
+        return matchesMode && matchesCategory;
+    });
 
     return (
         <SafeAreaView style={styles.container}>
@@ -26,7 +31,9 @@ export default function BrowseScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
                     <FontAwesome name="arrow-left" size={20} color={Colors.slate[800]} />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Browse Services</Text>
+                <Text style={styles.headerTitle}>
+                    {category ? `${category} Services` : 'Browse Services'}
+                </Text>
                 <View style={{ width: 24 }} />
             </View>
 

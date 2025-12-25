@@ -101,7 +101,10 @@ export default function HomeScreen() {
                 <TouchableOpacity
                   key={index}
                   style={styles.categoryCard}
-                  onPress={() => router.push('/(app)/browse')}
+                  onPress={() => router.push({
+                    pathname: '/(app)/browse',
+                    params: { category: category.name }
+                  })}
                 >
                   <Text>{category.name}</Text>
                 </TouchableOpacity>

@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   button: {
-    backgroundColor: Colors.blue,
+    backgroundColor: Colors.blue.DEFAULT,
     borderRadius: 8,
     padding: 16,
     alignItems: 'center',

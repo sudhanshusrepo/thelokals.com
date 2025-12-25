@@ -46,7 +46,7 @@ export default function AiBookingScreen() {
 
                 {status === 'finding' && (
                     <View style={styles.stateContainer}>
-                        <ActivityIndicator size="large" color={Colors.blue} />
+                        <ActivityIndicator size="large" color={Colors.blue.DEFAULT} />
                         <Text style={styles.title}>Finding Professionals...</Text>
                         <Text style={styles.subtitle}>Matching your needs with top-rated locals.</Text>
                     </View>
@@ -69,7 +69,14 @@ export default function AiBookingScreen() {
                         </View>
 
                         <View style={styles.buttonContainer}>
-                            <Text style={styles.button} onPress={handleDone}>View Bookings</Text>
+                            <Text style={styles.button} onPress={() => router.push({
+                                pathname: '/(app)/book/checkout',
+                                params: {
+                                    serviceName: 'Suggested: Plumber',
+                                    tier: 'Standard',
+                                    price: 'Est. ₹500'
+                                }
+                            })}>View & Confirm Quote</Text>
                         </View>
                     </View>
                 )}

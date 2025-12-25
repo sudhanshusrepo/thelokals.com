@@ -58,8 +58,8 @@ const StatusBadge = ({ status }: { status: Booking['status'] }) => {
             bg = Colors.amber[50];
             break;
         case 'accepted':
-            color = Colors.blue;
-            bg = '#eff6ff'; // blue-50
+            color = Colors.blue.DEFAULT;
+            bg = Colors.blue[50];
             break;
         case 'in_progress':
             color = Colors.teal.DEFAULT;

@@ -26,9 +26,15 @@ export default function ServiceDetailScreen() {
         // reusing the existing AI loading or creating a new page.
         // For this phase, let's assume we push to the existing booking ID 'new' which handles this state.
 
+        // Navigate to Unified Checkout
         router.push({
-            pathname: '/(app)/booking/[id]',
-            params: { id: 'new_booking_123' } // Simulate a new booking ID
+            pathname: '/(app)/book/checkout',
+            params: {
+                serviceId: id,
+                serviceName: 'AC Repair & Service', // Dynamic in real app
+                tier: selectedTier === 'small' ? 'Minor Issue' : selectedTier === 'standard' ? 'Standard Service' : 'Major Repair',
+                price: tiers.find(t => t.id === selectedTier)?.price
+            }
         });
     };
 
@@ -118,6 +124,7 @@ const styles = StyleSheet.create({
     image: {
         width: '100%',
         height: '100%',
+        resizeMode: 'cover',
     },
     overlay: {
         ...StyleSheet.absoluteFillObject,
@@ -187,7 +194,7 @@ const styles = StyleSheet.create({
         color: Colors.slate[800],
     },
     tierNameSelected: {
-        color: Colors.teal.900,
+        color: Colors.teal[900],
     },
     tierDesc: {
         fontSize: 13,
