@@ -34,8 +34,37 @@ const nextConfig = {
   },
 
   // Security and performance headers
+  // Security and performance headers
   async headers() {
     const isDev = process.env.NODE_ENV === 'development';
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+    let supabaseOrigin = '';
+
+    try {
+      if (supabaseUrl) {
+        const url = new URL(supabaseUrl);
+        supabaseOrigin = url.origin;
+      }
+    } catch (e) {
+      console.warn('Invalid NEXT_PUBLIC_SUPABASE_URL', supabaseUrl);
+    }
+
+    // Base CSP directives
+    let connectSrc = "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.gemini.google.com";
+
+    // Add Supabase origin if distinct from wildcards
+    if (supabaseOrigin && !supabaseOrigin.includes('.supabase.co')) {
+      connectSrc += ` ${supabaseOrigin}`;
+      // If local, adding websocket port for realtime if needed, though usually standard port
+      if (supabaseOrigin.includes('127.0.0.1') || supabaseOrigin.includes('localhost')) {
+        const wsOrigin = supabaseOrigin.replace('http', 'ws');
+        connectSrc += ` ${wsOrigin}`;
+      }
+    }
+
+    const cspValue = isDev
+      ? `default-src 'self' 'unsafe-eval' 'unsafe-inline'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; ${connectSrc};`
+      : `default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; ${connectSrc}; frame-ancestors 'self'; base-uri 'self'; form-action 'self';`;
 
     return [
       // Static asset caching
@@ -80,12 +109,10 @@ const nextConfig = {
             key: 'Permissions-Policy',
             value: 'camera=(self), microphone=(self), geolocation=(self), interest-cohort=()',
           },
-          // Content Security Policy (relaxed for development)
+          // Content Security Policy (Dynamic)
           {
             key: 'Content-Security-Policy',
-            value: isDev
-              ? "default-src 'self' 'unsafe-eval' 'unsafe-inline'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.gemini.google.com http://127.0.0.1:54321 ws://127.0.0.1:54321;"
-              : "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.gemini.google.com http://127.0.0.1:54321 ws://127.0.0.1:54321; frame-ancestors 'self'; base-uri 'self'; form-action 'self';",
+            value: cspValue,
           },
         ],
       },
