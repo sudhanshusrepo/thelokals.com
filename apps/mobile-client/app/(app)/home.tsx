@@ -1,12 +1,15 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'expo-router';
-import { StyleSheet, SafeAreaView, ScrollView, TextInput, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
+import { StyleSheet, SafeAreaView, ScrollView, NativeSyntheticEvent, NativeScrollEvent, View as RNView, TouchableOpacity } from 'react-native';
 import { Text, View } from '@/components/Themed';
-import { FontAwesome } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
 import { HowItWorks } from '@/components/HowItWorks';
 import { StickyChatCta } from '@/components/StickyChatCta';
-import { UnicornAnimatedView } from '@/components/UnicornAnimatedView';
+import { HomeHero } from '@/components/home/HomeHero';
+import { HomeSearch } from '@/components/home/HomeSearch';
+import { WhyLokals } from '@/components/home/WhyLokals';
+import { Footer } from '@/components/home/Footer';
+import { useLocation } from '@/contexts/LocationContext';
 
 const categories = [
   { name: 'Plumbers' },
@@ -20,6 +23,14 @@ const categories = [
 export default function HomeScreen() {
   const [isCtaVisible, setIsCtaVisible] = useState(false);
   const lastScrollY = useRef(0);
+  const router = useRouter();
+
+
+  const { requestLocation } = useLocation();
+
+  useEffect(() => {
+    requestLocation();
+  }, []);
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const currentScrollY = event.nativeEvent.contentOffset.y;
@@ -34,62 +45,81 @@ export default function HomeScreen() {
     lastScrollY.current = currentScrollY;
   };
 
-  const router = useRouter();
-
   const handleChatSend = (content: { type: 'text' | 'audio' | 'video', data: string }) => {
-
     router.push({
       pathname: '/(app)/ai-booking',
       params: { type: content.type, data: content.data }
     });
   };
 
-  return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>lokals</Text>
-      </View>
+  const handleSearch = (text: string) => {
+    handleChatSend({ type: 'text', data: text });
+  };
 
-      <UnicornAnimatedView style={styles.backgroundAnimation} />
+  const handleMicPress = () => {
+    // Stub for now - open AI booking with audio intent
+    // ideally trigger recording UI
+    handleChatSend({ type: 'audio', data: 'recording_placeholder' });
+  };
+
+  const handleCameraPress = () => {
+    // Stub for now
+    handleChatSend({ type: 'video', data: 'image_placeholder' });
+  };
+
+  return (
+    <View style={styles.container}>
 
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         onScroll={handleScroll}
         scrollEventThrottle={16}
+        showsVerticalScrollIndicator={false}
       >
-        <View style={styles.searchContainer}>
-          <View style={styles.searchWrapper}>
-            <FontAwesome name="search" size={20} color={Colors.slate[400]} />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search for a service"
-            />
+        <RNView style={styles.heroWrapper}>
+          <HomeHero />
+          <HomeSearch
+            onSearch={handleSearch}
+            onMicPress={handleMicPress}
+            onCameraPress={handleCameraPress}
+          />
+        </RNView>
+
+        <View style={styles.mainContent}>
+          <HowItWorks />
+
+          <View style={styles.categoriesContainer}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <Text style={styles.categoriesTitle}>Categories</Text>
+              <TouchableOpacity onPress={() => router.push('/(app)/browse')}>
+                <Text style={{ color: Colors.teal.DEFAULT, fontWeight: '600' }}>See All</Text>
+              </TouchableOpacity>
+            </View>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {categories.map((category, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.categoryCard}
+                  onPress={() => router.push('/(app)/browse')}
+                >
+                  <Text>{category.name}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
           </View>
+
+          <WhyLokals />
+
+          <Footer />
         </View>
-
-        <HowItWorks />
-
-        <View style={styles.categoriesContainer}>
-          <Text style={styles.categoriesTitle}>Categories</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {categories.map((category, index) => (
-              <View key={index} style={styles.categoryCard}>
-                <Text>{category.name}</Text>
-              </View>
-            ))}
-          </ScrollView>
-        </View>
-
-        {/* Spacer for bottom content */}
-        <View style={{ height: 100 }} />
       </ScrollView>
 
       <StickyChatCta
         isVisible={isCtaVisible}
         onSend={handleChatSend}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -98,52 +128,22 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
-  backgroundAnimation: {
-    position: 'absolute',
-    top: 70, // Below header approx
-    left: 0,
-    right: 0,
-    height: '60%',
-    zIndex: 0,
-  },
   scrollView: {
     flex: 1,
-    backgroundColor: 'transparent',
-    zIndex: 1,
+    backgroundColor: '#fff',
   },
   scrollContent: {
     paddingBottom: 20,
   },
-  header: {
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.slate[200],
-    backgroundColor: '#fff',
-    zIndex: 2,
+  heroWrapper: {
+    position: 'relative',
+    marginBottom: 40, // Space for the overlapping search bar
   },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  searchContainer: {
-    padding: 16,
-    backgroundColor: 'transparent',
-  },
-  searchWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(241, 245, 249, 0.9)', // slate[100] with opacity
-    borderRadius: 12,
-    padding: 12,
-  },
-  searchInput: {
-    flex: 1,
-    marginLeft: 8,
-    fontSize: 16,
+  mainContent: {
+    paddingTop: 10,
   },
   categoriesContainer: {
     padding: 16,
-    backgroundColor: 'transparent',
   },
   categoriesTitle: {
     fontSize: 20,
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   categoryCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.85)',
+    backgroundColor: 'rgba(241, 245, 249, 1)',
     borderRadius: 12,
     padding: 16,
     marginRight: 12,

@@ -1,6 +1,8 @@
-import { SafeAreaView, Linking, TouchableOpacity, ScrollView, View, Text } from 'react-native';
-import { FontAwesome } from '@expo/vector-icons';
+import React from 'react';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Linking } from 'react-native';
 import { useRouter } from 'expo-router';
+import Colors from '@/constants/Colors';
+import { FontAwesome } from '@expo/vector-icons';
 
 export default function SupportScreen() {
     const router = useRouter();
@@ -23,82 +25,185 @@ export default function SupportScreen() {
             title: 'Email Support',
             subtitle: 'Get help via email',
             action: handleEmailSupport,
-            color: 'text-blue-500',
-            bgColor: 'bg-blue-50',
+            color: Colors.blue.DEFAULT || '#3b82f6',
+            bg: Colors.blue[50] || '#eff6ff',
         },
         {
             icon: 'phone',
             title: 'Call Us',
             subtitle: 'Speak to an agent',
             action: handleCallSupport,
-            color: 'text-green-500',
-            bgColor: 'bg-green-50',
+            color: Colors.green.DEFAULT || '#22c55e',
+            bg: Colors.green[50] || '#f0fdf4',
         },
         {
             icon: 'question-circle',
             title: 'FAQs',
             subtitle: 'Common questions',
             action: handleFaq,
-            color: 'text-purple-500',
-            bgColor: 'bg-purple-50',
+            color: Colors.purple.DEFAULT || '#a855f7',
+            bg: Colors.purple[50] || '#faf5ff',
         },
     ];
 
     return (
-        <SafeAreaView className="flex-1 bg-slate-50 dark:bg-slate-900">
-            <ScrollView className="flex-1">
-                <View className="p-6 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-                    <Text className="text-3xl font-bold text-slate-900 dark:text-white">Help & Support</Text>
-                    <Text className="text-slate-500 dark:text-slate-400 mt-1">
-                        We're here to help you with anything you need.
-                    </Text>
-                </View>
+        <SafeAreaView style={styles.container}>
+            <View style={styles.header}>
+                <Text style={styles.headerTitle}>Help & Support</Text>
+                <Text style={styles.headerSubtitle}>We're here to help you with anything you need.</Text>
+            </View>
 
-                <View className="p-4 gap-4">
+            <ScrollView contentContainerStyle={styles.content}>
+                <View style={styles.optionsContainer}>
                     {supportOptions.map((option, index) => (
                         <TouchableOpacity
                             key={index}
+                            style={styles.optionCard}
                             onPress={option.action}
-                            className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex-row items-center"
-                            activeOpacity={0.7}
                         >
-                            <View className={`w-12 h-12 rounded-full items-center justify-center mr-4 ${option.bgColor} dark:bg-opacity-10`}>
-                                <FontAwesome name={option.icon as any} size={20} className={option.color.replace('text-', 'color-')} />
+                            <View style={[styles.iconBox, { backgroundColor: option.bg }]}>
+                                <FontAwesome name={option.icon as any} size={20} color={option.color} />
                             </View>
-                            <View className="flex-1">
-                                <Text className="text-lg font-bold text-slate-900 dark:text-white">{option.title}</Text>
-                                <Text className="text-slate-500 dark:text-slate-400 text-sm">{option.subtitle}</Text>
+                            <View style={styles.optionContent}>
+                                <Text style={styles.optionTitle}>{option.title}</Text>
+                                <Text style={styles.optionSubtitle}>{option.subtitle}</Text>
                             </View>
-                            <FontAwesome name="chevron-right" size={14} color="#cbd5e1" />
+                            <FontAwesome name="chevron-right" size={12} color={Colors.slate[300]} />
                         </TouchableOpacity>
                     ))}
                 </View>
 
-                <View className="mt-8 px-6">
-                    <Text className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Legal</Text>
-                    <View className="bg-white dark:bg-slate-800 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-700">
-                        <TouchableOpacity
-                            className="p-4 flex-row justify-between items-center border-b border-slate-100 dark:border-slate-700"
-                            onPress={() => router.push('/(app)/terms')}
-                        >
-                            <Text className="text-slate-700 dark:text-slate-200 font-medium">Terms & Conditions</Text>
-                            <FontAwesome name="external-link" size={12} color="#94a3b8" />
+                <View style={styles.legalSection}>
+                    <Text style={styles.sectionLabel}>LEGAL</Text>
+                    <View style={styles.legalLinks}>
+                        <TouchableOpacity style={styles.legalLink} onPress={() => router.push('/(app)/terms')}>
+                            <Text style={styles.legalText}>Terms & Conditions</Text>
+                            <FontAwesome name="external-link" size={12} color={Colors.slate[400]} />
                         </TouchableOpacity>
-                        <TouchableOpacity
-                            className="p-4 flex-row justify-between items-center"
-                            onPress={() => router.push('/(app)/privacy')}
-                        >
-                            <Text className="text-slate-700 dark:text-slate-200 font-medium">Privacy Policy</Text>
-                            <FontAwesome name="external-link" size={12} color="#94a3b8" />
+                        <View style={styles.divider} />
+                        <TouchableOpacity style={styles.legalLink} onPress={() => router.push('/(app)/privacy')}>
+                            <Text style={styles.legalText}>Privacy Policy</Text>
+                            <FontAwesome name="external-link" size={12} color={Colors.slate[400]} />
                         </TouchableOpacity>
                     </View>
                 </View>
 
-                <View className="items-center mt-12 mb-8">
-                    <Text className="text-slate-400 text-xs">Version 1.0.0</Text>
-                    <Text className="text-slate-300 text-[10px] mt-1">© 2025 lokals</Text>
+                <View style={styles.footer}>
+                    <Text style={styles.version}>Version 1.0.0</Text>
+                    <Text style={styles.coy}>© 2025 Lokals</Text>
                 </View>
             </ScrollView>
         </SafeAreaView>
     );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: Colors.slate[50],
+    },
+    header: {
+        padding: 24,
+        backgroundColor: '#fff',
+        borderBottomWidth: 1,
+        borderBottomColor: Colors.slate[200],
+    },
+    headerTitle: {
+        fontSize: 28,
+        fontWeight: 'bold',
+        color: Colors.slate[900],
+        marginBottom: 4,
+    },
+    headerSubtitle: {
+        fontSize: 16,
+        color: Colors.slate[500],
+    },
+    content: {
+        padding: 16,
+    },
+    optionsContainer: {
+        marginBottom: 32,
+    },
+    optionCard: {
+        backgroundColor: '#fff',
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 16,
+        borderRadius: 16,
+        marginBottom: 12,
+        borderWidth: 1,
+        borderColor: Colors.slate[100],
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
+        elevation: 2,
+    },
+    iconBox: {
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 16,
+    },
+    optionContent: {
+        flex: 1,
+    },
+    optionTitle: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: Colors.slate[900],
+        marginBottom: 2,
+    },
+    optionSubtitle: {
+        fontSize: 14,
+        color: Colors.slate[500],
+    },
+    legalSection: {
+        marginBottom: 32,
+    },
+    sectionLabel: {
+        fontSize: 12,
+        fontWeight: '700',
+        color: Colors.slate[400],
+        letterSpacing: 1,
+        marginBottom: 12,
+        paddingLeft: 8,
+    },
+    legalLinks: {
+        backgroundColor: '#fff',
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: Colors.slate[200],
+        overflow: 'hidden',
+    },
+    legalLink: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: 16,
+    },
+    legalText: {
+        fontSize: 16,
+        fontWeight: '500',
+        color: Colors.slate[700],
+    },
+    divider: {
+        height: 1,
+        backgroundColor: Colors.slate[100],
+    },
+    footer: {
+        alignItems: 'center',
+        marginBottom: 20,
+    },
+    version: {
+        fontSize: 12,
+        color: Colors.slate[400],
+    },
+    coy: {
+        fontSize: 10,
+        color: Colors.slate[300],
+        marginTop: 4,
+    },
+});

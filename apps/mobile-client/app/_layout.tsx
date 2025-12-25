@@ -10,6 +10,7 @@ import { View } from 'react-native';
 import { useColorScheme } from '@/components/useColorScheme';
 import Colors from '@/constants/Colors';
 import { LoaderProvider, useLoader } from '@/contexts/LoaderContext';
+import { LocationProvider } from '@/contexts/LocationContext';
 import AnimatedLoader from '@/components/AnimatedLoader';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 
@@ -44,7 +45,9 @@ export default function RootLayout() {
 
   return (
     <LoaderProvider>
-      <RootLayoutNav />
+      <LocationProvider>
+        <RootLayoutNav />
+      </LocationProvider>
     </LoaderProvider>
   );
 }
