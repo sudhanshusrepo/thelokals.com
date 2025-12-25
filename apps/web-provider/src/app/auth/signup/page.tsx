@@ -65,7 +65,7 @@ export default function ProviderSignUpPage() {
             <div className="max-w-xl w-full space-y-8 animate-fade-in-up">
                 <div className="text-center">
                     <Link href="/" className="inline-block">
-                        <img className="mx-auto h-16 w-auto rounded-xl shadow-lg" src="/logo.svg" alt="lokals provider" />
+                        <img className="mx-auto h-16 w-auto rounded-xl shadow-lg" src="/logo.jpg" alt="lokals provider" />
                     </Link>
                     <h2 className="mt-6 text-3xl font-extrabold text-[#0A2540]">
                         Join as a Service Partner

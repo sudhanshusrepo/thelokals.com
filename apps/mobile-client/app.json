@@ -4,12 +4,12 @@
     "slug": "thelokals",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/apple-touch-icon.png",
+    "icon": "./assets/images/logo.jpg",
     "scheme": "thelokals",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/splash-icon.png",
+      "image": "./assets/images/logo.jpg",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -21,7 +21,7 @@
       "package": "com.thelokals.app",
       "versionCode": 1,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/android-chrome-192x192.png",
+        "foregroundImage": "./assets/images/logo.jpg",
         "backgroundColor": "#ffffff"
       },
       "permissions": [
@@ -38,7 +38,7 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.ico"
+      "favicon": "./assets/images/logo.jpg"
     },
     "plugins": [
       "expo-router",

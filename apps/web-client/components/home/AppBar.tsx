@@ -77,7 +77,7 @@ export const AppBar: React.FC<AppBarProps> = ({ onSignIn, onOpenApp }) => {
                 {/* Left: Logo */}
                 <Link href="/" className="flex items-center gap-2">
                     <Image
-                        src="/logo.svg"
+                        src="/logo.jpg"
                         alt="lokals logo"
                         width={40}
                         height={40}

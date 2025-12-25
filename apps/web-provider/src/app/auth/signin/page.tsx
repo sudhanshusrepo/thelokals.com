@@ -42,7 +42,7 @@ export default function ProviderSignInPage() {
                 <div className="text-center">
                     <Link href="/" className="inline-block">
                         {/* Ensure logo.svg exists in web-provider public or use absolute URL if shared */}
-                        <img className="mx-auto h-16 w-auto rounded-xl shadow-lg" src="/logo.svg" alt="lokals provider" />
+                        <img className="mx-auto h-16 w-auto rounded-xl shadow-lg" src="/logo.jpg" alt="lokals provider" />
                     </Link>
                     <h2 className="mt-6 text-3xl font-extrabold text-[#0A2540]">
                         Provider Portal

@@ -39,7 +39,7 @@ export default function SignInPage() {
             <div className="max-w-md w-full space-y-8 animate-fade-in-up">
                 <div className="text-center">
                     <Link href="/" className="inline-block">
-                        <img className="mx-auto h-16 w-auto rounded-xl shadow-lg" src="/logo.svg" alt="lokals" />
+                        <img className="mx-auto h-16 w-auto rounded-xl shadow-lg" src="/logo.jpg" alt="lokals" />
                     </Link>
                     <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
                         Sign in to your account
