@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { AppBar } from '../../../components/home/AppBar';
 import { Footer } from '../../../components/home/Footer';
+import { useAuth } from '../../../contexts/AuthContext';
+import { supabase } from '@thelocals/core/services/supabase';
 
 export default function CheckoutContent() {
     const router = useRouter();
@@ -23,10 +25,64 @@ export default function CheckoutContent() {
     const timeSlots = ['09:00 AM', '10:00 AM', '11:00 AM', '02:00 PM', '04:00 PM'];
     const dates = ['Today', 'Tomorrow', 'Sat, 28 Dec'];
 
-    const handleConfirmBooking = () => {
-        // Mock Booking Creation
-        // Navigate to Unified Tracker
-        router.push(`/booking/new_created_123`);
+    const { user } = useAuth();
+    const [submitting, setSubmitting] = useState(false);
+
+    const handleConfirmBooking = async () => {
+        if (!user) {
+            router.push(`/auth?redirect=/book/checkout`);
+            return;
+        }
+
+        setSubmitting(true);
+
+        try {
+            // Parse Date & Time
+            const dateObj = new Date();
+            if (selectedDate === 'Tomorrow') {
+                dateObj.setDate(dateObj.getDate() + 1);
+            } else if (selectedDate !== 'Today') {
+                // Assuming 'Sat, 28 Dec' format, simplified for MVP to just add days or ignore
+                // For this demo, let's keep it simple: if not Today/Tomorrow, default to +2 days
+                dateObj.setDate(dateObj.getDate() + 2);
+            }
+
+            // Parse Time (e.g. "10:00 AM")
+            const [timePart, modifier] = selectedTime.split(' ');
+            let [hours, minutes] = timePart.split(':').map(Number);
+            if (modifier === 'PM' && hours < 12) hours += 12;
+            if (modifier === 'AM' && hours === 12) hours = 0;
+            dateObj.setHours(hours, minutes, 0, 0);
+
+            const { data, error } = await supabase
+                .from('bookings')
+                .insert({
+                    user_id: user.id,
+                    service_category: serviceName,
+                    booking_type: 'SCHEDULED',
+                    status: 'PENDING',
+                    estimated_cost: parseFloat(priceParam || '0'),
+                    scheduled_date: dateObj.toISOString(),
+                    address: { // Storing simplified address for now
+                        description: instructions || "Home"
+                    },
+                    notes: instructions
+                })
+                .select()
+                .single();
+
+            if (error) throw error;
+
+            if (data) {
+                router.push(`/booking/${data.id}`);
+            }
+
+        } catch (err) {
+            console.error('Booking failed:', err);
+            alert('Failed to create booking. Please try again.');
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     return (
@@ -187,9 +243,10 @@ export default function CheckoutContent() {
                                 </div>
                                 <button
                                     onClick={handleConfirmBooking}
-                                    className="w-full bg-teal-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-teal-200 hover:bg-teal-700 active:scale-[0.98] transition-all"
+                                    disabled={submitting}
+                                    className={`w-full bg-teal-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-teal-200 hover:bg-teal-700 active:scale-[0.98] transition-all ${submitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 >
-                                    Confirm Booking
+                                    {submitting ? 'Processing...' : 'Confirm Booking'}
                                 </button>
                             </div>
                         </div>

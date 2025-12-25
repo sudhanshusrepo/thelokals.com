@@ -14,5 +14,8 @@
         "typescript": "^5.0.4",
         "wrangler": "^3.0.0"
     },
-    "main": "src/index.ts"
+    "main": "src/index.ts",
+    "dependencies": {
+        "dotenv": "^17.2.3"
+    }
 }

@@ -84,8 +84,8 @@ const nextConfig = {
           {
             key: 'Content-Security-Policy',
             value: isDev
-              ? "default-src 'self' 'unsafe-eval' 'unsafe-inline'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.gemini.google.com;"
-              : "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.gemini.google.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self';",
+              ? "default-src 'self' 'unsafe-eval' 'unsafe-inline'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.gemini.google.com http://127.0.0.1:54321 ws://127.0.0.1:54321;"
+              : "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.gemini.google.com http://127.0.0.1:54321 ws://127.0.0.1:54321; frame-ancestors 'self'; base-uri 'self'; form-action 'self';",
           },
         ],
       },
