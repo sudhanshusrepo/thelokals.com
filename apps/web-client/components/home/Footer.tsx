@@ -39,98 +39,51 @@ const socialLinks = [
 
 export const Footer: React.FC = () => {
     return (
-        <footer className="bg-gradient-to-b from-background to-slate-100 pt-16 pb-8">
+        <footer className="bg-gradient-to-b from-background to-slate-100 pt-16 pb-24 md:pb-12">
             <div className="max-w-7xl mx-auto px-4">
                 {/* Main Footer Content - Card-based Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-                    {/* Services Card */}
-                    <div className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
-                        <h3 className="text-primary font-bold text-base mb-4 flex items-center gap-2">
-                            <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                            </svg>
-                            Popular Services
-                        </h3>
-                        <ul className="space-y-2.5">
-                            {footerLinks.services.map((link, idx) => (
-                                <li key={idx}>
-                                    <Link href={link.href} className="text-sm text-muted hover:text-accent transition-colors flex items-center gap-1 group">
-                                        <span className="w-1 h-1 rounded-full bg-accent/0 group-hover:bg-accent transition-colors"></span>
-                                        {link.label}
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-
-                    {/* Company Card */}
-                    <div className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
-                        <h3 className="text-primary font-bold text-base mb-4 flex items-center gap-2">
-                            <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                            </svg>
-                            Company
-                        </h3>
-                        <ul className="space-y-2.5">
-                            {footerLinks.company.map((link, idx) => (
-                                <li key={idx}>
-                                    {link.external ? (
-                                        <a href={link.href} target="_blank" rel="noopener noreferrer" className="text-sm text-muted hover:text-accent transition-colors flex items-center gap-1 group">
-                                            <span className="w-1 h-1 rounded-full bg-accent/0 group-hover:bg-accent transition-colors"></span>
-                                            {link.label}
-                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                            </svg>
-                                        </a>
-                                    ) : (
-                                        <Link href={link.href} className="text-sm text-muted hover:text-accent transition-colors flex items-center gap-1 group">
-                                            <span className="w-1 h-1 rounded-full bg-accent/0 group-hover:bg-accent transition-colors"></span>
+                {/* Main Footer Content - Simplified 2-Column Card */}
+                <div className="max-w-4xl mx-auto bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-100 mb-8 md:mb-12">
+                    <div className="grid grid-cols-2 gap-8 md:gap-12">
+                        {/* Support Column */}
+                        <div>
+                            <h3 className="text-primary font-bold text-lg mb-6 flex items-center gap-2">
+                                <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+                                </svg>
+                                Support
+                            </h3>
+                            <ul className="space-y-4">
+                                {footerLinks.support.map((link, idx) => (
+                                    <li key={idx}>
+                                        <Link href={link.href} className="text-base text-slate-600 hover:text-accent transition-colors flex items-center gap-2 group">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-slate-200 group-hover:bg-accent transition-colors"></span>
                                             {link.label}
                                         </Link>
-                                    )}
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
 
-                    {/* Support Card */}
-                    <div className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
-                        <h3 className="text-primary font-bold text-base mb-4 flex items-center gap-2">
-                            <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
-                            </svg>
-                            Support
-                        </h3>
-                        <ul className="space-y-2.5">
-                            {footerLinks.support.map((link, idx) => (
-                                <li key={idx}>
-                                    <Link href={link.href} className="text-sm text-muted hover:text-accent transition-colors flex items-center gap-1 group">
-                                        <span className="w-1 h-1 rounded-full bg-accent/0 group-hover:bg-accent transition-colors"></span>
-                                        {link.label}
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-
-                    {/* Legal Card */}
-                    <div className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
-                        <h3 className="text-primary font-bold text-base mb-4 flex items-center gap-2">
-                            <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                            </svg>
-                            Legal
-                        </h3>
-                        <ul className="space-y-2.5">
-                            {footerLinks.legal.map((link, idx) => (
-                                <li key={idx}>
-                                    <Link href={link.href} className="text-sm text-muted hover:text-accent transition-colors flex items-center gap-1 group">
-                                        <span className="w-1 h-1 rounded-full bg-accent/0 group-hover:bg-accent transition-colors"></span>
-                                        {link.label}
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
+                        {/* Legal Column */}
+                        <div>
+                            <h3 className="text-primary font-bold text-lg mb-6 flex items-center gap-2">
+                                <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                </svg>
+                                Legal
+                            </h3>
+                            <ul className="space-y-4">
+                                {footerLinks.legal.map((link, idx) => (
+                                    <li key={idx}>
+                                        <Link href={link.href} className="text-base text-slate-600 hover:text-accent transition-colors flex items-center gap-2 group">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-slate-200 group-hover:bg-accent transition-colors"></span>
+                                            {link.label}
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
                     </div>
                 </div>
 

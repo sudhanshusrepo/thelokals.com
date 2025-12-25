@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { supabase } from '@thelocals/core/services/supabase';
 
 interface Category {
@@ -29,6 +29,24 @@ export const QuickCategories: React.FC<QuickCategoriesProps> = ({ onSelectCatego
     const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
     const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
+    const [activeIndex, setActiveIndex] = useState(0);
+    const scrollRef = useRef<HTMLDivElement>(null);
+
+    const handleScroll = () => {
+        if (!scrollRef.current) return;
+        const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+        const maxScroll = scrollWidth - clientWidth;
+        const numDots = Math.ceil(categories.length / 6);
+
+        if (maxScroll <= 0 || numDots <= 1) {
+            setActiveIndex(0);
+            return;
+        }
+
+        const progress = Math.max(0, Math.min(1, scrollLeft / maxScroll));
+        const newIndex = Math.round(progress * (numDots - 1));
+        setActiveIndex(newIndex);
+    };
 
     useEffect(() => {
         async function fetchCategories() {
@@ -102,7 +120,9 @@ export const QuickCategories: React.FC<QuickCategoriesProps> = ({ onSelectCatego
         >
             <div className="max-w-7xl mx-auto px-4">
                 <div
-                    className="overflow-x-auto scrollbar-hide pb-4"
+                    ref={scrollRef}
+                    onScroll={handleScroll}
+                    className="overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory"
                     role="region"
                     aria-label="Category carousel"
                 >
@@ -111,7 +131,7 @@ export const QuickCategories: React.FC<QuickCategoriesProps> = ({ onSelectCatego
                             <button
                                 key={category.id}
                                 onClick={() => onSelectCategory?.(category.id)}
-                                className="flex flex-col items-center gap-2 w-20 group"
+                                className="flex flex-col items-center gap-2 w-20 group snap-start"
                                 aria-label={`Browse ${category.name} services`}
                             >
                                 <div className="relative w-20 h-20 rounded-2xl overflow-hidden bg-white shadow-elevated">
@@ -149,7 +169,7 @@ export const QuickCategories: React.FC<QuickCategoriesProps> = ({ onSelectCatego
                     {[...Array(Math.ceil(categories.length / 6))].map((_, i) => (
                         <div
                             key={i}
-                            className={`h-1.5 rounded-full transition-all ${i === 0 ? 'w-6 bg-accent' : 'w-1.5 bg-slate-300'
+                            className={`h-1.5 rounded-full transition-all duration-300 ${i === activeIndex ? 'w-6 bg-accent' : 'w-1.5 bg-slate-300'
                                 }`}
                         />
                     ))}

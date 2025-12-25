@@ -42,6 +42,13 @@ body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro', 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  /* Prevent horizontal scroll */
+}
+
+/* Safe Area Utility for iPhone Home Bar */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 20px);
 }
 
 /* Utility Classes */

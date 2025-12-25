@@ -1,6 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { useSpeechRecognition } from '../../hooks/useSpeechRecognition';
+import toast from 'react-hot-toast';
 
 interface HeroSectionProps {
     onSearch?: (query: string) => void;
@@ -9,6 +11,61 @@ interface HeroSectionProps {
 export const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [showSuggestions, setShowSuggestions] = useState(false);
+
+    // Mic / Speech Integration
+    const { isListening, transcript, error: speechError, startListening, stopListening, isSupported: isSpeechSupported } = useSpeechRecognition();
+
+    // Update search query when transcript changes
+    useEffect(() => {
+        if (transcript) {
+            setSearchQuery(transcript);
+        }
+    }, [transcript]);
+
+    // Handle speech errors
+    useEffect(() => {
+        if (speechError === 'permission-denied') {
+            toast.error('Microphone permission required for voice search.', {
+                position: 'bottom-center',
+                duration: 4000
+            });
+        } else if (speechError === 'not-supported') {
+            toast('Voice search is not available on this browser.', {
+                icon: '⚠️',
+                position: 'bottom-center'
+            });
+        }
+    }, [speechError]);
+
+    const handleMicClick = () => {
+        if (!isSpeechSupported) {
+            toast('Voice search is not available on this browser.', { icon: '⚠️' });
+            return;
+        }
+        if (isListening) {
+            stopListening();
+        } else {
+            startListening();
+            toast('Listening...', { icon: '🎙️', duration: 2000, position: 'bottom-center' });
+        }
+    };
+
+    // Camera / File Integration
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleCameraClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            // Stub functionality for Sprint 2
+            toast.success(`Selected: ${file.name}`, { duration: 3000, position: 'bottom-center' });
+            // Simulate processing / triggers search
+            handleSearch(`Analyzing ${file.name}...`);
+        }
+    };
 
     const suggestions = [
         'AC not cooling',
@@ -40,20 +97,20 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
 
             {/* Content */}
             <div className="relative z-20 w-full max-w-4xl mx-auto px-4 pb-28 md:pb-32">
-                {/* Eyebrow */}
-                <div className="text-center mb-4">
+                {/* Eyebrow - Hidden on mobile */}
+                <div className="text-center mb-4 hidden md:block">
                     <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white/90 text-sm font-semibold tracking-wide">
                         get STUFF done! 😎
                     </span>
                 </div>
 
-                {/* Heading */}
-                <h1 className="text-white text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-3 leading-tight">
+                {/* Heading - Hidden on mobile */}
+                <h1 className="hidden md:block text-white text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-3 leading-tight">
                     Trusted Local Services,<br />One Tap Away
                 </h1>
 
-                {/* Subtext */}
-                <p className="text-white/90 text-center text-base md:text-lg mb-8 max-w-2xl mx-auto">
+                {/* Subtext - Hidden on mobile */}
+                <p className="hidden md:block text-white/90 text-center text-base md:text-lg mb-8 max-w-2xl mx-auto">
                     Book verified providers for AC repair, Car/Bike rentals, vehicle wash, cleaning, yoga and more in your neighborhood.
                 </p>
 
@@ -81,19 +138,45 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
                     />
                     <div className="absolute inset-y-0 right-0 pr-2 flex items-center gap-1">
                         {/* Mic Icon */}
-                        <button className="p-3 hover:bg-slate-50 rounded-full transition-colors text-teal-500">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                            </svg>
+                        {/* Mic Icon */}
+                        <button
+                            onClick={handleMicClick}
+                            disabled={isListening && speechError === 'permission-denied'}
+                            className={`p-3 hover:bg-slate-50 rounded-full transition-all ${isListening ? 'bg-red-50 text-red-500 animate-pulse ring-2 ring-red-100' : 'text-teal-500'}`}
+                            title="Search by voice"
+                        >
+                            {isListening ? (
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+                                </svg>
+                            ) : (
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                                </svg>
+                            )}
                         </button>
                         <div className="w-px h-6 bg-slate-200"></div>
                         {/* Camera Icon */}
-                        <button className="p-3 hover:bg-slate-50 rounded-full transition-colors text-teal-500">
+                        <button
+                            onClick={handleCameraClick}
+                            className="p-3 hover:bg-slate-50 rounded-full transition-colors text-teal-500"
+                            title="Search by image"
+                        >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg>
                         </button>
+                        {/* Hidden File Input for Camera/Gallery */}
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            accept="image/*,video/*"
+                            capture="environment" // Prefers rear camera on mobile
+                            className="hidden"
+                            onChange={handleFileChange}
+                        />
                     </div>
 
                     {/* Lokals AI Badge - Floating Top Right */}

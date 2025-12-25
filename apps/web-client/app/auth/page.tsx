@@ -16,8 +16,7 @@ function PhoneAuthContent() {
     const [loading, setLoading] = useState(false);
 
     // Check if test mode is enabled
-    const isTestMode = process.env.NEXT_PUBLIC_TEST_MODE === 'true' ||
-        process.env.NEXT_PUBLIC_ENABLE_OTP_BYPASS === 'true';
+
 
     const handleSendOTP = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -33,12 +32,10 @@ function PhoneAuthContent() {
             const formattedPhone = phone.startsWith('+') ? phone : `+91${phone}`;
 
             // Send OTP via Supabase Auth
-            if (!isTestMode) {
-                const { error } = await supabase.auth.signInWithOtp({
-                    phone: formattedPhone,
-                });
-                if (error) throw error;
-            }
+            const { error } = await supabase.auth.signInWithOtp({
+                phone: formattedPhone,
+            });
+            if (error) throw error;
 
             toast.success('OTP sent successfully!');
             setStep('otp');
@@ -63,19 +60,7 @@ function PhoneAuthContent() {
             const formattedPhone = phone.startsWith('+') ? phone : `+91${phone}`;
 
             // Test mode bypass
-            if (isTestMode && otp === '123456') {
-                // Use test credentials
-                const { error } = await supabase.auth.signInWithPassword({
-                    email: 'demo@user.com',
-                    password: 'password'
-                });
 
-                if (error) throw error;
-
-                toast.success('Logged in (Test Mode)');
-                router.push(redirectTo);
-                return;
-            }
 
             // Verify OTP
             const { error } = await supabase.auth.verifyOtp({
@@ -133,11 +118,7 @@ function PhoneAuthContent() {
                                 </div>
                             </div>
 
-                            {isTestMode && (
-                                <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-800">
-                                    <strong>Test Mode:</strong> Use any number, OTP will be 123456
-                                </div>
-                            )}
+
 
                             <button
                                 type="submit"

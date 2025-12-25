@@ -10,6 +10,8 @@ interface ServiceCategory {
     image_url?: string;
     gradient_colors?: string;
     display_order: number;
+    // Local UI property
+    type?: 'offline' | 'online';
 }
 
 interface BrowseServicesProps {
@@ -19,6 +21,7 @@ interface BrowseServicesProps {
 export const BrowseServices: React.FC<BrowseServicesProps> = ({ onSelectService }) => {
     const [services, setServices] = useState<ServiceCategory[]>([]);
     const [loading, setLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState<'offline' | 'online'>('offline');
 
     useEffect(() => {
         async function fetchServices() {
@@ -31,10 +34,18 @@ export const BrowseServices: React.FC<BrowseServicesProps> = ({ onSelectService 
 
                 if (error) throw error;
 
-                setServices(data || []);
+                // Augment data with type for demo/inference
+                const augmentedData = (data || []).map((item: ServiceCategory) => ({
+                    ...item,
+                    type: ['consultation', 'tutor', 'fitness', 'psychology', 'legal', 'lawyer'].some(k => item.id.includes(k) || item.name.toLowerCase().includes(k))
+                        ? 'online'
+                        : 'offline' as 'offline' | 'online'
+                }));
+
+                setServices(augmentedData);
             } catch (error) {
                 console.error('Error fetching services:', error);
-                // Fallback to hardcoded data
+                // Fallback mock data
                 setServices([
                     {
                         id: 'ac',
@@ -42,7 +53,8 @@ export const BrowseServices: React.FC<BrowseServicesProps> = ({ onSelectService 
                         description: 'AC repair • RO service • Fridge repair',
                         image_url: 'https://images.unsplash.com/photo-1621905476059-5f3460b56b3b?q=80&w=600',
                         gradient_colors: 'from-blue-500/80 to-cyan-500/80',
-                        display_order: 1
+                        display_order: 1,
+                        type: 'offline'
                     },
                     {
                         id: 'rides',
@@ -50,8 +62,18 @@ export const BrowseServices: React.FC<BrowseServicesProps> = ({ onSelectService 
                         description: 'Bike taxi • Car rental • Airport transfer',
                         image_url: 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=80&w=600',
                         gradient_colors: 'from-orange-500/80 to-red-500/80',
-                        display_order: 2
+                        display_order: 2,
+                        type: 'offline'
                     },
+                    {
+                        id: 'consult-legal',
+                        name: 'Legal Consultation',
+                        description: 'Video calls with top lawyers.',
+                        image_url: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=600',
+                        gradient_colors: 'from-slate-700/80 to-slate-900/80',
+                        display_order: 3,
+                        type: 'online'
+                    }
                 ]);
             } finally {
                 setLoading(false);
@@ -61,18 +83,19 @@ export const BrowseServices: React.FC<BrowseServicesProps> = ({ onSelectService 
         fetchServices();
     }, []);
 
+    const filteredServices = services.filter(s => (s.type || 'offline') === activeTab);
+
     if (loading) {
         return (
             <section className="py-12 md:py-16 bg-background">
                 <div className="max-w-7xl mx-auto px-4">
-                    <div className="mb-8">
-                        <h2 className="text-2xl md:text-3xl font-bold text-foreground">
-                            Browse Services
-                        </h2>
+                    <div className="mb-8 space-y-4">
+                        <div className="h-8 w-48 bg-slate-200 rounded animate-pulse"></div>
+                        <div className="h-10 w-64 bg-slate-200 rounded-full animate-pulse"></div>
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                        {[...Array(8)].map((_, i) => (
-                            <div key={i} className="h-40 md:h-48 rounded-2xl bg-slate-200 animate-pulse"></div>
+                        {[...Array(4)].map((_, i) => (
+                            <div key={i} className="h-48 rounded-3xl bg-slate-200 animate-pulse"></div>
                         ))}
                     </div>
                 </div>
@@ -83,64 +106,104 @@ export const BrowseServices: React.FC<BrowseServicesProps> = ({ onSelectService 
     return (
         <section className="py-12 md:py-16 bg-gradient-to-b from-background to-slate-50">
             <div className="max-w-7xl mx-auto px-4">
-                {/* Heading */}
-                <div className="mb-10 text-center md:text-left">
-                    <h2 className="text-3xl md:text-4xl font-bold text-primary mb-2">
-                        Browse Services
-                    </h2>
-                    <p className="text-muted text-sm md:text-base">
-                        Trusted professionals for all your home service needs
-                    </p>
+                {/* Header & Toggle */}
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+                    <div>
+                        <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-2">
+                            Browse Services
+                        </h2>
+                        <p className="text-slate-500 text-sm md:text-base">
+                            Trusted professionals for your every need.
+                        </p>
+                    </div>
+
+                    {/* Segmented Control */}
+                    <div className="flex bg-slate-100 p-1.5 rounded-full self-start md:self-auto">
+                        <button
+                            onClick={() => setActiveTab('offline')}
+                            className={`px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${activeTab === 'offline'
+                                    ? 'bg-white text-slate-900 shadow-sm'
+                                    : 'text-slate-500 hover:text-slate-700'
+                                }`}
+                        >
+                            In-Person
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('online')}
+                            className={`px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${activeTab === 'online'
+                                    ? 'bg-white text-slate-900 shadow-sm'
+                                    : 'text-slate-500 hover:text-slate-700'
+                                }`}
+                        >
+                            Online
+                        </button>
+                    </div>
                 </div>
 
-                {/* Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-                    {services.map((service) => {
-                        const gradientClass = service.gradient_colors || 'from-indigo-500/80 to-purple-500/80';
-
-                        return (
+                {/* Services Grid */}
+                {filteredServices.length > 0 ? (
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-8">
+                        {filteredServices.map((service) => (
                             <button
                                 key={service.id}
                                 onClick={() => onSelectService?.(service.id)}
-                                className="group relative h-44 md:h-52 rounded-2xl overflow-hidden shadow-elevated hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-accent active:scale-[0.98]"
+                                className="group relative h-56 md:h-64 rounded-3xl overflow-hidden bg-white shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 block text-left w-full"
                             >
-                                {/* Background Image */}
-                                {service.image_url && (
-                                    <img
-                                        src={service.image_url}
-                                        alt={service.name}
-                                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
-                                    />
-                                )}
+                                {/* Image Base */}
+                                <div className="absolute inset-0">
+                                    {service.image_url ? (
+                                        <img
+                                            src={service.image_url}
+                                            alt={service.name}
+                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                        />
+                                    ) : (
+                                        <div className={`w-full h-full bg-gradient-to-br ${service.gradient_colors || 'from-slate-200 to-slate-300'}`} />
+                                    )}
+                                    {/* Gradient Overlay for Text Readability */}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-90 group-hover:opacity-100 transition-opacity" />
+                                </div>
 
-                                {/* Gradient Overlay */}
-                                <div className={`absolute inset-0 bg-gradient-to-br ${gradientClass} group-hover:opacity-95 transition-opacity duration-300`}></div>
-
-                                {/* Shine Effect on Hover */}
-                                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/0 to-white/0 group-hover:via-white/20 transition-all duration-700"></div>
+                                {/* Badge */}
+                                <div className="absolute top-4 left-4">
+                                    <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-white/20 backdrop-blur-md text-xs font-medium text-white border border-white/10">
+                                        {activeTab === 'online' ? 'Video Call' : 'At Home'}
+                                    </span>
+                                </div>
 
                                 {/* Content */}
-                                <div className="relative h-full flex flex-col justify-end p-5 text-white">
-                                    <h3 className="font-bold text-lg md:text-xl mb-1.5 leading-tight drop-shadow-md">
+                                <div className="absolute bottom-0 left-0 right-0 p-5 md:p-6 text-white transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                                    <h3 className="font-bold text-lg md:text-xl leading-tight mb-2 drop-shadow-md">
                                         {service.name}
                                     </h3>
                                     {service.description && (
-                                        <p className="text-xs md:text-sm text-white/95 leading-snug drop-shadow-sm">
+                                        <p className="text-xs md:text-sm text-white/80 line-clamp-2 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 delay-75">
                                             {service.description}
                                         </p>
                                     )}
+                                </div>
 
-                                    {/* Arrow Icon */}
-                                    <div className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-1">
-                                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                        </svg>
-                                    </div>
+                                {/* Action Icon */}
+                                <div className="absolute bottom-5 right-5 w-8 h-8 rounded-full bg-white text-primary flex items-center justify-center opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                    </svg>
                                 </div>
                             </button>
-                        );
-                    })}
-                </div>
+                        ))}
+                    </div>
+                ) : (
+                    /* Empty State */
+                    <div className="text-center py-20 bg-slate-50 rounded-3xl border border-dashed border-slate-200">
+                        <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
+                            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <h3 className="text-lg font-medium text-slate-900 mb-1">No services found</h3>
+                        <p className="text-slate-500">We couldn't find any {activeTab} services right now.</p>
+                    </div>
+                )}
             </div>
         </section>
     );

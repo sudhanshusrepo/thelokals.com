@@ -62,11 +62,11 @@ export default function Home() {
       {/* 3. Quick Categories Carousel */}
       <QuickCategories onSelectCategory={handleSelectCategory} />
 
-      {/* 4. Why Lokals Trust Band - Lazy loaded */}
-      <LazyWhyLokals />
-
-      {/* 5. Browse Services Grid - Lazy loaded */}
+      {/* 4. Browse Services Grid - Lazy loaded */}
       <LazyBrowseServices onSelectService={handleSelectService} />
+
+      {/* 5. Why Lokals Trust Band - Lazy loaded */}
+      <LazyWhyLokals />
 
       {/* 6. Footer - Lazy loaded */}
       <LazyFooter />

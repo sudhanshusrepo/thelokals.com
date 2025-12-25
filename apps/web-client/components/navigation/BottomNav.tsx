@@ -52,7 +52,7 @@ export function BottomNav() {
 
     return (
         <nav
-            className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-t border-slate-200 pb-safe shadow-[0_-1px_3px_rgba(0,0,0,0.05)] z-50"
+            className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-lg border-t border-slate-200 pb-safe pt-1 shadow-[0_-1px_3px_rgba(0,0,0,0.05)] z-50"
             aria-label="Main navigation"
             role="navigation"
         >

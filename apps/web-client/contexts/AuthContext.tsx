@@ -27,20 +27,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         // Test Mode Override
-        if (process.env.NEXT_PUBLIC_TEST_MODE === 'true') {
-            setUser({
-                id: 'test-user-id',
-                aud: 'authenticated',
-                role: 'authenticated',
-                email: 'test@example.com',
-                phone: '+1234567890',
-                app_metadata: {},
-                user_metadata: {},
-                created_at: new Date().toISOString(),
-            } as User);
-            setLoading(false);
-            return;
-        }
+
 
         // Get initial session
         supabase.auth.getSession().then(({ data }: { data: { session: Session | null } }) => {
