@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "npx next dev -p 3001",
     "build": "npx next build --webpack",
-    "pages:build": "npm run build && npx @cloudflare/next-on-pages",
+    "pages:build": "npm run build && node scripts/build-shim.js",
     "start": "npx next start",
     "lint": "eslint",
     "type-check": "tsc --noEmit"
