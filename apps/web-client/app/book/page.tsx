@@ -9,6 +9,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useBooking } from '../../contexts/BookingContext';
 import { BookingProgress } from '../../components/booking/BookingProgress';
 import { supabase } from '@thelocals/core/services/supabase';
+import { Button } from '../../components/ui/Button';
 
 function BookingContent() {
     const router = useRouter();
@@ -32,10 +33,6 @@ function BookingContent() {
     const [basePrice, setBasePrice] = useState(bookingData?.estimatedPrice || 0);
     const [issueType, setIssueType] = useState(bookingData?.issueDescription || 'General Issue');
 
-
-
-    // ...
-
     useEffect(() => {
         if (!serviceCode) {
             toast.error('No service selected');
@@ -44,9 +41,7 @@ function BookingContent() {
         }
 
         const fetchServiceDetails = async () => {
-            // 1. If we already have names in context, skip (unless mismatch?)
-            // Actually, safer to fetch to get Category.
-
+            // Fetch service details to get category and latest price
             try {
                 const { data, error } = await supabase
                     .from('services')
@@ -56,13 +51,7 @@ function BookingContent() {
 
                 if (data) {
                     setServiceName(data.name);
-                    setBasePrice(data.base_price_cents / 100); // Cents to Units if needed? Or DB is cents, State is units?
-                    // Assuming DB is Cents. UI shows Units.
-                    // Wait, Step 1642: setBasePrice(priceParam ? parseInt(priceParam) : 499).
-                    // If priceParam is 500, it's 500.
-                    // I should normalize.
-
-                    // Most Important: Update Context with Category
+                    setBasePrice(data.base_price_cents / 100);
                     setBookingData({ serviceCategory: data.category });
                 }
             } catch (e) {
@@ -71,31 +60,26 @@ function BookingContent() {
         };
         fetchServiceDetails();
 
-        // Get service details from query params (Fallback)
         if (!serviceName) {
             setServiceName(serviceCode.replace(/-/g, ' ').toUpperCase());
         }
-        // ... (rest of defaults) ...
-    }, [serviceCode, priceParam, issueParam, router]); // Removed dependencies that cause loop or are managed inside
+    }, [serviceCode, priceParam, issueParam, router]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
 
         try {
-            // Validation
             if (!formData.address || !formData.date || !formData.time) {
                 throw new Error('Please fill in all required fields');
             }
 
-            // Validate date is not in the past
             const selectedDate = new Date(`${formData.date}T${formData.time}`);
             const now = new Date();
             if (selectedDate < now) {
                 throw new Error('Please select a future date and time');
             }
 
-            // Update booking context (Use setBookingData to ensure initialization)
             setBookingData({
                 serviceCode: serviceCode as string,
                 serviceName: serviceName,
@@ -107,7 +91,6 @@ function BookingContent() {
                 notes: formData.notes
             });
 
-            // Navigate to AI Match
             router.push('/booking/match');
 
         } catch (error: any) {
@@ -121,14 +104,10 @@ function BookingContent() {
         <AuthGuard>
             <div className="min-h-screen bg-slate-50">
                 <AppBar />
-
-                {/* Booking Progress */}
                 <div className="mt-16">
                     <BookingProgress currentStep={2} />
                 </div>
-
                 <div className="max-w-xl mx-auto px-4 py-8">
-                    {/* User Info Card */}
                     {user && (
                         <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 mb-6 flex items-center gap-3">
                             <div className="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold">
@@ -149,11 +128,8 @@ function BookingContent() {
                         </p>
 
                         <form onSubmit={handleSubmit} className="space-y-6">
-                            {/* Address */}
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-2">
-                                    Service Address *
-                                </label>
+                                <label className="block text-sm font-medium text-slate-700 mb-2">Service Address *</label>
                                 <textarea
                                     required
                                     value={formData.address}
@@ -162,13 +138,9 @@ function BookingContent() {
                                     className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all min-h-[100px] resize-none"
                                 />
                             </div>
-
-                            {/* Date & Time */}
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                                        Date *
-                                    </label>
+                                    <label className="block text-sm font-medium text-slate-700 mb-2">Date *</label>
                                     <input
                                         type="date"
                                         required
@@ -179,9 +151,7 @@ function BookingContent() {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                                        Time *
-                                    </label>
+                                    <label className="block text-sm font-medium text-slate-700 mb-2">Time *</label>
                                     <input
                                         type="time"
                                         required
@@ -191,12 +161,8 @@ function BookingContent() {
                                     />
                                 </div>
                             </div>
-
-                            {/* Notes */}
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-2">
-                                    Additional Notes (Optional)
-                                </label>
+                                <label className="block text-sm font-medium text-slate-700 mb-2">Additional Notes (Optional)</label>
                                 <input
                                     type="text"
                                     value={formData.notes}
@@ -205,8 +171,6 @@ function BookingContent() {
                                     className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
                                 />
                             </div>
-
-                            {/* Price Summary */}
                             <div className="bg-gradient-to-r from-indigo-50 to-cyan-50 p-4 rounded-xl">
                                 <div className="flex justify-between items-center mb-2">
                                     <span className="text-slate-600 text-sm">Base Price</span>
@@ -219,10 +183,12 @@ function BookingContent() {
                                 <p className="text-xs text-slate-500 mt-2">Final price may vary based on actual service</p>
                             </div>
 
-                            <button
+                            <Button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full bg-indigo-600 text-white font-bold py-4 rounded-xl hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-indigo-200"
+                                fullWidth
+                                size="lg"
+                                className="shadow-lg shadow-indigo-200"
                             >
                                 {loading ? (
                                     <span className="flex items-center justify-center gap-2">
@@ -230,7 +196,7 @@ function BookingContent() {
                                         Processing...
                                     </span>
                                 ) : 'Find Provider'}
-                            </button>
+                            </Button>
                         </form>
                     </div>
                 </div>

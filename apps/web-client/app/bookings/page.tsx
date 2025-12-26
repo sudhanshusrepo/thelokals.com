@@ -84,8 +84,8 @@ export default function BookingsPage() {
                     <button
                         onClick={() => setFilter('active')}
                         className={`pb-3 px-4 text-sm font-medium transition-colors relative ${filter === 'active'
-                                ? 'text-teal-600 border-b-2 border-teal-600'
-                                : 'text-slate-500 hover:text-slate-700'
+                            ? 'text-teal-600 border-b-2 border-teal-600'
+                            : 'text-slate-500 hover:text-slate-700'
                             }`}
                     >
                         Active
@@ -93,8 +93,8 @@ export default function BookingsPage() {
                     <button
                         onClick={() => setFilter('past')}
                         className={`pb-3 px-4 text-sm font-medium transition-colors relative ${filter === 'past'
-                                ? 'text-teal-600 border-b-2 border-teal-600'
-                                : 'text-slate-500 hover:text-slate-700'
+                            ? 'text-teal-600 border-b-2 border-teal-600'
+                            : 'text-slate-500 hover:text-slate-700'
                             }`}
                     >
                         Past
@@ -110,7 +110,7 @@ export default function BookingsPage() {
                     ) : (
                         filteredBookings.map((booking) => (
                             <Link
-                                href={`/booking/${booking.id}`}
+                                href={`/bookings/${booking.id}`}
                                 key={booking.id}
                                 className="block bg-white rounded-xl p-4 shadow-sm border border-slate-100 hover:border-teal-200 transition-all hover:shadow-md"
                             >

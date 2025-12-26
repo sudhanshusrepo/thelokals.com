@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@thelocals/core/services/supabase';
+import { Button } from '../../../components/ui/Button';
 import { AppBar } from '../../../components/home/AppBar';
 import { toast } from 'react-hot-toast';
 
@@ -61,6 +62,31 @@ export default function BookingTrackingPage() {
             supabase.removeChannel(channel);
         };
     }, [bookingId]);
+
+    const [otp, setOtp] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (!bookingId || !booking) return;
+
+        const fetchOtp = async () => {
+            if (booking.status === 'ACCEPTED' || booking.status === 'IN_PROGRESS') {
+                const { data: otpData } = await supabase
+                    .from('booking_otp')
+                    .select('otp_code')
+                    .eq('booking_id', bookingId)
+                    .single();
+
+                if (otpData) {
+                    setOtp(otpData.otp_code);
+                } else if (booking.status === 'ACCEPTED') {
+                    // Try to generate if missing (User side trigger for MVP)
+                    const { data: newOtp } = await supabase.rpc('generate_booking_otp', { p_booking_id: bookingId });
+                    if (newOtp) setOtp(newOtp);
+                }
+            }
+        };
+        fetchOtp();
+    }, [bookingId, booking?.status]);
 
     const handleCancelBooking = async () => {
         if (!confirm('Are you sure you want to cancel this booking?')) return;
@@ -190,6 +216,20 @@ export default function BookingTrackingPage() {
                                 <p className="text-indigo-100 text-sm">is your assigned provider</p>
                             </div>
                         </div>
+
+                        {/* OTP Display for Client */}
+                        {booking.status === 'ACCEPTED' && (
+                            <div className="bg-white/10 p-4 rounded-xl border border-white/20 mb-4 backdrop-blur-sm">
+                                <p className="text-indigo-100 text-xs mb-1 uppercase tracking-wider font-semibold">Start Code</p>
+                                <div className="flex items-center justify-between">
+                                    <p className="text-white text-sm opacity-90">Share this PIN with provider to start service</p>
+                                    <span className="text-3xl font-mono font-bold tracking-widest text-white">
+                                        {otp || '....'}
+                                    </span>
+                                </div>
+                            </div>
+                        )}
+
                         <div className="flex gap-3">
                             <button className="flex-1 bg-white text-indigo-600 py-3 rounded-xl font-bold text-sm hover:bg-indigo-50 transition-colors">
                                 📞 Call {booking.provider.name}
