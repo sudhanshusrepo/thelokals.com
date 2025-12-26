@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "npx next dev -p 3002",
     "build": "npx next build --webpack",
-    "pages:build": "npm run build && npx @cloudflare/next-on-pages",
+    "pages:build": "npm run build && node scripts/build-shim.js",
     "start": "npx next start",
     "lint": "eslint",
     "type-check": "tsc --noEmit"
@@ -24,6 +24,7 @@
     "tailwind-merge": "^2.6.0"
   },
   "devDependencies": {
+    "@cloudflare/next-on-pages": "^1.13.16",
     "@tailwindcss/postcss": "^4",
     "@types/jest": "^30.0.0",
     "@types/node": "^20.19.27",
