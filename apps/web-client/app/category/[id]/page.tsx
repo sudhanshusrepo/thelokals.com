@@ -45,7 +45,7 @@ export default function CategoryPage() {
                 const { data: servicesData, error: servicesError } = await supabase
                     .from('services')
                     .select('code, name, description, base_price_cents, duration_minutes_min')
-                    .eq('category_id', categoryId)
+                    .eq('service_category_id', categoryId)
                     .eq('is_active', true)
                     .order('name');
 
