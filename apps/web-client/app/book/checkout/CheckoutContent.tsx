@@ -74,7 +74,7 @@ export default function CheckoutContent() {
             if (error) throw error;
 
             if (data) {
-                router.push(`/booking/${data.id}`);
+                router.push(`/bookings/${data.id}`);
             }
 
         } catch (err) {
