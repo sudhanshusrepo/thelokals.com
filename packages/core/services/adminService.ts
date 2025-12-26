@@ -266,8 +266,7 @@ export const adminService = {
             email: data.email,
             full_name: data.full_name,
             role: 'super_admin' as AdminRole, // All users in profiles with email are admins for now
-            created_at: data.created_at,
-            updated_at: data.updated_at
+            created_at: data.created_at
         };
     },
 
