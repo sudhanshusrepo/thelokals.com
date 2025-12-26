@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { supabase } from '@thelocals/core/services/supabase';
+import { ServiceTile } from '../ui/ServiceTile';
 
 interface Category {
     id: string;
@@ -128,38 +129,15 @@ export const QuickCategories: React.FC<QuickCategoriesProps> = ({ onSelectCatego
                 >
                     <div className="flex gap-4 min-w-max">
                         {categories.map((category) => (
-                            <button
+                            <ServiceTile
                                 key={category.id}
+                                emoji={category.emoji}
+                                imageUrl={category.image_url}
+                                label={category.name}
                                 onClick={() => onSelectCategory?.(category.id)}
-                                className="flex flex-col items-center gap-2 w-20 group snap-start"
-                                aria-label={`Browse ${category.name} services`}
-                            >
-                                <div className="relative w-20 h-20 rounded-2xl overflow-hidden bg-white shadow-elevated">
-                                    {/* Emoji Placeholder - shown until image loads */}
-                                    {!loadedImages.has(category.id) && category.emoji && (
-                                        <div className="absolute inset-0 flex items-center justify-center text-3xl bg-gradient-to-br from-accent/10 to-primary/10">
-                                            {category.emoji}
-                                        </div>
-                                    )}
-
-                                    {/* Image */}
-                                    {category.image_url && (
-                                        <img
-                                            src={category.image_url}
-                                            alt={category.name}
-                                            onLoad={() => handleImageLoad(category.id)}
-                                            className={`w-full h-full object-cover transition-opacity duration-300 ${loadedImages.has(category.id) ? 'opacity-100' : 'opacity-0'
-                                                }`}
-                                        />
-                                    )}
-
-                                    {/* Hover Overlay */}
-                                    <div className="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                </div>
-                                <span className="text-xs font-semibold text-foreground text-center leading-tight max-w-[80px] group-hover:text-accent transition-colors">
-                                    {category.name}
-                                </span>
-                            </button>
+                                variant="category"
+                                className="snap-start"
+                            />
                         ))}
                     </div>
                 </div>
@@ -169,7 +147,7 @@ export const QuickCategories: React.FC<QuickCategoriesProps> = ({ onSelectCatego
                     {[...Array(Math.ceil(categories.length / 6))].map((_, i) => (
                         <div
                             key={i}
-                            className={`h-1.5 rounded-full transition-all duration-300 ${i === activeIndex ? 'w-6 bg-accent' : 'w-1.5 bg-slate-300'
+                            className={`h-1.5 rounded-full transition-all duration-300 ${i === activeIndex ? 'w-6 bg-primary' : 'w-1.5 bg-neutral-300'
                                 }`}
                         />
                     ))}

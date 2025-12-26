@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@thelocals/core/services/supabase';
+import { ServiceTile } from '../ui/ServiceTile';
 
 interface ServiceCategory {
     id: string;
@@ -109,21 +110,21 @@ export const BrowseServices: React.FC<BrowseServicesProps> = ({ onSelectService 
                 {/* Header & Toggle */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
                     <div>
-                        <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-2">
+                        <h2 className="text-3xl md:text-4xl font-bold text-neutral-800 mb-2">
                             Browse Services
                         </h2>
-                        <p className="text-slate-500 text-sm md:text-base">
+                        <p className="text-neutral-500 text-sm md:text-base">
                             Trusted professionals for your every need.
                         </p>
                     </div>
 
                     {/* Segmented Control */}
-                    <div className="flex bg-slate-100 p-1.5 rounded-full self-start md:self-auto">
+                    <div className="flex bg-neutral-100 p-1.5 rounded-full self-start md:self-auto">
                         <button
                             onClick={() => setActiveTab('offline')}
                             className={`px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${activeTab === 'offline'
-                                    ? 'bg-white text-slate-900 shadow-sm'
-                                    : 'text-slate-500 hover:text-slate-700'
+                                ? 'bg-white text-neutral-900 shadow-sm'
+                                : 'text-neutral-500 hover:text-neutral-700'
                                 }`}
                         >
                             In-Person
@@ -131,8 +132,8 @@ export const BrowseServices: React.FC<BrowseServicesProps> = ({ onSelectService 
                         <button
                             onClick={() => setActiveTab('online')}
                             className={`px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${activeTab === 'online'
-                                    ? 'bg-white text-slate-900 shadow-sm'
-                                    : 'text-slate-500 hover:text-slate-700'
+                                ? 'bg-white text-neutral-900 shadow-sm'
+                                : 'text-neutral-500 hover:text-neutral-700'
                                 }`}
                         >
                             Online
@@ -144,64 +145,33 @@ export const BrowseServices: React.FC<BrowseServicesProps> = ({ onSelectService 
                 {filteredServices.length > 0 ? (
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-8">
                         {filteredServices.map((service) => (
-                            <button
-                                key={service.id}
-                                onClick={() => onSelectService?.(service.id)}
-                                className="group relative h-56 md:h-64 rounded-3xl overflow-hidden bg-white shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 block text-left w-full"
-                            >
-                                {/* Image Base */}
-                                <div className="absolute inset-0">
-                                    {service.image_url ? (
-                                        <img
-                                            src={service.image_url}
-                                            alt={service.name}
-                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                        />
-                                    ) : (
-                                        <div className={`w-full h-full bg-gradient-to-br ${service.gradient_colors || 'from-slate-200 to-slate-300'}`} />
-                                    )}
-                                    {/* Gradient Overlay for Text Readability */}
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-90 group-hover:opacity-100 transition-opacity" />
-                                </div>
-
-                                {/* Badge */}
-                                <div className="absolute top-4 left-4">
+                            <div key={service.id} className="relative">
+                                {/* Badge - positioned absolutely over the tile */}
+                                <div className="absolute top-4 left-4 z-10">
                                     <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-white/20 backdrop-blur-md text-xs font-medium text-white border border-white/10">
                                         {activeTab === 'online' ? 'Video Call' : 'At Home'}
                                     </span>
                                 </div>
 
-                                {/* Content */}
-                                <div className="absolute bottom-0 left-0 right-0 p-5 md:p-6 text-white transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-                                    <h3 className="font-bold text-lg md:text-xl leading-tight mb-2 drop-shadow-md">
-                                        {service.name}
-                                    </h3>
-                                    {service.description && (
-                                        <p className="text-xs md:text-sm text-white/80 line-clamp-2 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 delay-75">
-                                            {service.description}
-                                        </p>
-                                    )}
-                                </div>
-
-                                {/* Action Icon */}
-                                <div className="absolute bottom-5 right-5 w-8 h-8 rounded-full bg-white text-primary flex items-center justify-center opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                    </svg>
-                                </div>
-                            </button>
+                                <ServiceTile
+                                    imageUrl={service.image_url}
+                                    label={service.name}
+                                    onClick={() => onSelectService?.(service.id)}
+                                    variant="browse"
+                                />
+                            </div>
                         ))}
                     </div>
                 ) : (
                     /* Empty State */
-                    <div className="text-center py-20 bg-slate-50 rounded-3xl border border-dashed border-slate-200">
-                        <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
+                    <div className="text-center py-20 bg-neutral-50 rounded-3xl border border-dashed border-neutral-200">
+                        <div className="w-16 h-16 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-4 text-neutral-400">
                             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                         </div>
-                        <h3 className="text-lg font-medium text-slate-900 mb-1">No services found</h3>
-                        <p className="text-slate-500">We couldn't find any {activeTab} services right now.</p>
+                        <h3 className="text-lg font-medium text-neutral-900 mb-1">No services found</h3>
+                        <p className="text-neutral-500">We couldn't find any {activeTab} services right now.</p>
                     </div>
                 )}
             </div>

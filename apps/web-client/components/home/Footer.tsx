@@ -48,7 +48,7 @@ export const Footer: React.FC = () => {
                         {/* Support Column */}
                         <div>
                             <h3 className="text-primary font-bold text-lg mb-6 flex items-center gap-2">
-                                <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
                                 </svg>
                                 Support
@@ -56,8 +56,8 @@ export const Footer: React.FC = () => {
                             <ul className="space-y-4">
                                 {footerLinks.support.map((link, idx) => (
                                     <li key={idx}>
-                                        <Link href={link.href} className="text-base text-slate-600 hover:text-accent transition-colors flex items-center gap-2 group">
-                                            <span className="w-1.5 h-1.5 rounded-full bg-slate-200 group-hover:bg-accent transition-colors"></span>
+                                        <Link href={link.href} className="text-base text-neutral-600 hover:text-primary transition-colors flex items-center gap-2 group">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-neutral-200 group-hover:bg-primary transition-colors"></span>
                                             {link.label}
                                         </Link>
                                     </li>
@@ -68,7 +68,7 @@ export const Footer: React.FC = () => {
                         {/* Legal Column */}
                         <div>
                             <h3 className="text-primary font-bold text-lg mb-6 flex items-center gap-2">
-                                <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                                 </svg>
                                 Legal
@@ -76,8 +76,8 @@ export const Footer: React.FC = () => {
                             <ul className="space-y-4">
                                 {footerLinks.legal.map((link, idx) => (
                                     <li key={idx}>
-                                        <Link href={link.href} className="text-base text-slate-600 hover:text-accent transition-colors flex items-center gap-2 group">
-                                            <span className="w-1.5 h-1.5 rounded-full bg-slate-200 group-hover:bg-accent transition-colors"></span>
+                                        <Link href={link.href} className="text-base text-neutral-600 hover:text-primary transition-colors flex items-center gap-2 group">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-neutral-200 group-hover:bg-primary transition-colors"></span>
                                             {link.label}
                                         </Link>
                                     </li>
@@ -110,7 +110,7 @@ export const Footer: React.FC = () => {
                                     key={idx}
                                     href={social.href}
                                     aria-label={social.name}
-                                    className="w-10 h-10 rounded-full bg-white shadow-sm hover:shadow-md flex items-center justify-center text-muted hover:text-accent transition-all hover:-translate-y-0.5"
+                                    className="w-10 h-10 rounded-full bg-white shadow-sm hover:shadow-md flex items-center justify-center text-muted hover:text-primary transition-all hover:-translate-y-0.5"
                                 >
                                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                         <path d={social.icon} />

@@ -50,10 +50,10 @@ const benefits: Benefit[] = [
 
 export const WhyLokals: React.FC = () => {
     return (
-        <section className="py-12 md:py-16 bg-white border-t border-slate-50">
+        <section className="py-12 md:py-16 bg-white border-t border-neutral-50">
             <div className="max-w-7xl mx-auto px-4">
                 <div className="text-center mb-10">
-                    <h2 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">
+                    <h2 className="text-2xl md:text-3xl font-bold text-neutral-800 tracking-tight">
                         Why neighbors choose <span className="text-primary">lokals</span>
                     </h2>
                 </div>
@@ -61,13 +61,13 @@ export const WhyLokals: React.FC = () => {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
                     {benefits.map((benefit, idx) => (
                         <div key={idx} className="flex flex-col items-center text-center group">
-                            <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-slate-50 flex items-center justify-center text-primary mb-4 group-hover:bg-primary group-hover:text-white transition-colors duration-300">
+                            <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-neutral-50 flex items-center justify-center text-primary mb-4 group-hover:bg-primary group-hover:text-white transition-colors duration-300">
                                 {benefit.icon}
                             </div>
-                            <h3 className="font-bold text-slate-800 text-sm md:text-base mb-1.5">
+                            <h3 className="font-bold text-neutral-800 text-sm md:text-base mb-1.5">
                                 {benefit.title}
                             </h3>
-                            <p className="text-xs md:text-sm text-slate-500 leading-snug max-w-[160px]">
+                            <p className="text-xs md:text-sm text-neutral-500 leading-snug max-w-[160px]">
                                 {benefit.description}
                             </p>
                         </div>

@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useSpeechRecognition } from '../../hooks/useSpeechRecognition';
 import toast from 'react-hot-toast';
+import { LokalsAIPill } from './LokalsAIPill';
 
 interface HeroSectionProps {
     onSearch?: (query: string) => void;
@@ -81,18 +82,18 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
         setShowSuggestions(false);
     };
 
+    // Determine AI pill state based on listening status
+    const aiPillState = isListening ? 'listening' : (searchQuery.length > 0 ? 'searching' : 'idle');
+
     return (
         <section className="relative w-full h-[55vh] min-h-[400px] flex items-end overflow-hidden rounded-b-3xl shadow-hero">
-            {/* Background Image */}
-            <div className="absolute inset-0 z-0">
-                <img
-                    src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=2673&auto=format&fit=crop"
-                    alt="Local services"
-                    className="w-full h-full object-cover"
-                />
+            {/* Navy Gradient Background (replaces photo) */}
+            <div className="absolute inset-0 z-0 bg-gradient-to-br from-secondary via-secondary-light to-secondary">
+                {/* Subtle texture overlay */}
+                <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent_50%)]"></div>
             </div>
 
-            {/* Gradient Overlay */}
+            {/* Gradient Overlay for depth */}
             <div className="absolute inset-0 z-10 gradient-hero-overlay"></div>
 
             {/* Content */}
@@ -114,10 +115,15 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
                     Book verified providers for AC repair, Car/Bike rentals, vehicle wash, cleaning, yoga and more in your neighborhood.
                 </p>
 
+                {/* Lokals AI Pill - Positioned above search bar */}
+                <div className="flex justify-center mb-3">
+                    <LokalsAIPill state={aiPillState} />
+                </div>
+
                 {/* Search Bar */}
                 <div className="relative max-w-2xl mx-auto">
                     <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-                        <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                     </div>
@@ -134,7 +140,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
                             }
                         }}
                         placeholder="Search for a service or issue..."
-                        className="w-full pl-12 pr-32 py-4 md:py-5 bg-white text-slate-900 placeholder:text-slate-400 rounded-full shadow-hero-search focus:outline-none focus:ring-2 focus:ring-teal-500/50 text-sm md:text-base font-medium transition-shadow"
+                        className="w-full pl-12 pr-32 py-4 md:py-5 bg-neutral-50 text-neutral-900 placeholder:text-neutral-400 rounded-full border-2 border-primary/20 focus:border-primary shadow-lg focus:outline-none focus:ring-2 focus:ring-primary/30 text-sm md:text-base font-medium transition-all"
                     />
                     <div className="absolute inset-y-0 right-0 pr-2 flex items-center gap-1">
                         {/* Mic Icon */}
@@ -142,7 +148,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
                         <button
                             onClick={handleMicClick}
                             disabled={isListening && speechError === 'permission-denied'}
-                            className={`p-3 hover:bg-slate-50 rounded-full transition-all ${isListening ? 'bg-red-50 text-red-500 animate-pulse ring-2 ring-red-100' : 'text-teal-500'}`}
+                            className={`p-3 hover:bg-neutral-50 rounded-full transition-all ${isListening ? 'bg-red-50 text-red-500 animate-pulse ring-2 ring-red-100' : 'text-primary'}`}
                             title="Search by voice"
                         >
                             {isListening ? (
@@ -156,11 +162,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
                                 </svg>
                             )}
                         </button>
-                        <div className="w-px h-6 bg-slate-200"></div>
+                        <div className="w-px h-6 bg-neutral-200"></div>
                         {/* Camera Icon */}
                         <button
                             onClick={handleCameraClick}
-                            className="p-3 hover:bg-slate-50 rounded-full transition-colors text-teal-500"
+                            className="p-3 hover:bg-neutral-50 rounded-full transition-colors text-primary"
                             title="Search by image"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -178,19 +184,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
                             onChange={handleFileChange}
                         />
                     </div>
-
-                    {/* Lokals AI Badge - Floating Top Right */}
-                    <div className="absolute -top-3 right-5 bg-gradient-to-r from-teal-400 to-teal-500 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-sm flex items-center gap-1 animate-fade-in">
-                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 2L9.5 8.5L3 11l6.5 2.5L12 22l2.5-8.5L21 11l-6.5-2.5L12 2z" />
-                        </svg>
-                        Lokals AI
-                    </div>
                 </div>
 
                 {/* Typeahead Suggestions */}
                 {showSuggestions && (
-                    <div className="absolute top-full mt-2 w-full bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-100 animate-fade-in-up">
+                    <div className="absolute top-full mt-2 w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden border border-neutral-100 animate-fade-in-up">
                         {suggestions
                             .filter(s => s.toLowerCase().includes(searchQuery.toLowerCase()))
                             .slice(0, 5)
@@ -201,9 +199,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
                                         setSearchQuery(suggestion);
                                         handleSearch(suggestion);
                                     }}
-                                    className="w-full px-5 py-3 text-left hover:bg-slate-50 transition-colors flex items-center gap-3 group"
+                                    className="w-full px-5 py-3 text-left hover:bg-neutral-50 transition-colors flex items-center gap-3 group"
                                 >
-                                    <svg className="w-4 h-4 text-muted group-hover:text-accent transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-4 h-4 text-muted group-hover:text-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                     </svg>
                                     <span className="text-sm font-medium text-foreground">{suggestion}</span>
