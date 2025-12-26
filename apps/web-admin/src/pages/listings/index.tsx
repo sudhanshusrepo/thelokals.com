@@ -103,7 +103,7 @@ export default function Listings() {
                                         <td className="py-3 px-4">
                                             <span className={`px-2 py-1 rounded text-xs font-medium ${cat.type === 'local' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
                                                 }`}>
-                                                {cat.type.toUpperCase()}
+                                                {cat.type?.toUpperCase() || 'UNKNOWN'}
                                             </span>
                                         </td>
                                         <td className="py-3 px-4 text-sm text-text-secondary max-w-md truncate">
