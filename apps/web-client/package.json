@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "npx next dev -p 3000",
+    "dev": "npx next dev --webpack -p 3000",
     "build": "npx next build --webpack",
     "pages:build": "npx @opennextjs/cloudflare build && node scripts/deploy-fix.js",
     "start": "npx next start",
