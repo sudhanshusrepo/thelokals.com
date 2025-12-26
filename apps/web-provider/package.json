@@ -8,6 +8,7 @@
     "pages:build": "npm run build && node scripts/build-shim.js",
     "start": "npx next start",
     "lint": "eslint",
+    "check:dummy": "node scripts/check-dummy-data.js",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
@@ -15,6 +16,7 @@
     "@thelocals/core": "*",
     "clsx": "^2.1.1",
     "dotenv": "^17.2.3",
+    "eslint-plugin-react": "^7.37.5",
     "framer-motion": "^12.0.0",
     "lucide-react": "^0.473.0",
     "next": "16.0.10",

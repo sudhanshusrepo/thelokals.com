@@ -62,7 +62,7 @@ export default function OnboardingPage() {
                 // provider-specific fields
                 category: formData.selectedService, // In real app, this maps to code
                 is_active: true, // Auto-activate for MVP
-                is_verified: true, // Mock verification
+                is_verified: false,
                 verification_status: 'verified',
                 registration_completed: true
             };

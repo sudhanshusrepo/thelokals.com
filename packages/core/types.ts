@@ -53,6 +53,8 @@ export interface Coordinates {
 export type WorkerStatus = 'AVAILABLE' | 'BUSY' | 'OFFLINE';
 
 
+export type VerificationStatus = 'pending' | 'approved' | 'rejected' | 'incomplete';
+
 export interface WorkerProfile {
   id: string;
   name: string;
@@ -66,8 +68,10 @@ export interface WorkerProfile {
   expertise: string[];
   reviewCount: number;
   isVerified: boolean;
+  verification_status?: VerificationStatus;
+  rejection_reason?: string;
   location: Coordinates;
-  availabilitySchedule?: AvailabilitySchedule; // New field
+  availabilitySchedule?: AvailabilitySchedule;
 }
 
 export type AvailabilitySchedule = Record<string, { start: string; end: string }[]>;
@@ -80,6 +84,8 @@ export type UserProfile = {
   id: string;
   name: string;
   avatarUrl?: string;
+  email?: string;
+  phone?: string;
 };
 
 export interface Customer {
@@ -113,6 +119,8 @@ export interface Booking {
   ai_checklist?: string[];
   estimated_cost?: number;
   final_cost?: number;
+  provider_earnings?: number; // New field
+  platform_commission?: number; // New field
   scheduled_date?: string;
   started_at?: string;
   completed_at?: string;
@@ -262,4 +270,70 @@ export interface AdminAuditLog {
   changes?: Record<string, unknown>;
   ip_address?: string;
   created_at: string;
+}
+
+export interface AdminDashboardMetrics {
+  totalRevenue: number;
+  activeListings: number;
+  totalBookings: number;
+  newUsers: number;
+  revenueChangePercentage: number;
+  bookingsChangePercentage: number;
+  newUsersChangePercentage: number;
+  activeListingsChangePercentage: number;
+  chartData: { name: string; bookings: number; revenue: number }[];
+}
+
+export interface AdminBookingSummary {
+  date: string;
+  count: number;
+  value: number;
+}
+
+export interface ServiceCategory {
+  id: string;
+  name: string;
+  type: 'local' | 'online';
+  description?: string;
+  base_price?: number;
+  created_at?: string;
+}
+
+export interface LocationConfig {
+  id: string;
+  name: string;
+  is_active: boolean;
+  service_availability?: Record<string, boolean>;
+  feature_flags?: Record<string, boolean>;
+  radius_km: number;
+  created_at: string;
+  hierarchy_level: 'L1_COUNTRY' | 'L2_STATE' | 'L3_CITY' | 'L4_AREA' | 'L5_PINCODE';
+  parent_id?: string;
+}
+
+export interface FinancialMetrics {
+  totalRevenue: number;
+  totalEarnings: number;
+  pendingPayouts: number;
+  completedPayouts: number;
+}
+
+export interface ProviderPayoutSummary {
+  provider_id: string;
+  provider_name: string;
+  total_earnings: number;
+  paid_amount: number;
+  pending_amount: number;
+  last_payment_date?: string;
+  bank_account?: string; // Placeholder
+}
+
+export type ReportType = 'BOOKINGS' | 'FINANCIAL' | 'PROVIDERS';
+
+export interface ReportFilter {
+  dateRange?: {
+    start: string;
+    end: string;
+  };
+  status?: string;
 }

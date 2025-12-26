@@ -17,11 +17,17 @@ export const bookingService = {
     // Map the flat response from the RPC to our nested Booking type
     return data.map((b: any) => ({
       id: b.id,
-      note: b.note,
+      notes: b.note, // Mapped to 'notes' to match Booking interface
       status: b.status,
       date: b.date,
+      started_at: b.started_at,
+      completed_at: b.completed_at,
+      address: b.address,
+      requirements: b.requirements,
       total_price: b.total_price,
       payment_status: b.payment_status,
+      provider_earnings: b.provider_earnings,
+      platform_commission: b.platform_commission,
       user: b.user_id ? {
         id: b.user_id,
         // Be aware that raw_user_meta_data might not be exposed to your RLS policies
@@ -42,6 +48,21 @@ export const bookingService = {
 
     if (error) {
       logger.error("Error updating booking status:", error);
+      throw error;
+    }
+    return data;
+  },
+
+  async updateBookingNotes(bookingId: string, notes: string): Promise<any> {
+    const { data, error } = await supabase
+      .from('bookings')
+      .update({ note: notes }) // Using 'note' based on getProviderBookings mapping
+      .eq('id', bookingId)
+      .select()
+      .single();
+
+    if (error) {
+      logger.error("Error updating booking notes:", error);
       throw error;
     }
     return data;

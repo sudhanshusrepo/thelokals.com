@@ -3,9 +3,13 @@ import { backend } from '../services/backend';
 import { toast } from 'react-hot-toast';
 import { geoService } from '@thelocals/core/services/geoService';
 
-export const LocationTracker: React.FC = () => {
+export const LocationTracker: React.FC<{ onTrackingChange?: (isTracking: boolean) => void }> = ({ onTrackingChange }) => {
     const [isTracking, setIsTracking] = useState(false);
     const watchId = useRef<number | null>(null);
+
+    useEffect(() => {
+        onTrackingChange?.(isTracking);
+    }, [isTracking]);
 
     useEffect(() => {
         return () => {

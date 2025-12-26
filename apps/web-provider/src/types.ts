@@ -23,6 +23,7 @@ export interface ProviderProfile {
     is_verified: boolean;
     city?: string;
     locality?: string;
+    service_radius?: number; // In meters
     experience_years?: number;
     documents?: Record<string, ProviderDocument>;
 

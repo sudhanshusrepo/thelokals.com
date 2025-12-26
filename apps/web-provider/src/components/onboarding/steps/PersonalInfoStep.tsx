@@ -55,7 +55,7 @@ export const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
 
     return (
         <Card>
-            <h2 className="text-2xl font-bold text-[#0A2540] mb-6">Personal Information</h2>
+            <h2 className="text-2xl font-bold text-primary mb-6">Personal Information</h2>
 
             <div className="space-y-4">
                 <Input
@@ -87,12 +87,12 @@ export const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
 
                 {/* Photo Upload Placeholder */}
                 <div>
-                    <label className="block text-sm font-medium text-[#0A2540] mb-2">
+                    <label className="block text-sm font-medium text-primary mb-2">
                         Profile Photo (Optional)
                     </label>
-                    <div className="border-2 border-dashed border-[#E2E8F0] rounded-xl p-6 text-center hover:border-[#12B3A6] transition-colors cursor-pointer">
+                    <div className="border-2 border-dashed border-border rounded-xl p-6 text-center hover:border-accent transition-colors cursor-pointer">
                         <div className="text-4xl mb-2">📸</div>
-                        <p className="text-sm text-[#64748B]">Click to upload or take a photo</p>
+                        <p className="text-sm text-muted">Click to upload or take a photo</p>
                     </div>
                 </div>
             </div>

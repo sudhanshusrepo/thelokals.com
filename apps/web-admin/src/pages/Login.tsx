@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Login() {
     const [email, setEmail] = useState('');
@@ -7,18 +8,27 @@ export default function Login() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
+    const { signInWithEmail, adminUser } = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (adminUser) {
+            router.push('/Dashboard');
+        }
+    }, [adminUser, router]);
+
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setError('');
 
-        const { error: authError } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-        });
-
-        if (authError) {
-            setError(authError.message);
+        try {
+            await signInWithEmail(email, password);
+            // Redirect is handled by useEffect or AuthContext state change triggering AdminShellLayout check if we were wrapped,
+            // but since Login is public, we need explicit redirect or rely on the effect above.
+            router.push('/Dashboard');
+        } catch (err: any) {
+            setError(err.message || 'Failed to login');
             setLoading(false);
         }
     };

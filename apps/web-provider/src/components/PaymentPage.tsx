@@ -215,17 +215,10 @@ const PaymentPage: React.FC = () => {
             <div className="bg-white rounded-2xl shadow-md p-6">
                 <h2 className="text-xl font-bold text-slate-900 mb-4">Bank Account Details</h2>
                 <div className="bg-slate-50 rounded-lg p-4 space-y-2">
-                    <div className="flex justify-between">
-                        <span className="text-slate-600">Account Holder:</span>
-                        <span className="font-semibold text-slate-900">John Doe</span>
-                    </div>
-                    <div className="flex justify-between">
-                        <span className="text-slate-600">Account Number:</span>
-                        <span className="font-semibold text-slate-900">****1234</span>
-                    </div>
-                    <div className="flex justify-between">
-                        <span className="text-slate-600">IFSC Code:</span>
-                        <span className="font-semibold text-slate-900">HDFC0001234</span>
+                    {/* TODO: Fetch real bank details from backend once API is available */}
+                    <div className="text-center py-4">
+                        <p className="text-slate-500 mb-2">No bank account linked</p>
+                        <p className="text-xs text-slate-400">Please add your bank details to receive payouts</p>
                     </div>
                 </div>
                 <button className="mt-4 text-primary font-semibold hover:underline">

@@ -167,6 +167,24 @@ export const liveBookingService = {
   },
 
   /**
+   * Rejects a booking request (Provider Side).
+   * @param {string} bookingId - The ID of the booking.
+   * @param {string} providerId - The ID of the provider rejecting the booking.
+   */
+  async rejectBooking(bookingId: string, providerId: string): Promise<void> {
+    const { error } = await supabase
+      .from('booking_requests')
+      .update({ status: 'REJECTED' })
+      .eq('booking_id', bookingId)
+      .eq('provider_id', providerId);
+
+    if (error) {
+      logger.error('Error rejecting booking', { error, bookingId, providerId });
+      throw error;
+    }
+  },
+
+  /**
    * Unsubscribes from a Realtime channel.
    * @param {RealtimeChannel} channel - The channel to unsubscribe from.
    */

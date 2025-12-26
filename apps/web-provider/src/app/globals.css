@@ -20,6 +20,13 @@
 
   --radius: 1rem;
 
+  /* Provider Specific Status Colors */
+  --status-new: #3B82F6;
+  --status-accepted: #12B3A6;
+  --status-inprogress: #F59E0B;
+  --status-completed: #64748B;
+  --status-cancelled: #EF4444;
+
   /* Gradients */
   --gradient-primary: linear-gradient(135deg, #12B3A6 0%, #0A2540 100%);
   --gradient-sidebar: linear-gradient(180deg, #0A2540 0%, #06192E 100%);
@@ -33,15 +40,36 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-surface: var(--surface);
+  --color-surface: var(--surface);
   --color-muted: var(--muted);
+
+  /* Status Colors */
+  --color-status-new: var(--status-new);
+  --color-status-accepted: var(--status-accepted);
+  --color-status-inprogress: var(--status-inprogress);
+  --color-status-completed: var(--status-completed);
+  --color-status-cancelled: var(--status-cancelled);
+
+  /* Fonts */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro', 'Segoe UI', sans-serif;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
 }
 
 /* Utility Classes */

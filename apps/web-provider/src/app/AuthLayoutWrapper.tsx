@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { RouteGuard } from '@/components/auth/RouteGuard';
 
 export default function AuthLayoutWrapper({ children }: { children: React.ReactNode }) {
     const [mounted, setMounted] = useState(false);
@@ -20,7 +21,9 @@ export default function AuthLayoutWrapper({ children }: { children: React.ReactN
 
     return (
         <AuthProvider>
-            {children}
+            <RouteGuard>
+                {children}
+            </RouteGuard>
         </AuthProvider>
     );
 }

@@ -5,35 +5,28 @@ import {
     YAxis,
     CartesianGrid,
     Tooltip,
-    ResponsiveContainer,
-    BarChart,
-    Bar
+    ResponsiveContainer
 } from 'recharts';
 import { ArrowUp, ArrowDown, Users, Calendar, ShoppingBag, DollarSign } from 'lucide-react';
 import { useState } from 'react';
+import { AdminDashboardMetrics } from '@thelocals/core/types';
 
 interface HeroAnalyticsProps {
-    stats?: {
-        activeListings: number;
-        newUsers: number;
-        totalBookings: number;
-        revenue: number;
-    };
+    stats?: AdminDashboardMetrics;
     loading?: boolean;
 }
 
-// Mock Data
-const data = [
-    { name: 'Mon', bookings: 40, revenue: 2400 },
-    { name: 'Tue', bookings: 30, revenue: 1398 },
-    { name: 'Wed', bookings: 20, revenue: 9800 },
-    { name: 'Thu', bookings: 27, revenue: 3908 },
-    { name: 'Fri', bookings: 18, revenue: 4800 },
-    { name: 'Sat', bookings: 23, revenue: 3800 },
-    { name: 'Sun', bookings: 34, revenue: 4300 },
-];
+// Chart data is now passed via stats prop
 
-const StatBox = ({ label, value, trend, trendValue, icon: Icon, color }: any) => (
+interface StatBoxProps {
+    label: string;
+    value: string | number;
+    trend: 'up' | 'down' | 'neutral';
+    trendValue: string;
+    icon: any;
+    color: string;
+}
+const StatBox = ({ label, value, trend, trendValue, icon: Icon, color }: StatBoxProps) => (
     <div className="flex flex-col gap-1 p-4 rounded-xl hover:bg-gray-50 transition-colors">
         <div className="flex items-center justify-between">
             <span className="text-text-secondary text-sm font-medium">{label}</span>
@@ -45,15 +38,12 @@ const StatBox = ({ label, value, trend, trendValue, icon: Icon, color }: any) =>
             <span className="text-2xl font-bold text-text-primary">{value}</span>
         </div>
         <div className="flex items-center gap-1 mt-1">
-            {trend === 'up' ? (
-                <ArrowUp size={14} className="text-primary" />
-            ) : (
-                <ArrowDown size={14} className="text-danger" />
-            )}
-            <span className={`text-xs font-medium ${trend === 'up' ? 'text-primary' : 'text-danger'}`}>
+            {trend === 'up' && <ArrowUp size={14} className="text-primary" />}
+            {trend === 'down' && <ArrowDown size={14} className="text-danger" />}
+            <span className={`text-xs font-medium ${trend === 'up' ? 'text-primary' : trend === 'down' ? 'text-danger' : 'text-text-secondary'}`}>
                 {trendValue}
             </span>
-            <span className="text-xs text-text-tertiary ml-1">vs last month</span>
+            <span className="text-xs text-text-tertiary ml-1">vs last period</span>
         </div>
     </div>
 );
@@ -61,14 +51,28 @@ const StatBox = ({ label, value, trend, trendValue, icon: Icon, color }: any) =>
 export const HeroAnalytics = ({ stats, loading }: HeroAnalyticsProps) => {
     const [view, setView] = useState<'bookings' | 'revenue'>('bookings');
 
-    // Use passed stats or defaults (0) to avoid errors if undefined
-    const activeListings = stats?.activeListings || 0;
-    const newUsers = stats?.newUsers || 0;
-    const totalBookings = stats?.totalBookings || 0;
-    const revenue = stats?.revenue || 0;
+    if (loading || !stats) {
+        return <div className="animate-pulse bg-gray-100 w-full h-96 rounded-xl"></div>;
+    }
+
+    const {
+        activeListings,
+        newUsers,
+        totalBookings,
+        totalRevenue,
+        activeListingsChangePercentage,
+        newUsersChangePercentage,
+        bookingsChangePercentage,
+        revenueChangePercentage,
+        chartData
+    } = stats;
+
+    const formatTrend = (val: number) => `${val > 0 ? '+' : ''}${val}%`;
+    const getTrendDir = (val: number) => val > 0 ? 'up' : val < 0 ? 'down' : 'neutral';
 
     return (
         <div className="card w-full">
+            {/* ... header ... */}
             <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
                 <div>
                     <h2 className="text-lg font-bold text-text-primary">Platform Overview</h2>
@@ -94,33 +98,33 @@ export const HeroAnalytics = ({ stats, loading }: HeroAnalyticsProps) => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 <StatBox
                     label="Active Listings"
-                    value={activeListings.toLocaleString()} // Use real data
-                    trend="up"
-                    trendValue="+12%" // Keeping static for now as trend data isn't passed yet
+                    value={activeListings.toLocaleString()}
+                    trend={getTrendDir(activeListingsChangePercentage)}
+                    trendValue={formatTrend(activeListingsChangePercentage)}
                     icon={ShoppingBag}
                     color="blue"
                 />
                 <StatBox
                     label="New Users"
-                    value={newUsers.toLocaleString()} // Use real data
-                    trend="up"
-                    trendValue="+5%"
+                    value={newUsers.toLocaleString()}
+                    trend={getTrendDir(newUsersChangePercentage)}
+                    trendValue={formatTrend(newUsersChangePercentage)}
                     icon={Users}
                     color="purple"
                 />
                 <StatBox
                     label="Total Bookings"
-                    value={totalBookings.toLocaleString()} // Use real data
-                    trend="down"
-                    trendValue="-2%"
+                    value={totalBookings.toLocaleString()}
+                    trend={getTrendDir(bookingsChangePercentage)}
+                    trendValue={formatTrend(bookingsChangePercentage)}
                     icon={Calendar}
                     color="orange"
                 />
                 <StatBox
                     label="Total Revenue"
-                    value={`₹${revenue.toLocaleString()}`} // Use real data
-                    trend="up"
-                    trendValue="+8.5%"
+                    value={`₹${totalRevenue.toLocaleString()}`}
+                    trend={getTrendDir(revenueChangePercentage)}
+                    trendValue={formatTrend(revenueChangePercentage)}
                     icon={DollarSign}
                     color="green"
                 />
@@ -129,7 +133,7 @@ export const HeroAnalytics = ({ stats, loading }: HeroAnalyticsProps) => {
             {/* Main Chart */}
             <div className="chart-container">
                 <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={data} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
+                    <AreaChart data={chartData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
                         <defs>
                             <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
                                 <stop offset="5%" stopColor={view === 'bookings' ? '#3B82F6' : '#10B981'} stopOpacity={0.1} />
@@ -169,27 +173,28 @@ export const HeroAnalytics = ({ stats, loading }: HeroAnalyticsProps) => {
                 </ResponsiveContainer>
             </div>
 
-            {/* Bottom Mini Widgets */}
+
+            {/* Bottom Mini Widgets - REPLACED WITH PLACEHOLDERS FOR NOW AS BACKEND DATA IS NOT READY */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 pt-6 border-t border-gray-100">
                 <div className="text-center">
                     <p className="text-xs text-text-tertiary uppercase font-semibold">Conversion Rate</p>
-                    <p className="text-xl font-bold text-text-primary mt-1">3.2%</p>
-                    <span className="text-xs text-primary bg-primary/10 px-2 py-0.5 rounded-full inline-block mt-1">+0.4%</span>
+                    <p className="text-xl font-bold text-text-primary mt-1">-</p>
+                    <span className="text-xs text-text-secondary inline-block mt-1">Coming soon</span>
                 </div>
                 <div className="text-center border-l border-gray-100">
                     <p className="text-xs text-text-tertiary uppercase font-semibold">Avg Booking Value</p>
-                    <p className="text-xl font-bold text-text-primary mt-1">₹850</p>
-                    <span className="text-xs text-text-secondary inline-block mt-1">Stable</span>
+                    <p className="text-xl font-bold text-text-primary mt-1">-</p>
+                    <span className="text-xs text-text-secondary inline-block mt-1">Coming soon</span>
                 </div>
                 <div className="text-center border-l border-gray-100">
                     <p className="text-xs text-text-tertiary uppercase font-semibold">Repeat Rate</p>
-                    <p className="text-xl font-bold text-text-primary mt-1">42%</p>
-                    <span className="text-xs text-primary bg-primary/10 px-2 py-0.5 rounded-full inline-block mt-1">+2%</span>
+                    <p className="text-xl font-bold text-text-primary mt-1">-</p>
+                    <span className="text-xs text-text-secondary inline-block mt-1">Coming soon</span>
                 </div>
                 <div className="text-center border-l border-gray-100">
                     <p className="text-xs text-text-tertiary uppercase font-semibold">Cancellation Rate</p>
-                    <p className="text-xl font-bold text-text-primary mt-1">1.8%</p>
-                    <span className="text-xs text-primary bg-primary/10 px-2 py-0.5 rounded-full inline-block mt-1">-0.2%</span>
+                    <p className="text-xl font-bold text-text-primary mt-1">-</p>
+                    <span className="text-xs text-text-secondary inline-block mt-1">Coming soon</span>
                 </div>
             </div>
         </div>

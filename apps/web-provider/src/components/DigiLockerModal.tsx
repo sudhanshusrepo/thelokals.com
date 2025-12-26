@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Button } from './Button';
-import { Input } from './Input';
+import { Button } from './ui/Button';
+import { Input } from './ui/Input';
 
 interface DigiLockerModalProps {
   isOpen: boolean;
@@ -57,28 +57,14 @@ export const DigiLockerModal: React.FC<DigiLockerModalProps> = ({ isOpen, onClos
 
     // Simulate fetching and upload proof
     try {
-      const proofData = {
-        verified: true,
-        name: "Test User",
-        dob: "1990-01-01",
-        aadhaarLast4: aadhaar.slice(-4),
-        pan: "ABCDE1234F",
-        timestamp: new Date().toISOString()
-      };
+      // TODO: Integrate actual DigiLocker API
+      // For now, fail safely if not in dev mode, or just fail to prevent fake verification in prod
+      throw new Error("DigiLocker integration coming soon");
 
-      // Create a fake proof file
-      const blob = new Blob([JSON.stringify(proofData, null, 2)], { type: 'application/json' });
-      const file = new File([blob], `digilocker_verification_${Date.now()}.json`, { type: 'application/json' });
-
-      // Dynamic import to avoid circular dependencies if any, or just import backend
-      const { backend } = await import('../services/backend');
-      const url = await backend.storage.upload(file);
-
-      onSuccess({
-        ...proofData,
-        verified: true,
-        url
-      } as any);
+      /* 
+      // Original fake logic removed to prevent production dummy data
+      const proofData = { ... }; 
+      */
 
     } catch (error) {
       console.error("Verification Upload Failed", error);

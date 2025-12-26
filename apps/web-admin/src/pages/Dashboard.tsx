@@ -3,58 +3,23 @@ import { HeroAnalytics } from '../components/dashboard/HeroAnalytics';
 import { OperationalWidgets } from '../components/dashboard/OperationalWidgets';
 import { Plus } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
+import { adminService } from '@thelocals/core/services/adminService';
+import { AdminDashboardMetrics } from '@thelocals/core/types';
 
 export default function Dashboard() {
-    const [stats, setStats] = useState({
-        activeListings: 0,
-        newUsers: 0,
-        totalBookings: 0,
-        revenue: 0,
-    });
+    const [stats, setStats] = useState<AdminDashboardMetrics | undefined>(undefined);
     const [loading, setLoading] = useState(true);
+    const [selectedPeriod, setSelectedPeriod] = useState<'today' | '7d' | '30d' | 'custom'>('7d');
 
     useEffect(() => {
-        loadDashboardData();
-    }, []);
+        loadDashboardData(selectedPeriod);
+    }, [selectedPeriod]);
 
-    const loadDashboardData = async () => {
+    const loadDashboardData = async (period: 'today' | '7d' | '30d' | 'custom') => {
+        setLoading(true);
         try {
-            // Get active users count (last 24h as proxy for "New" or just total active)
-            const { count: usersCount } = await supabase
-                .from('profiles')
-                .select('*', { count: 'exact', head: true })
-                .gte('updated_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
-
-            // Get active providers count (Active Listings)
-            const { count: providersCount } = await supabase
-                .from('providers')
-                .select('*', { count: 'exact', head: true })
-                .eq('is_available', true);
-
-            // Get total bookings (Using week bookings for now as a dynamic metric demo)
-            const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-            const { count: weekCount } = await supabase
-                .from('bookings')
-                .select('*', { count: 'exact', head: true })
-                .gte('created_at', weekAgo.toISOString());
-
-            // Get month's revenue
-            const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-            const { data: revenueData } = await supabase
-                .from('bookings')
-                .select('final_cost')
-                .eq('status', 'COMPLETED')
-                .gte('created_at', monthAgo.toISOString());
-
-            const revenue = revenueData?.reduce((sum: number, b: any) => sum + (Number(b.final_cost) || 0), 0) || 0;
-
-            setStats({
-                activeListings: providersCount || 0,
-                newUsers: usersCount || 0,
-                totalBookings: weekCount || 0,
-                revenue: revenue,
-            });
+            const metrics = await adminService.getDashboardMetrics(period);
+            setStats(metrics);
         } catch (error) {
             console.error('Error loading dashboard:', error);
         } finally {
@@ -81,10 +46,18 @@ export default function Dashboard() {
 
                 <div className="flex items-center gap-3">
                     <div className="hidden md:flex bg-white border border-gray-200 rounded-lg p-1">
-                        <button className="px-3 py-1.5 text-xs font-medium bg-gray-100 text-text-primary rounded-md shadow-sm">Today</button>
-                        <button className="px-3 py-1.5 text-xs font-medium text-text-secondary hover:text-text-primary">7D</button>
-                        <button className="px-3 py-1.5 text-xs font-medium text-text-secondary hover:text-text-primary">30D</button>
-                        <button className="px-3 py-1.5 text-xs font-medium text-text-secondary hover:text-text-primary">Custom</button>
+                        {(['today', '7d', '30d'] as const).map((period) => (
+                            <button
+                                key={period}
+                                onClick={() => setSelectedPeriod(period)}
+                                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${selectedPeriod === period
+                                    ? 'bg-gray-100 text-text-primary shadow-sm'
+                                    : 'text-text-secondary hover:text-text-primary'
+                                    }`}
+                            >
+                                {period === 'today' ? 'Today' : period.toUpperCase()}
+                            </button>
+                        ))}
                     </div>
                     <button className="btn-primary shadow-lg shadow-primary/20">
                         <Plus size={18} />

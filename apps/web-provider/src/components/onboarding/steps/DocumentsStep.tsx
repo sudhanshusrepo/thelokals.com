@@ -49,20 +49,21 @@ export const DocumentsStep: React.FC<DocumentsStepProps> = ({
     };
 
     return (
-        <Card>
-            <h2 className="text-2xl font-bold text-[#0A2540] mb-2">Document Upload</h2>
-            <p className="text-[#64748B] mb-6">Upload your documents for verification</p>
+        <div className="animate-fade-in-up">
+            <h2 className="text-2xl font-bold text-primary mb-2">Document Upload</h2>
+            <p className="text-muted mb-6">Upload your documents for verification</p>
 
             <div className="space-y-6">
                 {/* Aadhaar Upload */}
+                {/* Aadhaar Upload */}
                 <div>
-                    <label className="block text-sm font-medium text-[#0A2540] mb-2">
-                        Aadhaar Card *
+                    <label className="block text-sm font-medium text-primary mb-2">
+                        Aadhaar Card (Front & Back)
                     </label>
                     <input
                         ref={aadhaarInputRef}
                         type="file"
-                        accept="image/*"
+                        accept="image/*,application/pdf"
                         className="hidden"
                         onChange={(e) => {
                             const file = e.target.files?.[0];
@@ -70,39 +71,41 @@ export const DocumentsStep: React.FC<DocumentsStepProps> = ({
                         }}
                     />
                     {!formData.aadhaar ? (
-                        <button
+                        <div
                             onClick={() => aadhaarInputRef.current?.click()}
-                            className="w-full border-2 border-dashed border-[#E2E8F0] rounded-xl p-8 text-center hover:border-[#12B3A6] transition-colors"
+                            className="w-full border-2 border-dashed border-border rounded-xl p-8 text-center hover:border-accent transition-colors cursor-pointer group"
                         >
-                            <div className="text-5xl mb-3">📄</div>
-                            <p className="text-[#0A2540] font-medium mb-1">Upload Aadhaar Card</p>
-                            <p className="text-sm text-[#64748B]">Click to browse or drag & drop</p>
-                        </button>
+                            <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-accent/10 transition-colors">
+                                <span className="text-3xl text-gray-400 group-hover:text-accent">🆔</span>
+                            </div>
+                            <p className="text-primary font-medium mb-1">Upload Aadhaar Card</p>
+                            <p className="text-xs text-muted">Supports JPG, PNG, PDF (Max 5MB)</p>
+                        </div>
                     ) : (
-                        <div className="border-2 border-[#12B3A6] bg-[#12B3A6]/5 rounded-xl p-4 flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 bg-[#12B3A6]/20 rounded-lg flex items-center justify-center">
-                                    <span className="text-2xl">✓</span>
+                        <div className="border-2 border-accent bg-accent/5 rounded-xl p-4 flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 bg-accent/20 rounded-lg flex items-center justify-center">
+                                    <span className="text-xl">📄</span>
                                 </div>
                                 <div>
-                                    <p className="font-medium text-[#0A2540]">Aadhaar Uploaded</p>
-                                    <p className="text-sm text-[#64748B]">Document verified</p>
+                                    <p className="font-medium text-primary">Aadhaar Uploaded</p>
+                                    <p className="text-xs text-muted">Verified successfully</p>
                                 </div>
                             </div>
                             <button
-                                onClick={() => aadhaarInputRef.current?.click()}
-                                className="text-sm text-[#12B3A6] hover:underline"
+                                onClick={() => setFormData(prev => ({ ...prev, aadhaar: '' }))}
+                                className="text-sm text-accent hover:underline font-medium"
                             >
-                                Change
+                                Remove
                             </button>
                         </div>
                     )}
                 </div>
 
-                {/* Profile Photo Upload */}
+                {/* Profile Photo */}
                 <div>
-                    <label className="block text-sm font-medium text-[#0A2540] mb-2">
-                        Profile Photo *
+                    <label className="block text-sm font-medium text-primary mb-2">
+                        Profile Photo
                     </label>
                     <input
                         ref={photoInputRef}
@@ -115,32 +118,43 @@ export const DocumentsStep: React.FC<DocumentsStepProps> = ({
                             if (file) handleFileUpload(file, 'photo');
                         }}
                     />
-                    {!formData.photo ? (
-                        <button
-                            onClick={() => photoInputRef.current?.click()}
-                            className="w-full border-2 border-dashed border-[#E2E8F0] rounded-xl p-8 text-center hover:border-[#12B3A6] transition-colors"
-                        >
-                            <div className="text-5xl mb-3">📸</div>
-                            <p className="text-[#0A2540] font-medium mb-1">Take or Upload Photo</p>
-                            <p className="text-sm text-[#64748B]">Use camera or select from gallery</p>
-                        </button>
-                    ) : (
-                        <div className="border-2 border-[#12B3A6] bg-[#12B3A6]/5 rounded-xl p-4 flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <img src={formData.photo} alt="Profile" className="w-12 h-12 rounded-full object-cover" />
-                                <div>
-                                    <p className="font-medium text-[#0A2540]">Photo Uploaded</p>
-                                    <p className="text-sm text-[#64748B]">Looking good!</p>
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="relative w-20 h-20 rounded-full overflow-hidden bg-gray-100 border-2 border-border">
+                            {formData.photo ? (
+                                <img src={formData.photo} alt="Profile" className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center text-gray-300">
+                                    <span className="text-3xl">👤</span>
                                 </div>
-                            </div>
-                            <button
-                                onClick={() => photoInputRef.current?.click()}
-                                className="text-sm text-[#12B3A6] hover:underline"
-                            >
-                                Retake
-                            </button>
+                            )}
                         </div>
-                    )}
+                        <div className="flex-1">
+                            {!formData.photo ? (
+                                <div
+                                    onClick={() => photoInputRef.current?.click()}
+                                    className="w-full border-2 border-dashed border-border rounded-xl p-8 text-center hover:border-accent transition-colors cursor-pointer group"
+                                >
+                                    <p className="text-primary font-medium mb-1">Take or Upload Photo</p>
+                                    <p className="text-xs text-muted">Clear face photo recommended</p>
+                                </div>
+                            ) : (
+                                <div className="border-2 border-accent bg-accent/5 rounded-xl p-4 flex items-center justify-between">
+                                    <div className="flex items-center gap-4">
+                                        <div>
+                                            <p className="font-medium text-primary">Photo Uploaded</p>
+                                            <p className="text-xs text-muted">Looks good!</p>
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={() => setFormData(prev => ({ ...prev, photo: '' }))}
+                                        className="text-sm text-accent hover:underline font-medium"
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
 
                 <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
@@ -170,6 +184,6 @@ export const DocumentsStep: React.FC<DocumentsStepProps> = ({
                     {uploading ? 'Uploading...' : 'Continue →'}
                 </Button>
             </div>
-        </Card>
+        </div>
     );
 };

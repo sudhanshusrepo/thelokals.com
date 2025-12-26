@@ -8,6 +8,7 @@ const WelcomeStep = lazy(() => import('./steps/WelcomeStep').then(m => ({ defaul
 const PersonalInfoStep = lazy(() => import('./steps/PersonalInfoStep').then(m => ({ default: m.PersonalInfoStep })));
 const ProfessionalDetailsStep = lazy(() => import('./steps/ProfessionalDetailsStep').then(m => ({ default: m.ProfessionalDetailsStep })));
 const DocumentsStep = lazy(() => import('./steps/DocumentsStep').then(m => ({ default: m.DocumentsStep })));
+const LocationPermissionStep = lazy(() => import('./steps/LocationPermissionStep').then(m => ({ default: m.LocationPermissionStep })));
 const BankingStep = lazy(() => import('./steps/BankingStep').then(m => ({ default: m.BankingStep })));
 const ReviewStep = lazy(() => import('./steps/ReviewStep').then(m => ({ default: m.ReviewStep })));
 
@@ -38,6 +39,11 @@ interface OnboardingData {
         serviceArea: string;
         bio: string;
     };
+    location?: {
+        latitude: number;
+        longitude: number;
+        address?: string;
+    };
     documents: {
         aadhaar?: string;
         photo?: string;
@@ -49,7 +55,7 @@ interface OnboardingData {
     };
 }
 
-const TOTAL_STEPS = 6;
+const TOTAL_STEPS = 7;
 
 export const OnboardingWizard: React.FC = () => {
     const router = useRouter();
@@ -89,20 +95,43 @@ export const OnboardingWizard: React.FC = () => {
     };
 
     const handleSubmit = async () => {
+        if (!user) return; // Should not happen given auth guard
         setIsSubmitting(true);
         try {
-            const response = await fetch('/api/provider/onboarding', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(onboardingData)
-            });
+            // Import supabase here to avoid initialization issues if mocked or not ready
+            const { supabase } = await import('@thelocals/core');
 
-            if (response.ok) {
-                localStorage.removeItem('provider_onboarding');
-                router.push('/verification-pending');
-            }
+            const payload = {
+                id: user.id,
+                full_name: onboardingData.personalInfo?.fullName,
+                phone: onboardingData.personalInfo?.phone,
+                email: onboardingData.personalInfo?.email,
+                category: onboardingData.professionalDetails?.category,
+                experience_years: onboardingData.professionalDetails?.experienceYears,
+                service_area: onboardingData.professionalDetails?.serviceArea,
+                bio: onboardingData.professionalDetails?.bio,
+                latitude: onboardingData.location?.latitude,
+                longitude: onboardingData.location?.longitude,
+                // In a real app, upload docs to Storage and save URLs here.
+                // Assuming base64 for MVP/demo or handling upload in steps.
+                verification_documents: onboardingData.documents,
+                banking_details: onboardingData.banking,
+                verification_status: 'pending',
+                registration_completed: true,
+                updated_at: new Date().toISOString()
+            };
+
+            const { error } = await supabase
+                .from('providers')
+                .upsert(payload);
+
+            if (error) throw error;
+
+            localStorage.removeItem('provider_onboarding');
+            router.push('/verification-pending');
         } catch (error) {
             console.error('Onboarding submission failed:', error);
+            // Show toast or error message
         } finally {
             setIsSubmitting(false);
         }
@@ -123,10 +152,12 @@ export const OnboardingWizard: React.FC = () => {
             case 2:
                 return <ProfessionalDetailsStep data={onboardingData.professionalDetails} {...stepProps} />;
             case 3:
-                return <DocumentsStep data={onboardingData.documents} {...stepProps} />;
+                return <LocationPermissionStep data={onboardingData.location} {...stepProps} />;
             case 4:
-                return <BankingStep data={onboardingData.banking} {...stepProps} />;
+                return <DocumentsStep data={onboardingData.documents} {...stepProps} />;
             case 5:
+                return <BankingStep data={onboardingData.banking} {...stepProps} />;
+            case 6:
                 return <ReviewStep data={onboardingData} onSubmit={handleSubmit} onBack={prevStep} isSubmitting={isSubmitting} />;
             default:
                 return null;
@@ -134,21 +165,21 @@ export const OnboardingWizard: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#F5F7FB] to-white py-8 px-4">
+        <div className="min-h-screen bg-gradient-to-br from-accent/5 to-background py-8 px-4">
             <div className="max-w-3xl mx-auto">
                 {/* Progress Indicator */}
                 <div className="mb-8">
                     <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium text-[#0A2540]">
+                        <span className="text-sm font-medium text-primary">
                             Step {currentStep + 1} of {TOTAL_STEPS}
                         </span>
-                        <span className="text-sm text-[#64748B]">
+                        <span className="text-sm text-muted">
                             {Math.round(((currentStep + 1) / TOTAL_STEPS) * 100)}% Complete
                         </span>
                     </div>
-                    <div className="w-full bg-[#E2E8F0] rounded-full h-2">
+                    <div className="w-full bg-border rounded-full h-2">
                         <div
-                            className="bg-gradient-to-r from-[#12B3A6] to-[#0A2540] h-2 rounded-full transition-all duration-500"
+                            className="bg-gradient-to-r from-accent to-primary h-2 rounded-full transition-all duration-500"
                             style={{ width: `${((currentStep + 1) / TOTAL_STEPS) * 100}%` }}
                         />
                     </div>
@@ -156,7 +187,7 @@ export const OnboardingWizard: React.FC = () => {
 
                 {/* Step Content with Suspense */}
                 <Suspense fallback={<StepSkeleton />}>
-                    <div className="animate-fade-in">
+                    <div key={currentStep} className="animate-fade-in">
                         {renderStep()}
                     </div>
                 </Suspense>

@@ -53,11 +53,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const { data, error } = await supabase
         .from('providers')
         .select('*')
-        .eq('id', userId) // Changed from user_id to id
+        .eq('id', userId)
         .single();
 
       if (error) {
-        logger.error('Error fetching provider profile:', error);
+        // If error is PGRST116 (0 rows), it just means profile doesn't exist yet (new user)
+        if (error.code !== 'PGRST116') {
+          logger.error('Error fetching provider profile:', error);
+        }
         setProfile(null);
         return;
       }
@@ -137,6 +140,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       try {
         await supabase.auth.signOut();
         setProfile(null);
+        setSession(null);
+        setUser(null);
       } catch (error) {
         logger.error("Error signing out:", error);
       }

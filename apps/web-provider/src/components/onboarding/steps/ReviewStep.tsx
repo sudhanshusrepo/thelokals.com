@@ -19,96 +19,96 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
     const { personalInfo, professionalDetails, documents, banking } = data;
 
     return (
-        <Card>
+        <div className="animate-fade-in-up">
             <div className="text-center mb-6">
                 <div className="text-5xl mb-3">🎉</div>
-                <h2 className="text-2xl font-bold text-[#0A2540] mb-2">Almost There!</h2>
-                <p className="text-[#64748B]">Review your information before submitting</p>
+                <h2 className="text-2xl font-bold text-primary mb-2">Almost There!</h2>
+                <p className="text-muted">Review your information before submitting</p>
             </div>
 
             <div className="space-y-6">
                 {/* Personal Information */}
-                <div className="bg-[#F5F7FB] rounded-xl p-4">
+                <div className="bg-white border border-border rounded-xl p-4 shadow-sm">
                     <div className="flex items-center justify-between mb-3">
-                        <h3 className="font-semibold text-[#0A2540]">Personal Information</h3>
+                        <h3 className="font-semibold text-primary">Personal Information</h3>
                         <Badge variant="approved">Complete</Badge>
                     </div>
                     <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
-                            <span className="text-[#64748B]">Name:</span>
-                            <span className="font-medium text-[#0A2540]">{personalInfo?.fullName || 'N/A'}</span>
+                            <span className="text-muted">Name:</span>
+                            <span className="font-medium text-primary">{personalInfo?.fullName || 'N/A'}</span>
                         </div>
                         <div className="flex justify-between">
-                            <span className="text-[#64748B]">Phone:</span>
-                            <span className="font-medium text-[#0A2540]">{personalInfo?.phone || 'N/A'}</span>
+                            <span className="text-muted">Phone:</span>
+                            <span className="font-medium text-primary">{personalInfo?.phone || 'N/A'}</span>
                         </div>
                         <div className="flex justify-between">
-                            <span className="text-[#64748B]">Email:</span>
-                            <span className="font-medium text-[#0A2540]">{personalInfo?.email || 'N/A'}</span>
+                            <span className="text-muted">Email:</span>
+                            <span className="font-medium text-primary">{personalInfo?.email || 'N/A'}</span>
                         </div>
                     </div>
                 </div>
 
                 {/* Professional Details */}
-                <div className="bg-[#F5F7FB] rounded-xl p-4">
+                <div className="bg-white border border-border rounded-xl p-4 shadow-sm">
                     <div className="flex items-center justify-between mb-3">
-                        <h3 className="font-semibold text-[#0A2540]">Professional Details</h3>
+                        <h3 className="font-semibold text-primary">Professional Details</h3>
                         <Badge variant="approved">Complete</Badge>
                     </div>
                     <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
-                            <span className="text-[#64748B]">Category:</span>
-                            <span className="font-medium text-[#0A2540]">{professionalDetails?.category || 'N/A'}</span>
+                            <span className="text-muted">Category:</span>
+                            <span className="font-medium text-primary">{professionalDetails?.category || 'N/A'}</span>
                         </div>
                         <div className="flex justify-between">
-                            <span className="text-[#64748B]">Experience:</span>
-                            <span className="font-medium text-[#0A2540]">{professionalDetails?.experienceYears || 0} years</span>
+                            <span className="text-muted">Experience:</span>
+                            <span className="font-medium text-primary">{professionalDetails?.experienceYears || 0} years</span>
                         </div>
                         <div className="flex justify-between">
-                            <span className="text-[#64748B]">Service Area:</span>
-                            <span className="font-medium text-[#0A2540]">{professionalDetails?.serviceArea || 'N/A'}</span>
+                            <span className="text-muted">Service Area:</span>
+                            <span className="font-medium text-primary">{professionalDetails?.serviceArea || 'N/A'}</span>
                         </div>
                     </div>
                 </div>
 
                 {/* Documents */}
-                <div className="bg-[#F5F7FB] rounded-xl p-4">
+                <div className="bg-white border border-border rounded-xl p-4 shadow-sm">
                     <div className="flex items-center justify-between mb-3">
-                        <h3 className="font-semibold text-[#0A2540]">Documents</h3>
+                        <h3 className="font-semibold text-primary">Documents</h3>
                         <Badge variant="approved">Uploaded</Badge>
                     </div>
                     <div className="space-y-2 text-sm">
                         <div className="flex items-center gap-2">
-                            <span className="text-green-600">✓</span>
-                            <span className="text-[#0A2540]">Aadhaar Card</span>
+                            <span className="text-status-accepted">✓</span>
+                            <span className="text-primary">Aadhaar Card</span>
                         </div>
                         <div className="flex items-center gap-2">
-                            <span className="text-green-600">✓</span>
-                            <span className="text-[#0A2540]">Profile Photo</span>
+                            <span className="text-status-accepted">✓</span>
+                            <span className="text-primary">Profile Photo</span>
                         </div>
                     </div>
                 </div>
 
                 {/* Banking */}
-                <div className="bg-[#F5F7FB] rounded-xl p-4">
+                <div className="bg-white border border-border rounded-xl p-4 shadow-sm">
                     <div className="flex items-center justify-between mb-3">
-                        <h3 className="font-semibold text-[#0A2540]">Banking Details</h3>
+                        <h3 className="font-semibold text-primary">Banking Details</h3>
                         <Badge variant="approved">Verified</Badge>
                     </div>
                     <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
-                            <span className="text-[#64748B]">Account Holder:</span>
-                            <span className="font-medium text-[#0A2540]">{banking?.accountHolderName || 'N/A'}</span>
+                            <span className="text-muted">Account Holder:</span>
+                            <span className="font-medium text-primary">{banking?.accountHolderName || 'N/A'}</span>
                         </div>
                         <div className="flex justify-between">
-                            <span className="text-[#64748B]">Account Number:</span>
-                            <span className="font-medium text-[#0A2540]">
+                            <span className="text-muted">Account Number:</span>
+                            <span className="font-medium text-primary">
                                 ****{banking?.accountNumber?.slice(-4) || 'N/A'}
                             </span>
                         </div>
                         <div className="flex justify-between">
-                            <span className="text-[#64748B]">IFSC Code:</span>
-                            <span className="font-medium text-[#0A2540]">{banking?.ifscCode || 'N/A'}</span>
+                            <span className="text-muted">IFSC Code:</span>
+                            <span className="font-medium text-primary">{banking?.ifscCode || 'N/A'}</span>
                         </div>
                     </div>
                 </div>
@@ -137,6 +137,6 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
                     {isSubmitting ? 'Submitting...' : 'Submit Application 🚀'}
                 </Button>
             </div>
-        </Card>
+        </div>
     );
 };
