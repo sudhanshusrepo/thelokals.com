@@ -102,7 +102,7 @@ export const HeroAnalytics = ({ stats, loading }: HeroAnalyticsProps) => {
                     trend={getTrendDir(activeListingsChangePercentage)}
                     trendValue={formatTrend(activeListingsChangePercentage)}
                     icon={ShoppingBag}
-                    color="blue"
+                    color="indigo"
                 />
                 <StatBox
                     label="New Users"
@@ -118,7 +118,7 @@ export const HeroAnalytics = ({ stats, loading }: HeroAnalyticsProps) => {
                     trend={getTrendDir(bookingsChangePercentage)}
                     trendValue={formatTrend(bookingsChangePercentage)}
                     icon={Calendar}
-                    color="orange"
+                    color="amber"
                 />
                 <StatBox
                     label="Total Revenue"
@@ -126,7 +126,7 @@ export const HeroAnalytics = ({ stats, loading }: HeroAnalyticsProps) => {
                     trend={getTrendDir(revenueChangePercentage)}
                     trendValue={formatTrend(revenueChangePercentage)}
                     icon={DollarSign}
-                    color="green"
+                    color="emerald"
                 />
             </div>
 

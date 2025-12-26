@@ -1,27 +1,40 @@
 @import "tailwindcss";
 
 :root {
-  /* 60% Neutral Backgrounds */
-  --bg-primary: #F3F4F6;
-  /* Light grey dashboard bg */
-  --bg-card: #FFFFFF;
-  /* White card bg */
-  --bg-sidebar: #FFFFFF;
-  /* Sidebar bg */
+  /* Primary Colors - Vibrant Indigo */
+  --primary: #4F46E5;
+  --primary-hover: #4338CA;
+  --primary-light: #EEF2FF;
+
+  /* Success - Emerald Green */
+  --success: #10B981;
+  --success-hover: #059669;
+  --success-light: #D1FAE5;
+
+  /* Warning - Amber */
+  --warning: #F59E0B;
+  --warning-hover: #D97706;
+  --warning-light: #FEF3C7;
+
+  /* Danger - Red */
+  --danger: #EF4444;
+  --danger-hover: #DC2626;
+  --danger-light: #FEE2E2;
+
+  /* Info - Blue */
+  --info: #3B82F6;
+  --info-hover: #2563EB;
+  --info-light: #DBEAFE;
+
+  /* Background Colors */
+  --bg-primary: #F9FAFB;
+  --bg-secondary: #FFFFFF;
+  --bg-accent: #F3F4F6;
 
   /* Text Colors */
   --text-primary: #111827;
-  /* Near black */
   --text-secondary: #6B7280;
-  /* Grey text */
   --text-tertiary: #9CA3AF;
-  /* Light grey text */
-
-  /* 30% Secondary Accent (Deep Blue/Teal based on Lokals brand) */
-  --accent-primary: #0F172A;
-  /* Sidebar active/Header */
-  --accent-secondary: #E2E8F0;
-  /* Hover states/Borders */
 
   /* 10% Primary Action/Alert */
   --primary: #10B981;
