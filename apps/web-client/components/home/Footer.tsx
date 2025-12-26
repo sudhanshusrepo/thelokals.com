@@ -17,8 +17,8 @@ const footerLinks = {
         { label: 'For Providers', href: '/providers' }
     ],
     support: [
-        { label: 'Help Center', href: '/help' },
-        { label: 'Contact Us', href: '/contact' },
+        { label: 'Help Center', href: '/help-center' },
+        { label: 'Contact Us', href: '/contact-us' },
         { label: 'Safety', href: '/safety' },
         { label: 'Trust & Safety', href: '/trust' }
     ],
