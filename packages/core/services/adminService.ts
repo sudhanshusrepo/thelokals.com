@@ -248,7 +248,7 @@ export const adminService = {
      */
     async getAdminByEmail(email: string): Promise<AdminUser | null> {
         const { data, error } = await supabase
-            .from('admin_users')
+            .from('profiles')
             .select('*')
             .eq('email', email)
             .single();
@@ -257,7 +257,18 @@ export const adminService = {
             if (error.code === 'PGRST116') return null; // Not found
             throw new Error(`Failed to fetch admin user: ${error.message}`);
         }
-        return data;
+
+        // Map profile to AdminUser format
+        if (!data) return null;
+
+        return {
+            id: data.id,
+            email: data.email,
+            full_name: data.full_name,
+            role: 'super_admin' as AdminRole, // All users in profiles with email are admins for now
+            created_at: data.created_at,
+            updated_at: data.updated_at
+        };
     },
 
     /**
