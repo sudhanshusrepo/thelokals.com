@@ -94,8 +94,8 @@ export const HeroAnalytics = ({ stats, loading }: HeroAnalyticsProps) => {
                 </div>
             </div>
 
-            {/* Top Stats Row */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            {/* Top Stats Row - Responsive Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                 <StatBox
                     label="Active Listings"
                     value={activeListings.toLocaleString()}
@@ -171,31 +171,6 @@ export const HeroAnalytics = ({ stats, loading }: HeroAnalyticsProps) => {
                         />
                     </AreaChart>
                 </ResponsiveContainer>
-            </div>
-
-
-            {/* Bottom Mini Widgets - REPLACED WITH PLACEHOLDERS FOR NOW AS BACKEND DATA IS NOT READY */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 pt-6 border-t border-gray-100">
-                <div className="text-center">
-                    <p className="text-xs text-text-tertiary uppercase font-semibold">Conversion Rate</p>
-                    <p className="text-xl font-bold text-text-primary mt-1">-</p>
-                    <span className="text-xs text-text-secondary inline-block mt-1">Coming soon</span>
-                </div>
-                <div className="text-center border-l border-gray-100">
-                    <p className="text-xs text-text-tertiary uppercase font-semibold">Avg Booking Value</p>
-                    <p className="text-xl font-bold text-text-primary mt-1">-</p>
-                    <span className="text-xs text-text-secondary inline-block mt-1">Coming soon</span>
-                </div>
-                <div className="text-center border-l border-gray-100">
-                    <p className="text-xs text-text-tertiary uppercase font-semibold">Repeat Rate</p>
-                    <p className="text-xl font-bold text-text-primary mt-1">-</p>
-                    <span className="text-xs text-text-secondary inline-block mt-1">Coming soon</span>
-                </div>
-                <div className="text-center border-l border-gray-100">
-                    <p className="text-xs text-text-tertiary uppercase font-semibold">Cancellation Rate</p>
-                    <p className="text-xl font-bold text-text-primary mt-1">-</p>
-                    <span className="text-xs text-text-secondary inline-block mt-1">Coming soon</span>
-                </div>
             </div>
         </div>
     );

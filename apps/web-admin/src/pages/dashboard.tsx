@@ -91,8 +91,8 @@ export default function Dashboard() {
                 {/* Operational Widgets */}
                 <OperationalWidgets />
 
-                {/* Secondary Section: Top Categories & Local Partners (Placeholder for now layout-wise) */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Secondary Section: Top Categories & Partners - Responsive */}
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                     <div className="card">
                         <h3 className="font-bold text-text-primary mb-4">Top Categories</h3>
                         <div className="h-64 flex items-center justify-center bg-gray-50 rounded-lg border border-dashed border-gray-200">
