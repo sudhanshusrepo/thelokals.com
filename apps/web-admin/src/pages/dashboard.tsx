@@ -18,10 +18,28 @@ export default function Dashboard() {
     const loadDashboardData = async (period: 'today' | '7d' | '30d' | 'custom') => {
         setLoading(true);
         try {
-            const metrics = await adminService.getDashboardMetrics(period);
+            // Add 5 second timeout to prevent infinite loading
+            const metricsPromise = adminService.getDashboardMetrics(period);
+            const timeoutPromise = new Promise<never>((_, reject) =>
+                setTimeout(() => reject(new Error('Request timeout')), 5000)
+            );
+
+            const metrics = await Promise.race([metricsPromise, timeoutPromise]) as AdminDashboardMetrics;
             setStats(metrics);
         } catch (error) {
             console.error('Error loading dashboard:', error);
+            // Use fallback data instead of staying in loading state
+            setStats({
+                activeListings: 0,
+                newUsers: 0,
+                totalBookings: 0,
+                totalRevenue: 0,
+                revenueChangePercentage: 0,
+                bookingsChangePercentage: 0,
+                newUsersChangePercentage: 0,
+                activeListingsChangePercentage: 0,
+                chartData: []
+            });
         } finally {
             setLoading(false);
         }

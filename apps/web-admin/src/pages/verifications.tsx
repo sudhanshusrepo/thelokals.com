@@ -23,11 +23,19 @@ export default function VerificationPage() {
     const fetchPendingProviders = async () => {
         setLoading(true);
         try {
-            const data = await adminService.getPendingProviders();
+            // Add 5 second timeout to prevent infinite loading
+            const providersPromise = adminService.getPendingProviders();
+            const timeoutPromise = new Promise<never>((_, reject) =>
+                setTimeout(() => reject(new Error('Request timeout')), 5000)
+            );
+
+            const data = await Promise.race([providersPromise, timeoutPromise]) as WorkerProfile[];
             setProviders(data);
         } catch (error) {
             console.error(error);
             toast.error("Error fetching providers");
+            // Set empty array instead of staying in loading state
+            setProviders([]);
         } finally {
             setLoading(false);
         }
