@@ -5,6 +5,7 @@ import { Plus } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { adminService } from '@thelocals/core/services/adminService';
 import { AdminDashboardMetrics } from '@thelocals/core/types';
+import { SystemHealth } from '../components/dashboard/SystemHealth';
 
 export default function Dashboard() {
     const [stats, setStats] = useState<AdminDashboardMetrics | undefined>(undefined);
@@ -90,6 +91,9 @@ export default function Dashboard() {
 
                 {/* Operational Widgets */}
                 <OperationalWidgets />
+
+                {/* System Health Monitoring */}
+                <SystemHealth />
 
                 {/* Secondary Section: Top Categories & Partners - Responsive */}
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
