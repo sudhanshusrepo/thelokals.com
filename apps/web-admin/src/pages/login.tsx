@@ -13,7 +13,7 @@ export default function Login() {
 
     useEffect(() => {
         if (adminUser) {
-            router.push('/Dashboard');
+            router.push('/dashboard');
         }
     }, [adminUser, router]);
 
@@ -26,7 +26,7 @@ export default function Login() {
             await signInWithEmail(email, password);
             // Redirect is handled by useEffect or AuthContext state change triggering AdminShellLayout check if we were wrapped,
             // but since Login is public, we need explicit redirect or rely on the effect above.
-            router.push('/Dashboard');
+            router.push('/dashboard');
         } catch (err: any) {
             setError(err.message || 'Failed to login');
             setLoading(false);

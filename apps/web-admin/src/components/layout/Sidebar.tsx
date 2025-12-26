@@ -29,7 +29,7 @@ export const Sidebar = () => {
                 <div>
                     <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wider mb-3 px-4">Main</p>
                     <div className="space-y-1">
-                        <SidebarItem href="/Dashboard" icon={LayoutDashboard} label="Dashboard" />
+                        <SidebarItem href="/dashboard" icon={LayoutDashboard} label="Dashboard" />
                         <SidebarItem href="/listings" icon={Store} label="Listings" />
                         <SidebarItem href="/partners" icon={Users} label="Partners" />
                         <SidebarItem href="/bookings" icon={Calendar} label="Bookings" />
