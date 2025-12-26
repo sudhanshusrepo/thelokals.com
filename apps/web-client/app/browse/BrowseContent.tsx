@@ -11,7 +11,6 @@ interface Service {
     name: string;
     description?: string;
     base_price_cents?: number;
-    service_category_id?: string;
     is_active: boolean;
 }
 
@@ -27,13 +26,12 @@ export default function BrowseContent() {
             try {
                 let query = supabase
                     .from('services')
-                    .select('code, name, description, base_price_cents, service_category_id, is_active')
+                    .select('code, name, description, base_price_cents, is_active')
                     .eq('is_active', true)
                     .order('name');
 
-                if (categoryParam) {
-                    query = query.eq('service_category_id', categoryParam);
-                }
+                // Note: Category filtering removed as service_category_id column doesn't exist
+                // TODO: Add category filtering once schema is updated
 
                 const { data, error } = await query;
 
