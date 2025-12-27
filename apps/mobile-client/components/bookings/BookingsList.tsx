@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react
 import Colors from '@/constants/Colors';
 import { FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { Chip } from '@/components/shared';
 
 // Mock Data Types
 interface Booking {
@@ -48,39 +49,29 @@ const mockBookings: Booking[] = [
 ];
 
 const StatusBadge = ({ status }: { status: Booking['status'] }) => {
-    let color = Colors.slate[500];
-    let bg = Colors.slate[100];
+    let variant: 'success' | 'warning' | 'error' | 'info' | 'default' = 'default';
     let label = status.replace('_', ' ');
 
     switch (status) {
         case 'pending':
-            color = Colors.amber.DEFAULT;
-            bg = Colors.amber[50];
+            variant = 'warning';
             break;
         case 'accepted':
-            color = Colors.blue.DEFAULT;
-            bg = Colors.blue[50];
+            variant = 'info';
             break;
         case 'in_progress':
-            color = Colors.teal.DEFAULT;
-            bg = Colors.teal[50];
+            variant = 'success';
             label = 'On the way';
             break;
         case 'completed':
-            color = Colors.green.DEFAULT;
-            bg = Colors.green[50];
+            variant = 'success';
             break;
         case 'cancelled':
-            color = Colors.red.DEFAULT;
-            bg = Colors.red[50];
+            variant = 'error';
             break;
     }
 
-    return (
-        <View style={[styles.badge, { backgroundColor: bg }]}>
-            <Text style={[styles.badgeText, { color: color }]}>{label.toUpperCase()}</Text>
-        </View>
-    );
+    return <Chip label={label.toUpperCase()} variant={variant} />;
 };
 
 export const BookingsList = () => {

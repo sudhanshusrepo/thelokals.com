@@ -3,6 +3,10 @@ import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Ima
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { FontAwesome } from '@expo/vector-icons';
+import { Card } from '@/components/shared';
+import { colors } from '@/theme/colors';
+import { typography } from '@/theme/typography';
+import { spacing } from '@/theme/spacing';
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -25,7 +29,7 @@ export default function ProfileScreen() {
         {/* Header Section */}
         <View style={styles.header}>
           <View style={styles.avatarContainer}>
-            <FontAwesome name="user" size={40} color={Colors.teal.DEFAULT} />
+            <FontAwesome name="user" size={40} color={colors.primary} />
           </View>
           <Text style={styles.name}>John Doe</Text>
           <Text style={styles.email}>john.doe@example.com</Text>
@@ -54,25 +58,25 @@ export default function ProfileScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Settings</Text>
           {menuItems.map((item, index) => (
-            <TouchableOpacity key={index} style={styles.menuItem} onPress={item.action}>
+            <Card key={index} style={styles.menuItem} onPress={item.action}>
               <View style={styles.menuItemLeft}>
                 <View style={styles.iconBox}>
-                  <FontAwesome name={item.icon as any} size={16} color={Colors.slate[500]} />
+                  <FontAwesome name={item.icon as any} size={16} color={colors.textSecondary} />
                 </View>
                 <Text style={styles.menuItemLabel}>{item.label}</Text>
               </View>
-              <FontAwesome name="chevron-right" size={12} color={Colors.slate[300]} />
-            </TouchableOpacity>
+              <FontAwesome name="chevron-right" size={12} color={colors.borderMedium} />
+            </Card>
           ))}
 
-          <TouchableOpacity style={[styles.menuItem, styles.logoutItem]} onPress={handleLogout}>
+          <Card style={[styles.menuItem, styles.logoutItem]} onPress={handleLogout}>
             <View style={styles.menuItemLeft}>
               <View style={[styles.iconBox, styles.logoutIconBox]}>
-                <FontAwesome name="sign-out" size={16} color={Colors.red.DEFAULT} />
+                <FontAwesome name="sign-out" size={16} color={colors.accentRed} />
               </View>
               <Text style={[styles.menuItemLabel, styles.logoutText]}>Log Out</Text>
             </View>
-          </TouchableOpacity>
+          </Card>
         </View>
 
         <TouchableOpacity style={styles.deleteButton} onPress={() => alert("Delete account functionality")}>
@@ -110,13 +114,13 @@ const styles = StyleSheet.create({
     width: 96,
     height: 96,
     borderRadius: 48,
-    backgroundColor: Colors.teal[50],
+    backgroundColor: colors.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 16,
+    marginBottom: spacing.lg,
     borderWidth: 4,
-    borderColor: '#fff',
-    shadowColor: Colors.teal.DEFAULT,
+    borderColor: colors.bgSurface,
+    shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
@@ -208,20 +212,10 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   menuItem: {
-    backgroundColor: '#fff',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 16,
-    borderRadius: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: Colors.slate[100],
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.02,
-    shadowRadius: 4,
-    elevation: 1,
+    marginBottom: spacing.md,
   },
   menuItemLeft: {
     flexDirection: 'row',
@@ -242,15 +236,15 @@ const styles = StyleSheet.create({
     color: Colors.slate[700],
   },
   logoutItem: {
-    marginTop: 8,
-    backgroundColor: Colors.red[50],
-    borderColor: Colors.red[100],
+    marginTop: spacing.sm,
+    backgroundColor: colors.accentRedLight + '20',
+    borderColor: colors.accentRedLight,
   },
   logoutIconBox: {
-    backgroundColor: Colors.red[100],
+    backgroundColor: colors.accentRedLight + '40',
   },
   logoutText: {
-    color: Colors.red[600],
+    color: colors.accentRed,
     fontWeight: '600',
   },
   deleteButton: {

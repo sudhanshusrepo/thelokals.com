@@ -5,24 +5,25 @@
   --background: #F8FAFC;
   --foreground: #0F172A;
 
-  /* Primary - Lokals Green (Vivid teal-green) */
-  --primary: #1EC97A;
-  --primary-dark: #16B56B;
-  --primary-light: #4DD494;
-  --primary-foreground: #FFFFFF;
+  /* Primary - Lokals Green (Sinport-inspired) */
+  --primary: #8AE98D;
+  --primary-dark: #6BC96E;
+  --primary-light: #A8F4AB;
+  --primary-foreground: #0E121A;
 
-  /* Secondary - Deep Tech Navy */
-  --secondary: #042B3B;
-  --secondary-light: #063245;
-  --secondary-dark: #021A24;
+  /* Secondary - Deep Canvas */
+  --secondary: #0E121A;
+  --secondary-light: #1A1F2E;
+  --secondary-dark: #000000;
   --secondary-foreground: #FFFFFF;
 
   /* Accents */
-  --accent-orange: #FF6B35;
+  --accent-amber: #F7C846;
+  --accent-red: #FC574E;
   --accent-sky: #E0F7FA;
   --accent: var(--primary);
   /* Default accent maps to primary */
-  --accent-foreground: #FFFFFF;
+  --accent-foreground: #0E121A;
 
   /* Neutrals (blue-tinted greys) */
   --neutral-900: #0F172A;
@@ -37,9 +38,9 @@
   --neutral-50: #F8FAFC;
 
   /* Semantic colors */
-  --success: #1EC97A;
-  --warning: #FF6B35;
-  --error: #EF4444;
+  --success: #8AE98D;
+  --warning: #F7C846;
+  --error: #FC574E;
   --info: #3B82F6;
 
   /* UI Elements */
@@ -52,10 +53,10 @@
   --radius: 1rem;
 
   /* Gradients */
-  --gradient-primary: linear-gradient(135deg, #1EC97A 0%, #042B3B 100%);
-  --gradient-hero: linear-gradient(180deg, rgba(4, 43, 59, 0.3) 0%, rgba(4, 43, 59, 0.95) 100%);
-  --gradient-hero-bg: linear-gradient(135deg, #042B3B 0%, #063245 100%);
-  --gradient-elevated: linear-gradient(135deg, rgba(30, 201, 122, 0.1) 0%, rgba(4, 43, 59, 0.05) 100%);
+  --gradient-primary: linear-gradient(135deg, #8AE98D 0%, #0E121A 100%);
+  --gradient-hero: linear-gradient(180deg, rgba(14, 18, 26, 0.3) 0%, rgba(14, 18, 26, 0.95) 100%);
+  --gradient-hero-bg: linear-gradient(135deg, #0E121A 0%, #1A1F2E 100%);
+  --gradient-elevated: linear-gradient(135deg, rgba(138, 233, 141, 0.1) 0%, rgba(14, 18, 26, 0.05) 100%);
 
   /* Motion Tokens */
   --motion-fast: 150ms;
@@ -98,7 +99,8 @@
   --color-secondary-dark: var(--secondary-dark);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-accent: var(--accent);
-  --color-accent-orange: var(--accent-orange);
+  --color-accent-amber: var(--accent-amber);
+  --color-accent-red: var(--accent-red);
   --color-accent-sky: var(--accent-sky);
   --color-accent-foreground: var(--accent-foreground);
   --color-surface: var(--surface);
@@ -149,8 +151,8 @@ body {
 
 .shadow-elevated {
   box-shadow:
-    0 25px 50px -12px rgba(4, 43, 59, 0.25),
-    0 12px 24px -8px rgba(30, 201, 122, 0.15),
+    0 25px 50px -12px rgba(14, 18, 26, 0.25),
+    0 12px 24px -8px rgba(138, 233, 141, 0.15),
     0 0 0 1px rgba(0, 0, 0, 0.03);
   transform: translateY(0);
   transition: all var(--motion-normal) var(--easing-standard);
@@ -159,8 +161,8 @@ body {
 .shadow-elevated:hover {
   transform: translateY(-4px);
   box-shadow:
-    0 30px 60px -15px rgba(4, 43, 59, 0.3),
-    0 15px 30px -10px rgba(30, 201, 122, 0.2),
+    0 30px 60px -15px rgba(14, 18, 26, 0.3),
+    0 15px 30px -10px rgba(138, 233, 141, 0.2),
     0 0 0 1px rgba(0, 0, 0, 0.05);
 }
 
@@ -175,7 +177,7 @@ body {
   inset: -2px;
   border-radius: 26px;
   padding: 2px;
-  background: linear-gradient(135deg, rgba(30, 201, 122, 0.3), rgba(4, 43, 59, 0.2));
+  background: linear-gradient(135deg, rgba(138, 233, 141, 0.3), rgba(14, 18, 26, 0.2));
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
@@ -321,4 +323,82 @@ body {
 /* Smooth scroll */
 html {
   scroll-behavior: smooth;
+}
+
+/* Micro-Interactions - Phase 4 */
+
+/* Button transitions */
+.btn-primary,
+button[type="submit"],
+button[type="button"] {
+  transition: all var(--motion-normal) var(--easing-standard);
+}
+
+.btn-primary:hover,
+button[type="submit"]:hover,
+button[type="button"]:hover:not(:disabled) {
+  transform: scale(1.02);
+  box-shadow: 0 8px 16px rgba(138, 233, 141, 0.3);
+}
+
+.btn-primary:active,
+button[type="submit"]:active,
+button[type="button"]:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Card hover effects */
+.card,
+[class*="card-"] {
+  transition: transform var(--motion-fast) var(--easing-standard),
+    box-shadow var(--motion-normal) var(--easing-standard);
+}
+
+.card:hover,
+[class*="card-"]:hover {
+  transform: translateY(-2px);
+}
+
+/* Input focus states */
+input:not([type="checkbox"]):not([type="radio"]),
+textarea,
+select {
+  transition: border-color var(--motion-slow) var(--easing-standard),
+    box-shadow var(--motion-slow) var(--easing-standard);
+}
+
+input:focus:not([type="checkbox"]):not([type="radio"]),
+textarea:focus,
+select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(138, 233, 141, 0.1);
+  outline: none;
+}
+
+/* Link hover */
+a {
+  transition: color var(--motion-fast) var(--easing-standard);
+}
+
+a:hover {
+  color: var(--primary-dark);
+}
+
+/* Chip/Badge fade-in */
+.chip,
+.badge,
+[class*="status-"] {
+  animation: chipFadeIn var(--motion-normal) var(--easing-standard) forwards;
+}
+
+@keyframes chipFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }

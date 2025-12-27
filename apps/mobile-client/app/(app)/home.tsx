@@ -3,6 +3,10 @@ import { useRouter } from 'expo-router';
 import { StyleSheet, SafeAreaView, ScrollView, NativeSyntheticEvent, NativeScrollEvent, View as RNView, TouchableOpacity } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import Colors from '@/constants/Colors';
+import { Card } from '@/components/shared';
+import { colors } from '@/theme/colors';
+import { typography } from '@/theme/typography';
+import { spacing } from '@/theme/spacing';
 import { HowItWorks } from '@/components/HowItWorks';
 import { StickyChatCta } from '@/components/StickyChatCta';
 import { HomeHero } from '@/components/home/HomeHero';
@@ -90,15 +94,15 @@ export default function HomeScreen() {
           <HowItWorks />
 
           <View style={styles.categoriesContainer}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.md }}>
               <Text style={styles.categoriesTitle}>Categories</Text>
               <TouchableOpacity onPress={() => router.push('/(app)/browse')}>
-                <Text style={{ color: Colors.teal.DEFAULT, fontWeight: '600' }}>See All</Text>
+                <Text style={{ color: colors.primary, fontWeight: '600' }}>See All</Text>
               </TouchableOpacity>
             </View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {categories.map((category, index) => (
-                <TouchableOpacity
+                <Card
                   key={index}
                   style={styles.categoryCard}
                   onPress={() => router.push({
@@ -106,8 +110,8 @@ export default function HomeScreen() {
                     params: { category: category.name }
                   })}
                 >
-                  <Text>{category.name}</Text>
-                </TouchableOpacity>
+                  <Text style={styles.categoryText}>{category.name}</Text>
+                </Card>
               ))}
             </ScrollView>
           </View>
@@ -146,22 +150,20 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
   categoriesContainer: {
-    padding: 16,
+    padding: spacing.lg,
   },
   categoriesTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 12,
+    ...typography.h3,
+    marginBottom: spacing.md,
   },
   categoryCard: {
-    backgroundColor: 'rgba(241, 245, 249, 1)',
-    borderRadius: 12,
-    padding: 16,
-    marginRight: 12,
+    marginRight: spacing.md,
+    minWidth: 100,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: Colors.slate[200],
-    minWidth: 100,
+  },
+  categoryText: {
+    ...typography.body,
+    color: colors.textPrimary,
   },
 });

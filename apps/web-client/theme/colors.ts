@@ -4,19 +4,20 @@
  */
 
 export const colors = {
-    // Primary - Lokals Green (Vivid teal-green)
-    primary: '#1EC97A',
-    primaryDark: '#16B56B',
-    primaryLight: '#4DD494',
+    // Primary - Lokals Green (Sinport-inspired)
+    primary: '#8AE98D',
+    primaryDark: '#6BC96E',
+    primaryLight: '#A8F4AB',
 
-    // Secondary - Deep Tech Navy
-    secondary: '#042B3B',
-    secondaryLight: '#063245',
-    secondaryDark: '#021A24',
+    // Secondary - Deep Canvas
+    secondary: '#0E121A',
+    secondaryLight: '#1A1F2E',
+    secondaryDark: '#000000',
 
     // Accents
     accent: {
-        orange: '#FF6B35', // Warm orange (roof-inspired) for badges, ratings
+        amber: '#F7C846',  // Warm amber for highlights, warnings
+        red: '#FC574E',    // Soft red for errors, negative states
         sky: '#E0F7FA',    // Soft sky (pale teal-blue) for subtle fills, chips
     },
 
@@ -35,15 +36,15 @@ export const colors = {
     },
 
     // Semantic colors
-    success: '#1EC97A',
-    warning: '#FF6B35',
-    error: '#EF4444',
+    success: '#8AE98D',
+    warning: '#F7C846',
+    error: '#FC574E',
     info: '#3B82F6',
 
     // Legacy aliases for backwards compatibility
     // These map old color names to new tokens
-    teal: '#1EC97A',      // maps to new primary
-    indigo: '#042B3B',    // maps to new secondary
+    teal: '#8AE98D',      // maps to new primary
+    indigo: '#0E121A',    // maps to new secondary
     slate: {
         900: '#0F172A',
         800: '#1E293B',
@@ -80,21 +81,21 @@ export const motion = {
  * Gradient definitions
  */
 export const gradients = {
-    primary: 'linear-gradient(135deg, #1EC97A 0%, #042B3B 100%)',
-    hero: 'linear-gradient(180deg, rgba(4, 43, 59, 0.3) 0%, rgba(4, 43, 59, 0.95) 100%)',
-    heroBackground: 'linear-gradient(135deg, #042B3B 0%, #063245 100%)',
-    elevated: 'linear-gradient(135deg, rgba(30, 201, 122, 0.1) 0%, rgba(4, 43, 59, 0.05) 100%)',
+    primary: 'linear-gradient(135deg, #8AE98D 0%, #0E121A 100%)',
+    hero: 'linear-gradient(180deg, rgba(14, 18, 26, 0.3) 0%, rgba(14, 18, 26, 0.95) 100%)',
+    heroBackground: 'linear-gradient(135deg, #0E121A 0%, #1A1F2E 100%)',
+    elevated: 'linear-gradient(135deg, rgba(138, 233, 141, 0.1) 0%, rgba(14, 18, 26, 0.05) 100%)',
 } as const;
 
 /**
  * Shadow definitions for 3D effects
  */
 export const shadows = {
-    sm: '0 1px 2px 0 rgba(4, 43, 59, 0.05)',
-    md: '0 4px 6px -1px rgba(4, 43, 59, 0.1), 0 2px 4px -1px rgba(4, 43, 59, 0.06)',
-    lg: '0 10px 15px -3px rgba(4, 43, 59, 0.1), 0 4px 6px -2px rgba(4, 43, 59, 0.05)',
-    xl: '0 20px 25px -5px rgba(4, 43, 59, 0.1), 0 10px 10px -5px rgba(4, 43, 59, 0.04)',
-    elevated: '0 25px 50px -12px rgba(4, 43, 59, 0.25), 0 12px 24px -8px rgba(30, 201, 122, 0.15)',
+    sm: '0 1px 2px 0 rgba(14, 18, 26, 0.05)',
+    md: '0 4px 6px -1px rgba(14, 18, 26, 0.1), 0 2px 4px -1px rgba(14, 18, 26, 0.06)',
+    lg: '0 10px 15px -3px rgba(14, 18, 26, 0.1), 0 4px 6px -2px rgba(14, 18, 26, 0.05)',
+    xl: '0 20px 25px -5px rgba(14, 18, 26, 0.1), 0 10px 10px -5px rgba(14, 18, 26, 0.04)',
+    elevated: '0 25px 50px -12px rgba(14, 18, 26, 0.25), 0 12px 24px -8px rgba(138, 233, 141, 0.15)',
     hero: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
 } as const;
 

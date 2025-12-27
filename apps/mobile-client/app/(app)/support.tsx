@@ -3,6 +3,10 @@ import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Lin
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { FontAwesome } from '@expo/vector-icons';
+import { Card } from '@/components/shared';
+import { colors } from '@/theme/colors';
+import { typography } from '@/theme/typography';
+import { spacing } from '@/theme/spacing';
 
 export default function SupportScreen() {
     const router = useRouter();
@@ -25,24 +29,24 @@ export default function SupportScreen() {
             title: 'Email Support',
             subtitle: 'Get help via email',
             action: handleEmailSupport,
-            color: Colors.blue.DEFAULT || '#3b82f6',
-            bg: Colors.blue[50] || '#eff6ff',
+            color: colors.statusInfo,
+            bg: '#eff6ff',
         },
         {
             icon: 'phone',
             title: 'Call Us',
             subtitle: 'Speak to an agent',
             action: handleCallSupport,
-            color: Colors.green.DEFAULT || '#22c55e',
-            bg: Colors.green[50] || '#f0fdf4',
+            color: colors.primary,
+            bg: colors.primaryLight,
         },
         {
             icon: 'question-circle',
             title: 'FAQs',
             subtitle: 'Common questions',
             action: handleFaq,
-            color: Colors.purple.DEFAULT || '#a855f7',
-            bg: Colors.purple[50] || '#faf5ff',
+            color: colors.textSecondary,
+            bg: colors.bgCard,
         },
     ];
 
@@ -56,7 +60,7 @@ export default function SupportScreen() {
             <ScrollView contentContainerStyle={styles.content}>
                 <View style={styles.optionsContainer}>
                     {supportOptions.map((option, index) => (
-                        <TouchableOpacity
+                        <Card
                             key={index}
                             style={styles.optionCard}
                             onPress={option.action}
@@ -68,8 +72,8 @@ export default function SupportScreen() {
                                 <Text style={styles.optionTitle}>{option.title}</Text>
                                 <Text style={styles.optionSubtitle}>{option.subtitle}</Text>
                             </View>
-                            <FontAwesome name="chevron-right" size={12} color={Colors.slate[300]} />
-                        </TouchableOpacity>
+                            <FontAwesome name="chevron-right" size={12} color={colors.borderMedium} />
+                        </Card>
                     ))}
                 </View>
 
@@ -125,19 +129,9 @@ const styles = StyleSheet.create({
         marginBottom: 32,
     },
     optionCard: {
-        backgroundColor: '#fff',
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 16,
-        borderRadius: 16,
-        marginBottom: 12,
-        borderWidth: 1,
-        borderColor: Colors.slate[100],
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 4,
-        elevation: 2,
+        marginBottom: spacing.md,
     },
     iconBox: {
         width: 48,
