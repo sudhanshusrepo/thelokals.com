@@ -47,7 +47,7 @@ CREATE POLICY "providers_insert_own_documents" ON public.provider_documents
 CREATE POLICY "admins_view_all_documents" ON public.provider_documents
   FOR ALL USING (
     EXISTS (
-      SELECT 1 FROM public.users 
+      SELECT 1 FROM auth.users 
       WHERE id = auth.uid() AND role = 'admin'
     )
   );
@@ -59,7 +59,7 @@ CREATE POLICY "providers_view_own_history" ON public.provider_approval_history
 CREATE POLICY "admins_view_all_history" ON public.provider_approval_history
   FOR ALL USING (
     EXISTS (
-      SELECT 1 FROM public.users 
+      SELECT 1 FROM auth.users 
       WHERE id = auth.uid() AND role = 'admin'
     )
   );

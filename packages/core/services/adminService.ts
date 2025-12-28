@@ -247,26 +247,35 @@ export const adminService = {
      * Get admin user by email
      */
     async getAdminByEmail(email: string): Promise<AdminUser | null> {
-        const { data, error } = await supabase
+        // First get profile by email to get ID
+        const { data: profile } = await supabase
             .from('profiles')
-            .select('*')
+            .select('id, full_name, email')
             .eq('email', email)
             .single();
 
+        if (!profile) return null;
+
+        // Then check if this user is an admin
+        const { data: adminData, error } = await supabase
+            .from('admin_users')
+            .select('*')
+            .eq('id', profile.id)
+            .gte('is_active', true) // Only active admins
+            .single();
+
         if (error) {
-            if (error.code === 'PGRST116') return null; // Not found
-            throw new Error(`Failed to fetch admin user: ${error.message}`);
+            if (error.code === 'PGRST116') return null; // Not an admin
+            console.error('Admin check failed:', error);
+            return null;
         }
 
-        // Map profile to AdminUser format
-        if (!data) return null;
-
         return {
-            id: data.id,
-            email: data.email,
-            full_name: data.full_name,
-            role: 'super_admin' as AdminRole, // All users in profiles with email are admins for now
-            created_at: data.created_at
+            id: profile.id,
+            email: profile.email!,
+            full_name: profile.full_name || 'Admin',
+            role: adminData.role as AdminRole,
+            created_at: adminData.created_at
         };
     },
 
@@ -410,7 +419,7 @@ export const adminService = {
     async getPendingProviders(): Promise<import('../types').WorkerProfile[]> {
         const { data, error } = await supabase
             .from('providers')
-            .select('*')
+            .select('*, name:full_name')
             .eq('verification_status', 'pending')
             .order('created_at', { ascending: false });
 

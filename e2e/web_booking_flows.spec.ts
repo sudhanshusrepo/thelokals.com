@@ -1,5 +1,5 @@
 
-import { test, expect } from '../node_modules/@playwright/test';
+import { test, expect } from '@playwright/test';
 
 // Run on localhost:3000 (Web Client)
 // test.use({ baseURL: 'http://localhost:3000' });

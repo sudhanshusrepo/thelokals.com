@@ -30,7 +30,8 @@ export default function VerificationPage() {
             );
 
             const data = await Promise.race([providersPromise, timeoutPromise]) as WorkerProfile[];
-            setProviders(data);
+            console.log('Fetched providers:', data);
+            setProviders(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error(error);
             toast.error("Error fetching providers");
@@ -116,21 +117,21 @@ export default function VerificationPage() {
                 </div>
             ) : (
                 <div className="grid gap-4">
-                    {providers.map(provider => (
-                        <div key={provider.id} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:shadow-md transition-shadow">
+                    {(Array.isArray(providers) ? providers : []).map(provider => (
+                        <div key={provider.id || Math.random()} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:shadow-md transition-shadow">
                             <div className="flex items-start gap-4">
                                 <div className="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
                                     {provider.imageUrl ? (
                                         <img src={provider.imageUrl} alt={provider.name} className="h-full w-full object-cover" />
                                     ) : (
-                                        <span className="text-xl font-bold text-gray-400">{provider.name.charAt(0)}</span>
+                                        <span className="text-xl font-bold text-gray-400">{(provider.name || '?').charAt(0)}</span>
                                     )}
                                 </div>
                                 <div>
                                     <div className="flex items-center gap-2">
-                                        <h3 className="font-bold text-lg text-gray-900">{provider.name}</h3>
+                                        <h3 className="font-bold text-lg text-gray-900">{provider.name || 'Unknown Provider'}</h3>
                                         <span className="px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
-                                            {provider.category}
+                                            {typeof provider.category === 'object' ? JSON.stringify(provider.category) : provider.category}
                                         </span>
                                     </div>
                                     <p className="text-sm text-gray-500 mt-1 line-clamp-1">{provider.description || "No description provided"}</p>

@@ -42,11 +42,10 @@ export default function CategoryPage() {
                 setCategory(categoryData);
 
                 // Fetch services in this category
-                // NOTE: service_category_id column doesn't exist, showing all services for now
-                // TODO: Add category filtering once schema is updated
                 const { data: servicesData, error: servicesError } = await supabase
                     .from('services')
                     .select('code, name, description, base_price_cents, duration_minutes_min')
+                    .eq('category', categoryId) // Filter by category slug
                     .eq('is_active', true)
                     .order('name');
 

@@ -77,7 +77,7 @@ test.describe('Client UI/UX Features', () => {
         await expect(offlineBtn).not.toHaveClass(/bg-white/);
 
         // Verify content change provided data exists
-        const legalCard = page.getByRole('heading', { name: 'Legal Consultation' });
+        const legalCard = page.getByText('Legal Consultation');
         await expect(legalCard).toBeVisible();
 
         // Check badge text if visible

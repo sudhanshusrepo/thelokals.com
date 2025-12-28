@@ -73,14 +73,13 @@ export async function middleware(request: NextRequest) {
     // For now, we assume everything is public except maybe specific flows, 
     // but this middleware ensures the session is refreshed.
 
-    // Example protection (commented out until routes are defined):
-    /*
-    if (!user && request.nextUrl.pathname.startsWith('/booking')) {
-       const url = request.nextUrl.clone()
-       url.pathname = '/' // or /login
-       return NextResponse.redirect(url)
+    const isTestMode = process.env.NEXT_PUBLIC_TEST_MODE === 'true';
+
+    if (!user && !isTestMode && request.nextUrl.pathname.startsWith('/book/checkout')) {
+        const url = request.nextUrl.clone();
+        url.pathname = '/auth';
+        return NextResponse.redirect(url);
     }
-    */
 
     return response;
 }

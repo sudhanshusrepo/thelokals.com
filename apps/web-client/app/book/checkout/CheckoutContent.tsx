@@ -27,8 +27,10 @@ export default function CheckoutContent() {
 
     const { user } = useAuth();
     const [submitting, setSubmitting] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const handleConfirmBooking = async () => {
+        setError(null);
         if (!user) {
             router.push(`/auth?redirect=/book/checkout`);
             return;
@@ -54,7 +56,7 @@ export default function CheckoutContent() {
             if (modifier === 'AM' && hours === 12) hours = 0;
             dateObj.setHours(hours, minutes, 0, 0);
 
-            const { data, error } = await supabase
+            const { data, error: funcError } = await supabase
                 .from('bookings')
                 .insert({
                     user_id: user.id,
@@ -71,15 +73,17 @@ export default function CheckoutContent() {
                 .select()
                 .single();
 
-            if (error) throw error;
+            if (funcError) throw funcError;
 
             if (data) {
                 router.push(`/bookings/${data.id}`);
             }
 
-        } catch (err) {
+        } catch (err: any) {
             console.error('Booking failed:', err);
-            alert('Failed to create booking. Please try again.');
+            // Extract message from Supabase error or generic
+            const msg = err.message || 'Failed to create booking. Please try again.';
+            setError(msg);
         } finally {
             setSubmitting(false);
         }
@@ -237,6 +241,17 @@ export default function CheckoutContent() {
                             </div>
 
                             <div className="space-y-4 pt-4 border-t border-slate-100">
+                                {error && (
+                                    <div className="p-4 rounded-xl bg-red-50 text-red-600 text-sm font-medium border border-red-100">
+                                        {error}
+                                        <button
+                                            onClick={() => setError(null)}
+                                            className="ml-2 underline text-red-700 hover:text-red-800"
+                                        >
+                                            Retry
+                                        </button>
+                                    </div>
+                                )}
                                 <div className="flex justify-between items-center">
                                     <span className="text-slate-500 text-sm">Total to Pay</span>
                                     <span className="text-2xl font-bold text-slate-900">{price}</span>
