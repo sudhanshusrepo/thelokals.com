@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { AuthModal } from './AuthModal';
 import { useAuth } from '../contexts/AuthContext';
 import { AnimatedCounter } from './ui/AnimatedCounter';
 import { LANDING_CONTENT } from '../constants/landing-content';
@@ -12,7 +11,6 @@ interface ProviderLandingProps {
 }
 
 export const ProviderLanding: React.FC<ProviderLandingProps> = ({ onRegisterClick }) => {
-    const [showAuthModal, setShowAuthModal] = useState(false);
     const { user, profile } = useAuth();
     const router = useRouter();
 
@@ -36,7 +34,6 @@ export const ProviderLanding: React.FC<ProviderLandingProps> = ({ onRegisterClic
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
-            {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
 
             {/* Hero Section */}
             <section className="relative overflow-hidden bg-gradient-to-br from-primary via-accent/20 to-primary">
@@ -215,18 +212,18 @@ export const ProviderLanding: React.FC<ProviderLandingProps> = ({ onRegisterClic
                 <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
                 <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
 
-                <div className="relative max-w-4xl mx-auto px-4 text-center">
-                    <h2 className="text-3xl sm:text-5xl font-bold mb-6 tracking-tight">
-                        {LANDING_CONTENT.cta.title}
-                    </h2>
-                    <p className="text-xl mb-10 text-slate-400">
-                        {LANDING_CONTENT.cta.subtitle}
+                <div className="relative max-w-4xl mx-auto text-center">
+                    <h1 className="text-5xl font-bold text-gray-900 mb-6">
+                        Grow Your Business with lokals
+                    </h1>
+                    <p className="text-xl text-gray-600 mb-8">
+                        Join thousands of service providers earning more by connecting with local customers
                     </p>
                     <button
                         onClick={handleGetStarted}
-                        className="px-8 py-4 bg-primary text-white text-lg font-bold rounded-xl hover:bg-blue-600 transition-all transform hover:scale-105 shadow-lg shadow-blue-500/25"
+                        className="bg-indigo-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-indigo-700 transition-colors shadow-lg"
                     >
-                        {user ? LANDING_CONTENT.cta.buttonTextLoggedIn : LANDING_CONTENT.cta.buttonText}
+                        Get Started
                     </button>
                 </div>
             </section>
