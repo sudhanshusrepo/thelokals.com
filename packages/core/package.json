@@ -8,6 +8,7 @@
     "exports": {
         ".": "./index.ts",
         "./components/*": "./components/*",
+        "./components/ui/*": "./components/ui/*",
         "./*": "./*.ts"
     },
     "scripts": {
@@ -23,8 +24,11 @@
     "dependencies": {
         "@google/generative-ai": "^0.1.0",
         "@supabase/supabase-js": "^2.89.0",
+        "clsx": "^2.1.1",
         "dotenv": "^17.2.3",
-        "firebase": "^10.7.0"
+        "firebase": "^10.7.0",
+        "lucide-react": "^0.562.0",
+        "tailwind-merge": "^3.4.0"
     },
     "devDependencies": {
         "@playwright/test": "^1.57.0",
