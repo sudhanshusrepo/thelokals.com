@@ -94,12 +94,12 @@ export const AppBar: React.FC<AppBarProps> = ({ onSignIn, onOpenApp }) => {
                             <User size={20} />
                         </Link>
                     ) : (
-                        <button
-                            onClick={onSignIn}
+                        <Link
+                            href="/auth"
                             className="text-white/90 hover:text-white text-sm font-medium uppercase tracking-wide transition-colors"
                         >
                             SIGN IN
-                        </button>
+                        </Link>
                     )}
 
                     {/* Install/Open App Button */}

@@ -20,9 +20,9 @@ if (supabaseUrl === 'https://placeholder.supabase.co') {
 // Create client with robust configuration
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
     auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: true
+        persistSession: typeof window !== 'undefined',
+        autoRefreshToken: typeof window !== 'undefined',
+        detectSessionInUrl: typeof window !== 'undefined'
     },
     global: {
         headers: {

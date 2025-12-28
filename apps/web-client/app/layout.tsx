@@ -15,9 +15,42 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "lokals - Trusted Local Services",
-  description: "Find trusted local professionals for all your home service needs.",
+  title: {
+    default: "lokals - Trusted Local Services",
+    template: "%s | lokals"
+  },
+  description: "Find trusted local professionals for cleaning, repairs, beauty, and more. Instant booking, verified providers, and transparent pricing.",
+  applicationName: "lokals",
+  authors: [{ name: "The Lokals Team" }],
+  keywords: ["local services", "home cleaning", "handyman", "beauty services", "plumber", "electrician"],
   manifest: "/manifest.json",
+  openGraph: {
+    type: "website",
+    locale: "en_IN",
+    url: "https://thelokals.com",
+    siteName: "lokals",
+    title: "lokals - Trusted Local Services",
+    description: "Find trusted local professionals for cleaning, repairs, beauty, and more.",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "lokals - Trusted Local Services",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "lokals - Trusted Local Services",
+    description: "Find trusted local professionals for cleaning, repairs, beauty, and more.",
+    images: ["/og-image.jpg"],
+    creator: "@thelokals",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export const viewport: Viewport = {
@@ -67,6 +100,28 @@ export default function RootLayout({
             </BookingProvider>
           </AuthProvider>
         </ErrorBoundary>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "name": "lokals",
+              "url": "https://thelokals.com",
+              "logo": "https://thelokals.com/icons/icon-512x512.png",
+              "sameAs": [
+                "https://facebook.com/thelokals",
+                "https://twitter.com/thelokals",
+                "https://instagram.com/thelokals"
+              ],
+              "contactPoint": {
+                "@type": "ContactPoint",
+                "telephone": "+91-9876543210",
+                "contactType": "customer service"
+              }
+            })
+          }}
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `

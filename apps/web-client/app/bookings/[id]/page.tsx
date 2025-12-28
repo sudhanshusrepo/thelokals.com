@@ -22,7 +22,7 @@ export default function BookingTrackingPage() {
         const fetchBooking = async () => {
             const { data, error } = await supabase
                 .from('bookings')
-                .select('*') // Removed provider join due to PGRST200 schema cache issue
+                .select('*, provider:providers(*)') // Restored provider join
                 .eq('id', bookingId)
                 .single();
 
@@ -243,22 +243,25 @@ export default function BookingTrackingPage() {
 
                 {/* Cancel Button */}
                 {canCancel && (
-                    <button
+                    <Button
                         onClick={handleCancelBooking}
                         disabled={cancelling}
-                        className="w-full bg-red-50 text-red-600 font-semibold py-3 rounded-xl hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-red-200"
+                        variant="danger"
+                        fullWidth
+                        className="mb-4"
                     >
                         {cancelling ? 'Cancelling...' : 'Cancel Booking'}
-                    </button>
+                    </Button>
                 )}
 
                 {/* Back Button */}
-                <button
+                <Button
                     onClick={() => router.push('/')}
-                    className="w-full mt-4 text-slate-600 font-medium py-3 hover:text-slate-900 transition-colors"
+                    variant="ghost"
+                    fullWidth
                 >
                     ← Back to Home
-                </button>
+                </Button>
             </div>
         </div>
     );

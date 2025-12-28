@@ -6,6 +6,7 @@ import { AppBar } from '../../../components/home/AppBar';
 import Footer from '../../../components/home/Footer';
 import { useAuth } from '../../../contexts/AuthContext';
 import { supabase } from '@thelocals/core/services/supabase';
+import { Button } from '../../../components/ui/Button';
 
 export default function CheckoutContent() {
     const router = useRouter();
@@ -256,13 +257,15 @@ export default function CheckoutContent() {
                                     <span className="text-slate-500 text-sm">Total to Pay</span>
                                     <span className="text-2xl font-bold text-slate-900">{price}</span>
                                 </div>
-                                <button
+                                <Button
                                     onClick={handleConfirmBooking}
-                                    disabled={submitting}
-                                    className={`w-full bg-primary text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-primary/20 hover:bg-primary-dark active:scale-[0.98] transition-all ${submitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    isLoading={submitting}
+                                    fullWidth
+                                    size="lg"
+                                    className="shadow-lg shadow-primary/20"
                                 >
-                                    {submitting ? 'Processing...' : 'Confirm Booking'}
-                                </button>
+                                    Confirm Booking
+                                </Button>
                             </div>
                         </div>
                     </div>

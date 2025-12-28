@@ -91,7 +91,7 @@ function BookingContent() {
                 notes: formData.notes
             });
 
-            router.push('/booking/match');
+            router.push('/book/checkout'); // Fixed redirect path
 
         } catch (error: any) {
             toast.error(error.message);
@@ -185,17 +185,12 @@ function BookingContent() {
 
                             <Button
                                 type="submit"
-                                disabled={loading}
+                                isLoading={loading}
                                 fullWidth
                                 size="lg"
                                 className="shadow-lg shadow-indigo-200"
                             >
-                                {loading ? (
-                                    <span className="flex items-center justify-center gap-2">
-                                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                        Processing...
-                                    </span>
-                                ) : 'Find Provider'}
+                                Find Provider
                             </Button>
                         </form>
                     </div>

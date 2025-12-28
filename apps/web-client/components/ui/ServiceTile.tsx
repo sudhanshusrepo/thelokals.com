@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 
 interface ServiceTileProps {
     icon?: React.ReactNode;
@@ -62,10 +63,12 @@ export function ServiceTile({
                 {/* Icon/Emoji/Image */}
                 {imageUrl ? (
                     <div className="absolute inset-0">
-                        <img
+                        <Image
                             src={imageUrl}
                             alt={label}
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                            fill
+                            className="object-cover transition-transform duration-700 group-hover:scale-110"
+                            sizes="(max-width: 768px) 50vw, 20vw"
                         />
                         {/* Gradient overlay for text readability */}
                         <div className="absolute inset-0 bg-gradient-to-t from-secondary/80 via-secondary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
