@@ -14,7 +14,7 @@ const LoadingSkeleton = () => (
 
 // Lazy-loaded home sections (below-the-fold)
 export const LazyBrowseServices = dynamic(
-    () => import('./home/BrowseServices').then(mod => ({ default: mod.BrowseServices })),
+    () => import('./home/BrowseServices'),
     {
         loading: () => <LoadingSkeleton />,
         ssr: true, // SEO-friendly sections should be SSR
@@ -22,7 +22,7 @@ export const LazyBrowseServices = dynamic(
 );
 
 export const LazyWhyLokals = dynamic(
-    () => import('./home/WhyLokals').then(mod => ({ default: mod.WhyLokals })),
+    () => import('./home/WhyLokals'),
     {
         loading: () => <LoadingSkeleton />,
         ssr: true,
@@ -30,7 +30,7 @@ export const LazyWhyLokals = dynamic(
 );
 
 export const LazyFooter = dynamic(
-    () => import('./home/Footer').then(mod => ({ default: mod.Footer })),
+    () => import('./home/Footer'),
     {
         loading: () => <LoadingSkeleton />,
         ssr: true,

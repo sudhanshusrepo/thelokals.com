@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { AppBar } from '../../../components/home/AppBar';
-import { Footer } from '../../../components/home/Footer';
+import Footer from '../../../components/home/Footer';
 import { useAuth } from '../../../contexts/AuthContext';
 import { supabase } from '@thelocals/core/services/supabase';
 
@@ -108,7 +108,7 @@ export default function CheckoutContent() {
                         <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
                             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Service Details</h3>
                             <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-full bg-teal-50 flex items-center justify-center text-teal-600">
+                                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -134,7 +134,7 @@ export default function CheckoutContent() {
                                         key={d}
                                         onClick={() => setSelectedDate(d)}
                                         className={`px-4 py-2 rounded-full text-sm font-medium border transition-all ${selectedDate === d
-                                            ? 'bg-teal-50 border-teal-500 text-teal-700'
+                                            ? 'bg-primary/10 border-primary text-primary'
                                             : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
                                             }`}
                                     >
@@ -149,7 +149,7 @@ export default function CheckoutContent() {
                                         key={t}
                                         onClick={() => setSelectedTime(t)}
                                         className={`px-4 py-2 rounded-full text-sm font-medium border transition-all ${selectedTime === t
-                                            ? 'bg-teal-50 border-teal-500 text-teal-700'
+                                            ? 'bg-primary/10 border-primary text-primary'
                                             : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
                                             }`}
                                     >
@@ -171,7 +171,7 @@ export default function CheckoutContent() {
                                 <div className="flex-1">
                                     <div className="flex justify-between items-center mb-1">
                                         <h4 className="font-bold text-slate-900">Home</h4>
-                                        <button className="text-sm font-bold text-teal-600 hover:text-teal-700">Edit</button>
+                                        <button className="text-sm font-bold text-primary hover:text-primary-dark">Edit</button>
                                     </div>
                                     <p className="text-slate-500 text-sm">
                                         No location detected. Tap 'Edit' to set address.
@@ -182,7 +182,7 @@ export default function CheckoutContent() {
                                 value={instructions}
                                 onChange={(e) => setInstructions(e.target.value)}
                                 placeholder="Add instructions (e.g., Gate code, landmark)"
-                                className="w-full bg-slate-50 border-0 rounded-xl p-4 text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-teal-500 resize-none h-24"
+                                className="w-full bg-slate-50 border-0 rounded-xl p-4 text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-primary resize-none h-24"
                             />
                         </div>
 
@@ -204,7 +204,7 @@ export default function CheckoutContent() {
                                         <span className="font-medium text-slate-700">Cash after service</span>
                                     </div>
                                     {!payWithWallet && (
-                                        <div className="text-teal-500">
+                                        <div className="text-primary">
                                             <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                                             </svg>
@@ -216,7 +216,7 @@ export default function CheckoutContent() {
 
                                 <div className="flex justify-between items-center p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
+                                        <div className="w-8 h-8 rounded-full bg-accent-amber/10 flex items-center justify-center text-accent-amber">
                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                                             </svg>
@@ -230,7 +230,7 @@ export default function CheckoutContent() {
                                             checked={payWithWallet}
                                             onChange={(e) => setPayWithWallet(e.target.checked)}
                                         />
-                                        <span className={`block w-full h-full rounded-full transition-colors duration-200 ${payWithWallet ? 'bg-teal-500' : 'bg-slate-200'}`} />
+                                        <span className={`block w-full h-full rounded-full transition-colors duration-200 ${payWithWallet ? 'bg-primary' : 'bg-slate-200'}`} />
                                         <span className={`absolute top-0.5 left-0.5 bg-white w-5 h-5 rounded-full transition-transform duration-200 shadow-sm ${payWithWallet ? 'translate-x-6' : 'translate-x-0'}`} />
                                     </div>
                                 </div>
@@ -244,7 +244,7 @@ export default function CheckoutContent() {
                                 <button
                                     onClick={handleConfirmBooking}
                                     disabled={submitting}
-                                    className={`w-full bg-teal-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-teal-200 hover:bg-teal-700 active:scale-[0.98] transition-all ${submitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    className={`w-full bg-primary text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-primary/20 hover:bg-primary-dark active:scale-[0.98] transition-all ${submitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 >
                                     {submitting ? 'Processing...' : 'Confirm Booking'}
                                 </button>

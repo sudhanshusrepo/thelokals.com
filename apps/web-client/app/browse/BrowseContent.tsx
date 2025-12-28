@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { AppBar } from '../../components/home/AppBar';
-import { Footer } from '../../components/home/Footer';
+import Footer from '../../components/home/Footer';
 import { supabase } from '@thelocals/core/services/supabase';
 
 interface Service {

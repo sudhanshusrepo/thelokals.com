@@ -48,7 +48,7 @@ const benefits: Benefit[] = [
     }
 ];
 
-export const WhyLokals: React.FC = () => {
+export default function WhyLokals() {
     return (
         <section className="py-12 md:py-16 bg-white border-t border-neutral-50">
             <div className="max-w-7xl mx-auto px-4">
@@ -76,4 +76,4 @@ export const WhyLokals: React.FC = () => {
             </div>
         </section>
     );
-};
+}

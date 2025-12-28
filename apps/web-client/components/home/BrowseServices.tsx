@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import { supabase } from '@thelocals/core/services/supabase';
 import { ServiceTile } from '../ui/ServiceTile';
 
@@ -19,7 +20,7 @@ interface BrowseServicesProps {
     onSelectService?: (serviceId: string) => void;
 }
 
-export const BrowseServices: React.FC<BrowseServicesProps> = ({ onSelectService }) => {
+export default function BrowseServices({ onSelectService }: BrowseServicesProps) {
     const [services, setServices] = useState<ServiceCategory[]>([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<'offline' | 'online'>('offline');
@@ -141,11 +142,24 @@ export const BrowseServices: React.FC<BrowseServicesProps> = ({ onSelectService 
                     </div>
                 </div>
 
+
+
                 {/* Services Grid */}
                 {filteredServices.length > 0 ? (
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-8">
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ staggerChildren: 0.1 }}
+                        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-8"
+                    >
                         {filteredServices.map((service) => (
-                            <div key={service.id} className="relative">
+                            <motion.div
+                                key={service.id}
+                                className="relative"
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.4 }}
+                            >
                                 {/* Badge - positioned absolutely over the tile */}
                                 <div className="absolute top-4 left-4 z-10">
                                     <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-white/20 backdrop-blur-md text-xs font-medium text-white border border-white/10">
@@ -159,9 +173,9 @@ export const BrowseServices: React.FC<BrowseServicesProps> = ({ onSelectService 
                                     onClick={() => onSelectService?.(service.id)}
                                     variant="browse"
                                 />
-                            </div>
+                            </motion.div>
                         ))}
-                    </div>
+                    </motion.div>
                 ) : (
                     /* Empty State */
                     <div className="text-center py-20 bg-neutral-50 rounded-3xl border border-dashed border-neutral-200">
@@ -177,4 +191,4 @@ export const BrowseServices: React.FC<BrowseServicesProps> = ({ onSelectService 
             </div>
         </section>
     );
-};
+}

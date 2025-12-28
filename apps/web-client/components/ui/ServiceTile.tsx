@@ -38,7 +38,7 @@ export function ServiceTile({
     variant = 'default',
     className = '',
 }: ServiceTileProps) {
-    const baseClasses = 'group relative overflow-hidden bg-neutral-50 transition-all duration-200 active:scale-[0.98]';
+    const baseClasses = 'group relative overflow-hidden bg-neutral-50 transition-all duration-200 active:scale-[0.98] hover:-translate-y-1';
 
     const variantClasses = {
         default: 'w-20 h-20 rounded-2xl',

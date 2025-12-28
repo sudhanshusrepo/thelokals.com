@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { AppBar } from '../../components/home/AppBar';
-import { Footer } from '../../components/home/Footer';
+import Footer from '../../components/home/Footer';
 
 export default function TermsPage() {
     return (

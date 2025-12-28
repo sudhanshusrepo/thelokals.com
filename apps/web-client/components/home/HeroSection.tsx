@@ -88,7 +88,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
     return (
         <section className="relative w-full h-[55vh] min-h-[400px] flex items-end overflow-hidden rounded-b-3xl shadow-hero">
             {/* Navy Gradient Background (replaces photo) */}
-            <div className="absolute inset-0 z-0 bg-gradient-to-br from-secondary via-secondary-light to-secondary">
+            <div className="absolute inset-0 z-0 bg-gradient-to-br from-secondary via-secondary-light to-secondary animate-gradient-xy">
                 {/* Subtle texture overlay */}
                 <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent_50%)]"></div>
             </div>

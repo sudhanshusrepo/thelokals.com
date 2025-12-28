@@ -2,7 +2,7 @@ import React from 'react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { AppBar } from '../../../components/home/AppBar';
-import { Footer } from '../../../components/home/Footer';
+import Footer from '../../../components/home/Footer';
 
 const blogPosts: Record<string, any> = {
     'welcome-to-lokals': {
