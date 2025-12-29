@@ -132,13 +132,16 @@ export default function ServiceSelectionPage() {
             return;
         }
 
-        // Navigate to live request page (will be created in Sprint 3)
+        // Create request and navigate to live request page
         toast.success('Creating your live request...');
 
-        // For now, navigate to home with success message
+        // Generate a mock request ID (in production, this would come from API)
+        const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+        // Navigate to live request page
         setTimeout(() => {
-            router.push('/');
-        }, 1500);
+            router.push(`/live-request/${requestId}`);
+        }, 1000);
     };
 
     if (!serviceDetails) {
