@@ -6,7 +6,7 @@ dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 export default defineConfig({
   testDir: './e2e',
-  testMatch: '**/*.spec.ts',
+  // testMatch: '**/*.spec.ts',  // Commented out to use default pattern
   timeout: 30 * 1000,
   expect: { timeout: 10000 },
   fullyParallel: true,
