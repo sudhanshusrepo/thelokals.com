@@ -6,6 +6,7 @@ import { useWebSocket, WebSocketMessage } from '../../../hooks/useWebSocket';
 import { ArrowLeft, Eye, Loader2, CheckCircle2, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
+import { OTPVerification } from '../../../components/booking/OTPVerification';
 
 interface RequestStatus {
     id: string;
@@ -54,6 +55,8 @@ export default function LiveRequestPage() {
     });
 
     const [providerAccepted, setProviderAccepted] = useState(false);
+    const [showOTP, setShowOTP] = useState(false);
+    const [otp, setOtp] = useState('');
 
     // WebSocket connection
     const wsUrl = getWebSocketUrl(requestId);
@@ -87,6 +90,29 @@ export default function LiveRequestPage() {
                 }));
                 setProviderAccepted(true);
                 toast.success('Provider accepted your request!');
+                break;
+
+            case 'provider_arrived':
+                setShowOTP(true);
+                setOtp(message.data.otp);
+                break;
+
+            case 'service_started':
+                setRequestStatus((prev) => ({
+                    ...prev,
+                    status: 'in_progress',
+                }));
+                break;
+
+            case 'service_completed':
+                setRequestStatus((prev) => ({
+                    ...prev,
+                    status: 'completed',
+                }));
+                // Navigate to rating page
+                setTimeout(() => {
+                    router.push(`/rating/${requestId}`);
+                }, 2000);
                 break;
 
             case 'status_update':
@@ -129,6 +155,17 @@ export default function LiveRequestPage() {
                     icon: '🎉',
                     duration: 4000,
                 });
+
+                // Mock provider arrival after 15 seconds
+                setTimeout(() => {
+                    const mockOTP = Math.floor(100000 + Math.random() * 900000).toString();
+                    setOtp(mockOTP);
+                    setShowOTP(true);
+                    toast.success('Provider has arrived!', {
+                        icon: '📍',
+                        duration: 3000,
+                    });
+                }, 15000);
             }, 10000);
 
             return () => {
@@ -357,6 +394,39 @@ export default function LiveRequestPage() {
                                         <span>Estimated arrival: 15-20 minutes</span>
                                     </div>
                                 </div>
+
+                                {/* OTP Verification (shown when provider arrives) */}
+                                {showOTP && otp && (
+                                    <div className="mt-6">
+                                        <OTPVerification
+                                            otp={otp}
+                                            providerName={requestStatus.provider.name}
+                                            onVerified={() => {
+                                                setRequestStatus((prev) => ({
+                                                    ...prev,
+                                                    status: 'in_progress',
+                                                }));
+                                                toast.success('Service started!');
+
+                                                // Mock service completion after 10 seconds
+                                                setTimeout(() => {
+                                                    setRequestStatus((prev) => ({
+                                                        ...prev,
+                                                        status: 'completed',
+                                                    }));
+                                                    toast.success('Service completed!', {
+                                                        icon: '✅',
+                                                        duration: 3000,
+                                                    });
+                                                    // Navigate to rating
+                                                    setTimeout(() => {
+                                                        router.push(`/rating/${requestId}`);
+                                                    }, 2000);
+                                                }, 10000);
+                                            }}
+                                        />
+                                    </div>
+                                )}
                             </div>
                         </motion.div>
                     )}
