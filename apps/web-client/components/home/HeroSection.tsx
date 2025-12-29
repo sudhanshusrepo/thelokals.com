@@ -209,6 +209,41 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
                             ))}
                     </div>
                 )}
+
+                {/* POST LIVE REQUEST CTA */}
+                <div className="mt-6 flex justify-center">
+                    <button
+                        onClick={() => {
+                            // Navigate to live request creation flow
+                            // For now, we'll use the search as a placeholder
+                            if (searchQuery.trim()) {
+                                handleSearch(searchQuery);
+                            } else {
+                                // Show a prompt to enter service details
+                                const input = document.querySelector('input[type="text"]') as HTMLInputElement;
+                                if (input) {
+                                    input.focus();
+                                    input.placeholder = "What service do you need? (e.g., AC repair)";
+                                }
+                            }
+                        }}
+                        className="group relative px-8 py-4 bg-accent-amber hover:bg-warning text-secondary font-bold text-lg rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-3"
+                        style={{ fontSize: '18px', minHeight: '48px' }}
+                    >
+                        <span className="relative z-10">POST LIVE REQUEST</span>
+                        <svg
+                            className="w-5 h-5 group-hover:translate-x-1 transition-transform"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        </svg>
+
+                        {/* Glow effect */}
+                        <div className="absolute inset-0 bg-accent-amber rounded-full blur-xl opacity-50 group-hover:opacity-75 transition-opacity -z-10" />
+                    </button>
+                </div>
             </div>
         </section>
     );

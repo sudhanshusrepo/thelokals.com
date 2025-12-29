@@ -123,21 +123,40 @@ export const QuickCategories: React.FC<QuickCategoriesProps> = ({ onSelectCatego
                 <div
                     ref={scrollRef}
                     onScroll={handleScroll}
-                    className="overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory"
+                    className="overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory scroll-smooth"
                     role="region"
                     aria-label="Category carousel"
+                    style={{
+                        scrollBehavior: 'smooth',
+                        WebkitOverflowScrolling: 'touch',
+                    }}
                 >
                     <div className="flex gap-4 min-w-max">
-                        {categories.map((category) => (
-                            <ServiceTile
+                        {categories.map((category, index) => (
+                            <div
                                 key={category.id}
-                                emoji={category.emoji}
-                                imageUrl={category.image_url}
-                                label={category.name}
-                                onClick={() => onSelectCategory?.(category.id)}
-                                variant="category"
-                                className="snap-start"
-                            />
+                                className={`snap-start transition-all duration-300 ${index === activeIndex
+                                        ? 'scale-105'
+                                        : 'scale-100'
+                                    }`}
+                                style={{
+                                    filter: index === activeIndex
+                                        ? 'drop-shadow(0 0 20px rgba(247, 200, 70, 0.6))'
+                                        : 'none',
+                                }}
+                            >
+                                <ServiceTile
+                                    emoji={category.emoji}
+                                    imageUrl={category.image_url}
+                                    label={category.name}
+                                    onClick={() => onSelectCategory?.(category.id)}
+                                    variant="category"
+                                    className={`
+                                        ${index === activeIndex ? 'ring-2 ring-accent-amber' : ''}
+                                        transition-all duration-300
+                                    `}
+                                />
+                            </div>
                         ))}
                     </div>
                 </div>

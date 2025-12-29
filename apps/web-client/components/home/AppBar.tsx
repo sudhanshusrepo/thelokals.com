@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useAuth } from '../../contexts/AuthContext';
-import { User } from 'lucide-react';
+import { User, MapPin, Mic } from 'lucide-react';
 
 interface AppBarProps {
     onSignIn?: () => void;
@@ -22,6 +22,8 @@ export const AppBar: React.FC<AppBarProps> = ({ onSignIn, onOpenApp }) => {
     const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
     const [isInstallable, setIsInstallable] = useState(false);
     const [isInstalled, setIsInstalled] = useState(false);
+    const [location, setLocation] = useState<string>('Detecting location...');
+    const [isLoadingLocation, setIsLoadingLocation] = useState(true);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -29,6 +31,52 @@ export const AppBar: React.FC<AppBarProps> = ({ onSignIn, onOpenApp }) => {
         };
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    // Location detection
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+
+        const detectLocation = async () => {
+            try {
+                if (!navigator.geolocation) {
+                    setLocation('Narnaund, Haryana');
+                    setIsLoadingLocation(false);
+                    return;
+                }
+
+                navigator.geolocation.getCurrentPosition(
+                    async (position) => {
+                        const { latitude, longitude } = position.coords;
+
+                        // Use reverse geocoding to get city name
+                        try {
+                            const response = await fetch(
+                                `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+                            );
+                            const data = await response.json();
+                            const city = data.address?.city || data.address?.town || data.address?.village || 'Your Location';
+                            const state = data.address?.state || '';
+                            setLocation(state ? `${city}, ${state}` : city);
+                        } catch (error) {
+                            setLocation('Your Location');
+                        }
+                        setIsLoadingLocation(false);
+                    },
+                    (error) => {
+                        console.error('Location error:', error);
+                        setLocation('Narnaund, Haryana'); // Default location
+                        setIsLoadingLocation(false);
+                    },
+                    { timeout: 5000, enableHighAccuracy: false }
+                );
+            } catch (error) {
+                setLocation('Narnaund, Haryana');
+                setIsLoadingLocation(false);
+            }
+        };
+
+        detectLocation();
     }, []);
 
     useEffect(() => {
@@ -86,6 +134,39 @@ export const AppBar: React.FC<AppBarProps> = ({ onSignIn, onOpenApp }) => {
                     />
                     <span className="text-white font-bold text-lg tracking-tight">lokals</span>
                 </Link>
+
+                {/* Center: Location Pill + Mic Button */}
+                <div className="hidden md:flex items-center gap-2">
+                    {/* Location Pill */}
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-white/20 backdrop-blur-sm rounded-full border border-white/30">
+                        <MapPin size={16} className="text-white" />
+                        <span className="text-white text-sm font-medium max-w-[200px] truncate">
+                            {isLoadingLocation ? (
+                                <span className="animate-pulse">Detecting...</span>
+                            ) : (
+                                location
+                            )}
+                        </span>
+                    </div>
+
+                    {/* Mic Button */}
+                    <button
+                        onClick={() => {
+                            // Trigger voice search - will be connected to HeroSection
+                            const searchInput = document.querySelector('input[type="text"]') as HTMLInputElement;
+                            if (searchInput) {
+                                searchInput.focus();
+                                // Trigger mic click in HeroSection
+                                const micButton = document.querySelector('[title="Search by voice"]') as HTMLButtonElement;
+                                micButton?.click();
+                            }
+                        }}
+                        className="w-9 h-9 bg-primary hover:bg-primary-dark rounded-full flex items-center justify-center transition-colors shadow-lg"
+                        title="Voice search"
+                    >
+                        <Mic size={18} className="text-secondary" />
+                    </button>
+                </div>
 
                 {/* Right: Actions */}
                 <div className="flex items-center gap-3">
