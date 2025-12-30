@@ -140,7 +140,7 @@ export default function ServiceSelectionPage() {
 
         if (!user) {
             toast.error('Please log in to request a service');
-            router.push(`/auth/login?redirect=/services/${serviceCode}`);
+            router.push(`/auth?redirect=/services/${serviceCode}`);
             return;
         }
 
