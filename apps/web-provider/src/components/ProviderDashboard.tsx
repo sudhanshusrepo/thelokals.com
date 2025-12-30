@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { bookingService } from '../services/bookingService';
 import { liveBookingService as providerLiveBookingService } from '../services/liveBookingService';
 import { liveBookingService as coreLiveBookingService } from '@thelocals/core/services/liveBookingService';
+import { bookingService as coreBookingService } from '@thelocals/core/services/bookingService';
 import { Booking, BookingStatus, BookingRequest } from '@thelocals/core';
 import { supabase } from '@thelocals/core/services/supabase';
 
@@ -16,6 +17,7 @@ import { PaymentsTab } from './PaymentsTab';
 import { NotificationsPage } from './NotificationsPage';
 
 import { ActiveJobWorkbench } from './ActiveJobWorkbench';
+import { OTPVerificationModal } from './OTPVerificationModal';
 
 export type InboxTab = 'New' | 'Accepted' | 'In Progress' | 'Completed' | 'Cancelled' | 'Availability' | 'Payments' | 'Notifications' | 'Profile';
 
@@ -28,6 +30,8 @@ export const ProviderDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<InboxTab>('New');
   const [isLocationActive, setIsLocationActive] = useState(false);
   const [activeBookingId, setActiveBookingId] = useState<string | null>(null);
+  const [otpModalOpen, setOtpModalOpen] = useState(false);
+  const [otpBookingId, setOtpBookingId] = useState<string | null>(null);
 
   const [profile, setProfile] = useState<ProviderProfile | null>(null);
 
@@ -132,6 +136,12 @@ export const ProviderDashboard: React.FC = () => {
   }
 
   const handleUpdateStatus = async (bookingId: string, status: BookingStatus) => {
+    if (status === 'IN_PROGRESS') {
+      setOtpBookingId(bookingId);
+      setOtpModalOpen(true);
+      return;
+    }
+
     try {
       // Optimistic update
       setBookings(prev => prev.map(b => b.id === bookingId ? { ...b, status } : b));
@@ -344,6 +354,26 @@ export const ProviderDashboard: React.FC = () => {
           />
         )}
       </div>
+
+      <OTPVerificationModal
+        isOpen={otpModalOpen}
+        onClose={() => {
+          setOtpModalOpen(false);
+          setOtpBookingId(null);
+        }}
+        onVerify={async (otp) => {
+          if (!otpBookingId) return false;
+          try {
+            const success = await coreBookingService.verifyOTP(otpBookingId, otp);
+            if (success) {
+              setBookings(prev => prev.map(b => b.id === otpBookingId ? { ...b, status: 'IN_PROGRESS' } : b));
+              setActiveBookingId(otpBookingId);
+              return true;
+            }
+            return false;
+          } catch (e) { return false; }
+        }}
+      />
     </div>
   );
 };

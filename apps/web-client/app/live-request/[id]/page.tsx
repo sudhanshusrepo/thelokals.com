@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useWebSocket, WebSocketMessage } from '../../../hooks/useWebSocket';
+import { supabase } from '@thelocals/core/services/supabase';
+import { liveBookingService } from '@thelocals/core/services/liveBookingService';
 import { ArrowLeft, Eye, Loader2, CheckCircle2, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
@@ -10,7 +11,7 @@ import { OTPVerification } from '../../../components/booking/OTPVerification';
 
 interface RequestStatus {
     id: string;
-    status: 'broadcasting' | 'accepted' | 'in_progress' | 'completed' | 'cancelled';
+    status: 'broadcasting' | 'accepted' | 'en_route' | 'in_progress' | 'completed' | 'cancelled';
     viewerCount: number;
     provider?: {
         id: string;
@@ -29,12 +30,7 @@ interface RequestStatus {
     createdAt: string;
 }
 
-// Mock WebSocket URL - will be replaced with actual endpoint
-const getWebSocketUrl = (requestId: string) => {
-    // For development, we'll use a mock URL
-    // In production: `wss://api.thelokals.com/v2/ws/requests/${requestId}`
-    return null; // Disabled for now until backend is ready
-};
+
 
 export default function LiveRequestPage() {
     const params = useParams();
@@ -58,122 +54,100 @@ export default function LiveRequestPage() {
     const [showOTP, setShowOTP] = useState(false);
     const [otp, setOtp] = useState('');
 
-    // WebSocket connection
-    const wsUrl = getWebSocketUrl(requestId);
-    const { isConnected, isConnecting, error, lastMessage } = useWebSocket(wsUrl, {
-        onMessage: (message: WebSocketMessage) => {
-            handleWebSocketMessage(message);
-        },
-        onOpen: () => {
-            console.log('Connected to live request updates');
-        },
-        onError: (error) => {
-            console.error('WebSocket error:', error);
-        },
-    });
+    // Realtime connection
+    useEffect(() => {
+        if (!requestId) return;
 
-    // Handle WebSocket messages
-    const handleWebSocketMessage = (message: WebSocketMessage) => {
-        switch (message.type) {
-            case 'viewer_count_update':
-                setRequestStatus((prev) => ({
-                    ...prev,
-                    viewerCount: message.data.count,
-                }));
-                break;
+        // Fetch initial state
+        const fetchBooking = async () => {
+            try {
+                const { data, error } = await supabase
+                    .from('bookings')
+                    .select('*, providers(*)')
+                    .eq('id', requestId)
+                    .single();
 
-            case 'provider_accepted':
-                setRequestStatus((prev) => ({
-                    ...prev,
-                    status: 'accepted',
-                    provider: message.data.provider,
-                }));
+                if (data) {
+                    const mappedStatus =
+                        data.status === 'PENDING' ? 'broadcasting' :
+                            data.status === 'CONFIRMED' ? 'accepted' :
+                                data.status === 'IN_PROGRESS' ? 'in_progress' :
+                                    data.status === 'COMPLETED' ? 'completed' : 'cancelled';
+
+                    setRequestStatus(prev => ({
+                        ...prev,
+                        status: mappedStatus as any,
+                        provider: data.providers ? {
+                            id: data.providers.id,
+                            name: data.providers.full_name,
+                            phone: data.providers.phone || '',
+                            rating: data.providers.rating_average || 0,
+                            photoUrl: data.providers.avatar_url
+                        } : undefined
+                    }));
+
+
+                    if (data.status === 'CONFIRMED' || data.status === 'EN_ROUTE') {
+                        setProviderAccepted(true);
+                        fetchOTP();
+                    }
+                }
+            } catch (err) {
+                console.error('Error fetching booking:', err);
+            }
+        };
+
+        fetchBooking();
+
+        // Fetch OTP if applicable
+        const fetchOTP = async () => {
+            const { data } = await supabase
+                .from('booking_otp')
+                .select('otp_code')
+                .eq('booking_id', requestId)
+                .maybeSingle();
+
+            if (data?.otp_code) {
+                setOtp(data.otp_code);
+                setShowOTP(true);
+            }
+        };
+
+        // If status implies provider assigned, fetch OTP
+        // Note: We check data.status in fetchBooking, but we can also check requestStatus state if we depend on it, 
+        // but here we are inside useEffect which runs on mount.
+        // Let's modify fetchBooking to also call fetchOTP if status is right.
+
+        const channel = liveBookingService.subscribeToBookingUpdates(requestId, (payload) => {
+            const newData = payload.new as any;
+            if (!newData) return;
+
+            console.log('Realtime update:', newData);
+
+            if (newData.status === 'CONFIRMED') {
+                setRequestStatus(prev => ({ ...prev, status: 'accepted' }));
                 setProviderAccepted(true);
                 toast.success('Provider accepted your request!');
-                break;
+                fetchBooking();
+                fetchOTP();
+            } else if (newData.status === 'EN_ROUTE') {
+                setRequestStatus(prev => ({ ...prev, status: 'en_route' }));
+                toast.success('Provider is on the way!');
+                fetchOTP();
+            } else if (newData.status === 'IN_PROGRESS') {
+                setRequestStatus(prev => ({ ...prev, status: 'in_progress' }));
+                toast.success('Service started!');
+            } else if (newData.status === 'COMPLETED') {
+                setRequestStatus(prev => ({ ...prev, status: 'completed' }));
+                toast.success('Service completed!');
+                setTimeout(() => router.push(`/rating/${requestId}`), 2000);
+            }
+        });
 
-            case 'provider_arrived':
-                setShowOTP(true);
-                setOtp(message.data.otp);
-                break;
-
-            case 'service_started':
-                setRequestStatus((prev) => ({
-                    ...prev,
-                    status: 'in_progress',
-                }));
-                break;
-
-            case 'service_completed':
-                setRequestStatus((prev) => ({
-                    ...prev,
-                    status: 'completed',
-                }));
-                // Navigate to rating page
-                setTimeout(() => {
-                    router.push(`/rating/${requestId}`);
-                }, 2000);
-                break;
-
-            case 'status_update':
-                setRequestStatus((prev) => ({
-                    ...prev,
-                    status: message.data.status,
-                }));
-                break;
-
-            default:
-                console.log('Unknown message type:', message.type);
-        }
-    };
-
-    // Mock viewer count updates (for demo purposes)
-    useEffect(() => {
-        if (requestStatus.status === 'broadcasting') {
-            const interval = setInterval(() => {
-                setRequestStatus((prev) => ({
-                    ...prev,
-                    viewerCount: Math.floor(Math.random() * 8) + 1,
-                }));
-            }, 3000);
-
-            // Mock provider acceptance after 10 seconds
-            const acceptTimeout = setTimeout(() => {
-                setRequestStatus((prev) => ({
-                    ...prev,
-                    status: 'accepted',
-                    provider: {
-                        id: 'provider-123',
-                        name: 'Rajesh Kumar',
-                        phone: '+91 98765 43210',
-                        rating: 4.8,
-                        photoUrl: undefined,
-                    },
-                }));
-                setProviderAccepted(true);
-                toast.success('Provider accepted your request!', {
-                    icon: '🎉',
-                    duration: 4000,
-                });
-
-                // Mock provider arrival after 15 seconds
-                setTimeout(() => {
-                    const mockOTP = Math.floor(100000 + Math.random() * 900000).toString();
-                    setOtp(mockOTP);
-                    setShowOTP(true);
-                    toast.success('Provider has arrived!', {
-                        icon: '📍',
-                        duration: 3000,
-                    });
-                }, 15000);
-            }, 10000);
-
-            return () => {
-                clearInterval(interval);
-                clearTimeout(acceptTimeout);
-            };
-        }
-    }, [requestStatus.status]);
+        return () => {
+            liveBookingService.unsubscribeFromChannel(channel);
+        };
+    }, [requestId]);
 
     const getStatusColor = () => {
         switch (requestStatus.status) {
@@ -181,6 +155,8 @@ export default function LiveRequestPage() {
                 return 'text-accent-amber';
             case 'accepted':
                 return 'text-success';
+            case 'en_route':
+                return 'text-primary';
             case 'in_progress':
                 return 'text-primary';
             case 'completed':
@@ -198,6 +174,8 @@ export default function LiveRequestPage() {
                 return 'Broadcasting to providers...';
             case 'accepted':
                 return 'Provider accepted!';
+            case 'en_route':
+                return 'Provider is on the way';
             case 'in_progress':
                 return 'Service in progress';
             case 'completed':
@@ -227,29 +205,6 @@ export default function LiveRequestPage() {
                         </div>
                     </div>
 
-                    {/* Connection Status */}
-                    {wsUrl && (
-                        <div className="flex items-center gap-2">
-                            {isConnecting && (
-                                <div className="flex items-center gap-2 text-sm text-muted">
-                                    <Loader2 size={16} className="animate-spin" />
-                                    <span>Connecting...</span>
-                                </div>
-                            )}
-                            {isConnected && (
-                                <div className="flex items-center gap-2 text-sm text-success">
-                                    <div className="w-2 h-2 bg-success rounded-full animate-pulse" />
-                                    <span>Live</span>
-                                </div>
-                            )}
-                            {error && (
-                                <div className="flex items-center gap-2 text-sm text-error">
-                                    <div className="w-2 h-2 bg-error rounded-full" />
-                                    <span>Offline</span>
-                                </div>
-                            )}
-                        </div>
-                    )}
                 </div>
             </header>
 
@@ -334,7 +289,7 @@ export default function LiveRequestPage() {
                     )}
 
                     {/* Provider Accepted */}
-                    {requestStatus.status === 'accepted' && requestStatus.provider && (
+                    {(requestStatus.status === 'accepted' || requestStatus.status === 'en_route') && requestStatus.provider && (
                         <motion.div
                             key="accepted"
                             initial={{ opacity: 0, scale: 0.9 }}
@@ -396,37 +351,13 @@ export default function LiveRequestPage() {
                                 </div>
 
                                 {/* OTP Verification (shown when provider arrives) */}
-                                {showOTP && otp && (
-                                    <div className="mt-6">
-                                        <OTPVerification
-                                            otp={otp}
-                                            providerName={requestStatus.provider.name}
-                                            onVerified={() => {
-                                                setRequestStatus((prev) => ({
-                                                    ...prev,
-                                                    status: 'in_progress',
-                                                }));
-                                                toast.success('Service started!');
-
-                                                // Mock service completion after 10 seconds
-                                                setTimeout(() => {
-                                                    setRequestStatus((prev) => ({
-                                                        ...prev,
-                                                        status: 'completed',
-                                                    }));
-                                                    toast.success('Service completed!', {
-                                                        icon: '✅',
-                                                        duration: 3000,
-                                                    });
-                                                    // Navigate to rating
-                                                    setTimeout(() => {
-                                                        router.push(`/rating/${requestId}`);
-                                                    }, 2000);
-                                                }, 10000);
-                                            }}
-                                        />
-                                    </div>
-                                )}
+                                <div className="mt-6">
+                                    <OTPVerification
+                                        otp={otp}
+                                        providerName={requestStatus.provider.name}
+                                        isVerified={false} // Verification happens on Provider side
+                                    />
+                                </div>
                             </div>
                         </motion.div>
                     )}

@@ -119,8 +119,8 @@ export const ProviderApprovalQueue: React.FC = () => {
                         key={status}
                         onClick={() => setFilter(status)}
                         className={`px-4 py-2 rounded-lg font-medium transition-all ${filter === status
-                                ? 'bg-[#0A2540] text-white'
-                                : 'bg-white text-[#64748B] border border-[#E2E8F0] hover:border-[#12B3A6]'
+                            ? 'bg-[#0A2540] text-white'
+                            : 'bg-white text-[#64748B] border border-[#E2E8F0] hover:border-[#12B3A6]'
                             }`}
                     >
                         {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -141,7 +141,7 @@ export const ProviderApprovalQueue: React.FC = () => {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {providers.map((provider) => (
-                        <Card key={provider.id} hover>
+                        <Card key={provider.id} hover data-testid="provider-card">
                             <div className="flex items-start justify-between mb-3">
                                 <div>
                                     <h3 className="font-bold text-[#0A2540]">{provider.full_name}</h3>
@@ -155,6 +155,7 @@ export const ProviderApprovalQueue: React.FC = () => {
                                                 ? 'rejected'
                                                 : 'pending'
                                     }
+                                    data-testid={`status-badge-${provider.id}`}
                                 >
                                     {provider.verification_status}
                                 </Badge>
@@ -173,6 +174,7 @@ export const ProviderApprovalQueue: React.FC = () => {
                                         variant="secondary"
                                         size="sm"
                                         className="flex-1"
+                                        data-testid="approve-btn"
                                     >
                                         Approve
                                     </Button>
@@ -184,6 +186,7 @@ export const ProviderApprovalQueue: React.FC = () => {
                                         variant="outline"
                                         size="sm"
                                         className="flex-1"
+                                        data-testid="reject-btn"
                                     >
                                         Reject
                                     </Button>

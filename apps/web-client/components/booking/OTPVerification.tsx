@@ -7,17 +7,16 @@ import toast from 'react-hot-toast';
 
 interface OTPVerificationProps {
     otp: string;
-    onVerified?: () => void;
     providerName?: string;
+    isVerified?: boolean;
 }
 
 export const OTPVerification: React.FC<OTPVerificationProps> = ({
     otp,
-    onVerified,
     providerName = 'Provider',
+    isVerified = false,
 }) => {
     const [copied, setCopied] = useState(false);
-    const [verified, setVerified] = useState(false);
 
     const handleCopy = async () => {
         try {
@@ -39,20 +38,6 @@ export const OTPVerification: React.FC<OTPVerificationProps> = ({
             toast.error('Failed to copy OTP');
         }
     };
-
-    // Mock verification after 5 seconds
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setVerified(true);
-            toast.success('OTP verified! Service starting...', {
-                icon: '✅',
-                duration: 3000,
-            });
-            onVerified?.();
-        }, 5000);
-
-        return () => clearTimeout(timer);
-    }, [onVerified]);
 
     return (
         <motion.div
@@ -127,7 +112,7 @@ export const OTPVerification: React.FC<OTPVerificationProps> = ({
 
             {/* Verification Status */}
             <div className="text-center">
-                {verified ? (
+                {isVerified ? (
                     <motion.div
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}

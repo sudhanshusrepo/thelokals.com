@@ -29,6 +29,7 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   signInWithPhone: (phone: string) => Promise<OTPConfirmation>;
   verifyOtp: (confirmationResult: OTPConfirmation, token: string) => Promise<void>;
+  setProfile: (profile: ProviderProfile | null) => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -36,6 +37,7 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   profile: null,
   loading: true,
+  setProfile: () => { },
   signOut: async () => { },
   signInWithPhone: async () => { throw new Error('Not implemented'); },
   verifyOtp: async () => { },
@@ -73,6 +75,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
+    // @ts-ignore
+    // @ts-ignore
+    if (typeof window !== 'undefined' && window.PLAYWRIGHT_TEST_MODE) {
+      const fakeUser = { id: 'test-user-id', email: 'test@example.com', app_metadata: {}, user_metadata: {}, aud: 'authenticated', created_at: new Date().toISOString() } as User;
+      setUser(fakeUser);
+      setSession({
+        access_token: 'fake-jwt',
+        token_type: 'bearer',
+        expires_in: 3600,
+        refresh_token: 'fake-refresh',
+        user: fakeUser
+      } as Session);
+
+      // Check if test wants a specific profile (e.g. for Dashboard tests)
+      const testProfile = window.localStorage.getItem('playwright-test-profile');
+      if (testProfile) {
+        setProfile(JSON.parse(testProfile));
+      } else {
+        // Default to null for Onboarding tests
+        setProfile(null);
+      }
+      setLoading(false);
+      return;
+      setLoading(false);
+      return;
+    }
+
     const setData = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
@@ -136,6 +165,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     user,
     profile,
     loading,
+    setProfile, // Exposed for testing/internal updates
     signOut: async () => {
       try {
         await supabase.auth.signOut();

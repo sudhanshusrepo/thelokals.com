@@ -5,6 +5,8 @@ import { useParams, useRouter } from 'next/navigation';
 import { ServiceCard, ServiceVariant } from '../../../components/ui/ServiceCard';
 import { MapPin, ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { bookingService } from '@thelocals/core/services/bookingService';
+import { useAuth } from '../../../contexts/AuthContext';
 
 interface ServiceDetails {
     code: string;
@@ -121,7 +123,9 @@ export default function ServiceSelectionPage() {
         detectLocation();
     }, []);
 
-    const handleRequestService = () => {
+    const { user, loading: authLoading } = useAuth();
+
+    const handleRequestService = async () => {
         if (!selectedVariant) {
             toast.error('Please select a service variant');
             return;
@@ -132,16 +136,46 @@ export default function ServiceSelectionPage() {
             return;
         }
 
+        if (authLoading) return;
+
+        if (!user) {
+            toast.error('Please log in to request a service');
+            router.push(`/auth/login?redirect=/services/${serviceCode}`);
+            return;
+        }
+
         // Create request and navigate to live request page
-        toast.success('Creating your live request...');
+        const loadingToast = toast.loading('Creating your live request...');
 
-        // Generate a mock request ID (in production, this would come from API)
-        const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        try {
+            // Parse location string (simplified for now)
+            // In a real app, we'd have precise lat/lng from the map picker or Geocoding API response
+            // Here we reuse the GPS coordinates if available, or just send 0,0 if manual entry
+            // TODO: Better location handling
+            const locationCoords = { lat: 0, lng: 0 };
 
-        // Navigate to live request page
-        setTimeout(() => {
-            router.push(`/live-request/${requestId}`);
-        }, 1000);
+            const { bookingId } = await bookingService.createAIBooking({
+                clientId: user.id,
+                serviceCategory: serviceDetails?.category || 'General',
+                requirements: {
+                    variant: selectedVariant,
+                    details: details,
+                    serviceCode: serviceCode
+                },
+                aiChecklist: [], // populated by backend AI
+                estimatedCost: selectedVariant === 'basic' ? 350 : selectedVariant === 'med' ? 550 : 850,
+                location: locationCoords,
+                address: { full_address: location },
+                notes: details
+            });
+
+            toast.success('Request broadcasted!', { id: loadingToast });
+            router.push(`/live-request/${bookingId}`);
+
+        } catch (error) {
+            console.error('Failed to create booking:', error);
+            toast.error('Failed to create request. Please try again.', { id: loadingToast });
+        }
     };
 
     if (!serviceDetails) {

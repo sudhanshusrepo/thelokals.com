@@ -19,13 +19,27 @@ export const bookingService = {
       'CONFIRMED': ['EN_ROUTE', 'IN_PROGRESS', 'CANCELLED'],
       'EN_ROUTE': ['IN_PROGRESS', 'CANCELLED'],
       'IN_PROGRESS': ['COMPLETED', 'CANCELLED'],
-      'COMPLETED': [],
-      'CANCELLED': [],
       'EXPIRED': []
     };
 
     const allowed = allowedTransitions[currentStatus] || [];
     return allowed.includes(newStatus);
+  },
+
+  /**
+   * Verifies the booking OTP.
+   */
+  async verifyOTP(bookingId: string, otp: string): Promise<boolean> {
+    const { data, error } = await supabase.rpc('verify_booking_otp', {
+      p_booking_id: bookingId,
+      p_otp_code: otp
+    });
+
+    if (error) {
+      logger.error('Error verifying OTP', { error, bookingId });
+      throw error;
+    }
+    return data;
   },
 
   /**

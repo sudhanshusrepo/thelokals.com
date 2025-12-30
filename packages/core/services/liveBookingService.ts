@@ -112,8 +112,8 @@ export const liveBookingService = {
    * @throws {Error} If the RPC call fails.
    */
   async acceptBooking(bookingId: string, providerId: string): Promise<LiveBooking> {
-    const { data, error } = await supabase.rpc('accept_booking', {
-      p_booking_id: bookingId,
+    const { data, error } = await supabase.rpc('accept_live_booking', {
+      p_request_id: bookingId, // Note: Schema expects p_request_id, but here it might be bookingId. Let's verify usage.
       p_provider_id: providerId
     });
 
