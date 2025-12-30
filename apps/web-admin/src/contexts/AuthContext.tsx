@@ -38,12 +38,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const checkSession = async () => {
         try {
-            const { data: { session } } = await supabase.auth.getSession();
+            // Add timeout to prevent infinite loading
+            const sessionPromise = supabase.auth.getSession();
+            const timeoutPromise = new Promise<never>((_, reject) =>
+                setTimeout(() => reject(new Error('Session check timeout')), 3000)
+            );
+
+            const { data: { session } } = await Promise.race([sessionPromise, timeoutPromise]) as any;
             if (session?.user) {
                 await loadAdminUser(session.user.email!);
             }
         } catch (error) {
             console.error('Session check failed:', error);
+            // Don't block the UI - just set loading to false
         } finally {
             setLoading(false);
         }
