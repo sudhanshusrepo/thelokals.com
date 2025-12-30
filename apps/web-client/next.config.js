@@ -60,7 +60,7 @@ const nextConfig = {
     }
 
     // Base CSP directives
-    let connectSrc = "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.gemini.google.com";
+    let connectSrc = "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.gemini.google.com https://nominatim.openstreetmap.org";
 
     // Add Supabase origin if distinct from wildcards
     if (supabaseOrigin && !supabaseOrigin.includes('.supabase.co')) {

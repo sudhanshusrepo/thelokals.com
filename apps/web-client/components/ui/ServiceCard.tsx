@@ -14,6 +14,7 @@ interface ServiceCardProps {
     isSelected?: boolean;
     onClick?: () => void;
     className?: string;
+    'data-testid'?: string;
 }
 
 const variantConfig = {
@@ -52,6 +53,7 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
     isSelected = false,
     onClick,
     className = '',
+    'data-testid': testId,
 }) => {
     const config = variantConfig[variant];
 
@@ -69,6 +71,7 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
                 }
                 ${className}
             `}
+            data-testid={testId}
         >
             {/* Background Gradient */}
             <div className={`absolute inset-0 bg-gradient-to-br ${config.color} opacity-10`} />

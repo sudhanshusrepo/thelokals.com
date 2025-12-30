@@ -163,6 +163,7 @@ export const AppBar: React.FC<AppBarProps> = ({ onSignIn, onOpenApp }) => {
                         }}
                         className="w-9 h-9 bg-primary hover:bg-primary-dark rounded-full flex items-center justify-center transition-colors shadow-lg"
                         title="Voice search"
+                        data-testid="mic-button"
                     >
                         <Mic size={18} className="text-secondary" />
                     </button>

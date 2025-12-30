@@ -192,6 +192,7 @@ export default function ServiceSelectionPage() {
                             icon={serviceDetails.icon}
                             isSelected={selectedVariant === 'basic'}
                             onClick={() => setSelectedVariant('basic')}
+                            data-testid="variant-basic"
                         />
                         <ServiceCard
                             variant="med"
@@ -200,6 +201,7 @@ export default function ServiceSelectionPage() {
                             icon={serviceDetails.icon}
                             isSelected={selectedVariant === 'med'}
                             onClick={() => setSelectedVariant('med')}
+                            data-testid="variant-med"
                         />
                         <ServiceCard
                             variant="full"
@@ -208,6 +210,7 @@ export default function ServiceSelectionPage() {
                             icon={serviceDetails.icon}
                             isSelected={selectedVariant === 'full'}
                             onClick={() => setSelectedVariant('full')}
+                            data-testid="variant-full"
                         />
                     </div>
                 </section>
@@ -225,6 +228,7 @@ export default function ServiceSelectionPage() {
                             onChange={(e) => setLocation(e.target.value)}
                             placeholder={isLoadingLocation ? 'Detecting your location...' : 'Enter your service location'}
                             className="w-full pl-12 pr-4 py-4 bg-surface border-2 border-neutral-200 focus:border-primary rounded-xl text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
+                            data-testid="location-input"
                         />
                         {isLoadingLocation && (
                             <div className="absolute inset-y-0 right-0 pr-4 flex items-center">
@@ -250,6 +254,7 @@ export default function ServiceSelectionPage() {
                         placeholder="Describe your issue or any specific requirements... (e.g., AC not cooling, need urgent service)"
                         rows={4}
                         className="w-full px-4 py-3 bg-surface border-2 border-neutral-200 focus:border-primary rounded-xl text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all resize-none"
+                        data-testid="details-textarea"
                     />
                     <div className="mt-2 flex justify-between items-center">
                         <p className="text-sm text-muted">
@@ -268,6 +273,7 @@ export default function ServiceSelectionPage() {
                         disabled={!selectedVariant || !location.trim()}
                         className="w-full group relative px-8 py-4 bg-accent-amber hover:bg-warning disabled:bg-neutral-300 disabled:cursor-not-allowed text-secondary font-bold text-lg rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95 disabled:scale-100 flex items-center justify-center gap-3"
                         style={{ fontSize: '18px', minHeight: '56px' }}
+                        data-testid="request-service-btn"
                     >
                         <span className="relative z-10">
                             {selectedVariant ? `Request Service - ₹${selectedVariant === 'basic' ? '350' : selectedVariant === 'med' ? '550' : '850'}` : 'Select a Variant to Continue'}

@@ -21,7 +21,7 @@ export default function Home() {
 
     if (results.length === 1) {
       // Single match - go directly to service page
-      router.push(`/service/${results[0].code}`);
+      router.push(`/services/${results[0].code}`);
     } else if (results.length > 1) {
       // Multiple matches - go to search results
       router.push(`/search?q=${encodeURIComponent(query)}`);
@@ -32,11 +32,11 @@ export default function Home() {
   };
 
   const handleSelectCategory = (categoryId: string) => {
-    router.push(`/category/${categoryId}`);
+    router.push(`/services/${categoryId}`);
   };
 
   const handleSelectService = (serviceId: string) => {
-    router.push(`/category/${serviceId}`);
+    router.push(`/services/${serviceId}`);
   };
 
   const handleSignIn = () => {

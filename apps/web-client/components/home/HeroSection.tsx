@@ -229,6 +229,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onSearch }) => {
                         }}
                         className="group relative px-8 py-4 bg-accent-amber hover:bg-warning text-secondary font-bold text-lg rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-3"
                         style={{ fontSize: '18px', minHeight: '48px' }}
+                        data-testid="post-live-request-btn"
                     >
                         <span className="relative z-10">POST LIVE REQUEST</span>
                         <svg

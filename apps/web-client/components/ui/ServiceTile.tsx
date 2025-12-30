@@ -11,6 +11,7 @@ interface ServiceTileProps {
     onClick?: () => void;
     variant?: 'default' | 'category' | 'browse';
     className?: string;
+    'data-testid'?: string;
 }
 
 /**
@@ -38,6 +39,7 @@ export function ServiceTile({
     onClick,
     variant = 'default',
     className = '',
+    'data-testid': testId,
 }: ServiceTileProps) {
     const baseClasses = 'group relative overflow-hidden bg-neutral-50 transition-all duration-200 active:scale-[0.98] hover:-translate-y-1';
 
@@ -52,6 +54,7 @@ export function ServiceTile({
     return (
         <button
             onClick={onClick}
+            data-testid={testId}
             className={`${baseClasses} ${variantClasses[variant]} ${shadowClasses} ${className}`}
             aria-label={label}
         >

@@ -274,10 +274,10 @@ TOTAL: 82 minutes → Green = Production Ready ✅
 
 ### Playwright Config
 
-- **File:** `playwright.config.ts`
+- **File:** `playwright.config.js`
 - **Projects:** web-client, web-provider, web-admin
 - **Browsers:** Chromium, iPhone 14
-- **Parallel:** 4 workers
+- **Parallel:** 1 worker
 - **Retries:** 2 (CI only)
 
 ### Detox Config
