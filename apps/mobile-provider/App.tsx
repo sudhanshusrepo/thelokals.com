@@ -90,8 +90,12 @@ const ProviderDashboard = () => {
   );
 };
 
+import { HomeV2Screen } from './src/screens/HomeV2';
+import { useFeatureFlag, PROVIDER_DESIGN_V2 } from './src/lib/featureFlags';
+
 export default function App() {
   const [ready, setReady] = useState(false);
+  const showV2 = useFeatureFlag(PROVIDER_DESIGN_V2);
 
   useEffect(() => {
     // Simulate app loading
@@ -109,7 +113,7 @@ export default function App() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar style="auto" />
-      <ProviderDashboard />
+      {showV2 ? <HomeV2Screen /> : <ProviderDashboard />}
     </SafeAreaView>
   );
 }
