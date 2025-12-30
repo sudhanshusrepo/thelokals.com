@@ -85,7 +85,7 @@ export const QuickCategories: React.FC<QuickCategoriesProps> = ({ onSelectCatego
                     { id: 'gardener', name: 'Gardeners', image_url: 'https://images.unsplash.com/photo-1611735341450-74d61e66ee62?q=80&w=200', emoji: '🌿', display_order: 6 },
                 ]);
             } finally {
-                console.log('QuickCategories loading complete');
+
                 setLoading(false);
             }
         }

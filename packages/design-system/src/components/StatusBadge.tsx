@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ViewStyle } from 'react-native';
 import { PROVIDER_V2_TOKENS } from '../tokens/provider-v2';
 
 export interface StatusBadgeProps {
-    status: 'pending' | 'approved' | 'active';
+    status: 'pending' | 'approved' | 'active' | 'rejected';
     style?: ViewStyle;
 }
 
@@ -24,6 +24,8 @@ const getStatusConfig = (status: StatusBadgeProps['status']) => {
     switch (status) {
         case 'approved':
             return { bg: 'rgba(138, 233, 141, 0.2)', color: PROVIDER_V2_TOKENS.colors.successGreen };
+        case 'rejected':
+            return { bg: 'rgba(252, 87, 78, 0.2)', color: PROVIDER_V2_TOKENS.colors.accentDanger };
         case 'active':
             return { bg: 'rgba(138, 233, 141, 0.2)', color: PROVIDER_V2_TOKENS.colors.successGreen }; // Same for now
         case 'pending':

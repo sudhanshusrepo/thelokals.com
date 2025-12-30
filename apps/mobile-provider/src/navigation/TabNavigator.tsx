@@ -22,7 +22,7 @@ export const TabNavigator = () => {
         <Tab.Navigator
             screenOptions={{
                 headerShown: false,
-                tabBarActiveTintColor: PROVIDER_V2_TOKENS.colors.primary,
+                tabBarActiveTintColor: PROVIDER_V2_TOKENS.colors.textPrimary,
                 tabBarInactiveTintColor: '#94A3B8',
                 tabBarStyle: {
                     backgroundColor: '#F0F0F0',

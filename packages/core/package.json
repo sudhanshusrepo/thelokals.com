@@ -18,14 +18,12 @@
     },
     "peerDependencies": {
         "react": "^19.0.0",
-        "react-dom": "^19.0.0",
-        "react-router-dom": "^6.28.0"
+        "react-dom": "^19.0.0"
     },
     "dependencies": {
         "@google/generative-ai": "^0.1.0",
         "@supabase/supabase-js": "^2.89.0",
         "clsx": "^2.1.1",
-        "dotenv": "^17.2.3",
         "firebase": "^10.7.0",
         "lucide-react": "^0.562.0",
         "tailwind-merge": "^3.4.0"
@@ -36,7 +34,6 @@
         "jsdom": "^27.3.0",
         "react": "19.2.1",
         "react-dom": "19.2.1",
-        "react-router-dom": "^6.22.0",
         "ts-node": "^10.9.2",
         "typescript": "^5.2.2",
         "vitest": "^4.0.16"

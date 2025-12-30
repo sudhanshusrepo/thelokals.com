@@ -6,7 +6,7 @@
     "dev": "npx next dev --webpack -p 3000",
     "build": "npx next build --webpack",
     "build:turbo": "npm run build",
-    "pages:build": "npx @cloudflare/next-on-pages .",
+    "pages:build": "mkdir -p apps/web-client && (ln -s ../.next apps/web-client/.next || true) && npx @cloudflare/next-on-pages",
     "start": "npx next start",
     "lint": "eslint",
     "type-check": "tsc --noEmit",
@@ -27,8 +27,8 @@
     "zod": "^3.22.3"
   },
   "devDependencies": {
-    "@next/bundle-analyzer": "^16.1.1",
     "@cloudflare/next-on-pages": "^1.13.16",
+    "@next/bundle-analyzer": "^16.1.1",
     "@sentry/nextjs": "^10.32.1",
     "@tailwindcss/postcss": "^4",
     "@types/aria-query": "^5.0.4",

@@ -63,7 +63,7 @@ export function useWebSocket(
             const ws = new WebSocket(url);
 
             ws.onopen = () => {
-                console.log('[WebSocket] Connected to', url);
+
                 setIsConnected(true);
                 setIsConnecting(false);
                 setError(null);
@@ -72,7 +72,7 @@ export function useWebSocket(
             };
 
             ws.onclose = () => {
-                console.log('[WebSocket] Disconnected from', url);
+
                 setIsConnected(false);
                 setIsConnecting(false);
                 wsRef.current = null;
@@ -84,9 +84,8 @@ export function useWebSocket(
                     reconnectAttemptsRef.current < maxReconnectAttempts
                 ) {
                     reconnectAttemptsRef.current += 1;
-                    console.log(
-                        `[WebSocket] Reconnecting... Attempt ${reconnectAttemptsRef.current}/${maxReconnectAttempts}`
-                    );
+
+
                     reconnectTimeoutRef.current = setTimeout(() => {
                         connect();
                     }, reconnectInterval);
@@ -103,7 +102,7 @@ export function useWebSocket(
             ws.onmessage = (event) => {
                 try {
                     const message: WebSocketMessage = JSON.parse(event.data);
-                    console.log('[WebSocket] Message received:', message);
+
                     setLastMessage(message);
                     onMessage?.(message);
                 } catch (err) {
@@ -137,7 +136,7 @@ export function useWebSocket(
         if (wsRef.current?.readyState === WebSocket.OPEN) {
             try {
                 wsRef.current.send(JSON.stringify(message));
-                console.log('[WebSocket] Message sent:', message);
+
             } catch (err) {
                 console.error('[WebSocket] Failed to send message:', err);
                 setError('Failed to send message');
