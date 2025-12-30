@@ -90,8 +90,9 @@ const ProviderDashboard = () => {
   );
 };
 
-import { HomeV2Screen } from './src/screens/HomeV2';
+import { AppNavigator } from './src/navigation/AppNavigator';
 import { useFeatureFlag, PROVIDER_DESIGN_V2 } from './src/lib/featureFlags';
+import 'react-native-gesture-handler'; // Required for stack navigator
 
 export default function App() {
   const [ready, setReady] = useState(false);
@@ -113,7 +114,7 @@ export default function App() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar style="auto" />
-      {showV2 ? <HomeV2Screen /> : <ProviderDashboard />}
+      {showV2 ? <AppNavigator /> : <ProviderDashboard />}
     </SafeAreaView>
   );
 }

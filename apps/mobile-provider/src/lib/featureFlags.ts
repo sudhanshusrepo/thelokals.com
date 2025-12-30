@@ -1,7 +1,7 @@
 export const PROVIDER_DESIGN_V2 = 'useProviderDesignV2';
 
 export const featureFlags = {
-    [PROVIDER_DESIGN_V2]: true // RAMP: 0.1 -> 0.5 -> 1.0
+    [PROVIDER_DESIGN_V2]: true // PRODUCTION ROLLOUT: 1.0 (100% Enabled)
 };
 
 export const useFeatureFlag = (flag: string): boolean => {
