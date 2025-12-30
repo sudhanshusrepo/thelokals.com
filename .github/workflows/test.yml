@@ -1,0 +1,238 @@
+name: E2E Test Suite
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run unit tests
+        run: npm run test:unit
+      
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage/coverage-final.json
+
+  e2e-web-client:
+    name: E2E - Web Client
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
+      
+      - name: Run E2E tests - Web Client
+        run: npm run test:e2e:web-client
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-web-client
+          path: test-results/
+          retention-days: 30
+
+  e2e-web-provider:
+    name: E2E - Web Provider
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
+      
+      - name: Run E2E tests - Web Provider
+        run: npm run test:e2e:web-provider
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-web-provider
+          path: test-results/
+          retention-days: 30
+
+  e2e-web-admin:
+    name: E2E - Web Admin
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
+      
+      - name: Run E2E tests - Web Admin
+        run: npm run test:e2e:web-admin
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-web-admin
+          path: test-results/
+          retention-days: 30
+
+  mobile-ios:
+    name: E2E - Mobile iOS
+    runs-on: macos-latest
+    timeout-minutes: 45
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Setup iOS Simulator
+        run: |
+          xcrun simctl create "iPhone 14" "iPhone 14"
+          xcrun simctl boot "iPhone 14"
+      
+      - name: Build iOS app
+        run: npm run test:mobile:build:ios
+      
+      - name: Run Detox tests - iOS
+        run: npm run test:mobile:ios
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: detox-report-ios
+          path: test-results/
+          retention-days: 30
+
+  mobile-android:
+    name: E2E - Mobile Android
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Setup Android Emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 31
+          target: google_apis
+          arch: x86_64
+          profile: pixel_5
+          script: |
+            npm run test:mobile:build:android
+            npm run test:mobile:android
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: detox-report-android
+          path: test-results/
+          retention-days: 30
+
+  generate-bugs-report:
+    name: Generate Bugs Report
+    runs-on: ubuntu-latest
+    needs: [unit-tests, e2e-web-client, e2e-web-provider, e2e-web-admin, mobile-ios, mobile-android]
+    if: always()
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: test-results/
+      
+      - name: Generate bugs list
+        run: npm run test:bugs-list
+      
+      - name: Upload bugs report
+        uses: actions/upload-artifact@v4
+        with:
+          name: bugs-report
+          path: test-results/BUGS_LIST.md
+          retention-days: 90
+      
+      - name: Comment PR with bugs
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const bugsReport = fs.readFileSync('test-results/BUGS_LIST.md', 'utf8');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## 🧪 Test Results\n\n${bugsReport}`
+            });
