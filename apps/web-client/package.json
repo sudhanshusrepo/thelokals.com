@@ -6,7 +6,6 @@
     "dev": "npx next dev --webpack -p 3000",
     "build": "npx next build --webpack",
     "build:turbo": "npm run build",
-    "pages:build": "npx @cloudflare/next-on-pages",
     "start": "npx next start",
     "lint": "eslint",
     "type-check": "tsc --noEmit",
