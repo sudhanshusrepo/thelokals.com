@@ -53,7 +53,7 @@ export const QuickCategories: React.FC<QuickCategoriesProps> = ({ onSelectCatego
         async function fetchCategories() {
             try {
                 const { data, error } = await supabase
-                    .from('categories')
+                    .from('service_categories')
                     .select('*')
                     .order('display_order', { ascending: true });
 
