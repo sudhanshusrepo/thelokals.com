@@ -10,7 +10,7 @@
     "dev": "turbo run dev",
     "build": "turbo run build",
     "build:turbo": "turbo run build",
-    "pages:build": "cd apps/web-client && npm run build && npx @cloudflare/next-on-pages",
+    "pages:build": "npm run build --workspace=web-client && cd apps/web-client && npx @cloudflare/next-on-pages",
     "test": "jest",
     "dev:client": "npm run dev --workspace=apps/web-client",
     "dev:provider": "npm run dev --workspace=apps/web-provider",
