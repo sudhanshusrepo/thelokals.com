@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "npx next dev --webpack -p 3000",
     "build": "npx next build --webpack",
+    "build:turbo": "npm run build",
     "pages:build": "npx @opennextjs/cloudflare build && node scripts/deploy-fix.js",
     "start": "npx next start",
     "lint": "eslint",

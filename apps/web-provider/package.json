@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "npx next dev -p 3001",
     "build": "npx next build --webpack",
+    "build:turbo": "npm run build",
     "pages:build": "npm run build && node scripts/build-shim.js",
     "start": "npx next start",
     "lint": "eslint",
