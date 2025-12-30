@@ -3,8 +3,11 @@
  * 160x220px service tile (provider-blind)
  */
 
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
+import { motion } from 'framer-motion';
 import { designTokensV2 } from '@/theme/design-tokens-v2';
 
 export interface ServiceCardProps {
@@ -23,9 +26,12 @@ export interface ServiceCardProps {
 
 export function ServiceCard({ service, onClick, className = '' }: ServiceCardProps) {
     return (
-        <div
+        <motion.div
             className={`service-card-v2 ${className}`}
             onClick={() => onClick(service.id)}
+            whileHover={{ y: -4, boxShadow: designTokensV2.shadows.elevated }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 17 }}
             style={{
                 width: '100%',
                 maxWidth: designTokensV2.dimensions.serviceCard.width,
@@ -35,7 +41,6 @@ export function ServiceCard({ service, onClick, className = '' }: ServiceCardPro
                 boxShadow: designTokensV2.shadows.card,
                 background: designTokensV2.colors.background.surface,
                 cursor: 'pointer',
-                transition: `all ${designTokensV2.animation.normal} ${designTokensV2.animation.easing.standard}`,
                 display: 'flex',
                 flexDirection: 'column',
             }}
@@ -132,17 +137,6 @@ export function ServiceCard({ service, onClick, className = '' }: ServiceCardPro
                     <span>({service.reviews})</span>
                 </div>
             </div>
-
-            <style jsx>{`
-        .service-card-v2:hover {
-          transform: translateY(-4px) scale(0.98);
-          box-shadow: ${designTokensV2.shadows.elevated};
-        }
-
-        .service-card-v2:active {
-          transform: translateY(-2px) scale(0.96);
-        }
-      `}</style>
-        </div>
+        </motion.div>
     );
 }

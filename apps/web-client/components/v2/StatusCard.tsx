@@ -3,7 +3,10 @@
  * 360x120px booking status display
  */
 
+'use client';
+
 import React from 'react';
+import { motion } from 'framer-motion';
 import { designTokensV2 } from '@/theme/design-tokens-v2';
 
 export interface StatusCardProps {
@@ -28,7 +31,9 @@ export function StatusCard({
     const statusConfig = getStatusConfig(status);
 
     return (
-        <div
+        <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
             className={`status-card-v2 ${className}`}
             style={{
                 width: '100%',
@@ -129,32 +134,20 @@ export function StatusCard({
                         marginTop: designTokensV2.spacing.xs,
                     }}
                 >
-                    <div
+                    <motion.div
                         className="progress-bar-fill"
+                        initial={{ width: '0%' }}
+                        animate={{ width: '100%' }}
+                        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
                         style={{
                             height: '100%',
                             background: designTokensV2.colors.accent.success,
                             borderRadius: designTokensV2.radius.full,
-                            animation: 'progressSweep 2s ease-in-out infinite',
                         }}
                     />
                 </div>
             )}
-
-            <style jsx>{`
-        @keyframes progressSweep {
-          0% {
-            width: 0%;
-          }
-          50% {
-            width: 70%;
-          }
-          100% {
-            width: 100%;
-          }
-        }
-      `}</style>
-        </div>
+        </motion.div>
     );
 }
 

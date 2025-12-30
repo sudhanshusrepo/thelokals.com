@@ -3,8 +3,120 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useV2Design } from '@/lib/feature-flags';
+import { AppBar, StatusCard } from '@/components/v2';
+import { designTokensV2 } from '@/theme/design-tokens-v2';
 
-export default function BookingsPage() {
+// V2 Design Component
+function BookingsPageV2() {
+    const [filter, setFilter] = useState<'active' | 'past'>('active');
+
+    const mockBookings = [
+        {
+            id: '1',
+            serviceName: 'AC Repair',
+            date: 'Today',
+            time: '2:30 PM',
+            status: 'in-progress' as const,
+            provider: 'Rajesh Kumar',
+        },
+        {
+            id: '2',
+            serviceName: 'Home Cleaning',
+            date: 'Dec 24',
+            time: '10:00 AM',
+            status: 'completed' as const,
+            provider: 'Sunita Devi',
+        },
+        {
+            id: '3',
+            serviceName: 'Plumbing',
+            date: 'Dec 28',
+            time: '11:00 AM',
+            status: 'requested' as const, // Mapping legacy 'pending' to 'requested'
+        },
+        {
+            id: '4',
+            serviceName: 'Electrical Check',
+            date: 'Nov 20',
+            time: '4:00 PM',
+            status: 'cancelled' as const,
+        },
+    ];
+
+    const filteredBookings = mockBookings.filter((b) => {
+        if (filter === 'active')
+            return ['requested', 'accepted', 'in-progress'].includes(b.status);
+        return ['completed', 'cancelled'].includes(b.status);
+    });
+
+    return (
+        <div style={{ minHeight: '100vh', backgroundColor: '#F0F0F0', paddingBottom: '80px' }}>
+            <AppBar title="My Bookings" />
+
+            <div style={{ maxWidth: '600px', margin: '0 auto', paddingTop: '80px', paddingLeft: '16px', paddingRight: '16px' }}>
+                {/* Tabs */}
+                <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
+                    {['active', 'past'].map((tab) => (
+                        <button
+                            key={tab}
+                            onClick={() => setFilter(tab as 'active' | 'past')}
+                            style={{
+                                flex: 1,
+                                padding: '12px',
+                                borderRadius: designTokensV2.radius.pill,
+                                backgroundColor: filter === tab ? '#0E121A' : 'white',
+                                color: filter === tab ? 'white' : '#666',
+                                border: 'none',
+                                fontWeight: '600',
+                                textTransform: 'capitalize',
+                                cursor: 'pointer',
+                                boxShadow: filter === tab ? designTokensV2.shadows.card : 'none',
+                                transition: 'all 0.2s ease',
+                            }}
+                        >
+                            {tab}
+                        </button>
+                    ))}
+                </div>
+
+                {/* List */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    {filteredBookings.length === 0 ? (
+                        <div
+                            style={{
+                                textAlign: 'center',
+                                padding: '40px',
+                                backgroundColor: 'white',
+                                borderRadius: designTokensV2.radius.card,
+                                color: '#666',
+                            }}
+                        >
+                            No {filter} bookings found
+                        </div>
+                    ) : (
+                        filteredBookings.map((booking) => (
+                            <div key={booking.id} style={{ position: 'relative' }}>
+                                <a href={`/bookings/${booking.id}`} style={{ textDecoration: 'none' }}>
+                                    <StatusCard
+                                        status={booking.status}
+                                        serviceName={booking.serviceName}
+                                        bookingDate={booking.date}
+                                        bookingTime={booking.time}
+                                        providerName={booking.provider}
+                                    />
+                                </a>
+                            </div>
+                        ))
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// Legacy Component (Kept for fallback)
+function BookingsPageLegacy() {
     const router = useRouter();
     const [filter, setFilter] = useState<'active' | 'past'>('active');
 
@@ -140,4 +252,9 @@ export default function BookingsPage() {
             </main>
         </div>
     );
+}
+
+export default function BookingsPage() {
+    const showV2 = useV2Design();
+    return showV2 ? <BookingsPageV2 /> : <BookingsPageLegacy />;
 }

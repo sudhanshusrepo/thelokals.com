@@ -3,6 +3,10 @@
  * Enables gradual rollout and instant rollback of v2 design
  */
 
+'use client';
+
+import { useEffect, useState } from 'react';
+
 export interface FeatureFlags {
     useClientDesignV2: boolean;
     v2RolloutPercentage: number;
@@ -16,6 +20,8 @@ export const featureFlags: FeatureFlags = {
     // Percentage of users to show v2 (0-100)
     v2RolloutPercentage: parseInt(process.env.NEXT_PUBLIC_V2_ROLLOUT || '0', 10),
 };
+
+const STORAGE_KEY = 'lokals_v2_bucket';
 
 /**
  * Check if user should see v2 design based on rollout percentage
@@ -37,15 +43,33 @@ export function shouldShowV2(userId?: string): boolean {
         return false;
     }
 
-    // If no userId, use random assignment (for anonymous users)
-    if (!userId) {
-        return Math.random() * 100 < featureFlags.v2RolloutPercentage;
+    // Server-side check: impossible to know anonymous bucket, default to false (safe)
+    if (typeof window === 'undefined') {
+        return false;
     }
 
-    // Deterministic hash-based assignment
-    const hash = simpleHash(userId);
-    const bucket = hash % 100;
-    return bucket < featureFlags.v2RolloutPercentage;
+    // 1. Check for logged-in user (highest priority consistency)
+    if (userId) {
+        const hash = simpleHash(userId);
+        const bucket = hash % 100;
+        return bucket < featureFlags.v2RolloutPercentage;
+    }
+
+    // 2. Check for persisted local storage bucket (anonymous consistency)
+    try {
+        let bucket = parseInt(localStorage.getItem(STORAGE_KEY) || '', 10);
+
+        if (isNaN(bucket)) {
+            // Generate new random bucket for new anonymous user
+            bucket = Math.floor(Math.random() * 100);
+            localStorage.setItem(STORAGE_KEY, bucket.toString());
+        }
+
+        return bucket < featureFlags.v2RolloutPercentage;
+    } catch (e) {
+        // Fallback for private browsing / blocked storage
+        return false;
+    }
 }
 
 /**
@@ -68,8 +92,6 @@ export function useFeatureFlag(flag: keyof FeatureFlags): boolean {
     if (typeof window === 'undefined') {
         return featureFlags[flag] as boolean;
     }
-
-    // Client-side: can add dynamic config fetching here
     return featureFlags[flag] as boolean;
 }
 
@@ -77,9 +99,12 @@ export function useFeatureFlag(flag: keyof FeatureFlags): boolean {
  * React hook for v2 design check with user-based rollout
  */
 export function useV2Design(userId?: string): boolean {
-    if (typeof window === 'undefined') {
-        return false; // SSR: default to v1
-    }
+    // We need state to handle clientside-only storage check to avoid hydration mismatch
+    const [showV2, setShowV2] = useState(false);
 
-    return shouldShowV2(userId);
+    useEffect(() => {
+        setShowV2(shouldShowV2(userId));
+    }, [userId]);
+
+    return showV2;
 }

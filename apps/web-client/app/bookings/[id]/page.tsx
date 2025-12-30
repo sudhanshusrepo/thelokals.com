@@ -4,10 +4,16 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@thelocals/core/services/supabase';
 import { Button } from '../../../components/ui/Button';
+// Legacy imports
 import { AppBar } from '../../../components/home/AppBar';
+// V2 Imports
+import { AppBar as AppBarV2, StatusCard } from '@/components/v2';
+import { useV2Design } from '@/lib/feature-flags';
+import { designTokensV2 } from '@/theme/design-tokens-v2';
 import { toast } from 'react-hot-toast';
 
 export default function BookingTrackingPage() {
+    const showV2 = useV2Design();
     const params = useParams();
     const router = useRouter();
     const bookingId = params.id as string;
@@ -22,19 +28,11 @@ export default function BookingTrackingPage() {
         const fetchBooking = async () => {
             const { data, error } = await supabase
                 .from('bookings')
-                .select('*, provider:providers(*)') // Restored provider join
+                .select('*, provider:providers(*)')
                 .eq('id', bookingId)
                 .single();
 
-            if (error) {
-                console.error('Error fetching booking:', error);
-            }
-            if (data) {
-                console.log('Fetched Booking Data:', data);
-                setBooking(data);
-            } else {
-                console.error('No booking data found for ID:', bookingId);
-            }
+            if (data) setBooking(data);
             setLoading(false);
         };
 
@@ -52,7 +50,6 @@ export default function BookingTrackingPage() {
                     filter: `id=eq.${bookingId}`
                 },
                 (payload: any) => {
-                    console.log('Booking Update:', payload);
                     setBooking((prev: any) => ({ ...prev, ...payload.new }));
                 }
             )
@@ -79,7 +76,7 @@ export default function BookingTrackingPage() {
                 if (otpData) {
                     setOtp(otpData.otp_code);
                 } else if (booking.status === 'ACCEPTED') {
-                    // Try to generate if missing (User side trigger for MVP)
+                    // Try to generate if missing 
                     const { data: newOtp } = await supabase.rpc('generate_booking_otp', { p_booking_id: bookingId });
                     if (newOtp) setOtp(newOtp);
                 }
@@ -150,6 +147,127 @@ export default function BookingTrackingPage() {
         'CANCELLED': '❌'
     };
 
+    // V2 Design Render
+    if (showV2) {
+        return (
+            <div style={{ minHeight: '100vh', backgroundColor: '#F0F0F0', paddingBottom: '100px' }}>
+                <AppBarV2 title="Booking Details" showBack />
+
+                <div style={{ maxWidth: '600px', margin: '0 auto', paddingTop: '80px', paddingLeft: '16px', paddingRight: '16px' }}>
+
+                    {/* Status Card */}
+                    <div style={{ marginBottom: '24px' }}>
+                        <StatusCard
+                            status={booking.status.toLowerCase()}
+                            serviceName={booking.service_category || 'Service'}
+                            bookingDate={new Date(booking.created_at).toLocaleDateString()}
+                            bookingTime="10:00 AM" // Mock time needed or parse from scheduled_at if available
+                            providerName={booking.provider?.name}
+                        />
+                    </div>
+
+                    {/* Timeline V2 */}
+                    <div style={{
+                        backgroundColor: 'white',
+                        borderRadius: designTokensV2.radius.card,
+                        padding: '24px',
+                        marginBottom: '24px',
+                        boxShadow: designTokensV2.shadows.card
+                    }}>
+                        <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '20px' }}>Timeline</h3>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', position: 'relative' }}>
+                            {/* Vertical Line */}
+                            <div style={{ position: 'absolute', left: '11px', top: '10px', bottom: '10px', width: '2px', backgroundColor: '#F0F0F0' }}></div>
+
+                            {statusSteps.map((step, idx) => {
+                                const isCompleted = idx <= currentStepIndex;
+                                const isCurrent = idx === currentStepIndex;
+                                return (
+                                    <div key={step} style={{ display: 'flex', gap: '16px', position: 'relative', zIndex: 1 }}>
+                                        <div style={{
+                                            width: '24px',
+                                            height: '24px',
+                                            borderRadius: '50%',
+                                            backgroundColor: isCompleted ? designTokensV2.colors.accent.success : '#E0E0E0',
+                                            border: isCurrent ? `4px solid #C8E6C9` : '4px solid white',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontSize: '10px',
+                                            color: 'white',
+                                            flexShrink: 0
+                                        }}>
+                                            {isCompleted ? '✓' : ''}
+                                        </div>
+                                        <div>
+                                            <div style={{ fontSize: '14px', fontWeight: isCurrent ? '700' : '500', color: isCompleted ? '#0E121A' : '#999' }}>
+                                                {step.replace('_', ' ')}
+                                            </div>
+                                            {isCurrent && <div style={{ fontSize: '12px', color: designTokensV2.colors.accent.success }}>Current Status</div>}
+                                        </div>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    </div>
+
+                    {/* Provider Actions V2 */}
+                    {booking.provider && (
+                        <div style={{
+                            background: designTokensV2.colors.gradient.css,
+                            borderRadius: designTokensV2.radius.card,
+                            padding: '24px',
+                            color: 'white',
+                            marginBottom: '24px'
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px' }}>
+                                <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>
+                                    👨‍🔧
+                                </div>
+                                <div>
+                                    <div style={{ fontSize: '18px', fontWeight: '700' }}>{booking.provider.name}</div>
+                                    <div style={{ fontSize: '14px', opacity: 0.9 }}>Assigned Professional</div>
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '12px' }}>
+                                <button style={{ flex: 1, padding: '12px', borderRadius: '12px', border: 'none', background: 'white', color: '#0E121A', fontWeight: '600', cursor: 'pointer' }}>
+                                    📞 Call
+                                </button>
+                                <button style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.4)', background: 'transparent', color: 'white', fontWeight: '600', cursor: 'pointer' }}>
+                                    💬 Chat
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* OTP V2 */}
+                    {booking.status === 'ACCEPTED' && (
+                        <div style={{ backgroundColor: '#FFF8E1', borderRadius: '16px', padding: '20px', marginBottom: '24px', border: '1px solid #FFE082' }}>
+                            <div style={{ fontSize: '12px', fontWeight: '600', color: '#F57F17', marginBottom: '4px', textTransform: 'uppercase' }}>Start Code</div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div style={{ fontSize: '14px', color: '#555' }}>Share with provider</div>
+                                <div style={{ fontSize: '24px', fontWeight: '700', color: '#0E121A', letterSpacing: '4px' }}>{otp || '....'}</div>
+                            </div>
+                        </div>
+                    )}
+
+                    {canCancel && (
+                        <button
+                            onClick={handleCancelBooking}
+                            disabled={cancelling}
+                            style={{ width: '100%', padding: '16px', backgroundColor: '#FFEBEE', color: '#D32F2F', borderRadius: '16px', border: 'none', fontWeight: '600', cursor: 'pointer' }}
+                        >
+                            {cancelling ? 'Cancelling...' : 'Cancel Booking'}
+                        </button>
+                    )}
+
+                </div>
+            </div>
+        );
+    }
+
+    // Legacy Render
     return (
         <div className="min-h-screen bg-slate-50">
             <AppBar />

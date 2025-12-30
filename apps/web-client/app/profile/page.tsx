@@ -6,9 +6,13 @@ import { supabase } from '@thelocals/core/services/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { toast } from 'react-hot-toast';
 import { User, MapPin, LogOut, Settings, ChevronRight } from 'lucide-react';
-import { AppBar } from '../../components/home/AppBar';
+import { AppBar } from '../../components/home/AppBar'; // Legacy
+import { AppBar as AppBarV2 } from '@/components/v2'; // V2
+import { useV2Design } from '@/lib/feature-flags';
+import { designTokensV2 } from '@/theme/design-tokens-v2';
 
 export default function ProfilePage() {
+    const showV2 = useV2Design();
     const { user, signOut } = useAuth();
     const router = useRouter();
     const [profile, setProfile] = useState<any>(null);
@@ -16,8 +20,7 @@ export default function ProfilePage() {
 
     useEffect(() => {
         if (!user) {
-            // Let Layout/BottomNav handle redirects if needed, but safe to redirect logic here too
-            // router.push('/auth'); 
+            // Let Layout/BottomNav handle redirects if needed
             return;
         }
 
@@ -53,6 +56,142 @@ export default function ProfilePage() {
         );
     }
 
+    if (showV2) {
+        return (
+            <div style={{ minHeight: '100vh', backgroundColor: '#F0F0F0', paddingBottom: '100px' }}>
+                <AppBarV2 title="Profile" />
+
+                <div style={{
+                    maxWidth: '600px',
+                    margin: '0 auto',
+                    paddingTop: '80px',
+                    paddingLeft: '16px',
+                    paddingRight: '16px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '24px'
+                }}>
+                    {/* V2 Profile Header */}
+                    <div style={{
+                        backgroundColor: 'white',
+                        borderRadius: designTokensV2.radius.hero,
+                        padding: '24px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '20px',
+                        boxShadow: designTokensV2.shadows.card,
+                    }}>
+                        <div style={{
+                            width: '64px',
+                            height: '64px',
+                            borderRadius: '50%',
+                            background: designTokensV2.colors.gradient.css,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '32px',
+                            color: 'white'
+                        }}>
+                            {profile?.full_name?.charAt(0) || 'U'}
+                        </div>
+                        <div>
+                            <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#0E121A', margin: 0 }}>
+                                {profile?.full_name || 'Lokals User'}
+                            </h2>
+                            <p style={{ fontSize: '14px', color: '#666', margin: '4px 0 8px 0' }}>
+                                {profile?.phone || user?.email}
+                            </p>
+                            <span style={{
+                                backgroundColor: '#E0F7FA',
+                                color: '#006064',
+                                padding: '4px 12px',
+                                borderRadius: '12px',
+                                fontSize: '12px',
+                                fontWeight: '600'
+                            }}>
+                                Verified Customer
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Menu Options */}
+                    <div style={{
+                        backgroundColor: 'white',
+                        borderRadius: designTokensV2.radius.card,
+                        overflow: 'hidden',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+                    }}>
+                        {[
+                            { icon: <MapPin size={20} />, label: 'Saved Addresses', sub: 'Manage your locations' },
+                            { icon: <Settings size={20} />, label: 'Settings', sub: 'Preferences & Notifications' },
+                        ].map((item, idx) => (
+                            <button
+                                key={idx}
+                                style={{
+                                    width: '100%',
+                                    padding: '16px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    border: 'none',
+                                    background: 'transparent',
+                                    borderBottom: idx === 0 ? '1px solid #F0F0F0' : 'none',
+                                    cursor: 'pointer',
+                                    textAlign: 'left'
+                                }}
+                            >
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                    <div style={{
+                                        width: '40px',
+                                        height: '40px',
+                                        borderRadius: '50%',
+                                        backgroundColor: '#F7C84620',
+                                        color: '#F7C846',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center'
+                                    }}>
+                                        {item.icon}
+                                    </div>
+                                    <div>
+                                        <div style={{ fontSize: '16px', fontWeight: '600', color: '#0E121A' }}>{item.label}</div>
+                                        <div style={{ fontSize: '12px', color: '#666' }}>{item.sub}</div>
+                                    </div>
+                                </div>
+                                <ChevronRight size={20} color="#ccc" />
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Logout */}
+                    <button
+                        onClick={handleLogout}
+                        style={{
+                            width: '100%',
+                            padding: '16px',
+                            backgroundColor: '#FFEBEE',
+                            color: '#D32F2F',
+                            border: 'none',
+                            borderRadius: designTokensV2.radius.btn,
+                            fontWeight: '600',
+                            fontSize: '16px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '8px'
+                        }}
+                    >
+                        <LogOut size={20} />
+                        Log Out
+                    </button>
+
+                </div>
+            </div>
+        );
+    }
+
+    // Legacy Fallback
     return (
         <div className="min-h-screen bg-slate-50 pb-24">
             <AppBar />

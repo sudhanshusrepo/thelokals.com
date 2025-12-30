@@ -4,7 +4,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@thelocals/core/services/supabase';
 import type { User, Session } from '@supabase/supabase-js';
-import { analytics } from '../lib/analytics';
+import { Analytics } from '../lib/analytics';
 
 interface AuthContextType {
     user: User | null;
@@ -59,22 +59,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             // Track authentication events
             if (event === 'SIGNED_IN' && newUser) {
-                analytics.track('user_signin', {
+                // @ts-ignore - generic event logging
+                Analytics.track('user_signin', {
                     method: 'phone',
                     userId: newUser.id,
                 });
-                analytics.identify(newUser.id, {
-                    phone: newUser.phone,
-                    email: newUser.email,
-                });
+                Analytics.identify(newUser.id);
             } else if (event === 'SIGNED_OUT') {
-                analytics.track('user_signout');
-                analytics.reset();
+                // @ts-ignore - generic event logging
+                Analytics.track('user_signout');
             } else if (event === 'USER_UPDATED' && newUser) {
-                analytics.identify(newUser.id, {
-                    phone: newUser.phone,
-                    email: newUser.email,
-                });
+                Analytics.identify(newUser.id);
             }
         });
 

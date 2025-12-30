@@ -3,7 +3,10 @@
  * 420x240px gradient card with CTA buttons
  */
 
+'use client';
+
 import React from 'react';
+import { motion } from 'framer-motion';
 import { designTokensV2 } from '@/theme/design-tokens-v2';
 
 export interface HeroCardProps {
@@ -36,8 +39,12 @@ export function HeroCard({
     const backgroundStyle = getBackgroundStyle(variant);
 
     return (
-        <div
+        <motion.div
             className={`hero-card-v2 ${className}`}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+            whileHover={{ y: -4, boxShadow: designTokensV2.shadows.floating }}
             style={{
                 position: 'relative',
                 width: '100%',
@@ -77,7 +84,10 @@ export function HeroCard({
             >
                 {/* Text Content */}
                 <div>
-                    <h2
+                    <motion.h2
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.2 }}
                         style={{
                             fontSize: designTokensV2.typography.h1.fontSize,
                             fontWeight: designTokensV2.typography.h1.fontWeight,
@@ -87,8 +97,11 @@ export function HeroCard({
                         }}
                     >
                         {title}
-                    </h2>
-                    <p
+                    </motion.h2>
+                    <motion.p
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.3 }}
                         style={{
                             fontSize: designTokensV2.typography.bodyLg.fontSize,
                             fontWeight: designTokensV2.typography.bodyLg.fontWeight,
@@ -97,7 +110,7 @@ export function HeroCard({
                         }}
                     >
                         {subtitle}
-                    </p>
+                    </motion.p>
                 </div>
 
                 {/* CTA Buttons */}
@@ -110,8 +123,10 @@ export function HeroCard({
                         }}
                     >
                         {cta1 && (
-                            <button
+                            <motion.button
                                 onClick={cta1.onClick}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
                                 className="hero-card-cta"
                                 style={{
                                     padding: `${designTokensV2.spacing.sm} ${designTokensV2.spacing.xl}`,
@@ -120,7 +135,6 @@ export function HeroCard({
                                     fontWeight: designTokensV2.typography.label.fontWeight,
                                     border: 'none',
                                     cursor: 'pointer',
-                                    transition: `all ${designTokensV2.animation.normal} ${designTokensV2.animation.easing.standard}`,
                                     ...(cta1.variant === 'secondary'
                                         ? {
                                             background: 'rgba(255, 255, 255, 0.2)',
@@ -134,11 +148,13 @@ export function HeroCard({
                                 }}
                             >
                                 {cta1.label}
-                            </button>
+                            </motion.button>
                         )}
                         {cta2 && (
-                            <button
+                            <motion.button
                                 onClick={cta2.onClick}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
                                 className="hero-card-cta"
                                 style={{
                                     padding: `${designTokensV2.spacing.sm} ${designTokensV2.spacing.xl}`,
@@ -147,7 +163,6 @@ export function HeroCard({
                                     fontWeight: designTokensV2.typography.label.fontWeight,
                                     border: 'none',
                                     cursor: 'pointer',
-                                    transition: `all ${designTokensV2.animation.normal} ${designTokensV2.animation.easing.standard}`,
                                     ...(cta2.variant === 'secondary'
                                         ? {
                                             background: 'rgba(255, 255, 255, 0.2)',
@@ -161,7 +176,7 @@ export function HeroCard({
                                 }}
                             >
                                 {cta2.label}
-                            </button>
+                            </motion.button>
                         )}
                     </div>
                 )}
@@ -193,17 +208,8 @@ export function HeroCard({
             left: 100%;
           }
         }
-
-        .hero-card-cta:hover {
-          transform: scale(1.05);
-          box-shadow: ${designTokensV2.shadows.elevated};
-        }
-
-        .hero-card-cta:active {
-          transform: scale(0.98);
-        }
       `}</style>
-        </div>
+        </motion.div>
     );
 }
 
@@ -227,3 +233,4 @@ function getBackgroundStyle(variant: 'gradient' | 'dark' | 'light') {
             };
     }
 }
+

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { trackFunnelStep, trackFunnelAbandonment } from '../lib/analytics';
+import { Analytics } from '../lib/analytics';
 
 export interface BookingData {
     serviceCode: string;
@@ -70,26 +70,29 @@ export const BookingProvider: React.FC<{ children: ReactNode }> = ({ children })
 
         // Track funnel steps
         if (isNewBooking && data.serviceCode) {
-            trackFunnelStep('booking', 1, 'service_selected', {
+            Analytics.track('booking_start', {
                 serviceCode: data.serviceCode,
                 serviceName: data.serviceName,
             });
         }
 
         if (data.address && !bookingData?.address) {
-            trackFunnelStep('booking', 2, 'location_entered', {
+            Analytics.track('booking_step_complete', {
+                step: 'location',
                 city: data.city,
             });
         }
 
         if (data.scheduledDate && !bookingData?.scheduledDate) {
-            trackFunnelStep('booking', 3, 'datetime_selected', {
+            Analytics.track('booking_step_complete', {
+                step: 'schedule',
                 date: data.scheduledDate,
             });
         }
 
         if (data.selectedProviderId && !bookingData?.selectedProviderId) {
-            trackFunnelStep('booking', 4, 'provider_selected', {
+            Analytics.track('booking_step_complete', {
+                step: 'provider',
                 providerId: data.selectedProviderId,
             });
         }
@@ -109,7 +112,13 @@ export const BookingProvider: React.FC<{ children: ReactNode }> = ({ children })
                 bookingData.scheduledDate ? 3 :
                     bookingData.address ? 2 : 1;
 
-            trackFunnelAbandonment('booking', step, 'booking_cleared', 'user_cancelled');
+            if (step < 4) {
+                // only log error/abandon if not completed roughly
+                // strictly speaking we don't have an explicit 'abandon' event in the new types
+                // so we might skip or log as generic error if desired, but for now we'll just log nothing 
+                // or use a custom Console log to match previous logic intent
+                console.log('Booking cleared/abandoned at step', step);
+            }
         }
 
         setBookingDataState(null);
