@@ -6,7 +6,7 @@
     "dev": "npx next dev --webpack -p 3000",
     "build": "npx next build --webpack",
     "build:turbo": "npm run build",
-    "pages:build": "npx @opennextjs/cloudflare build && node scripts/deploy-fix.js",
+    "pages:build": "npx @cloudflare/next-on-pages",
     "start": "npx next start",
     "lint": "eslint",
     "type-check": "tsc --noEmit",
@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^16.1.1",
-    "@opennextjs/cloudflare": "^1.14.7",
+    "@cloudflare/next-on-pages": "^1.13.16",
     "@sentry/nextjs": "^10.32.1",
     "@tailwindcss/postcss": "^4",
     "@types/aria-query": "^5.0.4",

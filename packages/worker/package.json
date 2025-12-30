@@ -18,6 +18,7 @@
     },
     "main": "src/index.ts",
     "dependencies": {
+        "@supabase/supabase-js": "^2.39.0",
         "dotenv": "^17.2.3"
     }
 }
