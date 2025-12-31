@@ -5,7 +5,7 @@
  */
 
 import { shouldShowV2, CLIENT_DESIGN_V2 } from '@thelocals/core';
-import { CLIENT_V2_CSS_TOKENS } from '@lokals/design-system';
+import { CLIENT_V2_TOKENS } from '@lokals/design-system';
 import { useState, useEffect } from 'react';
 
 export const useClientDesign = (userId?: string) => {
@@ -17,7 +17,7 @@ export const useClientDesign = (userId?: string) => {
 
     return {
         isV2Enabled,
-        tokens: isV2Enabled ? CLIENT_V2_CSS_TOKENS : null,
+        tokens: isV2Enabled ? CLIENT_V2_TOKENS : null,
         // Helper to conditionally apply v2 classes
         v2Class: (v2ClassName: string, fallbackClassName?: string) => {
             return isV2Enabled ? v2ClassName : (fallbackClassName || '');
