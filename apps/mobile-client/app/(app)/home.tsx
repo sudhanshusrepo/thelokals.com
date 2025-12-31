@@ -14,6 +14,8 @@ import { HomeSearch } from '@/components/home/HomeSearch';
 import { WhyLokals } from '@/components/home/WhyLokals';
 import { Footer } from '@/components/home/Footer';
 import { useLocation } from '@/contexts/LocationContext';
+import { useClientDesign } from '@/hooks/useClientDesign';
+import HomeScreenV2 from './home-v2';
 
 const categories = [
   { name: 'Plumbers' },
@@ -25,10 +27,10 @@ const categories = [
 ];
 
 export default function HomeScreen() {
+  const { isV2Enabled } = useClientDesign();
   const [isCtaVisible, setIsCtaVisible] = useState(false);
   const lastScrollY = useRef(0);
   const router = useRouter();
-
 
   const { requestLocation } = useLocation();
 
@@ -71,6 +73,12 @@ export default function HomeScreen() {
     handleChatSend({ type: 'video', data: 'image_placeholder' });
   };
 
+  // Render v2 design if feature flag is enabled
+  if (isV2Enabled) {
+    return <HomeScreenV2 />;
+  }
+
+  // Legacy home screen
   return (
     <View style={styles.container}>
 
@@ -167,3 +175,4 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
   },
 });
+

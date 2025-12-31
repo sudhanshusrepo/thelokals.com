@@ -9,6 +9,7 @@ export * from './services/authBridge';
 export * from './services/geoService';
 export * from './databaseTypes';
 export * from './utils/headerUtils';
+export * from './utils/featureFlags';
 export * from './components/auth';
 
 // Theme system
