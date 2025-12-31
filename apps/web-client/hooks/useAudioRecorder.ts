@@ -84,7 +84,7 @@ export const useAudioRecorder = (maxDurationSeconds: number = 60): UseAudioRecor
                     }
                     return prev + 1;
                 });
-            }, 1000);
+            }, 1000) as unknown as NodeJS.Timeout;
 
         } catch (err: any) {
             console.error('Error accessing microphone:', err);
