@@ -88,7 +88,7 @@ export function useWebSocket(
 
                     reconnectTimeoutRef.current = setTimeout(() => {
                         connect();
-                    }, reconnectInterval);
+                    }, reconnectInterval) as unknown as NodeJS.Timeout;
                 }
             };
 
