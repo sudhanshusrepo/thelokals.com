@@ -100,7 +100,7 @@ export const useVideoRecorder = (maxDurationSeconds: number = 30): UseVideoRecor
                     }
                     return prev + 1;
                 });
-            }, 1000);
+            }, 1000) as unknown as NodeJS.Timeout;
 
         } catch (err: any) {
             console.error('Error accessing camera:', err);
