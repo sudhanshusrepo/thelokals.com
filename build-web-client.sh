@@ -1,17 +1,13 @@
 #!/bin/bash
-# Cloudflare Pages build script for web-client with OpenNext adapter
+# Cloudflare Pages build script for web-client
 cd apps/web-client
 
-# Build Next.js with OpenNext adapter
+# Build Next.js with static export
 npm run build
 
-# OpenNext creates the output in .open-next directory
-# Copy it to the expected Cloudflare Pages location
-if [ -d ".open-next" ]; then
-  mkdir -p .vercel/output
-  cp -r .open-next/* .vercel/output/
-  echo "OpenNext build complete - output ready for Cloudflare Pages"
-else
-  echo "Error: .open-next directory not found"
-  exit 1
-fi
+# Next.js static export creates files in 'out' directory
+# Copy to Cloudflare Pages expected location
+mkdir -p .vercel/output/static
+cp -r out/* .vercel/output/static/
+
+echo "Static export complete - ready for Cloudflare Pages"

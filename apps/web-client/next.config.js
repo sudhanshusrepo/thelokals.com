@@ -1,8 +1,5 @@
 const path = require("path");
 
-// OpenNext Cloudflare adapter
-const withCloudflare = require("@opennextjs/cloudflare");
-
 // Bundle analyzer (only in analyze mode)
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
@@ -10,6 +7,7 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'export', // Enable static export for Cloudflare Pages
   transpilePackages: ['@thelocals/core'],
   outputFileTracingRoot: path.join(__dirname, "../../"),
 
@@ -144,4 +142,4 @@ const nextConfig = {
   },
 };
 
-module.exports = withCloudflare(withBundleAnalyzer(nextConfig));
+module.exports = withBundleAnalyzer(nextConfig);
