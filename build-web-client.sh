@@ -2,4 +2,5 @@
 # Cloudflare Pages build script for web-client
 cd apps/web-client
 npm run build
-npx @cloudflare/next-on-pages
+cd ../..
+npx @cloudflare/next-on-pages --experimental-minify
