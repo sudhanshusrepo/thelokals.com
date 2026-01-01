@@ -1,6 +1,5 @@
 import React, { useRef, useEffect } from 'react';
 import { View, Animated, StyleSheet, ViewStyle } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 
 interface SkeletonLoaderProps {
     width: number | string;
@@ -19,17 +18,24 @@ export const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({
 
     useEffect(() => {
         Animated.loop(
-            Animated.timing(shimmer, {
-                toValue: 1,
-                duration: 1200,
-                useNativeDriver: true,
-            })
+            Animated.sequence([
+                Animated.timing(shimmer, {
+                    toValue: 1,
+                    duration: 600,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(shimmer, {
+                    toValue: 0,
+                    duration: 600,
+                    useNativeDriver: true,
+                }),
+            ])
         ).start();
     }, [shimmer]);
 
-    const translateX = shimmer.interpolate({
+    const opacity = shimmer.interpolate({
         inputRange: [0, 1],
-        outputRange: [-300, 300],
+        outputRange: [0.3, 0.7],
     });
 
     return (
@@ -49,16 +55,10 @@ export const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({
                 style={{
                     width: '100%',
                     height: '100%',
-                    transform: [{ translateX }],
+                    backgroundColor: '#F0F0F0',
+                    opacity,
                 }}
-            >
-                <LinearGradient
-                    colors={['#E0E0E0', '#F0F0F0', '#E0E0E0']}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 0 }}
-                    style={{ flex: 1 }}
-                />
-            </Animated.View>
+            />
         </View>
     );
 };
