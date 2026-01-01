@@ -1,0 +1,43 @@
+{
+    "name": "@thelocals/core",
+    "version": "0.0.0",
+    "private": true,
+    "main": "./index.ts",
+    "module": "./index.ts",
+    "types": "./index.ts",
+    "exports": {
+        ".": "./index.ts",
+        "./components/*": "./components/*",
+        "./components/ui/*": "./components/ui/*",
+        "./*": "./*.ts"
+    },
+    "scripts": {
+        "build": "tsc",
+        "type-check": "tsc --noEmit",
+        "test": "vitest run"
+    },
+    "peerDependencies": {
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0"
+    },
+    "dependencies": {
+        "@google/generative-ai": "^0.1.0",
+        "@supabase/supabase-js": "^2.89.0",
+        "clsx": "^2.1.1",
+        "firebase": "^10.7.0",
+        "lucide-react": "^0.562.0",
+        "react-router-dom": "^7.11.0",
+        "tailwind-merge": "^3.4.0"
+    },
+    "devDependencies": {
+        "@playwright/test": "^1.57.0",
+        "@types/node": "^20.19.27",
+        "@types/react-router-dom": "^5.3.3",
+        "jsdom": "^27.3.0",
+        "react": "19.2.1",
+        "react-dom": "19.2.1",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.2.2",
+        "vitest": "^4.0.16"
+    }
+}

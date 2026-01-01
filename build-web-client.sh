@@ -1,6 +1,6 @@
 #!/bin/bash
 # Cloudflare Pages build script for web-client
-cd apps/web-client
+cd frontend/apps/web-client
 
 # Build Next.js with static export
 npm run build
