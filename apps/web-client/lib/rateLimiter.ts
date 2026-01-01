@@ -84,7 +84,7 @@ export function debounce<T extends (...args: any[]) => any>(
         if (timeout) {
             clearTimeout(timeout);
         }
-        timeout = setTimeout(later, wait);
+        timeout = setTimeout(later, wait) as unknown as NodeJS.Timeout;
     };
 }
 
