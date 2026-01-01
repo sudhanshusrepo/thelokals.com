@@ -1,7 +1,7 @@
 const path = require("path");
 
 // OpenNext Cloudflare adapter
-const { withOpenNext } = require("@opennextjs/cloudflare");
+const withCloudflare = require("@opennextjs/cloudflare");
 
 // Bundle analyzer (only in analyze mode)
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
@@ -144,4 +144,4 @@ const nextConfig = {
   },
 };
 
-module.exports = withOpenNext(withBundleAnalyzer(nextConfig));
+module.exports = withCloudflare(withBundleAnalyzer(nextConfig));
