@@ -3,11 +3,7 @@
 cd frontend/apps/web-client
 
 # Build Next.js with static export
+# Output goes directly to 'out/' directory
 npm run build
 
-# Next.js static export creates files in 'out' directory
-# Copy to Cloudflare Pages expected location
-mkdir -p .vercel/output/static
-cp -r out/* .vercel/output/static/
-
-echo "Static export complete - ready for Cloudflare Pages"
+echo "Static export complete - files in out/ directory"
