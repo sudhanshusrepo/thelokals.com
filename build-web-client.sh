@@ -5,8 +5,8 @@ cd apps/web-client
 npm run build
 
 # Create Cloudflare Pages compatible output structure
-mkdir -p .vercel/output/static
-cp -r .next/static .vercel/output/static/_next/static
+mkdir -p .vercel/output/static/_next
+cp -r .next/static .vercel/output/static/_next/
 cp -r public/* .vercel/output/static/ 2>/dev/null || true
 
 # Create minimal config for Cloudflare
