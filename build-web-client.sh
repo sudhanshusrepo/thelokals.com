@@ -1,8 +1,8 @@
 #!/bin/bash
-# Cloudflare Pages build script using OpenNext adapter
+# Cloudflare Pages build script using official adapter
 cd frontend/apps/web-client
 
-echo "Building Next.js with OpenNext Cloudflare adapter..."
-npx @opennextjs/cloudflare@1.14.7 build
+echo "Building Next.js for Cloudflare Pages (next-on-pages)..."
+npx @cloudflare/next-on-pages
 
-echo "Build complete! Output in .open-next/"
+echo "Build complete! Output in .vercel/output/static"

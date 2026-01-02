@@ -1,4 +1,10 @@
 const path = require("path");
+const { setupDevPlatform } = require('@cloudflare/next-on-pages/next-dev');
+
+// Setup Cloudflare dev platform for local development
+if (process.env.NODE_ENV === 'development') {
+  setupDevPlatform();
+}
 
 // Bundle analyzer (only in analyze mode)
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
