@@ -11,7 +11,8 @@
         "db:diff": "supabase db diff",
         "functions:serve": "supabase functions serve",
         "functions:deploy": "supabase functions deploy",
-        "gen:types": "supabase gen types typescript --local > supabase/types.ts"
+        "gen:types": "supabase gen types typescript --local > supabase/types.ts",
+        "build": "echo 'No build step for backend'"
     },
     "dependencies": {
         "@supabase/supabase-js": "^2.39.0"

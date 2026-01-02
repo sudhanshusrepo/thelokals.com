@@ -1,9 +1,16 @@
 
 const { createClient } = require('@supabase/supabase-js');
 
-const SUPABASE_URL = 'http://127.0.0.1:54321';
-const SERVICE_KEY = 'sb_secret_N7UND0UgjKTVK-Uodkm0Hg_xSvEMPvz';
-const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0';
+require('dotenv').config();
+
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://127.0.0.1:54321';
+const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+if (!SERVICE_KEY || !ANON_KEY) {
+    console.error('Error: Check .env for keys');
+    process.exit(1);
+}
 
 async function debugCleanTable() {
     console.log('--- CLEAN TABLE DEBUGGER ---');

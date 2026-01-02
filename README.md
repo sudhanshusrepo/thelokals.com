@@ -1,53 +1,93 @@
 # The Lokals Platform
 
-## Overview
+## 📋 Executive Summary
+The Lokals Platform is a **monorepo-based local services marketplace** connecting customers with service providers.
 
-The Lokals Platform is a decentralized service marketplace that connects local service providers with customers. This repository contains the code for the entire platform, which is built using a monorepo architecture. The platform consists of four main packages:
+- **3 Web Applications**: Client, Provider, and Admin portals
+- **2 Mobile Applications**: Client and Provider mobile apps
+- **Backend**: Supabase (PostgreSQL + Edge Functions)
+- **AI Integration**: Google Gemini for natural language booking
 
-*   **`client`**: A React-based web application that allows customers to find and book services.
-*   **`provider`**: A web application for service providers to manage their profiles, services, and bookings.
-*   **`core`**: A library that contains the core business logic and data models for the platform.
-*   **`db`**: A package that contains the database schema and migration scripts.
+## 🏗️ Repository Structure
 
-## Getting Started
+This project uses **Turborepo** and **npm workspaces**.
 
-To get started with the platform, you will need to have the following installed:
-
-*   [Node.js](https.://nodejs.org/en/)
-*   [pnpm](https://pnpm.io/)
-
-Once you have these installed, you can clone the repository and install the dependencies:
-
-```bash
-git clone https://github.com/the-lokals/platform.git
-cd platform
-pnpm install
+```
+thelokals.com-main/
+├── frontend/apps/          # Next.js & Expo applications
+│   ├── web-client/         # Customer web app (Port: 3000)
+│   ├── web-provider/       # Provider web app (Port: 3001)
+│   ├── web-admin/          # Admin portal (Port: 3002)
+│   ├── mobile-client/      # React Native client app
+│   └── mobile-provider/    # React Native provider app
+│
+├── shared/                 # Shared libraries
+│   ├── core/               # Business logic, types, and constants
+│   └── ui/                 # Shared UI components (planned)
+│
+├── backend/                # Supabase backend
+│   ├── functions/          # Edge Functions
+│   └── migrations/         # Database migrations
+│
+└── .github/workflows/      # CI/CD Pipelines
 ```
 
-## Running the Platform
+## 🚀 Getting Started
 
-To run the platform, you can use the following command:
+### Prerequisites
+- **Node.js**: v20+ (Required)
+- **npm**: v10+
+
+### Installation
+
+1.  **Clone the repository**:
+    ```bash
+    git clone https://github.com/the-lokals/platform.git
+    cd thelokals.com
+    ```
+
+2.  **Install dependencies**:
+    ```bash
+    npm install
+    # Note: This executes at the root, linking all workspaces.
+    ```
+
+### Running Applications
+
+Use **Turbo** to run apps in parallel or individually:
 
 ```bash
-pnpm dev
+# Run all web apps (Client, Provider, Admin)
+npm run dev
+
+# Run a specific app
+npm run dev --workspace=web-client
+npm run dev --workspace=web-provider
+npm run dev --workspace=web-admin
 ```
 
-This will start the `client` and `provider` applications in development mode. The `client` application will be available at `http://localhost:5173` and the `provider` application will be available at `http://localhost:5174`.
+| App | URL | Description |
+| :--- | :--- | :--- |
+| **Client** | `http://localhost:3000` | Customer booking interface |
+| **Provider** | `http://localhost:3001` | Service provider dashboard |
+| **Admin** | `http://localhost:3002` | Platform administration |
 
-## Deployment
+## 🧪 Testing
 
-The platform is deployed using Vercel. The `client` and `provider` applications are deployed as separate Vercel projects. The `core` and `db` packages are not deployed directly, but are used by the `client` and `provider` applications.
+```bash
+# Run all tests
+npm run test:full
 
-## Documentation
+# Run E2E tests (Playwright)
+npm run test:e2e
 
-Comprehensive project documentation is available in the **[docs](./docs/)** folder, including:
+# Run Unit tests
+npm run test:unit
+```
 
-- **[System Architecture](./docs/SYSTEM_ARCHITECTURE.md)**: High-level design and database schema.
-- **[Development Guide](./docs/DEVELOPMENT_GUIDE.md)**: Setup and workflow instructions.
-- **[API Reference](./docs/API_REFERENCE.md)**: Database functions and API details.
-- **[Testing Guide](./docs/TESTING_GUIDE.md)**: E2E testing strategy and instructions.
-- **[Worker Credentials](./docs/WORKER_CREDENTIALS.md)**: Test account details.
+## 📦 Deployment
+The platform is configured for deployment on **Cloudflare Pages** (frontend) and **Supabase** (backend). CI/CD pipelines are defined in `.github/workflows/ci.yml`.
 
-## Contributing
-
-We welcome contributions to the platform. If you would like to contribute, please fork the repository and create a pull request.
+## 📚 Documentation
+- **[System Architecture](./docs/architecture/SYSTEM_ARCHITECTURE.md)**
+- **[Deployment Guide](./docs/deployment/DEPLOYMENT_READINESS.md)**

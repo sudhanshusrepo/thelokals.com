@@ -3,6 +3,9 @@
     "version": "0.0.1",
     "main": "src/index.ts",
     "types": "src/index.ts",
+    "scripts": {
+        "build": "echo 'No build step for design-system'"
+    },
     "dependencies": {
         "react": "19.2.1",
         "react-native": "0.81.5"

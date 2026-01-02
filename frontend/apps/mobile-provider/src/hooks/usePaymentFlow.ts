@@ -11,7 +11,6 @@ export const usePaymentFlow = (jobId: string) => {
             await new Promise(resolve => setTimeout(resolve, 2000));
 
             // In real app, this would hit /api/payouts/initiate
-            console.log(`[Payment] Payout initiated for Job ${jobId}`);
 
             setStatus('success');
             return true;

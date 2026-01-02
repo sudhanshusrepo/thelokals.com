@@ -1,9 +1,16 @@
 
 const { createClient } = require('@supabase/supabase-js');
 
+require('dotenv').config();
+
 // Config
-const SUPABASE_URL = 'http://127.0.0.1:54321';
-const SERVICE_KEY = 'sb_secret_N7UND0UgjKTVK-Uodkm0Hg_xSvEMPvz';
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://127.0.0.1:54321';
+const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!SERVICE_KEY) {
+    console.error('Error: SUPABASE_SERVICE_ROLE_KEY is missing from .env');
+    process.exit(1);
+}
 
 async function auditDb() {
     console.log('--- DB AUDIT ---');

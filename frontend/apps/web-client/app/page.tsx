@@ -55,7 +55,6 @@ export default function Home() {
 
   const handleOpenApp = () => {
     // PWA install will be implemented here
-    console.log('Open app clicked - PWA install prompt');
   };
 
   // --- V2 RENDER ---

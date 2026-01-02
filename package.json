@@ -14,12 +14,12 @@
     "build:turbo": "turbo run build",
     "pages:build": "bash build-web-client.sh",
     "test": "jest",
-    "dev:client": "npm run dev --workspace=apps/web-client",
-    "dev:provider": "npm run dev --workspace=apps/web-provider",
-    "dev:admin": "npm run dev --workspace=apps/web-admin",
-    "build:client": "npm run build --workspace=apps/web-client",
-    "build:provider": "npm run build --workspace=apps/web-provider",
-    "build:admin": "npm run build --workspace=apps/web-admin",
+    "dev:client": "npm run dev --workspace=web-client",
+    "dev:provider": "npm run dev --workspace=web-provider",
+    "dev:admin": "npm run dev --workspace=web-admin",
+    "build:client": "npm run build --workspace=web-client",
+    "build:provider": "npm run build --workspace=web-provider",
+    "build:admin": "npm run build --workspace=web-admin",
     "test:unit": "jest --coverage",
     "test:integration": "jest --testMatch='**/*.integration.test.ts'",
     "test:e2e": "node_modules/.bin/playwright test --config=playwright.config.js",
@@ -71,6 +71,7 @@
   },
   "overrides": {
     "react": "19.2.1",
-    "react-dom": "19.2.1"
+    "react-dom": "19.2.1",
+    "undici": "^6.21.0"
   }
 }
