@@ -1,9 +1,14 @@
 #!/bin/bash
-# Cloudflare Pages build script for web-client
+# Cloudflare Pages build script for web-client with Workers support
 cd frontend/apps/web-client
 
-# Build Next.js with static export
-# Output goes directly to 'out/' directory
+# Build Next.js application
+echo "Building Next.js application..."
 npm run build
 
-echo "Static export complete - files in out/ directory"
+# Convert Next.js build for Cloudflare Workers using next-on-pages
+echo "Converting for Cloudflare Workers..."
+npx @cloudflare/next-on-pages
+
+echo "Cloudflare Workers build complete!"
+echo "Output: .vercel/output/static"

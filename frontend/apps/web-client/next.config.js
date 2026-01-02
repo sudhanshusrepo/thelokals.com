@@ -7,7 +7,6 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export', // Enable static export for Cloudflare Pages
   transpilePackages: ['@thelocals/core'],
   outputFileTracingRoot: path.join(__dirname, "../../"),
 
