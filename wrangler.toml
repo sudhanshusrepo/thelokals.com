@@ -1,4 +1,4 @@
 name = "web-client"
 compatibility_date = "2025-12-08"
 compatibility_flags = ["nodejs_compat"]
-pages_build_output_dir = "frontend/apps/web-client/.open-next/worker"
+pages_build_output_dir = "frontend/apps/web-client/.open-next/assets"
