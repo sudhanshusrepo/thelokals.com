@@ -1,14 +1,8 @@
 #!/bin/bash
-# Cloudflare Pages build script for web-client with Workers support
+# Cloudflare deployment script using OpenNext adapter
 cd frontend/apps/web-client
 
-# Build Next.js application
-echo "Building Next.js application..."
-npm run build
+echo "Building Next.js application with OpenNext adapter..."
+npx wrangler pages deploy
 
-# Convert Next.js build for Cloudflare Workers using next-on-pages
-echo "Converting for Cloudflare Workers..."
-npx @cloudflare/next-on-pages
-
-echo "Cloudflare Workers build complete!"
-echo "Output: .vercel/output/static"
+echo "Deployment complete!"

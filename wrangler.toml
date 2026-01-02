@@ -1,4 +1,7 @@
 name = "web-client"
-compatibility_date = "2024-09-23"
+main = ".opennext/cloudflare-pages.json"
+compatibility_date = "2025-12-08"
 compatibility_flags = ["nodejs_compat"]
-pages_build_output_dir = "frontend/apps/web-client/.vercel/output/static"
+
+[[build.adapters]]
+adapter = "@opennextjs/cloudflare"
