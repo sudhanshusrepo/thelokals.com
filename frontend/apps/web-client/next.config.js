@@ -14,7 +14,7 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   transpilePackages: ['@thelocals/core'],
-  outputFileTracingRoot: path.join(__dirname, "../../"),
+
 
   // Image optimization
   images: {
