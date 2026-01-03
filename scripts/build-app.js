@@ -98,6 +98,32 @@ try {
     console.log('🌩️  Running OpenNext Cloudflare adapter...');
     try {
         runCommand('npx opennextjs-cloudflare build', appDir);
+
+        // Post-processing for Cloudflare Pages
+        console.log('✨ Structuring output for Cloudflare Pages...');
+        const openNextDir = path.join(appDir, '.open-next');
+        const assetsDir = path.join(openNextDir, 'assets');
+        const workerSrc = path.join(openNextDir, 'worker.js');
+        const workerDest = path.join(openNextDir, '_worker.js');
+
+        // 1. Move assets to root of .open-next to match expected URL structure
+        if (fs.existsSync(assetsDir)) {
+            // Using shell command for recursive move to avoid complex node logic, or just node
+            // fs.cpSync is available in Node 16+
+            const items = fs.readdirSync(assetsDir);
+            items.forEach(item => {
+                const src = path.join(assetsDir, item);
+                const dest = path.join(openNextDir, item);
+                fs.renameSync(src, dest);
+            });
+            fs.rmdirSync(assetsDir); // Remove empty assets dir
+        }
+
+        // 2. Rename worker.js to _worker.js for Pages Advanced Mode
+        if (fs.existsSync(workerSrc)) {
+            fs.renameSync(workerSrc, workerDest);
+        }
+
     } catch (error) {
         if (process.platform === 'win32') {
             console.warn('\n⚠️  Cloudflare Pages adapter failed. This is expected on Windows due to Vercel CLI compatibility issues.');
