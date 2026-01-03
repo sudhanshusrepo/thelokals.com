@@ -43,10 +43,6 @@ function cleanup() {
         fs.copyFileSync(packageJsonBackupPath, packageJsonPath);
         fs.unlinkSync(packageJsonBackupPath);
     }
-    // Restore root wrangler.toml if backup exists
-    if (fs.existsSync(rootWranglerBackupPath)) {
-        fs.renameSync(rootWranglerBackupPath, rootWranglerPath);
-    }
     // Remove local core copy
     if (fs.existsSync(localCoreDir)) {
         fs.rmSync(localCoreDir, { recursive: true, force: true });
@@ -79,13 +75,7 @@ try {
         fs.writeFileSync(packageJsonPath, packageJson);
     }
 
-    // 3. Hide root wrangler.toml to prevent next-on-pages confusion
-    if (fs.existsSync(rootWranglerPath)) {
-        console.log('🙈 Hiding root wrangler.toml...');
-        fs.renameSync(rootWranglerPath, rootWranglerBackupPath);
-    }
-
-    // 4. Run Build
+    // 3. Run Build
     console.log('🏗️  Running Next.js build...');
     // Set legacy peer deps to true for npm/npx
     process.env.NPM_CONFIG_LEGACY_PEER_DEPS = 'true';
@@ -93,8 +83,8 @@ try {
     // Using npx next build --webpack
     runCommand('npx next build', appDir);
 
-    // 5. Run Cloudflare Adapter
-    // 5. Run Cloudflare Adapter (OpenNext)
+    // 4. Run Cloudflare Adapter
+    // 4. Run Cloudflare Adapter (OpenNext)
     console.log('🌩️  Running OpenNext Cloudflare adapter...');
     try {
         runCommand('npx opennextjs-cloudflare build', appDir);
