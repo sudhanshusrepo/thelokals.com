@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Analytics } from '../lib/analytics';
+
 
 export interface BookingData {
     serviceCode: string;
@@ -69,33 +69,13 @@ export const BookingProvider: React.FC<{ children: ReactNode }> = ({ children })
         setBookingDataState(newData);
 
         // Track funnel steps
-        if (isNewBooking && data.serviceCode) {
-            Analytics.track('booking_start', {
-                serviceCode: data.serviceCode,
-                serviceName: data.serviceName,
-            });
-        }
 
-        if (data.address && !bookingData?.address) {
-            Analytics.track('booking_step_complete', {
-                step: 'location',
-                city: data.city,
-            });
-        }
 
-        if (data.scheduledDate && !bookingData?.scheduledDate) {
-            Analytics.track('booking_step_complete', {
-                step: 'schedule',
-                date: data.scheduledDate,
-            });
-        }
 
-        if (data.selectedProviderId && !bookingData?.selectedProviderId) {
-            Analytics.track('booking_step_complete', {
-                step: 'provider',
-                providerId: data.selectedProviderId,
-            });
-        }
+
+
+
+
     };
 
     const updateBookingData = (updates: Partial<BookingData>) => {

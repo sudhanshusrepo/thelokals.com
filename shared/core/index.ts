@@ -15,7 +15,9 @@ export * from './components/auth';
 // Theme system
 export * from './theme';
 export * from './theme/colors';
+export * from './theme/colors';
 export { ThemeProvider, useTheme } from './components/ThemeProvider';
+export { AuthProvider, useAuth, type AuthContextType } from './components/auth/AuthProvider';
 export * from './components/layout/AppHeader';
 export * from './components/layout/BottomNav';
 export * from './components/layout/AppLayout';

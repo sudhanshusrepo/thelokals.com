@@ -1,8 +1,9 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, Session, AuthChangeEvent } from '@supabase/supabase-js';
-import { supabase } from '@thelocals/core';
+import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { User, Session } from '@supabase/supabase-js';
+import { AuthProvider as CoreAuthProvider, useAuth as useCoreAuth } from '@thelocals/core';
+import { supabase } from '@thelocals/core/services/supabase';
 import { logger } from '@thelocals/core/services/logger';
 import { OTPConfirmation, OTPService } from '@thelocals/core/services/otp';
 
@@ -22,7 +23,7 @@ export interface ProviderProfile {
     created_at: string;
 }
 
-interface AuthContextType {
+interface ProviderAuthContextType {
     session: Session | null;
     user: User | null;
     profile: ProviderProfile | null;
@@ -33,129 +34,103 @@ interface AuthContextType {
     setProfile: (profile: ProviderProfile | null) => void;
 }
 
-const AuthContext = createContext<AuthContextType>({
-    session: null,
-    user: null,
-    profile: null,
-    loading: true,
-    setProfile: () => { },
-    signOut: async () => { },
-    signInWithPhone: async () => { throw new Error('Not implemented'); },
-    verifyOtp: async () => { },
-});
+const ProviderAuthContext = createContext<ProviderAuthContextType | undefined>(undefined);
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-    const [user, setUser] = useState<User | null>(null);
-    const [session, setSession] = useState<Session | null>(null);
-    const [profile, setProfile] = useState<ProviderProfile | null>(null);
-    const [loading, setLoading] = useState(true);
+const fetchProviderProfile = async (user: any): Promise<ProviderProfile | null> => {
+    try {
+        const { data, error } = await supabase
+            .from('providers')
+            .select('*')
+            .eq('id', user.id)
+            .single();
 
-    // Fetch provider profile
-    const fetchProfile = async (userId: string) => {
-        try {
-            const { data, error } = await supabase
-                .from('providers')
-                .select('*')
-                .eq('id', userId)
-                .single();
-
-            if (error) {
-                // If error is PGRST116 (0 rows), it just means profile doesn't exist yet (new user)
-                if (error.code !== 'PGRST116') {
-                    logger.error('Error fetching provider profile:', error);
-                }
-                setProfile(null);
-                return;
+        if (error) {
+            if (error.code !== 'PGRST116') {
+                logger.error('Error fetching provider profile:', error);
             }
-
-            setProfile(data);
-        } catch (error) {
-            logger.error('Error fetching provider profile:', error);
-            setProfile(null);
+            return null;
         }
-    };
+        return data;
+    } catch (error) {
+        logger.error('Error fetching provider profile:', error);
+        return null;
+    }
+};
+
+function ProviderAuthContent({ children }: { children: ReactNode }) {
+    const { user, session, profile, loading: coreLoading, signOut: coreSignOut, refreshProfile } = useCoreAuth<ProviderProfile>();
+    const [localLoading, setLocalLoading] = useState(true);
 
     useEffect(() => {
-        const setData = async () => {
-            try {
-                const { data: { session }, error } = await supabase.auth.getSession();
-                if (error) throw error;
-
-                setSession(session);
-                setUser(session?.user ?? null);
-
-                if (session?.user) {
-                    await fetchProfile(session.user.id);
-                }
-            } catch (error) {
-                logger.error('Auth initialization error:', error);
-                setSession(null);
-                setUser(null);
-                setProfile(null);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        setData();
-
-        const { data: listener } = supabase.auth.onAuthStateChange(async (_event: AuthChangeEvent, session: Session | null) => {
-            setSession(session);
-            setUser(session?.user ?? null);
-
-            if (session?.user) {
-                await fetchProfile(session.user.id);
-            } else {
-                setProfile(null);
-            }
-
-            setLoading(false);
-        });
-
-        return () => {
-            listener.subscription.unsubscribe();
-        };
-    }, []);
+        if (!coreLoading) {
+            setLocalLoading(false);
+        }
+    }, [coreLoading]);
 
     const signInWithPhone = async (phone: string) => {
         return OTPService.sendOTP(phone);
     };
 
     const verifyOtp = async (confirmationResult: OTPConfirmation, token: string) => {
-        const { session, user } = await confirmationResult.confirm(token);
-
-        setSession(session);
-        setUser(user);
-
-        // Fetch provider profile
-        if (user) {
-            await fetchProfile(user.id);
+        const { user: confirmedUser } = await confirmationResult.confirm(token);
+        // CoreAuthProvider will detect the session change automatically via onAuthStateChange
+        // But we might want to manually refresh profile if it's lagging, though the change event should trigger it.
+        if (confirmedUser) {
+            // Optional: wait for profile fetch? 
+            // CoreAuthProvider's onAuthStateChange handles it.
         }
+    };
+
+    const setProfile = (newProfile: ProviderProfile | null) => {
+        // This is a bit tricky since profile is managed by Core.
+        // Direct mutation isn't exposed by simple Core.
+        // But we can just assume this is for local optimist updates or we ignore it if unused.
+        // Actually, looking at original code, setProfile was exposed.
+        // We'll treat it as a no-op or implement a local override state if strictly needed.
+        // For now, let's create a local override only if strictly necessary, but ideally we rely on DB + refresh.
+        // A hacky way: cast to any if we rely on SWR-like revalidation.
+        // Let's implement a 'refresh' alias.
+        console.warn('setProfile called - prefer refreshing from DB');
+        refreshProfile();
+    };
+
+    const signOut = async () => {
+        await coreSignOut();
     };
 
     const value = {
         session,
         user,
         profile,
-        loading,
-        setProfile, // Exposed for testing/internal updates
-        signOut: async () => {
-            try {
-                await supabase.auth.signOut();
-                setProfile(null);
-                setSession(null);
-                setUser(null);
-            } catch (error) {
-                logger.error("Error signing out:", error);
-            }
-        },
+        loading: coreLoading || localLoading,
+        signOut,
         signInWithPhone,
         verifyOtp,
+        setProfile
     };
 
-    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+    return (
+        <ProviderAuthContext.Provider value={value}>
+            {children}
+        </ProviderAuthContext.Provider>
+    );
+}
+
+
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+    return (
+        <CoreAuthProvider fetchProfile={fetchProviderProfile}>
+            <ProviderAuthContent>
+                {children}
+            </ProviderAuthContent>
+        </CoreAuthProvider>
+    );
 };
 
 export const useAuth = () => {
-    return useContext(AuthContext);
+    const context = useContext(ProviderAuthContext);
+    if (context === undefined) {
+        throw new Error('useAuth must be used within an AuthProvider');
+    }
+    return context;
 };

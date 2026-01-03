@@ -1,12 +1,13 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { AuthProvider as CoreAuthProvider, useAuth as useCoreAuth } from '@thelocals/core';
 import { supabase } from '@thelocals/core/services/supabase';
 import { adminService } from '@thelocals/core/services/adminService';
 import { AdminUser } from '@thelocals/core/types';
 import { useRouter } from 'next/navigation';
 
-interface AuthContextType {
+interface AdminAuthContextType {
     adminUser: AdminUser | null;
     loading: boolean;
     signInWithGoogle: () => void;
@@ -14,70 +15,36 @@ interface AuthContextType {
     signOut: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AdminAuthContext = createContext<AdminAuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
-    const [loading, setLoading] = useState(true);
+const fetchAdminProfile = async (user: any): Promise<AdminUser | null> => {
+    if (!user?.email) return null;
+    try {
+        const admin = await adminService.getAdminByEmail(user.email);
+        return admin || null;
+    } catch (error) {
+        console.error('Failed to load admin user:', error);
+        return null;
+    }
+};
+
+function AdminAuthContent({ children }: { children: ReactNode }) {
+    const { user, profile, loading: coreLoading, signOut: coreSignOut } = useCoreAuth<AdminUser>();
     const router = useRouter();
+    const [localLoading, setLocalLoading] = useState(true);
 
+    // Effect to handle redirect logic or additional state if needed
     useEffect(() => {
-        // Check current session
-        checkSession();
-
-        // Listen for auth changes
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: string, session: any) => {
-            if (session?.user) {
-                await loadAdminUser(session.user.email!);
-            } else {
-                setAdminUser(null);
-                setLoading(false);
+        if (!coreLoading) {
+            setLocalLoading(false);
+            // If user is logged in but no admin profile, sign them out (enforce role)
+            if (user && !profile) {
+                console.warn('User authenticated but not an admin. Signing out.');
+                coreSignOut();
             }
-        });
-
-        return () => {
-            subscription.unsubscribe();
-        };
-    }, []);
-
-    const checkSession = async () => {
-        try {
-            // Add timeout to prevent infinite loading
-            const sessionPromise = supabase.auth.getSession();
-            const timeoutPromise = new Promise<never>((_, reject) =>
-                setTimeout(() => reject(new Error('Session check timeout')), 3000)
-            );
-
-            const { data: { session } } = await Promise.race([sessionPromise, timeoutPromise]) as any;
-            if (session?.user) {
-                await loadAdminUser(session.user.email!);
-            } else {
-                setLoading(false);
-            }
-        } catch (error) {
-            console.error('Session check failed:', error);
-            // Don't block the UI - just set loading to false
-            setLoading(false);
         }
-    };
+    }, [coreLoading, user, profile, coreSignOut]);
 
-    const loadAdminUser = async (email: string) => {
-        try {
-            const admin = await adminService.getAdminByEmail(email);
-            if (admin) {
-                setAdminUser(admin);
-            } else {
-                // User is authenticated but not an admin
-                await supabase.auth.signOut();
-                throw new Error('Unauthorized: Not an admin user');
-            }
-        } catch (error) {
-            console.error('Failed to load admin user:', error);
-            setAdminUser(null);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const signInWithGoogle = () => {
         supabase.auth.signInWithOAuth({
@@ -93,29 +60,42 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             email,
             password,
         });
-
         if (error) throw error;
-
-        if (data.user) {
-            await loadAdminUser(data.user.email!);
-        }
+        // Profile will be auto-refetched by CoreAuthProvider due to auth state change
     };
 
     const signOut = async () => {
-        await supabase.auth.signOut();
-        setAdminUser(null);
+        await coreSignOut();
         router.push('/login');
     };
 
+    const value = {
+        adminUser: profile,
+        loading: coreLoading || localLoading,
+        signInWithGoogle,
+        signInWithEmail,
+        signOut
+    };
+
     return (
-        <AuthContext.Provider value={{ adminUser, loading, signInWithGoogle, signInWithEmail, signOut }}>
+        <AdminAuthContext.Provider value={value}>
             {children}
-        </AuthContext.Provider>
+        </AdminAuthContext.Provider>
+    );
+}
+
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+    return (
+        <CoreAuthProvider fetchProfile={fetchAdminProfile}>
+            <AdminAuthContent>
+                {children}
+            </AdminAuthContent>
+        </CoreAuthProvider>
     );
 };
 
 export const useAuth = () => {
-    const context = useContext(AuthContext);
+    const context = useContext(AdminAuthContext);
     if (context === undefined) {
         throw new Error('useAuth must be used within an AuthProvider');
     }

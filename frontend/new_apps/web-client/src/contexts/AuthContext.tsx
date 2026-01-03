@@ -1,89 +1,15 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { supabase } from '@thelocals/core/services/supabase';
-import type { User, Session } from '@supabase/supabase-js';
-import { Analytics } from '../lib/analytics';
+import { AuthProvider as CoreAuthProvider, useAuth as useCoreAuth, AuthContextType } from '@thelocals/core';
 
-interface AuthContextType {
-    user: User | null;
-    loading: boolean;
-    signOut: () => Promise<void>;
-}
+// Re-export specific hook for web-client
+export const useAuth = () => useCoreAuth<any>();
 
-const AuthContext = createContext<AuthContextType>({
-    user: null,
-    loading: true,
-    signOut: async () => { },
-});
-
-export const useAuth = () => useContext(AuthContext);
-
+// Wrapper to provide app-specific behavior if needed (e.g. analytics in future)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-    const [user, setUser] = useState<User | null>(null);
-    const [loading, setLoading] = useState(true);
-    const router = useRouter();
-
-    useEffect(() => {
-        // Test Mode Override
-        if (process.env.NEXT_PUBLIC_TEST_MODE === 'true') {
-            console.log('AuthContext: Test Mode Enabled - Setting mock user');
-            setUser({
-                id: 'test-user-id',
-                aud: 'authenticated',
-                role: 'authenticated',
-                email: 'test@example.com',
-                phone: '+1234567890',
-                app_metadata: {},
-                user_metadata: {},
-                created_at: new Date().toISOString(),
-            } as User);
-            setLoading(false);
-            return;
-        }
-
-        // Get initial session
-        supabase.auth.getSession().then(({ data }: { data: { session: Session | null } }) => {
-            setUser(data.session?.user ?? null);
-            setLoading(false);
-        });
-
-        // Listen for auth changes
-        const {
-            data: { subscription },
-        } = supabase.auth.onAuthStateChange((event: string, session: Session | null) => {
-            const newUser = session?.user ?? null;
-            setUser(newUser);
-            setLoading(false);
-
-            // Track authentication events
-            if (event === 'SIGNED_IN' && newUser) {
-                // @ts-ignore - generic event logging
-                Analytics.track('user_signin', {
-                    method: 'phone',
-                    userId: newUser.id,
-                });
-                Analytics.identify(newUser.id);
-            } else if (event === 'SIGNED_OUT') {
-                // @ts-ignore - generic event logging
-                Analytics.track('user_signout');
-            } else if (event === 'USER_UPDATED' && newUser) {
-                Analytics.identify(newUser.id);
-            }
-        });
-
-        return () => subscription.unsubscribe();
-    }, []);
-
-    const signOut = async () => {
-        await supabase.auth.signOut();
-        router.push('/');
-    };
-
     return (
-        <AuthContext.Provider value={{ user, loading, signOut }}>
+        <CoreAuthProvider>
             {children}
-        </AuthContext.Provider>
+        </CoreAuthProvider>
     );
 }
