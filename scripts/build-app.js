@@ -106,20 +106,26 @@ try {
         const workerSrc = path.join(openNextDir, 'worker.js');
         const workerDest = path.join(openNextDir, '_worker.js');
 
-        // 1. Move assets to root of .open-next to match expected URL structure
+        // 1. Move assets to root of .open-next, specifically handling _next
         if (fs.existsSync(assetsDir)) {
             const items = fs.readdirSync(assetsDir);
             items.forEach(item => {
                 const src = path.join(assetsDir, item);
-                // Move directly to root, keeping original name (e.g. _next)
-                // Wrangler v3 should support uploading _next folders
-                const dest = path.join(openNextDir, item);
+                // Rename _next to next_assets to avoid Cloudflare ignoring it
+                const destName = item === '_next' ? 'next_assets' : item;
+                const dest = path.join(openNextDir, destName);
                 fs.renameSync(src, dest);
             });
             fs.rmdirSync(assetsDir);
         }
 
-        // 2. Rename worker.js to _worker.js for Pages Advanced Mode
+        // 2. Generate _redirects to map /_next/* to /next_assets/*
+        // Cloudflare Pages ignores folders starting with underscore.
+        // We use a 200 rewrite to serve the renamed assets when the browser requests /_next/...
+        const redirectsContent = `/_next/*  /next_assets/:splat  200\n`;
+        fs.writeFileSync(path.join(openNextDir, '_redirects'), redirectsContent);
+
+        // 3. Rename worker.js to _worker.js for Pages Advanced Mode
         if (fs.existsSync(workerSrc)) {
             fs.renameSync(workerSrc, workerDest);
         }
