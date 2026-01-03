@@ -9,7 +9,7 @@ if (!appName) {
 }
 
 const rootDir = path.resolve(__dirname, '..');
-const appDir = path.join(rootDir, 'frontend', 'apps', appName);
+const appDir = path.join(rootDir, 'frontend', 'new_apps', appName);
 
 if (!fs.existsSync(appDir)) {
     console.error(`App directory not found: ${appDir}`);

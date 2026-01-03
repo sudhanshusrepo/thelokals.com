@@ -1,6 +1,6 @@
 
 import { supabase } from './supabase';
-import { Booking, BookingStatus, LiveBooking, Service } from '../types';
+import { Booking, BookingStatus, LiveBooking, Service, DbBookingRequest } from '../types';
 import { DbNearbyProviderResponse } from '../databaseTypes';
 import { logger } from './logger';
 
@@ -209,6 +209,29 @@ export const bookingService = {
       throw error;
     }
     return data || [];
+  },
+
+  /**
+   * Retrieves active booking requests for a specific provider.
+   */
+  async getProviderRequests(providerId: string): Promise<DbBookingRequest[]> {
+    const { data, error } = await supabase
+      .from('booking_requests')
+      .select(`
+        *,
+        bookings:booking_id (*)
+      `)
+      .eq('provider_id', providerId)
+      .eq('status', 'PENDING')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      logger.error('Error fetching provider requests', { error, providerId });
+      throw error;
+    }
+
+    // Transform to match structure if needed, or return as is
+    return data as any as DbBookingRequest[];
   },
 
   /**

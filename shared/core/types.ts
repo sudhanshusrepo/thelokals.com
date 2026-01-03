@@ -68,10 +68,14 @@ export interface WorkerProfile {
   expertise: string[];
   reviewCount: number;
   isVerified: boolean;
+  is_verified?: boolean; // DB field
   verification_status?: VerificationStatus;
   rejection_reason?: string;
   location: Coordinates;
   availabilitySchedule?: AvailabilitySchedule;
+  full_name?: string; // DB field
+  phone?: string; // DB field
+  created_at: string; // DB field
 }
 
 export type AvailabilitySchedule = Record<string, { start: string; end: string }[]>;
@@ -213,7 +217,7 @@ export interface DbBookingRequest {
   provider_id: string;
   status: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'EXPIRED';
   created_at: string;
-  bookings: Booking; // Joined data
+  bookings?: Booking; // Joined data
 }
 
 export interface NearbyProviderResponse {

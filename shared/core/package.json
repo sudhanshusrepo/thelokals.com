@@ -7,7 +7,7 @@
     "types": "./index.ts",
     "exports": {
         ".": "./index.ts",
-        "./components/*": "./components/*",
+        "./components/ui/Button": "./components/ui/Button.tsx",
         "./components/ui/*": "./components/ui/*",
         "./*": "./*.ts"
     },

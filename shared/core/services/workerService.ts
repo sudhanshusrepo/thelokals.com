@@ -37,7 +37,9 @@ export const workerService = {
         imageUrl: p.image_url,
         expertise: [],
         reviewCount: p.review_count,
-        isVerified: false, // Default
+        isVerified: p.is_verified || false,
+        is_verified: p.is_verified,
+        created_at: new Date().toISOString(), // Mock for nearby
         location: {
           lat: p.lat,
           lng: p.lng
@@ -101,6 +103,9 @@ export const workerService = {
       status: w.status as WorkerStatus,
       imageUrl: w.image_url,
       isVerified: w.is_verified,
+      is_verified: w.is_verified,
+      created_at: w.created_at || new Date().toISOString(),
+      full_name: w.full_name || w.name,
       location: {
         lat: w.location_lat,
         lng: w.location_lng

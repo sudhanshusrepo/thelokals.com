@@ -1,5 +1,0 @@
-{
-    "buildCommand": "cd ../.. && npm run build --workspace=web-client",
-    "installCommand": "npm install",
-    "framework": null
-}

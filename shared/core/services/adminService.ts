@@ -462,6 +462,30 @@ export const adminService = {
         );
     },
 
+    /**
+     * Get all providers (optional filter)
+     */
+    async getAllProviders(status?: 'pending' | 'approved' | 'rejected'): Promise<import('../types').WorkerProfile[]> {
+        let query = supabase
+            .from('providers')
+            .select('*, name:full_name') // Alias full_name to name for consistency if needed, though type has full_name
+            .order('created_at', { ascending: false });
+
+        if (status) {
+            if (status === 'approved') {
+                query = query.eq('is_verified', true);
+            } else if (status === 'pending') {
+                query = query.eq('verification_status', 'pending');
+            } else if (status === 'rejected') {
+                query = query.eq('verification_status', 'rejected');
+            }
+        }
+
+        const { data, error } = await query;
+        if (error) throw new Error(`Failed to fetch providers: ${error.message}`);
+        return (data || []) as unknown as import('../types').WorkerProfile[];
+    },
+
     // ============ Service Catalogue ============
 
     /**

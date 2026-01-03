@@ -36,6 +36,9 @@ export interface DatabaseWorker {
     is_verified: boolean;
     location_lat: number;
     location_lng: number;
+    full_name?: string;
+    phone?: string;
+    created_at?: string;
 }
 
 export interface DbNearbyProviderResponse {
@@ -49,4 +52,6 @@ export interface DbNearbyProviderResponse {
     rating: number;
     review_count: number;
     image_url: string;
+    is_verified?: boolean;
 }
+
