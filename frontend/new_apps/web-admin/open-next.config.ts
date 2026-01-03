@@ -1,8 +1,4 @@
 import { defineCloudflareConfig } from '@opennextjs/cloudflare';
 
-export default defineCloudflareConfig({
-    incremental: {
-        disk: true,
-        memory: true,
-    },
-});
+// Minimal default config for OpenNext Cloudflare
+export default defineCloudflareConfig({});
