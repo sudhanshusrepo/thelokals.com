@@ -91,7 +91,7 @@ try {
     process.env.NPM_CONFIG_LEGACY_PEER_DEPS = 'true';
 
     // Using npx next build --webpack
-    runCommand('npx next build --webpack', appDir);
+    runCommand('npx next build', appDir);
 
     // 5. Run Cloudflare Adapter
     console.log('🌩️  Running Cloudflare Pages adapter...');
