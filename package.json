@@ -5,7 +5,9 @@
   "packageManager": "npm@10.9.3",
   "workspaces": [
     "backend",
-    "frontend/apps/*",
+    "frontend/apps/web-client",
+    "frontend/apps/web-admin",
+    "frontend/apps/web-provider",
     "frontend/packages/*",
     "shared/*"
   ],
