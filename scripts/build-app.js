@@ -1,0 +1,119 @@
+const fs = require('fs');
+const path = require('path');
+const { execSync } = require('child_process');
+
+const appName = process.argv[2];
+if (!appName) {
+    console.error('Usage: node build-app.js <app-name>');
+    process.exit(1);
+}
+
+const rootDir = path.resolve(__dirname, '..');
+const appDir = path.join(rootDir, 'frontend', 'apps', appName);
+
+if (!fs.existsSync(appDir)) {
+    console.error(`App directory not found: ${appDir}`);
+    process.exit(1);
+}
+
+console.log(`🚀 Building ${appName} from ${appDir}...`);
+
+// Paths
+const sharedCoreDir = path.join(rootDir, 'shared', 'core');
+const localCoreDir = path.join(appDir, '.local-core');
+const packageJsonPath = path.join(appDir, 'package.json');
+const packageJsonBackupPath = path.join(appDir, 'package.json.bak');
+const rootWranglerPath = path.join(rootDir, 'wrangler.toml');
+const rootWranglerBackupPath = path.join(rootDir, 'wrangler.toml.bak');
+
+function runCommand(command, cwd) {
+    console.log(`> ${command}`);
+    try {
+        execSync(command, { cwd, stdio: 'inherit', env: { ...process.env, FORCE_COLOR: '1' } });
+    } catch (error) {
+        console.error(`Command failed: ${command}`);
+        throw error;
+    }
+}
+
+function cleanup() {
+    console.log('🧹 Cleaning up...');
+    // Restore package.json if backup exists
+    if (fs.existsSync(packageJsonBackupPath)) {
+        fs.copyFileSync(packageJsonBackupPath, packageJsonPath);
+        fs.unlinkSync(packageJsonBackupPath);
+    }
+    // Restore root wrangler.toml if backup exists
+    if (fs.existsSync(rootWranglerBackupPath)) {
+        fs.renameSync(rootWranglerBackupPath, rootWranglerPath);
+    }
+    // Remove local core copy
+    if (fs.existsSync(localCoreDir)) {
+        fs.rmSync(localCoreDir, { recursive: true, force: true });
+    }
+}
+
+// Trap signals for cleanup
+process.on('SIGINT', () => { cleanup(); process.exit(); });
+process.on('SIGTERM', () => { cleanup(); process.exit(); });
+process.on('uncaughtException', (err) => { console.error(err); cleanup(); process.exit(1); });
+
+try {
+    // 1. Vendor shared/core to bypass workspace issues in isolated builds (Cloudflare Pages)
+    if (fs.existsSync(sharedCoreDir)) {
+        console.log('📦 Vendoring shared/core...');
+        if (fs.existsSync(localCoreDir)) {
+            fs.rmSync(localCoreDir, { recursive: true, force: true });
+        }
+        fs.cpSync(sharedCoreDir, localCoreDir, { recursive: true });
+    }
+
+    // 2. Patch package.json to use file dependency
+    if (fs.existsSync(packageJsonPath)) {
+        console.log('📝 Patching package.json for local core resolution...');
+        fs.copyFileSync(packageJsonPath, packageJsonBackupPath);
+
+        let packageJson = fs.readFileSync(packageJsonPath, 'utf8');
+        // Replace workspace wildcard with local file path
+        packageJson = packageJson.replace(/"@thelocals\/core": "\*"/g, '"@thelocals/core": "file:.local-core"');
+        fs.writeFileSync(packageJsonPath, packageJson);
+    }
+
+    // 3. Hide root wrangler.toml to prevent next-on-pages confusion
+    if (fs.existsSync(rootWranglerPath)) {
+        console.log('🙈 Hiding root wrangler.toml...');
+        fs.renameSync(rootWranglerPath, rootWranglerBackupPath);
+    }
+
+    // 4. Run Build
+    console.log('🏗️  Running Next.js build...');
+    // Set legacy peer deps to true for npm/npx
+    process.env.NPM_CONFIG_LEGACY_PEER_DEPS = 'true';
+
+    // Using npx next build --webpack
+    runCommand('npx next build --webpack', appDir);
+
+    // 5. Run Cloudflare Adapter
+    console.log('🌩️  Running Cloudflare Pages adapter...');
+    try {
+        runCommand('npx @cloudflare/next-on-pages', appDir);
+    } catch (error) {
+        if (process.platform === 'win32') {
+            console.warn('\n⚠️  Cloudflare Pages adapter failed. This is expected on Windows due to Vercel CLI compatibility issues.');
+            console.warn('✅ Next.js build was successful. The app is ready for deployment via CI (Linux).\n');
+        } else {
+            throw error;
+        }
+    }
+
+    console.log('✅ Build complete!');
+} catch (error) {
+    if (process.platform === 'win32' && error.message && error.message.includes('next-on-pages')) {
+        // Already handled above, ensuring we don't double log or fail
+    } else {
+        console.error('❌ Build failed!');
+        process.exitCode = 1;
+    }
+} finally {
+    cleanup();
+}

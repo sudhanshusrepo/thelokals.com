@@ -6,13 +6,13 @@
     "dev": "npx next dev -p 3002",
     "build": "npx next build --webpack",
     "build:turbo": "npm run build",
-    "pages:build": "npm run build && node scripts/build-shim.js",
+    "pages:build": "node ../../../scripts/build-app.js web-admin",
     "start": "npx next start",
     "lint": "eslint",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@thelocals/core": "*",
+    "@thelocals/core": "file:.local-core",
     "clsx": "^2.1.1",
     "framer-motion": "^12.0.0",
     "lucide-react": "^0.562.0",

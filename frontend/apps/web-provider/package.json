@@ -6,7 +6,7 @@
     "dev": "npx next dev -p 3001",
     "build": "npx next build --webpack",
     "build:turbo": "npm run build",
-    "pages:build": "npm run build && node scripts/build-shim.js",
+    "pages:build": "node ../../../scripts/build-app.js web-provider",
     "start": "npx next start",
     "lint": "eslint",
     "check:dummy": "node scripts/check-dummy-data.js",
@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@google/genai": "^1.34.0",
-    "@thelocals/core": "*",
+    "@thelocals/core": "file:.local-core",
     "clsx": "^2.1.1",
     "eslint-plugin-react": "^7.37.5",
     "framer-motion": "^12.0.0",
