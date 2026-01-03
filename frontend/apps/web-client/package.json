@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "npx next dev --webpack -p 3000",
-    "build": "NPM_CONFIG_LEGACY_PEER_DEPS=true npx @cloudflare/next-on-pages",
+    "build": "npx next build --webpack",
     "build:turbo": "npm run build",
     "start": "npx next start",
     "lint": "eslint",
