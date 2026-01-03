@@ -4,9 +4,7 @@ const path = require('path');
 const nextConfig = {
     transpilePackages: ['@thelocals/core'],
     experimental: {
-        turbopack: {
-            root: path.resolve(__dirname, '../../..'),
-        }
+        outputFileTracingRoot: path.join(__dirname, '../../..'),
     }
 };
 
