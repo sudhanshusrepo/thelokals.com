@@ -94,9 +94,10 @@ try {
     runCommand('npx next build', appDir);
 
     // 5. Run Cloudflare Adapter
-    console.log('🌩️  Running Cloudflare Pages adapter...');
+    // 5. Run Cloudflare Adapter (OpenNext)
+    console.log('🌩️  Running OpenNext Cloudflare adapter...');
     try {
-        runCommand('npx @cloudflare/next-on-pages', appDir);
+        runCommand('npx cloudflare', appDir);
     } catch (error) {
         if (process.platform === 'win32') {
             console.warn('\n⚠️  Cloudflare Pages adapter failed. This is expected on Windows due to Vercel CLI compatibility issues.');
@@ -108,7 +109,7 @@ try {
 
     console.log('✅ Build complete!');
 } catch (error) {
-    if (process.platform === 'win32' && error.message && error.message.includes('next-on-pages')) {
+    if (process.platform === 'win32' && error.message && error.message.includes('cloudflare')) {
         // Already handled above, ensuring we don't double log or fail
     } else {
         console.error('❌ Build failed!');
