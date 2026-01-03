@@ -106,20 +106,24 @@ try {
         const workerSrc = path.join(openNextDir, 'worker.js');
         const workerDest = path.join(openNextDir, '_worker.js');
 
-        // 1. Move assets to root of .open-next to match expected URL structure
+        // 1. Move assets to root of .open-next, specifically handling _next
         if (fs.existsSync(assetsDir)) {
-            // Using shell command for recursive move to avoid complex node logic, or just node
-            // fs.cpSync is available in Node 16+
             const items = fs.readdirSync(assetsDir);
             items.forEach(item => {
                 const src = path.join(assetsDir, item);
-                const dest = path.join(openNextDir, item);
+                // Rename _next to next_assets to avoid Cloudflare ignoring it
+                const destName = item === '_next' ? 'next_assets' : item;
+                const dest = path.join(openNextDir, destName);
                 fs.renameSync(src, dest);
             });
-            fs.rmdirSync(assetsDir); // Remove empty assets dir
+            fs.rmdirSync(assetsDir);
         }
 
-        // 2. Rename worker.js to _worker.js for Pages Advanced Mode
+        // 2. Generate _redirects to map /_next/static to /next_assets/static
+        const redirectsContent = `/_next/static/*  /next_assets/static/:splat  200\n/_next/data/*  /next_assets/data/:splat  200\n`;
+        fs.writeFileSync(path.join(openNextDir, '_redirects'), redirectsContent);
+
+        // 3. Rename worker.js to _worker.js for Pages Advanced Mode
         if (fs.existsSync(workerSrc)) {
             fs.renameSync(workerSrc, workerDest);
         }
