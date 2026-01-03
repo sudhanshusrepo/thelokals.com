@@ -1,4 +1,6 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   /* lokals Design System - Unified across Client & Provider Apps */
@@ -32,28 +34,7 @@
   --gradient-sidebar: linear-gradient(180deg, #0A2540 0%, #06192E 100%);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-surface: var(--surface);
-  --color-surface: var(--surface);
-  --color-muted: var(--muted);
 
-  /* Status Colors */
-  --color-status-new: var(--status-new);
-  --color-status-accepted: var(--status-accepted);
-  --color-status-inprogress: var(--status-inprogress);
-  --color-status-completed: var(--status-completed);
-  --color-status-cancelled: var(--status-cancelled);
-
-  /* Fonts */
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
-}
 
 body {
   background: var(--background);
