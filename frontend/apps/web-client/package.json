@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "npx next dev --webpack -p 3000",
-    "build": "npx next build --webpack",
+    "build": "npx @cloudflare/next-on-pages",
     "build:turbo": "npm run build",
     "start": "npx next start",
     "lint": "eslint",
@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^16.1.1",
-    "@opennextjs/cloudflare": "^1.14.7",
+    "@cloudflare/next-on-pages": "^1.13.7",
     "@sentry/nextjs": "^10.32.1",
     "@tailwindcss/postcss": "^4",
     "@types/aria-query": "^5.0.4",
