@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@supabase/ssr": "^0.3.0",
-    "@thelocals/core": "*",
+    "@thelocals/core": "file:.local-core",
     "clsx": "^2.1.1",
     "framer-motion": "^11.0.0",
     "lucide-react": "^0.378.0",
