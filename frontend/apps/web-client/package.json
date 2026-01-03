@@ -3,10 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "npx next dev --webpack -p 3000",
-    "build": "npx next build --webpack",
+    "dev": "next dev",
+    "build": "next build",
     "build:turbo": "npm run build",
-    "start": "npx next start",
+    "pages:build": "node ../../../scripts/build-app.js web-client",
+    "start": "next start",
     "lint": "eslint",
     "type-check": "tsc --noEmit",
     "analyze": "ANALYZE=true npm run build"
