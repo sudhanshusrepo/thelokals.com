@@ -15,7 +15,7 @@
         "build": "echo 'No build step for backend'"
     },
     "dependencies": {
-        "@supabase/supabase-js": "^2.39.0"
+        "@supabase/supabase-js": "^2.89.0"
     },
     "devDependencies": {
         "supabase": "^1.142.2"
