@@ -97,7 +97,7 @@ try {
     // 5. Run Cloudflare Adapter (OpenNext)
     console.log('🌩️  Running OpenNext Cloudflare adapter...');
     try {
-        runCommand('npx cloudflare', appDir);
+        runCommand('npx opennextjs-cloudflare build', appDir);
     } catch (error) {
         if (process.platform === 'win32') {
             console.warn('\n⚠️  Cloudflare Pages adapter failed. This is expected on Windows due to Vercel CLI compatibility issues.');
