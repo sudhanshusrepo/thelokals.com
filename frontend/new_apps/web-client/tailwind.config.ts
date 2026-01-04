@@ -10,7 +10,10 @@ const config: Config = {
     theme: {
         extend: {
             colors: {
-                primary: colors.client.primary,
+                primary: {
+                    ...colors.client.primary,
+                    DEFAULT: colors.client.primary[500],
+                },
                 background: colors.client.background,
             }
         },
