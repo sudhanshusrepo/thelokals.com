@@ -5,6 +5,7 @@ import { AuthProvider } from "../contexts/AuthContext";
 import { BookingProvider } from "../contexts/BookingContext";
 import { BottomNav } from "../components/navigation/BottomNav";
 import { Toaster } from "react-hot-toast";
+import { AIChatWidget } from "../components/chat/AIChatWidget";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -34,6 +35,7 @@ export default function RootLayout({
                         <main className="pb-20">
                             {children}
                         </main>
+                        <AIChatWidget />
                         <BottomNav />
                         <Toaster position="top-center" />
                     </BookingProvider>

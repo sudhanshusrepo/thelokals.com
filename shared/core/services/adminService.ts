@@ -524,6 +524,36 @@ export const adminService = {
         if (error) throw new Error(`Failed to delete service category: ${error.message}`);
     },
 
+    // ============ Service Locations (City-Based Availability) ============
+
+    /**
+     * Get service locations filtered by city
+     */
+    async getServiceLocations(city?: string): Promise<import('../types').ServiceLocation[]> {
+        let query = supabase
+            .from('services_locations')
+            .select('*');
+
+        if (city) {
+            query = query.eq('city', city);
+        }
+
+        const { data, error } = await query;
+        if (error) throw new Error(`Failed to fetch service locations: ${error.message}`);
+        return data || [];
+    },
+
+    /**
+     * Upsert a service location configuration
+     */
+    async upsertServiceLocation(location: Partial<import('../types').ServiceLocation>): Promise<void> {
+        const { error } = await supabase
+            .from('services_locations')
+            .upsert(location, { onConflict: 'service_category_id, location_name' });
+
+        if (error) throw new Error(`Failed to save service location: ${error.message}`);
+    },
+
     // ============ Booking Management ============
 
     /**

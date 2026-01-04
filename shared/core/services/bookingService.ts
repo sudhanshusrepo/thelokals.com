@@ -390,14 +390,17 @@ export const bookingService = {
   },
 
   /**
-   * Accepts a booking (Provider Side).
+   * Accepts a live booking request (Provider Side).
    */
-  async acceptBooking(bookingId: string, providerId: string): Promise<void> {
+  async acceptBooking(requestId: string, providerId: string): Promise<boolean> {
     const { data, error } = await supabase
-      .rpc('accept_booking', { booking_id: bookingId, provider_id: providerId });
+      .rpc('accept_live_booking', {
+        p_request_id: requestId,
+        p_provider_id: providerId
+      });
 
     if (error) {
-      logger.error('Error accepting booking', { error, bookingId, providerId });
+      logger.error('Error accepting booking request', { error, requestId, providerId });
       throw error;
     }
     return data;
@@ -436,5 +439,47 @@ export const bookingService = {
     }
 
     return data.status === 'ENABLED';
+  },
+
+  /**
+   * Retrieves aggregated stats for a provider.
+   */
+  async getProviderStats(providerId: string) {
+    // 1. Get Completed Jobs Count
+    const { count: completedCount, error: countError } = await supabase
+      .from('bookings')
+      .select('*', { count: 'exact', head: true })
+      .eq('provider_id', providerId)
+      .eq('status', 'COMPLETED');
+
+    // 2. Get Total Earnings
+    // Note: In a real app, we'd sum a transaction ledger.
+    // Here we sum 'provider_earnings' from bookings.
+    const { data: earningsData, error: earningsError } = await supabase
+      .from('bookings')
+      .select('provider_earnings')
+      .eq('provider_id', providerId)
+      .eq('status', 'COMPLETED')
+      .eq('payment_status', 'PAID');
+
+    let totalEarnings = 0;
+    if (earningsData) {
+      totalEarnings = earningsData.reduce((sum: number, b: any) => sum + (b.provider_earnings || 0), 0);
+    }
+
+    if (countError || earningsError) {
+      logger.error('Error fetching provider stats', { countError, earningsError, providerId });
+    }
+
+    // 3. Get Rating (Mock or from Providers table)
+    // For now, return a static high rating or fetch if available
+    const rating = 4.8;
+
+    return {
+      totalEarnings,
+      jobsCompleted: completedCount || 0,
+      rating: rating,
+      completionRate: 98 // Hardcoded for now
+    };
   }
 };

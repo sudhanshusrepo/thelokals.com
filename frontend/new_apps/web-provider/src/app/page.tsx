@@ -12,6 +12,12 @@ export default function Dashboard() {
     const { profile, user } = useAuth();
     const [recentBookings, setRecentBookings] = useState<Booking[]>([]);
     const [loading, setLoading] = useState(true);
+    const [stats, setStats] = useState({
+        totalEarnings: 0,
+        jobsCompleted: 0,
+        rating: 4.8,
+        completionRate: 98
+    });
 
     useEffect(() => {
         if (user?.id) {
@@ -21,8 +27,12 @@ export default function Dashboard() {
 
     const loadDashboardData = async (userId: string) => {
         try {
-            const bookings = await bookingService.getWorkerBookings(userId);
+            const [bookings, providerStats] = await Promise.all([
+                bookingService.getWorkerBookings(userId),
+                bookingService.getProviderStats(userId)
+            ]);
             setRecentBookings(bookings.slice(0, 5)); // Top 5
+            setStats(providerStats);
         } catch (error) {
             console.error(error);
         } finally {
@@ -30,11 +40,11 @@ export default function Dashboard() {
         }
     };
 
-    const stats = [
-        { label: 'Total Earnings', value: '₹12,500', icon: Wallet, color: 'bg-green-100 text-green-600' },
-        { label: 'Jobs Completed', value: '24', icon: Briefcase, color: 'bg-blue-100 text-blue-600' },
-        { label: 'Rating', value: '4.8', icon: Star, color: 'bg-yellow-100 text-yellow-600' },
-        { label: 'Completion Rate', value: '98%', icon: TrendingUp, color: 'bg-purple-100 text-purple-600' },
+    const statsData = [
+        { label: 'Total Earnings', value: `₹${stats.totalEarnings.toLocaleString()}`, icon: Wallet, color: 'bg-green-100 text-green-600' },
+        { label: 'Jobs Completed', value: stats.jobsCompleted.toString(), icon: Briefcase, color: 'bg-blue-100 text-blue-600' },
+        { label: 'Rating', value: stats.rating.toString(), icon: Star, color: 'bg-yellow-100 text-yellow-600' },
+        { label: 'Completion Rate', value: `${stats.completionRate}%`, icon: TrendingUp, color: 'bg-purple-100 text-purple-600' },
     ];
 
     return (
@@ -46,7 +56,7 @@ export default function Dashboard() {
 
             {/* Stats Grid */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                {stats.map((stat, i) => (
+                {statsData.map((stat, i) => (
                     <div key={i} className="bg-white p-4 rounded-xl shadow-sm border border-neutral-100 hover:shadow-md transition-shadow">
                         <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-3 ${stat.color}`}>
                             <stat.icon size={20} />

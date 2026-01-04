@@ -341,3 +341,13 @@ export interface ReportFilter {
   };
   status?: string;
 }
+
+export interface ServiceLocation {
+  id: string;
+  service_category_id: string;
+  city: string; // Used in table services_locations
+  is_active: boolean;
+  meta_data?: Record<string, any>;
+  created_at: string;
+  updated_at: string;
+}

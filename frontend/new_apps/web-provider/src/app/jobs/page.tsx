@@ -7,6 +7,8 @@ import { bookingService } from '@thelocals/core/services/bookingService';
 import { Booking, DbBookingRequest } from '@thelocals/core';
 import { MapPin, Calendar, Clock, CheckCircle2, XCircle, Bell } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { JobCard } from '../../components/jobs/JobCard';
+import { JobDetailsModal } from '../../components/jobs/JobDetailsModal';
 
 export default function JobsPage() {
     const { user } = useAuth();
@@ -14,6 +16,9 @@ export default function JobsPage() {
     const [requests, setRequests] = useState<DbBookingRequest[]>([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<'requests' | 'active' | 'history'>('requests');
+
+    const [selectedJob, setSelectedJob] = useState<Booking | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         if (user?.id) {
@@ -32,8 +37,8 @@ export default function JobsPage() {
             setRequests(requestsData);
 
             // Auto-select tab based on data
-            if (requestsData.length > 0) setActiveTab('requests');
-            else if (jobsData.length > 0) setActiveTab('active');
+            // if (requestsData.length > 0) setActiveTab('requests');
+            // else if (jobsData.length > 0) setActiveTab('active');
 
         } catch (error) {
             toast.error("Failed to load jobs");
@@ -42,15 +47,26 @@ export default function JobsPage() {
         }
     };
 
-    const handleAccept = async (bookingId: string) => {
+    const handleAccept = async (requestId: string) => {
         if (!user?.id) return;
         try {
-            await bookingService.acceptBooking(bookingId, user.id);
+            await bookingService.acceptBooking(requestId, user.id);
             toast.success("Job Accepted");
+            setIsModalOpen(false); // Close modal if open
             loadJobs(user.id);
         } catch (error: any) {
             toast.error(error.message);
         }
+    };
+
+    const handleReject = async (bookingId: string) => {
+        // Logic to ignore/reject
+        setIsModalOpen(false);
+    }
+
+    const handleJobClick = (booking: Booking) => {
+        setSelectedJob(booking);
+        setIsModalOpen(true);
     };
 
     const getFilteredList = () => {
@@ -64,6 +80,18 @@ export default function JobsPage() {
     };
 
     const filteredItems = getFilteredList();
+
+    const handleStatusChange = async (bookingId: string, newStatus: any) => {
+        if (!user?.id) return;
+        try {
+            await bookingService.updateBookingStatus(bookingId, newStatus);
+            toast.success(`Job Updated to ${newStatus}`);
+            setIsModalOpen(false);
+            loadJobs(user.id);
+        } catch (error: any) {
+            toast.error(error.message);
+        }
+    };
 
     return (
         <ProviderLayout>
@@ -107,62 +135,46 @@ export default function JobsPage() {
                     </div>
                 ) : (
                     filteredItems.map((item: any) => {
-                        // Handle both Booking and DbBookingRequest structures
                         const isRequest = activeTab === 'requests';
                         const booking = isRequest ? item.bookings : item;
+                        // For requests, we need the request ID (item.id), for bookings we just need booking (item)
+                        // But UI needs booking details safely.
+                        // We will pass item.id as the accept ID if it is a request.
 
-                        // Safety check if booking relation is missing
                         if (!booking) return null;
 
                         return (
-                            <div key={item.id} className="bg-white rounded-xl p-6 shadow-sm border border-neutral-100 flex flex-col md:flex-row gap-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                                <div className="flex-1">
-                                    <div className="flex items-start justify-between mb-2">
-                                        <h3 className="font-bold text-lg text-neutral-900">{booking.service_category || 'Service Request'}</h3>
-                                        <span className={`px-2 py-1 rounded-md text-xs font-bold uppercase ${booking.status === 'COMPLETED' ? 'bg-green-100 text-green-700' :
-                                            booking.status === 'CANCELLED' ? 'bg-red-100 text-red-700' :
-                                                isRequest ? 'bg-yellow-100 text-yellow-700' :
-                                                    'bg-blue-100 text-blue-700'
-                                            }`}>
-                                            {isRequest ? 'NEW REQUEST' : booking.status}
-                                        </span>
-                                    </div>
-                                    <div className="space-y-2 text-sm text-neutral-600">
-                                        <div className="flex items-center gap-2">
-                                            <Calendar size={16} className="text-neutral-400" />
-                                            <span>{new Date(booking.created_at).toLocaleDateString()}</span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <MapPin size={16} className="text-neutral-400" />
-                                            <span>{booking.address?.formatted || 'Location details protected'}</span>
-                                        </div>
-                                        {booking.estimated_cost && (
-                                            <div className="flex items-center gap-2">
-                                                <span className="font-semibold text-neutral-900">₹{booking.estimated_cost}</span>
-                                                <span className="text-xs text-neutral-400">(Est.)</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div className="flex flex-col justify-center gap-2 min-w-[150px]">
-                                    {isRequest && (
-                                        <button
-                                            onClick={() => handleAccept(booking.id)}
-                                            className="w-full py-2 bg-primary text-white rounded-lg hover:bg-primary-hover font-medium transition-colors flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
-                                        >
-                                            <CheckCircle2 size={16} /> Accept Job
-                                        </button>
-                                    )}
-                                    <button className="w-full py-2 border border-neutral-200 text-neutral-700 rounded-lg hover:bg-neutral-50 font-medium transition-colors">
-                                        View Details
-                                    </button>
-                                </div>
-                            </div>
+                            <JobCard
+                                key={item.id}
+                                booking={booking}
+                                isRequest={isRequest}
+                                onAccept={() => handleAccept(item.id)}
+                                onClick={() => handleJobClick(booking)}
+                            />
                         )
                     })
                 )}
             </div>
+
+            <JobDetailsModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                booking={selectedJob}
+                isRequest={activeTab === 'requests'}
+                onAccept={(bookingId) => {
+                    // Find the request ID associated with this booking ID if we are in requests tab
+                    if (activeTab === 'requests') {
+                        const req = requests.find(r => r.booking_id === bookingId);
+                        if (req) {
+                            handleAccept(req.id);
+                        }
+                    } else {
+                        // Fallback or error, active jobs shouldn't be "accepted"
+                    }
+                }}
+                onReject={handleReject}
+                onStatusChange={handleStatusChange}
+            />
         </ProviderLayout>
     );
 }

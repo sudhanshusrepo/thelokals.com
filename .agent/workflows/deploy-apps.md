@@ -18,8 +18,8 @@ There are two main ways to deploy these applications to Cloudflare Pages: via Gi
     **Build Settings:**
     *   **Framework Preset:** `Next.js`
     *   **Build Command:** `npm run pages:build:client` (or admin/provider appropriately)
-    *   **Build Output Directory:** `.vercel/output/static`
-    *   **Root Directory:** `frontend/new_apps/web-client` (Critical: Must point to new_apps)
+    *   **Build Output Directory:** `frontend/new_apps/web-client/.open-next` (Must be the full path from root)
+    *   **Root Directory:** `/` (Leave empty - we build from the repo root)
 
 5.  **Environment Variables:**
     Ensure you add any necessary environment variables in the Cloudflare Dashboard (Settings -> Environment Variables).
