@@ -86,6 +86,15 @@ try {
     // 4. Run Cloudflare Adapter
     // 4. Run Cloudflare Adapter (OpenNext)
     console.log('🌩️  Running OpenNext Cloudflare adapter...');
+
+    // GENERATE PRE-BUILD wrangler.toml in appDir so OpenNext detects nodejs_compat
+    const preBuildWranglerContent = `
+name = "${appName}"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+`;
+    fs.writeFileSync(path.join(appDir, 'wrangler.toml'), preBuildWranglerContent.trim());
+
     try {
         runCommand('npx opennextjs-cloudflare build', appDir);
 
@@ -128,6 +137,9 @@ pages_build_output_dir = "${relativeOutputDir}"
         fs.writeFileSync(path.join(openNextDir, 'wrangler.toml'), wranglerContent.trim());
         // Also write to root for Cloudflare Pages defaults
         fs.writeFileSync(path.join(rootDir, 'wrangler.toml'), wranglerContent.trim());
+
+        // DEBUG: Write a test file to verify deployment root
+        fs.writeFileSync(path.join(openNextDir, 'test-deploy.txt'), `Deployment verified at ${new Date().toISOString()}`);
 
         // 4. Rename worker.js to _worker.js for Pages Advanced Mode
         if (fs.existsSync(workerSrc)) {
