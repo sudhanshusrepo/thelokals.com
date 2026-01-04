@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
+import { CONFIG } from '@thelocals/core/config';
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
@@ -107,6 +108,12 @@ export default function LoginPage() {
                     <div className="mt-6 pt-6 border-t border-neutral-700">
                         <p className="text-center text-xs text-neutral-500">
                             🔒 Secure Admin Access Only
+                            {/* Debug Config Status */}
+                            {CONFIG.SUPABASE_URL && CONFIG.SUPABASE_URL.includes('placeholder') && (
+                                <span className="block text-red-500 font-bold mt-1">
+                                    ⚠️ Config Error: Missing API URL
+                                </span>
+                            )}
                         </p>
                     </div>
                 </div>
