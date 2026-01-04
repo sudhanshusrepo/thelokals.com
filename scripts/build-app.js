@@ -116,11 +116,14 @@ try {
         fs.writeFileSync(path.join(openNextDir, '_redirects'), redirectsContent);
 
         // 3. Generate wrangler.toml for compatibility flags
-        // This ensures the worker runtime has access to Node.js built-ins
+        // This ensures the worker runtime has access to Node.js built-ins.
+        // We include pages_build_output_dir to make it a valid Pages config.
+        const relativeOutputDir = `frontend/new_apps/${appName}/.open-next`;
         const wranglerContent = `
 name = "${appName}"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = "${relativeOutputDir}"
 `;
         fs.writeFileSync(path.join(openNextDir, 'wrangler.toml'), wranglerContent.trim());
         // Also write to root for Cloudflare Pages defaults
