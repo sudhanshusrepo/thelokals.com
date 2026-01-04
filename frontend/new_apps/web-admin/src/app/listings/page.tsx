@@ -72,11 +72,14 @@ export default function Listings() {
         // Optimistic update
         const newStatus = !isEnabled;
         const newLocConfig = {
+            id: 'temp-' + Date.now(),
             service_category_id: category.id,
             location_name: selectedCity,
             city: selectedCity,
             is_active: newStatus,
-            production_mode: true // Enable for production by default in simple toggle
+            production_mode: true, // Enable for production by default in simple toggle
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
         };
 
         // Update local state immediately
