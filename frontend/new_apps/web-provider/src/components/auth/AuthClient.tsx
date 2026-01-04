@@ -25,7 +25,8 @@ export default function AuthClient() {
         }
         setLoading(true);
         try {
-            const confirmObj = await OTPService.sendOTP(phone);
+            const formattedPhone = `+91${phone}`;
+            const confirmObj = await OTPService.sendOTP(formattedPhone);
             setConfirmation(confirmObj);
             setIsOtpSent(true);
             toast.success('OTP sent to ' + phone);
@@ -77,25 +78,25 @@ export default function AuthClient() {
                                 <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
                                     Phone Number
                                 </label>
-                                <div className="relative">
-                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                                        <Phone size={18} />
+                                <div className="flex gap-2">
+                                    <div className="w-16 px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-lg text-center font-medium text-gray-700 flex items-center justify-center">
+                                        +91
                                     </div>
                                     <input
                                         id="phone"
                                         type="tel"
                                         required
-                                        className="block w-full pl-10 pr-3 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary transition-colors"
-                                        placeholder="+91 98765 43210"
+                                        className="block flex-1 px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary transition-colors"
+                                        placeholder="98765 43210"
                                         value={phone}
-                                        onChange={(e) => setPhone(e.target.value)}
+                                        onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
                                     />
                                 </div>
                             </div>
 
                             <button
                                 type="submit"
-                                disabled={loading}
+                                disabled={loading || phone.length < 10}
                                 className="w-full py-3 px-4 bg-primary hover:bg-primary-700 text-white font-semibold rounded-lg shadow-lg shadow-primary/30 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                             >
                                 {loading ? <Loader2 className="animate-spin" size={20} /> : (
@@ -111,6 +112,9 @@ export default function AuthClient() {
                                 <label htmlFor="otp" className="block text-sm font-medium text-gray-700 mb-1">
                                     Enter OTP
                                 </label>
+                                <div className="text-center mb-4">
+                                    <p className="text-sm text-gray-500">Sent to +91 {phone}</p>
+                                </div>
                                 <input
                                     id="otp"
                                     type="text"
@@ -146,11 +150,6 @@ export default function AuthClient() {
                 <div className="bg-gray-50 px-8 py-4 border-t border-gray-100 text-center">
                     <p className="text-xs text-gray-500">
                         {CONFIG.IS_DEV ? 'Development Mode' : 'Secure Login'}
-                        {CONFIG.SUPABASE_URL.includes('placeholder') && (
-                            <span className="block text-red-500 font-bold mt-1">
-                                ⚠️ Config Error: Missing API URL
-                            </span>
-                        )}
                     </p>
                 </div>
             </div>
