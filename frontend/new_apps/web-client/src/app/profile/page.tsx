@@ -3,7 +3,7 @@
 import React from 'react';
 import { AuthGuard } from '../../components/auth/AuthGuard';
 import { useAuth } from '../../contexts/AuthContext';
-import { User, LogOut, Settings, CreditCard, Shield } from 'lucide-react';
+import { User, LogOut, Settings, CreditCard, Shield, MapPin } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function ProfilePage() {
@@ -37,8 +37,11 @@ export default function ProfilePage() {
                     {/* Menu */}
                     <div className="bg-white rounded-xl shadow-sm border border-neutral-100 overflow-hidden">
                         <div className="p-4 flex items-center gap-3 border-b border-neutral-50 cursor-pointer hover:bg-neutral-50">
-                            <Settings size={20} className="text-neutral-400" />
                             <span className="text-neutral-700 font-medium">Settings</span>
+                        </div>
+                        <div className="p-4 flex items-center gap-3 border-b border-neutral-50 cursor-pointer hover:bg-neutral-50">
+                            <MapPin size={20} className="text-neutral-400" />
+                            <span className="text-neutral-700 font-medium">Addresses</span>
                         </div>
                         <div className="p-4 flex items-center gap-3 border-b border-neutral-50 cursor-pointer hover:bg-neutral-50">
                             <CreditCard size={20} className="text-neutral-400" />

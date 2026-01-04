@@ -36,12 +36,13 @@ export async function middleware(request: NextRequest) {
         data: { user },
     } = await supabase.auth.getUser();
 
-    // Protected Routes Logic
-    if (!user && request.nextUrl.pathname.startsWith('/bookings')) {
-        const url = request.nextUrl.clone();
-        url.pathname = '/auth';
-        return NextResponse.redirect(url);
-    }
+    // Protected Routes Logic removed to rely on client-side AuthGuard
+    // due to potential cookie synchronization issues with OTP flow.
+    // if (!user && request.nextUrl.pathname.startsWith('/bookings')) {
+    //     const url = request.nextUrl.clone();
+    //     url.pathname = '/auth';
+    //     return NextResponse.redirect(url);
+    // }
 
     return response;
 }

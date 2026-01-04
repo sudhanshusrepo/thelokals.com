@@ -67,6 +67,62 @@ export default function Home() {
         router.push(`/services/${serviceId}`);
     };
 
+    // Geolocation Logic
+    const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+        const R = 6371; // Radius of the earth in km
+        const dLat = deg2rad(lat2 - lat1);
+        const dLon = deg2rad(lon2 - lon1);
+        const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c; // Distance in km
+    };
+
+    const deg2rad = (deg: number) => deg * (Math.PI / 180);
+
+    useEffect(() => {
+        // City Coordinates (Approximate for detection)
+        const CITY_COORDS: Record<string, { lat: number, lng: number }> = {
+            'Gurugram': { lat: 28.4595, lng: 77.0266 },
+            'New Delhi': { lat: 28.6139, lng: 77.2090 },
+            'Navi Mumbai': { lat: 19.0330, lng: 73.0297 },
+            'Bangalore': { lat: 12.9716, lng: 77.5946 }
+        };
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+                    let minBody = Infinity;
+                    let measuredCity = 'Gurugram'; // Default
+
+                    for (const city of AVAILABLE_CITIES) {
+                        const coords = CITY_COORDS[city];
+                        if (coords) {
+                            const dist = calculateDistance(latitude, longitude, coords.lat, coords.lng);
+                            if (dist < minBody) {
+                                minBody = dist;
+                                measuredCity = city;
+                            }
+                        }
+                    }
+
+                    // If user is reasonably close to a supported city (e.g. < 50km), switch to it. 
+                    // Or just switch to nearest regardless.
+                    if (minBody < 50) {
+                        setSelectedCity(measuredCity);
+                    }
+                },
+                (error) => {
+                    console.log('Location permission denied or error', error);
+                }
+            );
+        }
+    }, []);
+
+
     return (
         <div style={{ minHeight: '100vh', backgroundColor: '#F9FAFB', paddingBottom: '80px' }}>
             {/* V2 Header */}
@@ -81,22 +137,8 @@ export default function Home() {
                 zIndex: 50,
                 boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
             }}>
+                {/* Left: Location */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    {user ? (
-                        <div onClick={() => router.push('/profile')} style={{ cursor: 'pointer', width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#eee', overflow: 'hidden' }}>
-                            {/* Avatar Placeholder */}
-                            <div className="w-full h-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-500">
-                                {user.email?.[0]?.toUpperCase() || 'U'}
-                            </div>
-                        </div>
-                    ) : (
-                        <button
-                            onClick={() => router.push('/auth')}
-                            className="bg-primary text-white text-sm font-bold px-4 py-2 rounded-full shadow-sm hover:bg-primary-600 transition-colors"
-                        >
-                            Login
-                        </button>
-                    )}
                     <div>
                         <div style={{ fontSize: '11px', color: '#888', fontWeight: 500 }}>Current Location</div>
                         <div className="flex items-center gap-1 group cursor-pointer relative">
@@ -115,9 +157,28 @@ export default function Home() {
                         </div>
                     </div>
                 </div>
-                <button style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-                    🔔
-                </button>
+
+                {/* Right: User & Bell */}
+                <div className="flex items-center gap-4">
+                    <button style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                        🔔
+                    </button>
+                    {user ? (
+                        <div onClick={() => router.push('/profile')} style={{ cursor: 'pointer', width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#eee', overflow: 'hidden' }}>
+                            {/* Avatar Placeholder */}
+                            <div className="w-full h-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-500">
+                                {user.email?.[0]?.toUpperCase() || 'U'}
+                            </div>
+                        </div>
+                    ) : (
+                        <button
+                            onClick={() => router.push('/auth')}
+                            className="bg-primary text-white text-sm font-bold px-4 py-2 rounded-full shadow-sm hover:bg-primary-600 transition-colors"
+                        >
+                            Login
+                        </button>
+                    )}
+                </div>
             </header>
 
             <main style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
