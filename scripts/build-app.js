@@ -124,6 +124,15 @@ compatibility_flags = ["nodejs_compat"]
         const redirectsContent = `/_next/*  /next_assets/:splat  200\n`;
         fs.writeFileSync(path.join(openNextDir, '_redirects'), redirectsContent);
 
+        // Generate _routes.json to explicitly route requests to the worker
+        // This fixes the 404 on root path if Cloudflare doesn't auto-detect the worker routing
+        const routesContent = JSON.stringify({
+            version: 1,
+            include: ["/*"],
+            exclude: ["/next_assets/*", "/favicon.ico", "/robots.txt"]
+        }, null, 2);
+        fs.writeFileSync(path.join(openNextDir, '_routes.json'), routesContent);
+
         // 3. Generate wrangler.toml for compatibility flags (App specific only)
         const relativeOutputDir = `frontend/new_apps/${appName}/.open-next`;
         const wranglerContent = `
