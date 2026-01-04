@@ -67,6 +67,17 @@
     *   Client sees Confirmation Screen.
     *   Booking is tied to Gurugram and the selected Service.
 
+### Scenario 2.3: AI Chat Booking
+*   **Goal**: Verify booking via the new AI Chat Widget.
+*   **Steps**:
+    1.  Click the Floating Action Button (FAB) to open Chat.
+    2.  Type "I need a plumber".
+    3.  Verify AI responds with a "Booking Proposal" card.
+    4.  Click **"Book Now"** on the proposal.
+*   **Acceptance Criteria**:
+    *   User is navigated to the Booking Confirmation flow for "Plumbing".
+    *   (Optional) Context (Service Name) is pre-filled.
+
 ---
 
 ## Iteration 3 – Provider App Scenarios
@@ -91,6 +102,17 @@
     *   External Map (Google Maps) or In-App Map opens.
     *   Pin is correctly dropped at the client's Gurugram coordinates.
     *   Route is calculated validly (no "Zero location" errors).
+
+### Scenario 3.3: Job Lifecycle & Earnings
+*   **Precondition**: Job is "Accepted" (Status: CONFIRMED).
+*   **Steps**:
+    1.  Open Job Details.
+    2.  Click **"Start Job"**. Verify Status changes to `IN_PROGRESS`.
+    3.  (Simulate work)... Click **"Complete Job"**. Verify Status changes to `COMPLETED`.
+    4.  Go to **Dashboard**.
+*   **Acceptance Criteria**:
+    *   "Jobs Completed" count increments.
+    *   "Total Earnings" increases by the job amount (provider share).
 
 ---
 
