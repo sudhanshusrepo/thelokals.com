@@ -82,12 +82,21 @@ export default function Home() {
                 boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#eee', overflow: 'hidden' }}>
-                        {/* Avatar Placeholder */}
-                        <div className="w-full h-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-500">
-                            {user?.email?.[0]?.toUpperCase() || 'G'}
+                    {user ? (
+                        <div onClick={() => router.push('/profile')} style={{ cursor: 'pointer', width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#eee', overflow: 'hidden' }}>
+                            {/* Avatar Placeholder */}
+                            <div className="w-full h-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-500">
+                                {user.email?.[0]?.toUpperCase() || 'U'}
+                            </div>
                         </div>
-                    </div>
+                    ) : (
+                        <button
+                            onClick={() => router.push('/auth')}
+                            className="bg-primary text-white text-sm font-bold px-4 py-2 rounded-full shadow-sm hover:bg-primary-600 transition-colors"
+                        >
+                            Login
+                        </button>
+                    )}
                     <div>
                         <div style={{ fontSize: '11px', color: '#888', fontWeight: 500 }}>Current Location</div>
                         <div className="flex items-center gap-1 group cursor-pointer relative">
