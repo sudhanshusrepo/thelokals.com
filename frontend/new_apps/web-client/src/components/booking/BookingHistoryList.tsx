@@ -57,47 +57,45 @@ export function BookingHistoryList({ bookings, loading }: BookingHistoryListProp
                 >
                     {/* Header: Service Name & Status */}
                     <div className="flex justify-between items-start mb-3">
-                        <h3 className="font-semibold text-neutral-900">
-                            {booking.service_category || 'Service Request'}
-                        </h3>
-                        <div className="text-xs text-neutral-500 mt-1">
-                            ID: #{booking.id.slice(0, 8)}
+                        <div>
+                            <h3 className="font-semibold text-neutral-900">
+                                {booking.service_category || 'Service Request'}
+                            </h3>
+                            <div className="text-xs text-neutral-500 mt-1">
+                                ID: #{booking.id.slice(0, 8)}
+                            </div>
                         </div>
+                        <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${getStatusColor(booking.status)}`}>
+                            {booking.status}
+                        </span>
                     </div>
-                    <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${getStatusColor(booking.status)}`}>
-                        {booking.status}
-                    </span>
-                </div>
 
-                    {/* Details */ }
-                < div className = "space-y-2 text-sm text-neutral-600" >
-                {/* Provider */ }
-                        {
-                    booking.worker && (
+                    {/* Details */}
+                    <div className="space-y-2 text-sm text-neutral-600">
+                        {/* Provider */}
+                        {booking.worker && (
+                            <div className="flex items-center gap-2">
+                                <User size={14} className="text-neutral-400" />
+                                <span>{booking.worker.name}</span>
+                            </div>
+                        )}
+
+                        {/* Date & Time */}
                         <div className="flex items-center gap-2">
-                            <User size={14} className="text-neutral-400" />
-                            <span>{booking.worker.name}</span>
-                        </div>
-                    )
-                }
-
-                        {/* Date & Time */ }
-                < div className = "flex items-center gap-2" >
                             <Clock size={14} className="text-neutral-400" />
                             <span>
                                 {new Date(booking.created_at).toLocaleDateString()}
                             </span>
                         </div>
 
-                        {/* Price */ }
-    <div className="flex items-center gap-2 text-neutral-900 font-medium">
-        <span>₹{booking.final_cost || booking.estimated_cost || 0}</span>
-    </div>
-                    </div >
-                </div >
-            ))
-}
-        </div >
+                        {/* Price */}
+                        <div className="flex items-center gap-2 text-neutral-900 font-medium">
+                            <span>₹{booking.final_cost || booking.estimated_cost || 0}</span>
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
     );
 }
 
