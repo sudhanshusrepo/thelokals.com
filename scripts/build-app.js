@@ -129,7 +129,7 @@ compatibility_flags = ["nodejs_compat"]
         const routesContent = JSON.stringify({
             version: 1,
             include: ["/*"],
-            exclude: ["/next_assets/*", "/favicon.ico", "/robots.txt"]
+            exclude: ["/_next/*", "/next_assets/*", "/favicon.ico", "/robots.txt"]
         }, null, 2);
         fs.writeFileSync(path.join(openNextDir, '_routes.json'), routesContent);
 
@@ -139,7 +139,6 @@ compatibility_flags = ["nodejs_compat"]
 name = "${appName}"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
-pages_build_output_dir = "${relativeOutputDir}"
 `;
         fs.writeFileSync(path.join(openNextDir, 'wrangler.toml'), wranglerContent.trim());
 
