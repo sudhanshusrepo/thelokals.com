@@ -124,9 +124,7 @@ compatibility_flags = ["nodejs_compat"]
         const redirectsContent = `/_next/*  /next_assets/:splat  200\n`;
         fs.writeFileSync(path.join(openNextDir, '_redirects'), redirectsContent);
 
-        // 3. Generate wrangler.toml for compatibility flags
-        // This ensures the worker runtime has access to Node.js built-ins.
-        // We include pages_build_output_dir to make it a valid Pages config.
+        // 3. Generate wrangler.toml for compatibility flags (App specific only)
         const relativeOutputDir = `frontend/new_apps/${appName}/.open-next`;
         const wranglerContent = `
 name = "${appName}"
@@ -135,8 +133,19 @@ compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = "${relativeOutputDir}"
 `;
         fs.writeFileSync(path.join(openNextDir, 'wrangler.toml'), wranglerContent.trim());
-        // Also write to root for Cloudflare Pages defaults
-        fs.writeFileSync(path.join(rootDir, 'wrangler.toml'), wranglerContent.trim());
+
+        // COPY TO ROOT DIST
+        // This ensures the root wrangler.toml (committed in repo) works for ALL apps
+        // by pointing to a consistent 'dist' location.
+        console.log('📦 Copying artifacts to root dist folder...');
+        const rootDistDir = path.join(rootDir, 'dist');
+        if (fs.existsSync(rootDistDir)) {
+            fs.rmSync(rootDistDir, { recursive: true, force: true });
+        }
+        fs.cpSync(openNextDir, rootDistDir, { recursive: true });
+
+        // DEBUG: Write a test file to verify deployment root
+        fs.writeFileSync(path.join(rootDistDir, 'test-deploy.txt'), `Deployment verified at ${new Date().toISOString()} for ${appName}`);
 
         // DEBUG: Write a test file to verify deployment root
         fs.writeFileSync(path.join(openNextDir, 'test-deploy.txt'), `Deployment verified at ${new Date().toISOString()}`);
