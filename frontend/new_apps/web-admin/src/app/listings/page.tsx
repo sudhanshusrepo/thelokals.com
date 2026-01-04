@@ -75,7 +75,7 @@ export default function Listings() {
             service_category_id: category.id,
             location_name: selectedCity,
             city: selectedCity,
-            enabled: newStatus,
+            is_active: newStatus,
             production_mode: true // Enable for production by default in simple toggle
         };
 
@@ -83,7 +83,7 @@ export default function Listings() {
         const updatedLocations = [...locations];
         const existingIndex = updatedLocations.findIndex(l => l.service_category_id === category.id);
         if (existingIndex >= 0) {
-            updatedLocations[existingIndex] = { ...updatedLocations[existingIndex], enabled: newStatus };
+            updatedLocations[existingIndex] = { ...updatedLocations[existingIndex], is_active: newStatus };
         } else {
             updatedLocations.push(newLocConfig as ServiceLocation);
         }
@@ -155,7 +155,7 @@ export default function Listings() {
                             ) : (
                                 categories.map((cat) => {
                                     const locConfig = locations.find(l => l.service_category_id === cat.id);
-                                    const isEnabled = locConfig?.enabled || false;
+                                    const isEnabled = locConfig?.is_active || false;
 
                                     return (
                                         <tr key={cat.id} className="hover:bg-neutral-50 transition-colors">
