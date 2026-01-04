@@ -115,7 +115,16 @@ try {
         const redirectsContent = `/_next/*  /next_assets/:splat  200\n`;
         fs.writeFileSync(path.join(openNextDir, '_redirects'), redirectsContent);
 
-        // 3. Rename worker.js to _worker.js for Pages Advanced Mode
+        // 3. Generate wrangler.toml for compatibility flags
+        // This ensures the worker runtime has access to Node.js built-ins
+        const wranglerContent = `
+name = "${appName}"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+`;
+        fs.writeFileSync(path.join(openNextDir, 'wrangler.toml'), wranglerContent.trim());
+
+        // 4. Rename worker.js to _worker.js for Pages Advanced Mode
         if (fs.existsSync(workerSrc)) {
             fs.renameSync(workerSrc, workerDest);
         }
