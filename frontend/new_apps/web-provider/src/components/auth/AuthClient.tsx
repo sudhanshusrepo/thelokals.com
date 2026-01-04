@@ -146,6 +146,11 @@ export default function AuthClient() {
                 <div className="bg-gray-50 px-8 py-4 border-t border-gray-100 text-center">
                     <p className="text-xs text-gray-500">
                         {CONFIG.IS_DEV ? 'Development Mode' : 'Secure Login'}
+                        {CONFIG.SUPABASE_URL.includes('placeholder') && (
+                            <span className="block text-red-500 font-bold mt-1">
+                                ⚠️ Config Error: Missing API URL
+                            </span>
+                        )}
                     </p>
                 </div>
             </div>
