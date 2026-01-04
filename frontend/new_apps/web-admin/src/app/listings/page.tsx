@@ -66,8 +66,7 @@ export default function Listings() {
     };
 
     const handleToggleAvailability = async (category: ServiceCategory) => {
-        const locationConfig = locations.find(l => l.service_category_id === category.id);
-        const isEnabled = locationConfig?.enabled || false;
+        const isEnabled = locationConfig?.is_active || false;
 
         // Optimistic update
         const newStatus = !isEnabled;
@@ -175,8 +174,8 @@ export default function Listings() {
                                                 <button
                                                     onClick={() => handleToggleAvailability(cat)}
                                                     className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${isEnabled
-                                                            ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                                                            : 'bg-neutral-100 text-neutral-500 hover:bg-neutral-200'
+                                                        ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                                                        : 'bg-neutral-100 text-neutral-500 hover:bg-neutral-200'
                                                         }`}
                                                 >
                                                     <Power size={12} className={isEnabled ? "text-green-600" : "text-neutral-400"} />
