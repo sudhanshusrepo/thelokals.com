@@ -66,6 +66,7 @@ export default function Listings() {
     };
 
     const handleToggleAvailability = async (category: ServiceCategory) => {
+        const locationConfig = locations.find(l => l.service_category_id === category.id);
         const isEnabled = locationConfig?.is_active || false;
 
         // Optimistic update
