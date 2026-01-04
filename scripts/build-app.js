@@ -143,6 +143,11 @@ pages_build_output_dir = "${relativeOutputDir}"
 `;
         fs.writeFileSync(path.join(openNextDir, 'wrangler.toml'), wranglerContent.trim());
 
+        // 4. Rename worker.js to _worker.js for Pages Advanced Mode
+        if (fs.existsSync(workerSrc)) {
+            fs.renameSync(workerSrc, workerDest);
+        }
+
         // COPY TO ROOT DIST
         // This ensures the root wrangler.toml (committed in repo) works for ALL apps
         // by pointing to a consistent 'dist' location.
@@ -155,14 +160,6 @@ pages_build_output_dir = "${relativeOutputDir}"
 
         // DEBUG: Write a test file to verify deployment root
         fs.writeFileSync(path.join(rootDistDir, 'test-deploy.txt'), `Deployment verified at ${new Date().toISOString()} for ${appName}`);
-
-        // DEBUG: Write a test file to verify deployment root
-        fs.writeFileSync(path.join(openNextDir, 'test-deploy.txt'), `Deployment verified at ${new Date().toISOString()}`);
-
-        // 4. Rename worker.js to _worker.js for Pages Advanced Mode
-        if (fs.existsSync(workerSrc)) {
-            fs.renameSync(workerSrc, workerDest);
-        }
 
     } catch (error) {
         if (process.platform === 'win32') {
