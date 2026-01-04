@@ -51,7 +51,7 @@ export default function AuthClient() {
         try {
             await verifyOtp(confirmation, otp);
             toast.success('Login successful!');
-            router.push('/'); // Go to dashboard
+            router.push('/dashboard'); // Go to dashboard
         } catch (error: any) {
             toast.error(error.message || 'Invalid OTP');
         } finally {
