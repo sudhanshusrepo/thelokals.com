@@ -123,6 +123,8 @@ compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 `;
         fs.writeFileSync(path.join(openNextDir, 'wrangler.toml'), wranglerContent.trim());
+        // Also write to root for Cloudflare Pages defaults
+        fs.writeFileSync(path.join(rootDir, 'wrangler.toml'), wranglerContent.trim());
 
         // 4. Rename worker.js to _worker.js for Pages Advanced Mode
         if (fs.existsSync(workerSrc)) {
