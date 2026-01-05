@@ -261,7 +261,7 @@ export const adminService = {
             .from('admin_users')
             .select('*')
             .eq('id', profile.id)
-            .gte('is_active', true) // Only active admins
+            .eq('is_active', true) // Only active admins
             .single();
 
         if (error) {
