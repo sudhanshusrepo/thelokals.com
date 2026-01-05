@@ -229,7 +229,7 @@ export interface NearbyProviderResponse {
   is_verified: boolean;
 }
 
-export type AdminRole = 'super_admin' | 'ops_admin' | 'support_admin' | 'finance_admin' | 'read_only';
+export type AdminRole = 'SUPER_ADMIN' | 'OPS_ADMIN' | 'SUPPORT_ADMIN' | 'FINANCE_ADMIN' | 'READ_ONLY';
 
 export interface AdminUser {
   id: string;
