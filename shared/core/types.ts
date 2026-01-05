@@ -134,6 +134,7 @@ export interface Booking {
   meeting_link?: string; // New field
   meeting_provider?: string; // New field
   payment_status: PaymentStatus;
+  payout_status?: 'PENDING' | 'PAID'; // New field for provider payouts
   created_at: string;
   updated_at: string;
   user?: UserProfile;
@@ -247,10 +248,46 @@ export interface ServiceAvailability {
   location_value: string;
   status: 'ENABLED' | 'DISABLED';
   reason?: string;
+  is_active: boolean; // mapped from db
   disabled_by?: string;
   disabled_at?: string;
   created_at: string;
   updated_at: string;
+}
+
+export type DisputeStatus = 'OPEN' | 'RESOLVED' | 'DISMISSED';
+
+export interface Dispute {
+  id: string;
+  booking_id: string;
+  reporter_id: string;
+  reason: string;
+  description?: string;
+  status: DisputeStatus;
+  resolution_notes?: string;
+  resolved_by?: string;
+  created_at: string;
+  booking?: Booking; // Joined
+  reporter?: Customer; // Joined
+}
+
+export interface SystemConfig {
+  key: string;
+  value: any; // JSONB
+  description?: string;
+  category?: string;
+  is_public: boolean;
+  updated_at: string;
+}
+
+export interface MarketingBanner {
+  id: string;
+  title: string;
+  image_url: string;
+  link_url?: string;
+  cta_text?: string;
+  is_active: boolean;
+  position: number;
 }
 
 export interface ActiveSession {
@@ -300,6 +337,19 @@ export interface ServiceCategory {
   type: 'local' | 'online';
   description?: string;
   base_price?: number;
+  created_at?: string;
+}
+
+export interface ServiceItem {
+  id: string;
+  category_id: string;
+  name: string;
+  description?: string;
+  base_price: number;
+  price_unit: 'fixed' | 'hourly' | 'visit';
+  commission_type: 'percent' | 'fixed';
+  commission_value: number;
+  is_active: boolean;
   created_at?: string;
 }
 

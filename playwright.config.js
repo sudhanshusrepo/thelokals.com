@@ -34,7 +34,7 @@ module.exports = defineConfig({
             testDir: './__tests__/e2e/web-client',
             use: {
                 ...devices['Desktop Chrome'],
-                baseURL: 'http://localhost:3000',
+                baseURL: process.env.BASE_URL_CLIENT || 'http://localhost:3000',
             },
         },
         {
@@ -42,7 +42,7 @@ module.exports = defineConfig({
             testDir: './__tests__/e2e/web-provider',
             use: {
                 ...devices['Desktop Chrome'],
-                baseURL: 'http://localhost:3001',
+                baseURL: process.env.BASE_URL_PROVIDER || 'http://localhost:3001',
             },
         },
         {
@@ -50,7 +50,7 @@ module.exports = defineConfig({
             testDir: './__tests__/e2e/web-admin',
             use: {
                 ...devices['Desktop Chrome'],
-                baseURL: 'http://localhost:3002',
+                baseURL: process.env.BASE_URL_ADMIN || 'http://localhost:3002',
             },
         },
         {

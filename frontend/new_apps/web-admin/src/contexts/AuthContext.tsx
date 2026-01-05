@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 
 interface AdminAuthContextType {
     adminUser: AdminUser | null;
+    user: any;
     loading: boolean;
     signInWithGoogle: () => void;
     signInWithEmail: (email: string, password: string) => Promise<void>;
@@ -37,13 +38,13 @@ function AdminAuthContent({ children }: { children: ReactNode }) {
     useEffect(() => {
         if (!coreLoading) {
             setLocalLoading(false);
-            // If user is logged in but no admin profile, sign them out (enforce role)
+            // If user is logged in but no admin profile, redirect to unauthorized instead of signing out
             if (user && !profile) {
-                console.warn('User authenticated but not an admin. Signing out.');
-                coreSignOut();
+                console.warn('User authenticated but not an admin. Redirecting to unauthorized.');
+                router.push('/unauthorized');
             }
         }
-    }, [coreLoading, user, profile, coreSignOut]);
+    }, [coreLoading, user, profile, router]);
 
 
     const signInWithGoogle = () => {
@@ -71,6 +72,7 @@ function AdminAuthContent({ children }: { children: ReactNode }) {
 
     const value = {
         adminUser: profile,
+        user,
         loading: coreLoading || localLoading,
         signInWithGoogle,
         signInWithEmail,

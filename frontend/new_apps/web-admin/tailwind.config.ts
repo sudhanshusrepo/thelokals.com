@@ -10,14 +10,14 @@ const config: Config = {
     theme: {
         extend: {
             colors: {
-                primary: colors.provider.primary,
+                primary: colors.admin.primary,
                 neutral: colors.common.slate,
                 success: colors.common.success,
                 warning: colors.common.warning,
                 error: colors.common.error,
                 info: colors.common.info,
-                background: colors.provider.background.DEFAULT,
-                foreground: colors.provider.text.primary,
+                background: colors.admin.background.DEFAULT,
+                foreground: colors.admin.text.primary,
             }
         },
     },

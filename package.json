@@ -38,14 +38,10 @@
     "test:e2e:web-admin": "node_modules/.bin/playwright test --config=playwright.config.js --project=web-admin",
     "test:e2e:mobile-view": "node_modules/.bin/playwright test --config=playwright.config.js --project=chromium --device='iPhone 14'",
     "test:e2e:report": "node_modules/.bin/playwright show-report",
-    "test:mobile:ios": "detox test --configuration ios.debug",
-    "test:mobile:android": "detox test --configuration android.debug",
-    "test:mobile:build:ios": "detox build --configuration ios.debug",
-    "test:mobile:build:android": "detox build --configuration android.debug",
-    "test:full": "npm run test:unit && npm run test:integration && npm run test:e2e && npm run test:mobile:ios && npm run test:mobile:android",
+    "test:full": "npm run test:unit && npm run test:integration && npm run test:e2e",
     "test:coverage": "jest --coverage && playwright test --reporter=html",
     "test:bugs-list": "node scripts/generate-bugs-list.js",
-    "setup:tests": "npm install && playwright install && cd apps/mobile-client && npm install",
+    "setup:tests": "npm install && playwright install",
     "db:migrate": "supabase db push",
     "prod": "npm run build:client",
     "lint": "eslint packages --ext .ts,.tsx"
@@ -77,6 +73,7 @@
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.2.3",
     "react-loading-skeleton": "^3.5.0",
-    "react-router-dom": "^6.28.0"
+    "react-router-dom": "^6.28.0",
+    "swr": "^2.3.8"
   }
 }

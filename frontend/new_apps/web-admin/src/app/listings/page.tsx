@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { AdminLayout } from '../../components/layout/AdminLayout';
 import { Plus, Edit2, Trash2, X, MapPin, Power } from 'lucide-react';
 import { adminService } from '@thelocals/core/services/adminService';
+import { ServiceCategoryTable } from '../../components/listings/ServiceCategoryTable';
 import { ServiceCategory, ServiceLocation } from '@thelocals/core/types';
 import { toast } from 'react-hot-toast';
 
@@ -135,81 +136,15 @@ export default function Listings() {
                 </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-neutral-100 overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full">
-                        <thead className="bg-neutral-50 border-b border-neutral-100">
-                            <tr>
-                                <th className="text-left py-3 px-4 text-xs font-semibold text-neutral-500 uppercase tracking-wider">Name</th>
-                                <th className="text-left py-3 px-4 text-xs font-semibold text-neutral-500 uppercase tracking-wider">Type</th>
-                                <th className="text-left py-3 px-4 text-xs font-semibold text-neutral-500 uppercase tracking-wider">Status ({selectedCity})</th>
-                                <th className="text-right py-3 px-4 text-xs font-semibold text-neutral-500 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-neutral-100">
-                            {loading ? (
-                                <tr>
-                                    <td colSpan={4} className="p-8 text-center text-neutral-500">Loading catalogue...</td>
-                                </tr>
-                            ) : categories.length === 0 ? (
-                                <tr>
-                                    <td colSpan={4} className="p-8 text-center text-neutral-500">No services found. Add one to get started.</td>
-                                </tr>
-                            ) : (
-                                categories.map((cat) => {
-                                    const locConfig = locations.find(l => l.service_category_id === cat.id);
-                                    const isEnabled = locConfig?.is_active || false;
-
-                                    return (
-                                        <tr key={cat.id} className="hover:bg-neutral-50 transition-colors">
-                                            <td className="py-3 px-4">
-                                                <div>
-                                                    <span className="font-medium text-neutral-900 block">{cat.name}</span>
-                                                    <span className="text-xs text-neutral-400 max-w-xs block truncate">{cat.description}</span>
-                                                </div>
-                                            </td>
-                                            <td className="py-3 px-4">
-                                                <span className={`px-2 py-1 rounded text-xs font-medium ${cat.type === 'local' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
-                                                    }`}>
-                                                    {cat.type?.toUpperCase() || 'UNKNOWN'}
-                                                </span>
-                                            </td>
-                                            <td className="py-3 px-4">
-                                                <button
-                                                    onClick={() => handleToggleAvailability(cat)}
-                                                    className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${isEnabled
-                                                        ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                                                        : 'bg-neutral-100 text-neutral-500 hover:bg-neutral-200'
-                                                        }`}
-                                                >
-                                                    <Power size={12} className={isEnabled ? "text-green-600" : "text-neutral-400"} />
-                                                    {isEnabled ? 'Active' : 'Disabled'}
-                                                </button>
-                                            </td>
-                                            <td className="py-3 px-4">
-                                                <div className="flex justify-end gap-2">
-                                                    <button
-                                                        onClick={() => openModal(cat)}
-                                                        className="p-1 hover:bg-neutral-200 rounded text-neutral-500 hover:text-primary transition-colors"
-                                                    >
-                                                        <Edit2 size={16} />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleDelete(cat.id)}
-                                                        className="p-1 hover:bg-error/10 rounded text-neutral-500 hover:text-error transition-colors"
-                                                    >
-                                                        <Trash2 size={16} />
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    );
-                                })
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <ServiceCategoryTable
+                categories={categories}
+                locations={locations}
+                loading={loading}
+                selectedCity={selectedCity}
+                onEdit={openModal}
+                onDelete={handleDelete}
+                onToggleStatus={handleToggleAvailability}
+            />
 
             {/* Edit Modal - Only for creating base categories, not availability */}
             {isModalOpen && (

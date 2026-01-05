@@ -10,6 +10,10 @@ import { AdminRole, AdminUser, ServiceAvailability, ActiveSession, AdminAuditLog
  * Admin Service - Handles all admin panel operations
  */
 export const adminService = {
+    // ============ Audit Logging ============
+
+
+
     // ============ Service Availability ============
 
     /**
@@ -201,13 +205,13 @@ export const adminService = {
         changes?: Record<string, any>
     ): Promise<void> {
         const { error } = await supabase
-            .from('admin_audit_logs')
+            .from('admin_activity_logs')
             .insert({
                 admin_id: adminId,
                 action,
-                resource_type: resourceType,
-                resource_id: resourceId,
-                changes,
+                target_type: resourceType,
+                target_id: resourceId,
+                details: changes,
             });
 
         if (error) {
@@ -486,6 +490,32 @@ export const adminService = {
         return (data || []) as unknown as import('../types').WorkerProfile[];
     },
 
+    /**
+     * Get all customers
+     */
+    async getAllCustomers(): Promise<import('../types').Customer[]> {
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) throw new Error(`Failed to fetch customers: ${error.message}`);
+        return data || [];
+    },
+
+    /**
+     * Get all admin users
+     */
+    async getAdminUsers(): Promise<import('../types').AdminUser[]> {
+        const { data, error } = await supabase
+            .from('admin_users')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) throw new Error(`Failed to fetch admin users: ${error.message}`);
+        return data || [];
+    },
+
     // ============ Service Catalogue ============
 
     /**
@@ -522,6 +552,57 @@ export const adminService = {
             .eq('id', id);
 
         if (error) throw new Error(`Failed to delete service category: ${error.message}`);
+    },
+
+    /**
+     * Get service items by category
+     */
+    async getServiceItems(categoryId: string): Promise<import('../types').ServiceItem[]> {
+        const { data, error } = await supabase
+            .from('service_items')
+            .select('*')
+            .eq('category_id', categoryId)
+            .order('name');
+
+        if (error) throw new Error(`Failed to fetch service items: ${error.message}`);
+        return data || [];
+    },
+
+    /**
+     * Get single service item
+     */
+    async getServiceItem(id: string): Promise<import('../types').ServiceItem | null> {
+        const { data, error } = await supabase
+            .from('service_items')
+            .select('*')
+            .eq('id', id)
+            .single();
+
+        if (error) throw new Error(`Failed to fetch service item: ${error.message}`);
+        return data;
+    },
+
+    /**
+     * Upsert service item
+     */
+    async upsertServiceItem(item: Partial<import('../types').ServiceItem>): Promise<void> {
+        const { error } = await supabase
+            .from('service_items')
+            .upsert(item);
+
+        if (error) throw new Error(`Failed to save service item: ${error.message}`);
+    },
+
+    /**
+     * Delete service item
+     */
+    async deleteServiceItem(id: string): Promise<void> {
+        const { error } = await supabase
+            .from('service_items')
+            .delete()
+            .eq('id', id);
+
+        if (error) throw new Error(`Failed to delete service item: ${error.message}`);
     },
 
     // ============ Service Locations (City-Based Availability) ============
@@ -799,4 +880,292 @@ export const adminService = {
 
 
 
+    /**
+     * Get all bookings with filtering
+     */
+    async getAllBookings(filters?: { status?: string; limit?: number }): Promise<import('../types').Booking[]> {
+        let query = supabase
+            .from('bookings')
+            .select(`
+                *,
+                client:profiles!client_id(*),
+                provider:providers!provider_id(*)
+            `)
+            .order('created_at', { ascending: false });
+
+        if (filters?.status && filters.status !== 'ALL') {
+            query = query.eq('status', filters.status);
+        }
+
+        if (filters?.limit) {
+            query = query.limit(filters.limit);
+        }
+
+        const { data, error } = await query;
+        if (error) throw new Error(`Failed to fetch bookings: ${error.message}`);
+
+        // Map joined data to expected Type structure
+        return (data || []).map((b: any) => ({
+            ...b,
+            user: b.client ? { ...b.client, name: b.client.full_name, avatarUrl: b.client.avatar_url } : undefined,
+            worker: b.provider ? { ...b.provider, name: b.provider.full_name || b.provider.name } : undefined
+        }));
+    },
+
+    /**
+     * Update booking status or details
+     */
+    async updateBooking(id: string, updates: Partial<import('../types').Booking>): Promise<void> {
+        // Strip out joined fields if passed back
+        const { user, worker, client, provider, ...cleanUpdates } = updates as any;
+
+        const { error } = await supabase
+            .from('bookings')
+            .update(cleanUpdates)
+            .eq('id', id);
+
+        if (error) throw new Error(`Failed to update booking: ${error.message}`);
+    },
+
+    // ============ Financial Operations ============
+
+    /**
+     * Get aggregated financial stats
+     */
+    async getFinancialStats() {
+        // This would ideally be a dedicated RPC function for performance
+        const { data: bookings, error } = await supabase
+            .from('bookings')
+            .select('final_cost, provider_earnings, platform_commission, payment_status, payout_status');
+
+        if (error) throw new Error(`Failed to fetch financial stats: ${error.message}`);
+
+        const totalRevenue = bookings?.reduce((sum: number, b: any) => sum + (b.payment_status === 'PAID' ? (b.final_cost || 0) : 0), 0) || 0;
+        const totalCommission = bookings?.reduce((sum: number, b: any) => sum + (b.payment_status === 'PAID' ? (b.platform_commission || 0) : 0), 0) || 0;
+        const pendingPayouts = bookings?.reduce((sum: number, b: any) => sum + (b.payment_status === 'PAID' && b.payout_status !== 'PAID' ? (b.provider_earnings || 0) : 0), 0) || 0;
+
+        return {
+            totalRevenue,
+            totalCommission,
+            pendingPayouts
+        };
+    },
+
+    /**
+     * Get pending payouts grouped by provider
+     */
+    async getPayouts(): Promise<{ provider: import('../types').WorkerProfile, amount: number, count: number, bookingIds: string[] }[]> {
+        const { data, error } = await supabase
+            .from('bookings')
+            .select(`
+                id,
+                provider_earnings,
+                payout_status,
+                payment_status,
+                provider:providers!provider_id(*)
+            `)
+            .eq('payment_status', 'PAID')
+            .neq('payout_status', 'PAID');
+
+        if (error) throw new Error(`Failed to fetch payouts: ${error.message}`);
+
+        const payouts = new Map<string, { provider: any, amount: number, count: number, bookingIds: string[] }>();
+
+        data?.forEach((b: any) => {
+            if (!b.provider) return;
+            const pid = b.provider.id;
+            if (!payouts.has(pid)) {
+                payouts.set(pid, {
+                    provider: { ...b.provider, name: b.provider.full_name || b.provider.name }, // map name
+                    amount: 0,
+                    count: 0,
+                    bookingIds: []
+                });
+            }
+            const p = payouts.get(pid)!;
+            p.amount += (b.provider_earnings || 0);
+            p.count += 1;
+            p.bookingIds.push(b.id);
+        });
+
+        return Array.from(payouts.values());
+    },
+
+    /**
+     * Mark bookings as paid out
+     */
+    async processPayout(bookingIds: string[], adminId: string): Promise<void> {
+        const { error } = await supabase
+            .from('bookings')
+            .update({ payout_status: 'PAID' })
+            .in('id', bookingIds);
+
+        if (error) throw new Error(`Failed to process payout: ${error.message}`);
+
+        await this.logAction(
+            adminId,
+            'PROCESS_PAYOUT',
+            'booking_batch',
+            undefined,
+            { count: bookingIds.length, bookingIds }
+        );
+    },
+
+    // ============ Dispute Resolution ============
+
+    /**
+     * Get all disputes
+     */
+    async getDisputes(status?: 'OPEN' | 'RESOLVED' | 'DISMISSED'): Promise<import('../types').Dispute[]> {
+        let query = supabase
+            .from('disputes')
+            .select(`
+                *,
+                booking:bookings!booking_id(*),
+                reporter:profiles!reporter_id(*)
+            `)
+            .order('created_at', { ascending: false });
+
+        if (status) {
+            query = query.eq('status', status);
+        }
+
+        const { data, error } = await query;
+        if (error) throw new Error(`Failed to fetch disputes: ${error.message}`);
+
+        return data || [];
+    },
+
+    /**
+     * Resolve a dispute
+     */
+    async resolveDispute(id: string, resolution: { status: 'RESOLVED' | 'DISMISSED', notes: string, adminId: string }): Promise<void> {
+        const { error } = await supabase
+            .from('disputes')
+            .update({
+                status: resolution.status,
+                resolution_notes: resolution.notes,
+                resolved_by: resolution.adminId,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', id);
+
+        if (error) throw new Error(`Failed to resolve dispute: ${error.message}`);
+
+        await this.logAction(
+            resolution.adminId,
+            'RESOLVE_DISPUTE',
+            'dispute',
+            id,
+            { status: resolution.status, notes: resolution.notes }
+        );
+    },
+
+    // ============ Analytics ============
+
+    async getAnalyticsOverview() {
+        // Fetch bookings for aggregation
+        const { data: bookings, error } = await supabase
+            .from('bookings')
+            .select('id, status, final_cost, created_at, address');
+
+        if (error) throw new Error(`Failed to fetch analytics: ${error.message}`);
+
+        const totalBookings = bookings?.length || 0;
+        const totalGMV = bookings?.reduce((sum: number, b: any) => sum + (b.final_cost || 0), 0) || 0;
+        const completedBookings = bookings?.filter((b: any) => b.status === 'COMPLETED').length || 0;
+        const completionRate = totalBookings > 0 ? (completedBookings / totalBookings) * 100 : 0;
+
+        // Group by Month (Last 6 Months)
+        const months: Record<string, number> = {};
+        bookings?.forEach((b: any) => {
+            const date = new Date(b.created_at);
+            const key = `${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`; // e.g., "Jan 2026"
+            months[key] = (months[key] || 0) + (b.final_cost || 0);
+        });
+
+        // Group by City
+        const cities: Record<string, number> = {};
+        bookings?.forEach((b: any) => {
+            // Assuming formatted address strings or joined data, fallback to 'Unknown'
+            const city = (b.address as any)?.city || 'Unknown';
+            cities[city] = (cities[city] || 0) + 1;
+        });
+
+        return {
+            kpis: {
+                totalBookings,
+                totalGMV,
+                completionRate,
+                avgOrderValue: totalBookings > 0 ? totalGMV / totalBookings : 0
+            },
+            revenueTrend: Object.entries(months).map(([name, value]) => ({ name, value })).slice(-6),
+            topCities: Object.entries(cities).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count).slice(0, 5)
+        };
+    },
+
+    // ============ System Config & Banners ============
+
+    async getSystemConfigs() {
+        const { data, error } = await supabase
+            .from('system_configs')
+            .select('*')
+            .order('key');
+
+        if (error) throw new Error(`Failed to fetch configs: ${error.message}`);
+        return data || [];
+    },
+
+    async updateSystemConfig(key: string, value: any, adminId: string) {
+        const { error } = await supabase
+            .from('system_configs')
+            .update({ value, updated_at: new Date().toISOString() })
+            .eq('key', key);
+
+        if (error) throw new Error(`Failed to update config: ${error.message}`);
+
+        await this.logAction(adminId, 'UPDATE_CONFIG', 'system_config', key, { value });
+    },
+
+    async getMarketingBanners() {
+        const { data, error } = await supabase
+            .from('marketing_banners')
+            .select('*')
+            .order('position', { ascending: true });
+
+        if (error) throw new Error(`Failed to fetch banners: ${error.message}`);
+        return data || [];
+    },
+
+    async createMarketingBanner(banner: { title: string; image_url: string; link_url?: string; is_active: boolean; position: number }, adminId: string) {
+        const { error } = await supabase
+            .from('marketing_banners')
+            .insert(banner);
+
+        if (error) throw new Error(`Failed to create banner: ${error.message}`);
+
+        await this.logAction(adminId, 'CREATE_BANNER', 'marketing_banner', undefined, banner);
+    },
+
+    async updateMarketingBanner(id: string, updates: any, adminId: string) {
+        const { error } = await supabase
+            .from('marketing_banners')
+            .update({ ...updates, updated_at: new Date().toISOString() })
+            .eq('id', id);
+
+        if (error) throw new Error(`Failed to update banner: ${error.message}`);
+
+        await this.logAction(adminId, 'UPDATE_BANNER', 'marketing_banner', id, updates);
+    },
+
+    async deleteMarketingBanner(id: string, adminId: string) {
+        const { error } = await supabase
+            .from('marketing_banners')
+            .delete()
+            .eq('id', id);
+
+        if (error) throw new Error(`Failed to delete banner: ${error.message}`);
+
+        await this.logAction(adminId, 'DELETE_BANNER', 'marketing_banner', id);
+    }
 };

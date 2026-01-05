@@ -1,20 +1,11 @@
 'use client';
 
-import {
-    LayoutDashboard,
-    Store,
-    Users,
-    Calendar,
-    CreditCard,
-    FileText,
-    ShieldCheck,
-    Settings,
-    BarChart3,
-    AlertCircle
-} from 'lucide-react';
+import { ADMIN_NAVIGATION } from '../../config/navigation';
+import { useAuth } from '../../contexts/AuthContext';
 import { SidebarItem } from './SidebarItem';
 
 export const Sidebar = () => {
+    const { adminUser } = useAuth();
     return (
         <aside className="w-64 bg-white border-r border-neutral-200 h-screen fixed left-0 top-0 overflow-y-auto hidden md:block z-30">
             <div className="p-6 border-b border-neutral-100">
@@ -28,33 +19,31 @@ export const Sidebar = () => {
             </div>
 
             <nav className="p-4 space-y-8">
-                <div>
-                    <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-3 px-4">Main</p>
-                    <div className="space-y-1">
-                        <SidebarItem href="/dashboard" icon={LayoutDashboard} label="Dashboard" />
-                        <SidebarItem href="/listings" icon={Store} label="Listings" />
-                        <SidebarItem href="/partners" icon={Users} label="Partners" />
-                        <SidebarItem href="/bookings" icon={Calendar} label="Bookings" />
-                    </div>
-                </div>
+                {ADMIN_NAVIGATION.map((section) => {
+                    const filteredItems = section.items.filter(item =>
+                        !item.allowedRoles || (adminUser && item.allowedRoles.includes(adminUser.role))
+                    );
 
-                <div>
-                    <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-3 px-4">Operations</p>
-                    <div className="space-y-1">
-                        <SidebarItem href="/payments" icon={CreditCard} label="Payments" />
-                        <SidebarItem href="/verifications" icon={ShieldCheck} label="Verifications & KYC" />
-                        <SidebarItem href="/disputes" icon={AlertCircle} label="Disputes" />
-                    </div>
-                </div>
+                    if (filteredItems.length === 0) return null;
 
-                <div>
-                    <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-3 px-4">Reports & Config</p>
-                    <div className="space-y-1">
-                        <SidebarItem href="/reports" icon={BarChart3} label="Reports" />
-                        <SidebarItem href="/audit-logs" icon={FileText} label="Audit Logs" />
-                        <SidebarItem href="/settings" icon={Settings} label="Settings" />
-                    </div>
-                </div>
+                    return (
+                        <div key={section.title}>
+                            <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-3 px-4">
+                                {section.title}
+                            </p>
+                            <div className="space-y-1">
+                                {filteredItems.map((item) => (
+                                    <SidebarItem
+                                        key={item.href}
+                                        href={item.href}
+                                        icon={item.icon}
+                                        label={item.label}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    );
+                })}
             </nav>
         </aside>
     );
