@@ -6,6 +6,7 @@
 'use client';
 
 import React from 'react';
+import NextImage from 'next/image';
 import { motion } from 'framer-motion';
 import { designTokensV2 } from '../../theme/design-tokens-v2';
 
@@ -58,16 +59,16 @@ export function HeroCard({
         >
             {/* Background Image (if provided) */}
             {image && (
-                <div
-                    style={{
-                        position: 'absolute',
-                        inset: 0,
-                        backgroundImage: `url(${image})`,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                        opacity: 0.3,
-                    }}
-                />
+                <div style={{ position: 'absolute', inset: 0, opacity: 0.3 }}>
+                    <NextImage
+                        src={image}
+                        alt="Hero background"
+                        fill
+                        className="object-cover"
+                        priority
+                        sizes="(max-width: 768px) 100vw, 420px"
+                    />
+                </div>
             )}
 
             {/* Content Container */}

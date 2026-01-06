@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { User, Phone, Mail, MapPin, Edit2, LogOut } from 'lucide-react';
+import Link from 'next/link';
+import { User, Phone, Mail, MapPin, Edit2, LogOut, Bell, ChevronRight } from 'lucide-react';
 import { designTokensV2 } from '../../../theme/design-tokens-v2';
 import { useAuth } from '../../../contexts/AuthContext';
 
@@ -78,12 +79,15 @@ export default function ProfilePage() {
 
             {/* Settings & Logout */}
             <div className="space-y-2">
-                <button className="w-full text-left p-4 bg-white rounded-v2-card border border-gray-100 flex items-center justify-between hover:bg-gray-50">
-                    <span className="font-medium text-gray-700">Notifications</span>
-                    <div className="w-10 h-6 bg-v2-accent-success rounded-full relative">
-                        <div className="absolute top-1 right-1 w-4 h-4 bg-white rounded-full shadow-sm" />
+                <Link href="/dashboard/notifications" className="w-full text-left p-4 bg-white rounded-v2-card border border-gray-100 flex items-center justify-between hover:bg-gray-50">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-blue-50 text-blue-600 rounded-full">
+                            <Bell size={18} />
+                        </div>
+                        <span className="font-medium text-gray-700">Notifications</span>
                     </div>
-                </button>
+                    <ChevronRight size={18} className="text-gray-400" />
+                </Link>
 
                 <button
                     onClick={() => signOut()}

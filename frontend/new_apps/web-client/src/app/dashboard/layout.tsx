@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Calendar, User, Settings, LogOut } from 'lucide-react';
+import { Home, Calendar, User, Settings, LogOut, Wallet, HelpCircle } from 'lucide-react';
 import { designTokensV2 } from '../../theme/design-tokens-v2';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -12,6 +12,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const navItems = [
         { label: 'Home', icon: Home, href: '/' }, // Back to main home
         { label: 'Bookings', icon: Calendar, href: '/dashboard/bookings' },
+        { label: 'Wallet', icon: Wallet, href: '/dashboard/wallet' },
+        { label: 'Help', icon: HelpCircle, href: '/dashboard/help' },
         { label: 'Profile', icon: User, href: '/dashboard/profile' },
     ];
 
@@ -31,8 +33,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 key={item.href}
                                 href={item.href}
                                 className={`flex items-center gap-3 px-4 py-3 rounded-v2-btn font-medium transition-all ${isActive
-                                        ? 'bg-v2-text-primary text-white shadow-md'
-                                        : 'text-v2-text-secondary hover:bg-gray-50'
+                                    ? 'bg-v2-text-primary text-white shadow-md'
+                                    : 'text-v2-text-secondary hover:bg-gray-50'
                                     }`}
                             >
                                 <item.icon size={20} />

@@ -37,7 +37,7 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ service, onClick }) =>
                     alt={service.name}
                     fill
                     className="object-cover"
-                    sizes="160px"
+                    sizes="(max-width: 768px) 50vw, 33vw"
                 />
 
                 {/* Best Match Badge (Provider Blind) */}

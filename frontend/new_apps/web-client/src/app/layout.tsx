@@ -5,9 +5,14 @@ import { AuthProvider } from "../contexts/AuthContext";
 import { BookingProvider } from "../contexts/BookingContext";
 import { BottomNav } from "../components/navigation/BottomNav";
 import { Toaster } from "react-hot-toast";
-import { AIChatWidget } from "../components/chat/AIChatWidget";
+import dynamic from 'next/dynamic';
 
-const inter = Inter({ subsets: ["latin"] });
+const AIChatWidget = dynamic(() => import('../components/chat/AIChatWidget').then(mod => mod.AIChatWidget), {
+    ssr: false,
+    loading: () => null
+});
+
+const inter = Inter({ subsets: ["latin"], display: 'swap' });
 
 export const metadata: Metadata = {
     title: {
