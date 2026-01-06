@@ -11,6 +11,7 @@ import { Loader2, Bell, Briefcase, CheckCircle } from 'lucide-react';
 import { JobDetailSheet } from '../../components/v2/JobDetailSheet';
 
 import { useJobsData } from '../../hooks/useJobsData';
+import { EmptyState } from '../../components/ui/EmptyState';
 
 export default function JobsPage() {
     const { user } = useAuth();
@@ -106,13 +107,28 @@ export default function JobsPage() {
                 ) : (
                     <>
                         {activeTab === 'requests' && currentData.length === 0 && (
-                            <EmptyState message="No new job requests." />
+                            <EmptyState
+                                icon={Bell}
+                                title="No new job requests"
+                                description="You'll be notified when a customer books a service."
+                                action={{ label: 'Refresh', onClick: refreshData }}
+                            />
                         )}
                         {activeTab === 'active' && currentData.length === 0 && (
-                            <EmptyState message="No active jobs. Stay online to get requests!" />
+                            <EmptyState
+                                icon={Briefcase}
+                                title="No active jobs"
+                                description="Check 'Requests' to accept new work."
+                                action={{ label: 'Refresh', onClick: refreshData }}
+                            />
                         )}
                         {activeTab === 'history' && currentData.length === 0 && (
-                            <EmptyState message="No past jobs found." />
+                            <EmptyState
+                                icon={CheckCircle}
+                                title="No history"
+                                description="Completed jobs will show up here."
+                                action={{ label: 'Refresh', onClick: refreshData }}
+                            />
                         )}
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -151,11 +167,4 @@ export default function JobsPage() {
     );
 }
 
-const EmptyState = ({ message }: { message: string }) => (
-    <div className="text-center py-20 bg-white rounded-xl border border-neutral-200 border-dashed">
-        <div className="w-16 h-16 bg-neutral-50 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Briefcase className="text-neutral-300" size={32} />
-        </div>
-        <p className="text-neutral-500 font-medium">{message}</p>
-    </div>
-);
+

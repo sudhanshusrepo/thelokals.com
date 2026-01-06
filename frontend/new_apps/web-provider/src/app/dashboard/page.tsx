@@ -9,6 +9,8 @@ import { QuickStats } from '../../components/v2/QuickStats';
 import { JobCard } from '../../components/v2/JobCard';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { IdentityBanner } from '../../components/v2/IdentityBanner';
+import { EmptyState } from '../../components/ui/EmptyState';
+import { Briefcase } from 'lucide-react';
 
 export default function Dashboard() {
     const { profile, user } = useAuth();
@@ -82,13 +84,12 @@ export default function Dashboard() {
                         </div>
 
                         {recentJobs.length === 0 ? (
-                            <div className="bg-white rounded-card p-8 text-center border border-neutral-100">
-                                <div className="w-16 h-16 bg-neutral-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <span className="text-2xl">😴</span>
-                                </div>
-                                <h3 className="text-neutral-900 font-bold mb-1">No active jobs</h3>
-                                <p className="text-neutral-500 text-sm">You're all caught up! Enable notifications to get new requests.</p>
-                            </div>
+                            <EmptyState
+                                icon={Briefcase}
+                                title="No active jobs"
+                                description="You're all caught up! Requests will appear here."
+                                action={{ label: 'Refresh', onClick: () => window.location.reload() }}
+                            />
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {recentJobs.map((job) => (

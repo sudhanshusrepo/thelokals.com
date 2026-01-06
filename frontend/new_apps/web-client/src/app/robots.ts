@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
         rules: {
             userAgent: '*',
             allow: '/',
-            disallow: '/dashboard/',
+            disallow: ['/book/payment', '/profile'], // Private routes
         },
         sitemap: 'https://thelokals.com/sitemap.xml',
     };

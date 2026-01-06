@@ -32,10 +32,16 @@ export default function AddressStep() {
         });
     };
 
+    const [isShaking, setIsShaking] = useState(false);
+
     const handleContinue = () => {
         if (canProceed('address')) {
             nextStep();
             router.push('/book/payment');
+        } else {
+            // Trigger feedback
+            setIsShaking(true);
+            setTimeout(() => setIsShaking(false), 500);
         }
     };
 
@@ -75,10 +81,15 @@ export default function AddressStep() {
             </div>
 
             {/* Custom Input Fallback */}
-            <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Or enter address details</label>
+            <div className={`mb-4 transition-transform ${isShaking ? 'translate-x-[-10px]' : ''}`}>
+                <label className={`block text-sm font-medium mb-2 transition-colors ${isShaking ? 'text-red-500' : 'text-gray-700'}`}>
+                    {isShaking ? 'Please enter address details' : 'Or enter address details'}
+                </label>
                 <textarea
-                    className="w-full p-3 border border-gray-300 rounded-v2-btn focus:outline-none focus:ring-2 focus:ring-v2-text-primary"
+                    className={`w-full p-3 border rounded-v2-btn focus:outline-none focus:ring-2 transition-all ${isShaking
+                        ? 'border-red-500 ring-red-100'
+                        : 'border-gray-300 focus:ring-v2-text-primary'
+                        }`}
                     rows={3}
                     placeholder="House no, Floor, Landmark..."
                     value={customAddress}
@@ -86,13 +97,23 @@ export default function AddressStep() {
                 />
             </div>
 
+            <style jsx>{`
+                @keyframes shake {
+                    0%, 100% { transform: translateX(0); }
+                    25% { transform: translateX(-5px); }
+                    75% { transform: translateX(5px); }
+                }
+                .shake {
+                    animation: shake 0.3s ease-in-out;
+                }
+            `}</style>
+
             <button
                 onClick={handleContinue}
-                disabled={!canProceed('address')}
                 className={`w-full py-4 rounded-v2-btn font-bold mt-auto transition-all ${canProceed('address')
                     ? 'bg-v2-text-primary text-white shadow-lg active:scale-[0.99]'
-                    : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                    }`}
+                    : 'bg-gray-200 text-gray-400' /* Visual disabled state but clickable for feedback */
+                    } ${isShaking ? 'shake bg-red-100 text-red-500' : ''}`}
             >
                 Continue to Payment
             </button>

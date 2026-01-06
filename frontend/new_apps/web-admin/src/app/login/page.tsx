@@ -5,11 +5,12 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
 import { CONFIG } from '@thelocals/core/config';
 
+import { toast } from 'react-hot-toast';
+
 export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
 
     const { signInWithEmail, adminUser } = useAuth();
     const router = useRouter();
@@ -23,13 +24,14 @@ export default function LoginPage() {
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        setError('');
+
 
         try {
             await signInWithEmail(email, password);
+            toast.success('Welcome back, Admin!');
             // useAuth handles state update, useEffect will redirect
         } catch (err: any) {
-            setError(err.message || 'Failed to login');
+            toast.error(err.message || 'Failed to login');
             setLoading(false);
         }
     };
@@ -38,24 +40,19 @@ export default function LoginPage() {
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-neutral-900 via-primary-900 to-neutral-900 p-4">
             <div className="max-w-md w-full">
                 {/* Logo/Header */}
-                <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary-500 to-accent-amber rounded-2xl mb-4 shadow-lg shadow-primary-500/20">
-                        {/* Simple replacement for SVG logo */}
-                        <span className="text-3xl font-bold text-white">L</span>
+                <div className="text-center mb-10">
+                    <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-primary-500 to-accent-amber rounded-2xl mb-6 shadow-2xl shadow-primary-500/20 transform rotate-3 hover:rotate-6 transition-transform duration-500">
+                        <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
                     </div>
-                    <h1 className="text-3xl font-bold text-white mb-2">Admin Portal</h1>
-                    <p className="text-neutral-400">lokals Control Center</p>
+                    <h1 className="text-4xl font-bold text-white mb-2 tracking-tight">Admin Portal</h1>
+                    <p className="text-neutral-400 font-medium">The Locals Control Center</p>
                 </div>
 
                 {/* Login Card */}
                 <div className="bg-neutral-800/50 backdrop-blur-xl rounded-2xl shadow-2xl border border-neutral-700 p-8">
                     <form onSubmit={handleLogin} className="space-y-6">
-                        {error && (
-                            <div className="bg-error/10 border border-error/50 rounded-lg p-3 text-error text-sm">
-                                {error}
-                            </div>
-                        )}
-
                         <div>
                             <label className="block text-sm font-medium text-neutral-300 mb-2">
                                 Email Address
@@ -84,6 +81,11 @@ export default function LoginPage() {
                                 className="w-full px-4 py-3 bg-neutral-900/50 border border-neutral-600 rounded-lg text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
                                 placeholder="••••••••"
                             />
+                        </div>
+                        <div className="flex justify-end">
+                            <a href="#" className="text-sm text-primary-400 hover:text-primary-300 transition-colors">
+                                Forgot password?
+                            </a>
                         </div>
 
                         <button

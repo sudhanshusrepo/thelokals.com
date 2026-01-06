@@ -86,6 +86,7 @@ export default function AuthClient() {
                                         id="phone"
                                         type="tel"
                                         required
+                                        autoFocus
                                         className="block flex-1 px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary transition-colors"
                                         placeholder="98765 43210"
                                         value={phone}
@@ -119,6 +120,7 @@ export default function AuthClient() {
                                     id="otp"
                                     type="text"
                                     required
+                                    autoFocus
                                     maxLength={6}
                                     className="block w-full px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary transition-colors text-center text-lg tracking-widest"
                                     placeholder="000000"

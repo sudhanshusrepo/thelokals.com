@@ -20,7 +20,12 @@ export const AppProviders = ({ children }: AppProvidersProps) => {
         >
             <AuthProvider>
                 {children}
-                <Toaster position="top-right" />
+                <Toaster
+                    position="top-right"
+                    toastOptions={{
+                        style: { zIndex: 99999 }
+                    }}
+                />
             </AuthProvider>
         </SWRConfig>
     );

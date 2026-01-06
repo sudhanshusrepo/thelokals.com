@@ -1,0 +1,113 @@
+'use client';
+
+import React from 'react';
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import { useBooking } from '../../../contexts/BookingContext';
+import { designTokensV2 } from '../../../theme/design-tokens-v2';
+import { ArrowLeft, Star, Clock, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { ServiceCategory } from '@thelocals/core/types';
+
+interface ServiceDetailClientProps {
+    service: ServiceCategory;
+}
+
+export function ServiceDetailClient({ service }: ServiceDetailClientProps) {
+    const router = useRouter();
+    const { startBooking } = useBooking();
+
+    const handleBookNow = () => {
+        startBooking({
+            id: service.id,
+            name: service.name,
+            price: service.base_price || 499,
+            image: (service as any).image_url || 'https://images.unsplash.com/photo-1581094794329-cd109678e7ea?auto=format&fit=crop&w=200&q=80'
+        });
+
+        router.push('/book/package');
+    };
+
+    return (
+        <div style={{ paddingBottom: '100px', backgroundColor: '#fff' }}>
+            {/* Hero Image Header */}
+            <div className="relative h-[300px] w-full">
+                <Image
+                    src={(service as any).image_url || "https://images.unsplash.com/photo-1581094794329-cd109678e7ea?auto=format&fit=crop&w=800&q=80"}
+                    alt={service.name}
+                    fill
+                    className="object-cover"
+                    priority
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/20" />
+
+                {/* Back Button */}
+                <button
+                    onClick={() => router.back()}
+                    className="absolute top-6 left-6 p-2 rounded-full bg-white/20 backdrop-blur-md text-white hover:bg-white/30 transition-colors"
+                >
+                    <ArrowLeft size={24} />
+                </button>
+            </div>
+
+            <div className="px-6 -mt-8 relative z-10">
+                {/* Title Card */}
+                <div className="bg-white rounded-v2-hero p-5 shadow-v2-card">
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <h1 className="text-2xl font-bold text-v2-text-primary mb-2">{service.name}</h1>
+                            <div className="flex items-center gap-3 text-sm text-v2-text-secondary">
+                                <span className="flex items-center gap-1 font-medium">
+                                    <Star size={14} className="fill-v2-accent-warning text-v2-accent-warning" />
+                                    4.8 (120 reviews)
+                                </span>
+                                <span className="flex items-center gap-1">
+                                    <Clock size={14} />
+                                    60 min
+                                </span>
+                            </div>
+                        </div>
+                        <div className="text-right">
+                            <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">Starts at</div>
+                            <div className="text-xl font-bold text-v2-text-primary">₹{service.base_price || 499}</div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Best Match Badge */}
+                <div className="mt-6 flex items-center gap-3 p-4 bg-green-50 rounded-xl border border-green-100">
+                    <div className="p-2 bg-green-100 rounded-full text-green-700">
+                        <ShieldCheck size={20} />
+                    </div>
+                    <div>
+                        <div className="font-bold text-green-800 text-sm">Provider Blind Assignment</div>
+                        <div className="text-xs text-green-700">We automatically assign the highest-rated pro available near you.</div>
+                    </div>
+                </div>
+
+                {/* Description / What's Included */}
+                <div className="mt-8">
+                    <h3 className="text-lg font-bold mb-4">What's Included</h3>
+                    <ul className="space-y-3">
+                        {['Professional Service', 'Post-service cleanup', '7-day warranty', 'Locals safety assurance'].map((item, i) => (
+                            <li key={i} className="flex items-center gap-3 text-v2-text-secondary">
+                                <CheckCircle2 size={18} className="text-v2-accent-success" />
+                                <span>{item}</span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            </div>
+
+            {/* Floating CTA */}
+            <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+                <button
+                    onClick={handleBookNow}
+                    style={{ background: designTokensV2.colors.gradient.css }}
+                    className="w-full py-4 rounded-v2-pill text-v2-text-primary font-bold text-lg shadow-lg active:scale-[0.99] transition-transform"
+                >
+                    Book Now
+                </button>
+            </div>
+        </div>
+    );
+}

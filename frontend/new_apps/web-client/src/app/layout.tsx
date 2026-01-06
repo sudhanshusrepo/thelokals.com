@@ -16,6 +16,7 @@ export const metadata: Metadata = {
     },
     description: 'Book trusted local professionals for AC repair, cleaning, appliance servcing, and more. Verified pros, upfront pricing, and satisfaction guaranteed.',
     keywords: ['home services', 'ac repair', 'cleaning', 'electrician', 'plumber', 'gurugram', 'ncr'],
+    metadataBase: new URL('https://thelokals.com'),
     openGraph: {
         title: 'Lokals - Trusted Home Services',
         description: 'Book trusted local professionals instantly.',
@@ -35,7 +36,11 @@ export const metadata: Metadata = {
         title: 'Lokals - Trusted Home Services',
         description: 'Book trusted local professionals instantly.',
     },
-    manifest: '/manifest.json',
+    appleWebApp: {
+        capable: true,
+        statusBarStyle: 'default',
+        title: 'Lokals',
+    },
 };
 
 export const viewport: Viewport = {

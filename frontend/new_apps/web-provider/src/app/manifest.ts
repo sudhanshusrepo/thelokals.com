@@ -2,13 +2,13 @@ import { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
     return {
-        name: 'The Lokals: Home Services',
-        short_name: 'Lokals',
-        description: 'Book trusted home service professionals for cleaning, repair, and more.',
+        name: 'The Locals Provider',
+        short_name: 'Locals Pro',
+        description: 'Manage your local service business',
         start_url: '/',
         display: 'standalone',
-        background_color: '#ffffff',
-        theme_color: '#F7C846',
+        background_color: '#F0F0F0',
+        theme_color: '#8AE98D',
         icons: [
             {
                 src: '/icon',
