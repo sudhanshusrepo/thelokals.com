@@ -5,6 +5,8 @@ import { User, Phone, Mail, MapPin, Edit2, LogOut } from 'lucide-react';
 import { designTokensV2 } from '../../../theme/design-tokens-v2';
 import { useAuth } from '../../../contexts/AuthContext';
 
+import LinkedAccounts from '../../../components/profile/LinkedAccounts';
+
 export default function ProfilePage() {
     const { user: authUser, profile, signOut } = useAuth();
     const [isEditing, setIsEditing] = useState(false);
@@ -70,6 +72,9 @@ export default function ProfilePage() {
                     </div>
                 ))}
             </div>
+
+            {/* Linked Accounts */}
+            <LinkedAccounts />
 
             {/* Settings & Logout */}
             <div className="space-y-2">
