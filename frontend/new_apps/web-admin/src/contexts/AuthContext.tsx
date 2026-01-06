@@ -19,9 +19,10 @@ interface AdminAuthContextType {
 const AdminAuthContext = createContext<AdminAuthContextType | undefined>(undefined);
 
 const fetchAdminProfile = async (user: any): Promise<AdminUser | null> => {
-    if (!user?.email) return null;
+    if (!user?.id) return null;
     try {
-        const admin = await adminService.getAdminByEmail(user.email);
+        // Use ID-based lookup which is more robust and bypasses indirect email queries
+        const admin = await adminService.getAdminById(user.id);
         return admin || null;
     } catch (error) {
         console.error('Failed to load admin user:', error);

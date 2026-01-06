@@ -248,6 +248,42 @@ export const adminService = {
     // ============ Admin Users ============
 
     /**
+     * Get admin user by ID (more robust for auth checks)
+     */
+    async getAdminById(id: string): Promise<AdminUser | null> {
+        // Direct query to admin_users table
+        const { data: adminData, error } = await supabase
+            .from('admin_users')
+            .select(`
+                *,
+                profile:profiles!id (
+                    full_name,
+                    email
+                )
+            `)
+            .eq('id', id)
+            .eq('is_active', true)
+            .single();
+
+        if (error) {
+            if (error.code === 'PGRST116') return null; // Not found or not active
+            console.error('Admin check failed:', error);
+            return null;
+        }
+
+        // Map response
+        const profile = (adminData as any).profile || {};
+
+        return {
+            id: adminData.id,
+            email: profile.email || '', // Fallback or handle null
+            full_name: profile.full_name || 'Admin',
+            role: adminData.role as AdminRole,
+            created_at: adminData.created_at
+        };
+    },
+
+    /**
      * Get admin user by email
      */
     async getAdminByEmail(email: string): Promise<AdminUser | null> {
