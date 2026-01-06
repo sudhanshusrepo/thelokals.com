@@ -7,50 +7,27 @@ import { supabase } from '@thelocals/core/services/supabase';
 import { logger } from '@thelocals/core/services/logger';
 import { OTPConfirmation, OTPService } from '@thelocals/core/services/otp';
 
-export interface ProviderProfile {
-    id: string;
-    full_name: string;
-    phone: string | null;
-    email: string | null;
-    category: string;
-    is_verified: boolean;
-    is_active: boolean;
-    registration_completed: boolean;
-    phone_verified: boolean;
-    business_name: string | null;
-    description: string | null;
-    verification_status: 'pending' | 'approved' | 'rejected';
-    created_at: string;
-}
+import { WorkerProfile } from '@thelocals/core/types';
+import { providerService } from '@thelocals/core/services/providerService';
 
 interface ProviderAuthContextType {
     session: Session | null;
     user: User | null;
-    profile: ProviderProfile | null;
+    profile: WorkerProfile | null;
     loading: boolean;
     signOut: () => Promise<void>;
     signInWithPhone: (phone: string) => Promise<OTPConfirmation>;
     verifyOtp: (confirmationResult: OTPConfirmation, token: string) => Promise<void>;
-    setProfile: (profile: ProviderProfile | null) => void;
+    setProfile: (profile: WorkerProfile | null) => void;
+    refreshProfile: () => Promise<void>;
 }
 
 const ProviderAuthContext = createContext<ProviderAuthContextType | undefined>(undefined);
 
-const fetchProviderProfile = async (user: any): Promise<ProviderProfile | null> => {
+const fetchProviderProfile = async (user: any): Promise<WorkerProfile | null> => {
     try {
-        const { data, error } = await supabase
-            .from('providers')
-            .select('*')
-            .eq('id', user.id)
-            .single();
-
-        if (error) {
-            if (error.code !== 'PGRST116') {
-                logger.error('Error fetching provider profile:', error);
-            }
-            return null;
-        }
-        return data;
+        if (!user?.id) return null;
+        return await providerService.getProfile(user.id);
     } catch (error) {
         logger.error('Error fetching provider profile:', error);
         return null;
@@ -58,7 +35,7 @@ const fetchProviderProfile = async (user: any): Promise<ProviderProfile | null> 
 };
 
 function ProviderAuthContent({ children }: { children: ReactNode }) {
-    const { user, session, profile, loading: coreLoading, signOut: coreSignOut, refreshProfile } = useCoreAuth<ProviderProfile>();
+    const { user, session, profile, loading: coreLoading, signOut: coreSignOut, refreshProfile } = useCoreAuth<WorkerProfile>();
     const [localLoading, setLocalLoading] = useState(true);
 
     useEffect(() => {
@@ -73,23 +50,12 @@ function ProviderAuthContent({ children }: { children: ReactNode }) {
 
     const verifyOtp = async (confirmationResult: OTPConfirmation, token: string) => {
         const { user: confirmedUser } = await confirmationResult.confirm(token);
-        // CoreAuthProvider will detect the session change automatically via onAuthStateChange
-        // But we might want to manually refresh profile if it's lagging, though the change event should trigger it.
         if (confirmedUser) {
-            // Optional: wait for profile fetch? 
-            // CoreAuthProvider's onAuthStateChange handles it.
+            // Profile refresh is handled by Core
         }
     };
 
-    const setProfile = (newProfile: ProviderProfile | null) => {
-        // This is a bit tricky since profile is managed by Core.
-        // Direct mutation isn't exposed by simple Core.
-        // But we can just assume this is for local optimist updates or we ignore it if unused.
-        // Actually, looking at original code, setProfile was exposed.
-        // We'll treat it as a no-op or implement a local override state if strictly needed.
-        // For now, let's create a local override only if strictly necessary, but ideally we rely on DB + refresh.
-        // A hacky way: cast to any if we rely on SWR-like revalidation.
-        // Let's implement a 'refresh' alias.
+    const setProfile = (newProfile: WorkerProfile | null) => {
         console.warn('setProfile called - prefer refreshing from DB');
         refreshProfile();
     };
@@ -106,7 +72,8 @@ function ProviderAuthContent({ children }: { children: ReactNode }) {
         signOut,
         signInWithPhone,
         verifyOtp,
-        setProfile
+        setProfile,
+        refreshProfile
     };
 
     return (

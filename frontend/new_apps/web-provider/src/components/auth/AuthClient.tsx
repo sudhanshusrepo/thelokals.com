@@ -61,7 +61,7 @@ export default function AuthClient() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-primary-600 to-primary-900 flex flex-col items-center justify-center p-4">
+        <div className="min-h-screen bg-brand-gradient flex flex-col items-center justify-center p-4">
             <div className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden">
                 <div className="px-8 pt-8 pb-6 text-center">
                     <div className="w-16 h-16 bg-primary-100 text-primary-600 rounded-2xl flex items-center justify-center mx-auto mb-4">

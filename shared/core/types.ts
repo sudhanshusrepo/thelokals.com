@@ -69,6 +69,7 @@ export interface WorkerProfile {
   reviewCount: number;
   isVerified: boolean;
   is_verified?: boolean; // DB field
+  is_active?: boolean; // DB field
   verification_status?: VerificationStatus;
   rejection_reason?: string;
   location: Coordinates;

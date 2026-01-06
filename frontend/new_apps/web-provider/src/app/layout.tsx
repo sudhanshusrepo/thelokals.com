@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { AuthProvider } from "../contexts/AuthContext";
+import { AppProviders } from "../components/providers/AppProviders";
 import "./globals.css";
 
 export const metadata: Metadata = {
-    title: "Web Provider",
-    description: "Web Provider Application",
+    title: "The Locals - Provider Portal",
+    description: "Manage your requests, earnings, and availability.",
 };
 
 export default function RootLayout({
@@ -15,9 +15,9 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body>
-                <AuthProvider>
+                <AppProviders>
                     {children}
-                </AuthProvider>
+                </AppProviders>
             </body>
         </html>
     );

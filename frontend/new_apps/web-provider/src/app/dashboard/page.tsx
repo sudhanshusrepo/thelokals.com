@@ -2,97 +2,103 @@
 
 import { useAuth } from '../../contexts/AuthContext';
 import { ProviderLayout } from '../../components/layout/ProviderLayout';
-import { Wallet, Briefcase, Star, TrendingUp } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { bookingService } from '@thelocals/core/services/bookingService';
-import { Booking } from '@thelocals/core/types';
+import { useDashboardData } from '../../hooks/useDashboardData';
 import Link from 'next/link';
+import { HeroCard } from '../../components/v2/HeroCard';
+import { QuickStats } from '../../components/v2/QuickStats';
+import { JobCard } from '../../components/v2/JobCard';
+import { Skeleton } from '../../components/ui/Skeleton';
+import { IdentityBanner } from '../../components/v2/IdentityBanner';
 
 export default function Dashboard() {
     const { profile, user } = useAuth();
-    const [recentBookings, setRecentBookings] = useState<Booking[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [stats, setStats] = useState({
-        totalEarnings: 0,
-        jobsCompleted: 0,
-        rating: 4.8,
-        completionRate: 98
-    });
+    const { recentJobs, stats, loading, error } = useDashboardData(user?.id);
 
-    useEffect(() => {
-        if (user?.id) {
-            loadDashboardData(user.id);
-        }
-    }, [user]);
+    if (error) {
+        // Simple error state for now, toast handled by service if applicable or we can useEffect to toast here.
+        // For dashboard partial loads are acceptable.
+    }
 
-    const loadDashboardData = async (userId: string) => {
-        try {
-            const [bookings, providerStats] = await Promise.all([
-                bookingService.getWorkerBookings(userId),
-                bookingService.getProviderStats(userId)
-            ]);
-            setRecentBookings(bookings.slice(0, 5)); // Top 5
-            setStats(providerStats);
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const statsData = [
-        { label: 'Total Earnings', value: `₹${stats.totalEarnings.toLocaleString()}`, icon: Wallet, color: 'bg-green-100 text-green-600' },
-        { label: 'Jobs Completed', value: stats.jobsCompleted.toString(), icon: Briefcase, color: 'bg-blue-100 text-blue-600' },
-        { label: 'Rating', value: stats.rating.toString(), icon: Star, color: 'bg-yellow-100 text-yellow-600' },
-        { label: 'Completion Rate', value: `${stats.completionRate}%`, icon: TrendingUp, color: 'bg-purple-100 text-purple-600' },
-    ];
+    // Check verification status (assuming is_verified or isVerified exists on profile)
+    // Coalesce boolean just in case
+    const isVerified = (profile as any)?.is_verified || (profile as any)?.isVerified;
 
     return (
         <ProviderLayout>
-            <div className="mb-8">
-                <h1 className="text-2xl font-bold text-neutral-900">Welcome back, {profile?.full_name?.split(' ')[0] || 'Partner'}!</h1>
-                <p className="text-neutral-500">Here's what's happening with your business today.</p>
+            <div className="flex justify-between items-center mb-6">
+                <div>
+                    <h1 className="text-2xl font-bold text-neutral-900">
+                        Hello, {profile?.full_name?.split(' ')[0] || 'Partner'} 👋
+                    </h1>
+                    <p className="text-neutral-500 text-sm">Let's make today productive.</p>
+                </div>
+                <div className="hidden md:block">
+                    <span className="bg-brand-green/10 text-brand-green text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
+                        Online
+                    </span>
+                </div>
             </div>
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                {statsData.map((stat, i) => (
-                    <div key={i} className="bg-white p-4 rounded-xl shadow-sm border border-neutral-100 hover:shadow-md transition-shadow">
-                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-3 ${stat.color}`}>
-                            <stat.icon size={20} />
-                        </div>
-                        <p className="text-2xl font-bold text-neutral-900">{stat.value}</p>
-                        <p className="text-xs text-neutral-500 font-medium">{stat.label}</p>
+            {loading ? (
+                <div className="space-y-6">
+                    <Skeleton className="h-48 w-full rounded-2xl" />
+                    <Skeleton className="h-32 w-full rounded-2xl" />
+                    <div className="space-y-4">
+                        <Skeleton className="h-8 w-40" />
+                        <Skeleton className="h-24 w-full rounded-2xl" />
+                        <Skeleton className="h-24 w-full rounded-2xl" />
                     </div>
-                ))}
-            </div>
-
-            {/* Recent Jobs */}
-            <div className="bg-white rounded-xl shadow-sm border border-neutral-100 overflow-hidden">
-                <div className="p-4 border-b border-neutral-100 flex items-center justify-between">
-                    <h3 className="font-bold text-neutral-900">Recent Jobs</h3>
-                    <Link href="/jobs" className="text-sm text-primary font-medium hover:underline">View All</Link>
                 </div>
-                <div className="divide-y divide-neutral-100">
-                    {loading ? (
-                        <div className="p-8 text-center text-neutral-500">Loading jobs...</div>
-                    ) : recentBookings.length === 0 ? (
-                        <div className="p-8 text-center text-neutral-500">No recent jobs found.</div>
-                    ) : (
-                        recentBookings.map((booking) => (
-                            <div key={booking.id} className="p-4 hover:bg-neutral-50 transition-colors flex items-center justify-between">
-                                <div>
-                                    <p className="font-medium text-neutral-900">{booking.service_category || 'Service Request'}</p>
-                                    <p className="text-xs text-neutral-500">
-                                        {new Date(booking.created_at).toLocaleDateString()} • {booking.status}
-                                    </p>
-                                </div>
-                                <span className="font-bold text-neutral-900">₹{booking.final_cost || booking.estimated_cost || 0}</span>
-                            </div>
-                        ))
+            ) : (
+                <>
+                    {/* Identity Banner */}
+                    {!isVerified && (
+                        <div className="mb-6">
+                            <IdentityBanner />
+                        </div>
                     )}
-                </div>
-            </div>
+
+                    {/* Hero Section */}
+                    <div className="mb-8">
+                        <HeroCard monthlyEarnings={stats.monthlyEarnings} percentageChange={stats.trend} />
+                    </div>
+
+                    {/* Quick Stats */}
+                    <div className="mb-8">
+                        <QuickStats
+                            activeJobs={stats.activeJobs}
+                            completedToday={stats.completedToday}
+                            rating={stats.rating}
+                        />
+                    </div>
+
+                    {/* Active Jobs */}
+                    <div>
+                        <div className="flex items-center justify-between mb-4">
+                            <h2 className="text-lg font-bold text-neutral-900">Active Jobs ({recentJobs.length})</h2>
+                            <Link href="/jobs" className="text-sm font-semibold text-brand-green hover:underline">
+                                View All
+                            </Link>
+                        </div>
+
+                        {recentJobs.length === 0 ? (
+                            <div className="bg-white rounded-card p-8 text-center border border-neutral-100">
+                                <div className="w-16 h-16 bg-neutral-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <span className="text-2xl">😴</span>
+                                </div>
+                                <h3 className="text-neutral-900 font-bold mb-1">No active jobs</h3>
+                                <p className="text-neutral-500 text-sm">You're all caught up! Enable notifications to get new requests.</p>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {recentJobs.map((job) => (
+                                    <JobCard key={job.id} job={job} />
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </>
+            )}
         </ProviderLayout>
     );
 }

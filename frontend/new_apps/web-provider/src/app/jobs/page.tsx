@@ -3,95 +3,70 @@
 import { useAuth } from '../../contexts/AuthContext';
 import { ProviderLayout } from '../../components/layout/ProviderLayout';
 import { useEffect, useState } from 'react';
-import { bookingService } from '@thelocals/core/services/bookingService';
-import { Booking, DbBookingRequest } from '@thelocals/core';
-import { MapPin, Calendar, Clock, CheckCircle2, XCircle, Bell } from 'lucide-react';
+import { providerService } from '@thelocals/core/services/providerService';
+import { Booking, DbBookingRequest } from '@thelocals/core/types';
+import { JobCard } from '../../components/v2/JobCard';
 import { toast } from 'react-hot-toast';
-import { JobCard } from '../../components/jobs/JobCard';
-import { JobDetailsModal } from '../../components/jobs/JobDetailsModal';
+import { Loader2, Bell, Briefcase, CheckCircle } from 'lucide-react';
+import { JobDetailSheet } from '../../components/v2/JobDetailSheet';
+
+import { useJobsData } from '../../hooks/useJobsData';
 
 export default function JobsPage() {
     const { user } = useAuth();
-    const [bookings, setBookings] = useState<Booking[]>([]);
-    const [requests, setRequests] = useState<DbBookingRequest[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState<'requests' | 'active' | 'history'>('requests');
+    const [activeTab, setActiveTab] = useState<'requests' | 'active' | 'history'>('active');
+
+    const { requests, activeJobs, historyJobs, isLoading: loading, mutateRequests, mutateActive } = useJobsData(user?.id, activeTab);
+
+    // Combine data based on active tab for display
+    const currentData = activeTab === 'requests' ? requests :
+        activeTab === 'active' ? activeJobs : historyJobs;
 
     const [selectedJob, setSelectedJob] = useState<Booking | null>(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isSheetOpen, setIsSheetOpen] = useState(false);
 
-    useEffect(() => {
-        if (user?.id) {
-            loadJobs(user.id);
-        }
-    }, [user]);
-
-    const loadJobs = async (userId: string) => {
-        setLoading(true);
-        try {
-            const [jobsData, requestsData] = await Promise.all([
-                bookingService.getWorkerBookings(userId),
-                bookingService.getProviderRequests(userId)
-            ]);
-            setBookings(jobsData);
-            setRequests(requestsData);
-
-            // Auto-select tab based on data
-            // if (requestsData.length > 0) setActiveTab('requests');
-            // else if (jobsData.length > 0) setActiveTab('active');
-
-        } catch (error) {
-            toast.error("Failed to load jobs");
-        } finally {
-            setLoading(false);
-        }
+    const refreshData = () => {
+        mutateRequests();
+        mutateActive();
+        // Mutate history if needed, but usually less critical for immediate feedback
     };
 
     const handleAccept = async (requestId: string) => {
         if (!user?.id) return;
         try {
-            await bookingService.acceptBooking(requestId, user.id);
-            toast.success("Job Accepted");
-            setIsModalOpen(false); // Close modal if open
-            loadJobs(user.id);
+            toast.loading("Accepting job...");
+            await providerService.acceptBooking(requestId, user.id);
+            toast.dismiss();
+            toast.success("Job Accepted! Check Active Jobs.");
+            refreshData();
         } catch (error: any) {
-            toast.error(error.message);
+            toast.dismiss();
+            toast.error(error.message || "Failed to accept");
         }
     };
 
-    const handleReject = async (bookingId: string) => {
-        // Logic to ignore/reject
-        setIsModalOpen(false);
+    const handleReject = async (requestId: string) => {
+        if (!user?.id) return;
+        if (!confirm("Are you sure you want to reject this job?")) return;
+        try {
+            await providerService.rejectBooking(requestId);
+            toast.success("Job Rejected");
+            mutateRequests(); // Only requests affect rejection
+        } catch (error: any) {
+            toast.error(error.message);
+        }
     }
 
     const handleJobClick = (booking: Booking) => {
         setSelectedJob(booking);
-        setIsModalOpen(true);
+        setIsSheetOpen(true);
     };
 
-    const getFilteredList = () => {
-        if (activeTab === 'requests') return requests;
-        return bookings.filter(b => {
-            if (activeTab === 'active') {
-                return ['PENDING', 'CONFIRMED', 'EN_ROUTE', 'IN_PROGRESS'].includes(b.status);
-            }
-            return ['COMPLETED', 'CANCELLED', 'EXPIRED', 'REJECTED'].includes(b.status);
-        });
-    };
-
-    const filteredItems = getFilteredList();
-
-    const handleStatusChange = async (bookingId: string, newStatus: any) => {
-        if (!user?.id) return;
-        try {
-            await bookingService.updateBookingStatus(bookingId, newStatus);
-            toast.success(`Job Updated to ${newStatus}`);
-            setIsModalOpen(false);
-            loadJobs(user.id);
-        } catch (error: any) {
-            toast.error(error.message);
-        }
-    };
+    const tabs = [
+        { id: 'requests', label: 'Requests', icon: Bell, count: requests.length },
+        { id: 'active', label: 'Active', icon: Briefcase, count: activeJobs.length },
+        { id: 'history', label: 'History', icon: CheckCircle, count: 0 },
+    ];
 
     return (
         <ProviderLayout>
@@ -100,81 +75,87 @@ export default function JobsPage() {
                     <h1 className="text-2xl font-bold text-neutral-900">My Jobs</h1>
                     <p className="text-neutral-500">Manage your bookings and service requests.</p>
                 </div>
-                <div className="bg-white rounded-lg p-1 border border-neutral-200 flex overflow-x-auto">
-                    <button
-                        onClick={() => setActiveTab('requests')}
-                        className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-colors whitespace-nowrap ${activeTab === 'requests' ? 'bg-primary text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900'}`}
-                    >
-                        <Bell size={14} />
-                        Requests
-                        {requests.length > 0 && (
-                            <span className="bg-white/20 text-white px-1.5 rounded-full text-xs">{requests.length}</span>
-                        )}
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('active')}
-                        className={`px-4 py-2 text-sm font-medium rounded-md transition-colors whitespace-nowrap ${activeTab === 'active' ? 'bg-primary text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900'}`}
-                    >
-                        Active Jobs
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('history')}
-                        className={`px-4 py-2 text-sm font-medium rounded-md transition-colors whitespace-nowrap ${activeTab === 'history' ? 'bg-primary text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900'}`}
-                    >
-                        History
-                    </button>
+
+                {/* Tabs */}
+                <div className="flex bg-white p-1 rounded-xl shadow-sm border border-neutral-100 overflow-x-auto no-scrollbar">
+                    {tabs.map((tab) => (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id as any)}
+                            aria-label={`Switch to ${tab.label} tab`}
+                            className={`flex-1 flex items-center gap-2 px-6 py-2.5 text-sm font-semibold rounded-lg transition-all whitespace-nowrap
+                                ${activeTab === tab.id
+                                    ? 'bg-neutral-900 text-white shadow-md'
+                                    : 'text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900'
+                                }`}
+                        >
+                            <tab.icon size={16} />
+                            {tab.label}
+                            {tab.count > 0 && <span className={`px-1.5 rounded text-xs ${activeTab === tab.id ? 'bg-white/20' : 'bg-neutral-200 text-neutral-700'}`}>{tab.count}</span>}
+                        </button>
+                    ))}
                 </div>
             </div>
 
             <div className="space-y-4">
-                {loading ? (
-                    <div className="text-center py-12 text-neutral-500">Loading jobs...</div>
-                ) : filteredItems.length === 0 ? (
-                    <div className="text-center py-12 bg-white rounded-xl border border-neutral-200 border-dashed">
-                        <p className="text-neutral-500">No {activeTab} found.</p>
+                {loading && currentData.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-20 text-neutral-400">
+                        <Loader2 className="animate-spin mb-2" size={32} />
+                        <p>Loading {activeTab}...</p>
                     </div>
                 ) : (
-                    filteredItems.map((item: any) => {
-                        const isRequest = activeTab === 'requests';
-                        const booking = isRequest ? item.bookings : item;
-                        // For requests, we need the request ID (item.id), for bookings we just need booking (item)
-                        // But UI needs booking details safely.
-                        // We will pass item.id as the accept ID if it is a request.
+                    <>
+                        {activeTab === 'requests' && currentData.length === 0 && (
+                            <EmptyState message="No new job requests." />
+                        )}
+                        {activeTab === 'active' && currentData.length === 0 && (
+                            <EmptyState message="No active jobs. Stay online to get requests!" />
+                        )}
+                        {activeTab === 'history' && currentData.length === 0 && (
+                            <EmptyState message="No past jobs found." />
+                        )}
 
-                        if (!booking) return null;
-
-                        return (
-                            <JobCard
-                                key={item.id}
-                                booking={booking}
-                                isRequest={isRequest}
-                                onAccept={() => handleAccept(item.id)}
-                                onClick={() => handleJobClick(booking)}
-                            />
-                        )
-                    })
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {activeTab === 'requests' ? (
+                                (currentData as DbBookingRequest[]).map((req) => (
+                                    <JobCard
+                                        key={req.id}
+                                        job={req.bookings as any}
+                                        isRequest={true}
+                                        onAccept={() => handleAccept(req.id)}
+                                        onReject={() => handleReject(req.id)}
+                                        onClick={() => handleJobClick(req.bookings as any)}
+                                    />
+                                ))
+                            ) : (
+                                (currentData as Booking[]).map((booking) => (
+                                    <JobCard
+                                        key={booking.id}
+                                        job={booking}
+                                        onClick={() => handleJobClick(booking)}
+                                    />
+                                ))
+                            )}
+                        </div>
+                    </>
                 )}
             </div>
 
-            <JobDetailsModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                booking={selectedJob}
-                isRequest={activeTab === 'requests'}
-                onAccept={(bookingId) => {
-                    // Find the request ID associated with this booking ID if we are in requests tab
-                    if (activeTab === 'requests') {
-                        const req = requests.find(r => r.booking_id === bookingId);
-                        if (req) {
-                            handleAccept(req.id);
-                        }
-                    } else {
-                        // Fallback or error, active jobs shouldn't be "accepted"
-                    }
-                }}
-                onReject={handleReject}
-                onStatusChange={handleStatusChange}
+            <JobDetailSheet
+                isOpen={isSheetOpen}
+                onClose={() => setIsSheetOpen(false)}
+                job={selectedJob}
+                onUpdate={refreshData}
             />
         </ProviderLayout>
     );
 }
+
+const EmptyState = ({ message }: { message: string }) => (
+    <div className="text-center py-20 bg-white rounded-xl border border-neutral-200 border-dashed">
+        <div className="w-16 h-16 bg-neutral-50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Briefcase className="text-neutral-300" size={32} />
+        </div>
+        <p className="text-neutral-500 font-medium">{message}</p>
+    </div>
+);

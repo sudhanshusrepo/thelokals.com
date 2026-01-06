@@ -1,11 +1,13 @@
 'use client';
 
-import { ReactNode } from 'react';
+import { ReactNode, useRef, useEffect } from 'react';
 import { Sidebar } from './Sidebar';
+import { SidebarItem } from './SidebarItem';
 import { Topbar } from './Topbar';
+import { MobileBottomNav } from './MobileBottomNav';
+import { PageTransition } from './PageTransition';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 
 interface ProviderLayoutProps {
@@ -36,15 +38,20 @@ export const ProviderLayout = ({ children }: ProviderLayoutProps) => {
     if (!user) return null;
 
     return (
-        <div className="min-h-screen bg-neutral-50">
+        <div className="min-h-screen bg-brand-bg">
             <Sidebar />
             <Topbar />
 
-            <main className="md:ml-64 pt-16 min-h-screen">
-                <div className="p-4 md:p-8 max-w-6xl mx-auto">
-                    {children}
+            {/* Main Content */}
+            <main className="flex-1 min-w-0 bg-brand-bg transition-all duration-300 md:ml-64 relative z-0 pb-20 md:pb-6">
+                <div className="max-w-7xl mx-auto p-4 md:p-8 pt-20 md:pt-8 min-h-screen">
+                    <PageTransition>
+                        {children}
+                    </PageTransition>
                 </div>
             </main>
+
+            <MobileBottomNav />
         </div>
     );
 };
