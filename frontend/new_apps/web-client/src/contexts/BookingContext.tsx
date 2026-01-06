@@ -2,119 +2,191 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
+// Define the steps in the booking funnel
+export type BookingStep = 'service' | 'package' | 'schedule' | 'address' | 'review' | 'payment';
 
 export interface BookingData {
-    serviceCode: string;
+    // Service Details
+    serviceId: string;
     serviceName: string;
-    serviceCategory?: string;
-    address: string;
-    city?: string;
-    pincode?: string;
-    scheduledDate: string;
-    scheduledTime: string;
-    notes?: string;
-    issueDescription?: string;
-    estimatedPrice?: number;
-    selectedProviderId?: string;
-    providerName?: string;
+    serviceImage?: string;
+    basePrice: number;
+
+    // Package Selection
+    selectedPackageId?: string;
+    packagePrice?: number;
+
+    // Scheduling
+    scheduledDate?: string; // ISO Date string
+    scheduledTime?: string; // Time slot string
+
+    // Location
+    addressId?: string;
+    addressDetails?: string;
+    coordinates?: { lat: number, lng: number };
+
+    // Payment
+    paymentMethod?: 'upi' | 'card' | 'cash';
+    totalAmount: number;
+
+    // Meta
+    currentStep: BookingStep;
 }
 
 interface BookingContextType {
     bookingData: BookingData | null;
-    setBookingData: (data: Partial<BookingData>) => void;
-    updateBookingData: (updates: Partial<BookingData>) => void;
-    clearBookingData: () => void;
-    isBookingInProgress: boolean;
+    startBooking: (service: { id: string, name: string, price: number, image: string }) => void;
+    updateBooking: (data: Partial<BookingData>) => void;
+    nextStep: () => void;
+    prevStep: () => void;
+    clearBooking: () => void;
+    canProceed: (step: BookingStep) => boolean;
+    confirmBooking: (userId: string) => Promise<string>;
+    isSubmitting: boolean;
 }
 
 const BookingContext = createContext<BookingContextType | undefined>(undefined);
 
-const STORAGE_KEY = 'lokals_booking_data';
+const STORAGE_KEY = 'lokals_booking_session_v2';
 
 export const BookingProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [bookingData, setBookingDataState] = useState<BookingData | null>(null);
+    const [bookingData, setBookingData] = useState<BookingData | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Load from localStorage on mount
     useEffect(() => {
         try {
             const stored = localStorage.getItem(STORAGE_KEY);
             if (stored) {
-                setBookingDataState(JSON.parse(stored));
+                setBookingData(JSON.parse(stored));
             }
         } catch (error) {
             console.error('Error loading booking data:', error);
         }
     }, []);
 
-    // Save to localStorage whenever bookingData changes
+    // Save to localStorage
     useEffect(() => {
-        try {
-            if (bookingData) {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(bookingData));
-            } else {
-                localStorage.removeItem(STORAGE_KEY);
-            }
-        } catch (error) {
-            console.error('Error saving booking data:', error);
+        if (bookingData) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(bookingData));
+        } else {
+            localStorage.removeItem(STORAGE_KEY);
         }
     }, [bookingData]);
 
-    const setBookingData = (data: Partial<BookingData>) => {
-        const isNewBooking = !bookingData;
-        const newData = {
-            ...bookingData,
-            ...data
-        } as BookingData;
-
-        setBookingDataState(newData);
-
-        // Track funnel steps
-
-
-
-
-
-
-
-    };
-
-    const updateBookingData = (updates: Partial<BookingData>) => {
-        setBookingDataState(prev => {
-            if (!prev) return null;
-            return { ...prev, ...updates };
+    const startBooking = (service: { id: string, name: string, price: number, image: string }) => {
+        setBookingData({
+            serviceId: service.id,
+            serviceName: service.name,
+            serviceImage: service.image,
+            basePrice: service.price,
+            totalAmount: service.price,
+            currentStep: 'package'
         });
     };
 
-    const clearBookingData = () => {
-        // Track abandonment if booking was in progress
-        if (bookingData) {
-            const step = bookingData.selectedProviderId ? 4 :
-                bookingData.scheduledDate ? 3 :
-                    bookingData.address ? 2 : 1;
+    const updateBooking = (data: Partial<BookingData>) => {
+        setBookingData(prev => {
+            if (!prev) return null;
+            return { ...prev, ...data };
+        });
+    };
 
-            if (step < 4) {
-                // only log error/abandon if not completed roughly
-                // strictly speaking we don't have an explicit 'abandon' event in the new types
-                // so we might skip or log as generic error if desired, but for now we'll just log nothing 
-                // or use a custom Console log to match previous logic intent
-                console.log('Booking cleared/abandoned at step', step);
-            }
+    const nextStep = () => {
+        if (!bookingData) return;
+
+        const steps: BookingStep[] = ['service', 'package', 'schedule', 'address', 'review', 'payment'];
+        const currentIndex = steps.indexOf(bookingData.currentStep);
+
+        if (currentIndex < steps.length - 1) {
+            updateBooking({ currentStep: steps[currentIndex + 1] });
         }
+    };
 
-        setBookingDataState(null);
+    const prevStep = () => {
+        if (!bookingData) return;
+
+        const steps: BookingStep[] = ['service', 'package', 'schedule', 'address', 'review', 'payment'];
+        const currentIndex = steps.indexOf(bookingData.currentStep);
+
+        if (currentIndex > 0) {
+            updateBooking({ currentStep: steps[currentIndex - 1] });
+        }
+    };
+
+    const clearBooking = () => {
+        setBookingData(null);
         localStorage.removeItem(STORAGE_KEY);
     };
 
-    const isBookingInProgress = bookingData !== null;
+    const canProceed = (step: BookingStep): boolean => {
+        if (!bookingData) return false;
+
+        switch (step) {
+            case 'package':
+                return !!bookingData.selectedPackageId; // Must select a package variant
+            case 'schedule':
+                return !!bookingData.scheduledDate && !!bookingData.scheduledTime;
+            case 'address':
+                return !!bookingData.addressId || !!bookingData.addressDetails;
+            default:
+                return true;
+        }
+    };
+
+    // New function to submit booking to backend
+    const confirmBooking = async (userId: string): Promise<string> => {
+        if (!bookingData) throw new Error('No booking data');
+
+        setIsSubmitting(true);
+        try {
+            // Import dynamically to avoid SSR issues if package uses window
+            const { bookingService } = await import('@thelocals/core/services/bookingService');
+
+            const { bookingId } = await bookingService.createAIBooking({
+                clientId: userId,
+                serviceCategory: bookingData.serviceName, // Using name as category for now
+                serviceCategoryId: bookingData.serviceId,
+                requirements: {
+                    packageId: bookingData.selectedPackageId,
+                    packagePrice: bookingData.packagePrice
+                },
+                aiChecklist: [], // Can be populated if we add AI steps later
+                estimatedCost: bookingData.totalAmount,
+                location: bookingData.coordinates || { lat: 0, lng: 0 },
+                address: {
+                    details: bookingData.addressDetails,
+                    id: bookingData.addressId
+                },
+                notes: `Scheduled for ${bookingData.scheduledDate} at ${bookingData.scheduledTime}`,
+                deliveryMode: 'LOCAL'
+            });
+
+            // If payment method is not cash, implementation of payment gateway would go here
+            // For now we assume CASH or external flow handled by provider
+
+            clearBooking();
+            return bookingId;
+        } catch (error) {
+            console.error('Booking submission failed:', error);
+            throw error;
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     return (
         <BookingContext.Provider
             value={{
                 bookingData,
-                setBookingData,
-                updateBookingData,
-                clearBookingData,
-                isBookingInProgress
+                startBooking,
+                updateBooking,
+                nextStep,
+                prevStep,
+                clearBooking,
+                canProceed,
+                confirmBooking,
+                isSubmitting
             }}
         >
             {children}

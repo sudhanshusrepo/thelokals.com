@@ -13,6 +13,7 @@ const SystemHealth = () => <div className="p-4 bg-white rounded-xl border border
 
 export default function DashboardPage() {
     const [stats, setStats] = useState<AdminDashboardMetrics | undefined>(undefined);
+    const [recentProviders, setRecentProviders] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedPeriod, setSelectedPeriod] = useState<'today' | '7d' | '30d' | 'custom'>('7d');
 
@@ -23,14 +24,15 @@ export default function DashboardPage() {
     const loadDashboardData = async (period: 'today' | '7d' | '30d' | 'custom') => {
         setLoading(true);
         try {
-            // Add 5 second timeout to prevent infinite loading
-            const metricsPromise = adminService.getDashboardMetrics(period);
-            const timeoutPromise = new Promise<never>((_, reject) =>
-                setTimeout(() => reject(new Error('Request timeout')), 5000)
-            );
+            // Parallel fetch
+            const [metrics, providers] = await Promise.all([
+                adminService.getDashboardMetrics(period),
+                adminService.getAllProviders() // fetches all, we'll slice client side for now
+            ]);
 
-            const metrics = await Promise.race([metricsPromise, timeoutPromise]) as AdminDashboardMetrics;
-            setStats(metrics);
+            setStats(metrics as AdminDashboardMetrics);
+            // Sort by created_at desc if possible, or just take first 5
+            setRecentProviders(providers.slice(0, 5));
         } catch (error) {
             console.error('Error loading dashboard:', error);
             // Use fallback data instead of staying in loading state
@@ -95,13 +97,14 @@ export default function DashboardPage() {
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                     <div className="bg-white p-6 rounded-xl shadow-sm border border-neutral-100">
                         <h3 className="font-bold text-neutral-900 mb-4">Top Categories</h3>
+                        {/* Placeholder for now as we don't have category aggregation stats yet */}
                         <div className="h-64 flex items-center justify-center bg-neutral-50 rounded-lg border border-dashed border-neutral-200">
-                            <span className="text-sm text-neutral-400">Category Performance Chart</span>
+                            <span className="text-sm text-neutral-400">Category Performance Chart (Coming Soon)</span>
                         </div>
                     </div>
                     <div className="bg-white p-6 rounded-xl shadow-sm border border-neutral-100">
                         <div className="flex items-center justify-between mb-4">
-                            <h3 className="font-bold text-neutral-900">Top Partners</h3>
+                            <h3 className="font-bold text-neutral-900">Recent Partners</h3>
                             <button className="text-sm text-primary hover:text-primary-hover font-medium">View all</button>
                         </div>
                         <div className="overflow-x-auto">
@@ -109,20 +112,36 @@ export default function DashboardPage() {
                                 <thead className="text-xs text-neutral-500 uppercase bg-neutral-50">
                                     <tr>
                                         <th className="px-4 py-3 rounded-l-lg">Partner</th>
-                                        <th className="px-4 py-3">Location</th>
-                                        <th className="px-4 py-3 text-right">Revenue</th>
+                                        <th className="px-4 py-3">Status</th>
+                                        <th className="px-4 py-3 text-right">Joined</th>
                                         <th className="px-4 py-3 rounded-r-lg text-right">Rating</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-neutral-100">
-                                    {[1, 2, 3, 4, 5].map((i) => (
-                                        <tr key={i} className="hover:bg-neutral-50/50">
-                                            <td className="px-4 py-3 font-medium text-neutral-900">Partner {i}</td>
-                                            <td className="px-4 py-3 text-neutral-500">Indirapuram</td>
-                                            <td className="px-4 py-3 text-right text-neutral-900 font-medium">₹12,4{i}0</td>
-                                            <td className="px-4 py-3 text-right text-success font-medium">4.8</td>
+                                    {loading ? (
+                                        <tr>
+                                            <td className="px-4 py-3 text-neutral-500" colSpan={4}>Loading data...</td>
                                         </tr>
-                                    ))}
+                                    ) : recentProviders.length === 0 ? (
+                                        <tr>
+                                            <td className="px-4 py-3 text-neutral-500" colSpan={4}>No partners found.</td>
+                                        </tr>
+                                    ) : (
+                                        recentProviders.map((p) => (
+                                            <tr key={p.id} className="hover:bg-neutral-50/50">
+                                                <td className="px-4 py-3 font-medium text-neutral-900">{p.full_name || 'Unnamed'}</td>
+                                                <td className="px-4 py-3">
+                                                    <span className={`px-2 py-0.5 rounded text-xs font-medium ${p.is_verified ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                                                        {p.is_verified ? 'Verified' : 'Pending'}
+                                                    </span>
+                                                </td>
+                                                <td className="px-4 py-3 text-right text-neutral-500 text-xs">
+                                                    {new Date(p.created_at || Date.now()).toLocaleDateString()}
+                                                </td>
+                                                <td className="px-4 py-3 text-right text-success font-medium">{p.rating || 'New'}</td>
+                                            </tr>
+                                        ))
+                                    )}
                                 </tbody>
                             </table>
                         </div>

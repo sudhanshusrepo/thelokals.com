@@ -1,336 +1,137 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ServiceCard, ServiceVariant } from '../../../components/ui/ServiceCard';
-import { MapPin, ArrowLeft } from 'lucide-react';
-import toast from 'react-hot-toast';
-import { bookingService } from '@thelocals/core/services/bookingService';
-import { useAuth } from '../../../contexts/AuthContext';
+import Image from 'next/image';
+import { adminService } from '@thelocals/core/services/adminService';
+import { useBooking } from '../../../contexts/BookingContext';
+import { designTokensV2 } from '../../../theme/design-tokens-v2';
+import { ArrowLeft, Star, Clock, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { ServiceCategory } from '@thelocals/core/types';
 
-interface ServiceDetails {
-    code: string;
-    name: string;
-    description: string;
-    icon?: string;
-    category: string;
-}
-
-// Mock service data - will be replaced with API call
-const getServiceDetails = (serviceCode: string): ServiceDetails => {
-    const services: Record<string, ServiceDetails> = {
-        'ac-repair': {
-            code: 'ac-repair',
-            name: 'AC Repair & Service',
-            description: 'Professional AC repair and maintenance services',
-            icon: '❄️',
-            category: 'Home Services',
-        },
-        'electrician': {
-            code: 'electrician',
-            name: 'Electrician Services',
-            description: 'Expert electrical repairs and installations',
-            icon: '⚡',
-            category: 'Home Services',
-        },
-        'plumber': {
-            code: 'plumber',
-            name: 'Plumbing Services',
-            description: 'Professional plumbing repairs and installations',
-            icon: '🔧',
-            category: 'Home Services',
-        },
-        'salon': {
-            code: 'salon',
-            name: 'Salon for Women',
-            description: 'Premium salon services at home',
-            icon: '💇‍♀️',
-            category: 'Beauty',
-        }
-    };
-
-    return services[serviceCode] || {
-        code: serviceCode,
-        name: 'Service',
-        description: 'Professional service',
-        icon: '🛠️',
-        category: 'Services',
-    };
-};
-
-export default function ServiceSelectionPage() {
+export default function ServiceDetail() {
     const params = useParams();
     const router = useRouter();
-    const serviceCode = params?.id as string;
+    const { startBooking } = useBooking();
+    const [service, setService] = useState<ServiceCategory | null>(null);
+    const [loading, setLoading] = useState(true);
 
-    const [selectedVariant, setSelectedVariant] = useState<ServiceVariant | null>(null);
-    const [location, setLocation] = useState<string>('');
-    const [isLoadingLocation, setIsLoadingLocation] = useState(true);
-    const [details, setDetails] = useState<string>('');
-    const [serviceDetails, setServiceDetails] = useState<ServiceDetails | null>(null);
-
-    // Load service details
     useEffect(() => {
-        if (serviceCode) {
-            const details = getServiceDetails(serviceCode);
-            setServiceDetails(details);
+        if (params.id) {
+            loadService(params.id as string);
         }
-    }, [serviceCode]);
+    }, [params.id]);
 
-    // Auto-fill location from GPS
-    useEffect(() => {
-        if (typeof window === 'undefined') return;
-
-        const detectLocation = async () => {
-            try {
-                if (!navigator.geolocation) {
-                    setLocation('Narnaund, Haryana');
-                    setIsLoadingLocation(false);
-                    return;
-                }
-
-                navigator.geolocation.getCurrentPosition(
-                    async (position) => {
-                        const { latitude, longitude } = position.coords;
-
-                        try {
-                            const response = await fetch(
-                                `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
-                            );
-                            const data = await response.json();
-
-                            // Build full address
-                            const parts = [];
-                            if (data.address?.road) parts.push(data.address.road);
-                            if (data.address?.suburb || data.address?.neighbourhood) {
-                                parts.push(data.address.suburb || data.address.neighbourhood);
-                            }
-                            const city = data.address?.city || data.address?.town || data.address?.village || '';
-                            if (city) parts.push(city);
-                            const state = data.address?.state || '';
-                            if (state) parts.push(state);
-
-                            setLocation(parts.join(', ') || 'Your Location');
-                        } catch (error) {
-                            setLocation('Your Location');
-                        }
-                        setIsLoadingLocation(false);
-                    },
-                    (error) => {
-                        console.error('Location error:', error);
-                        setLocation('Narnaund, Haryana');
-                        setIsLoadingLocation(false);
-                    },
-                    { timeout: 5000, enableHighAccuracy: true }
-                );
-            } catch (error) {
-                setLocation('Narnaund, Haryana');
-                setIsLoadingLocation(false);
-            }
-        };
-
-        detectLocation();
-    }, []);
-
-    const { user, loading: authLoading } = useAuth();
-
-    const handleRequestService = async () => {
-        if (!selectedVariant) {
-            toast.error('Please select a service variant');
-            return;
-        }
-
-        if (!location.trim()) {
-            toast.error('Please provide your location');
-            return;
-        }
-
-        if (authLoading) return;
-
-        if (!user) {
-            toast.error('Please log in to request a service');
-            router.push(`/auth?redirect=/services/${serviceCode}`);
-            return;
-        }
-
-        // Create request and navigate to live request page
-        const loadingToast = toast.loading('Creating your live request...');
-
+    const loadService = async (id: string) => {
+        setLoading(true);
         try {
-            // Parse location string (simplified for now)
-            const locationCoords = { lat: 0, lng: 0 };
-
-            const { bookingId } = await bookingService.createAIBooking({
-                clientId: user.id,
-                serviceCategory: serviceDetails?.category || 'General',
-                requirements: {
-                    variant: selectedVariant,
-                    details: details,
-                    serviceCode: serviceCode
-                },
-                aiChecklist: [], // populated by backend AI
-                estimatedCost: selectedVariant === 'basic' ? 350 : selectedVariant === 'med' ? 550 : 850,
-                location: locationCoords,
-                address: { full_address: location },
-                notes: details
-            });
-
-            toast.success('Request broadcasted!', { id: loadingToast });
-            router.push(`/live-request/${bookingId}`);
-
+            // Fetch real service categories from Supabase
+            const allServices = await adminService.getServiceCategories();
+            const found = allServices.find(s => s.id === id);
+            setService(found || null);
         } catch (error) {
-            console.error('Failed to create booking:', error);
-            toast.error('Failed to create request. Please try again.', { id: loadingToast });
+            console.error('Error fetching service:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
-    if (!serviceDetails) {
-        return (
-            <div className="min-h-screen bg-background flex items-center justify-center">
-                <div className="animate-pulse text-muted">Loading service details...</div>
-            </div>
-        );
-    }
+    const handleBookNow = () => {
+        if (!service) return;
+
+        startBooking({
+            id: service.id,
+            name: service.name,
+            price: service.base_price || 499,
+            image: '/services/ac.jpg' // Placeholder
+        });
+
+        router.push('/book/package');
+    };
+
+    if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    if (!service) return <div className="min-h-screen flex items-center justify-center">Service not found</div>;
 
     return (
-        <div className="min-h-screen bg-background pb-20">
-            {/* Header */}
-            <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-sm border-b border-neutral-200 shadow-sm">
-                <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-4">
-                    <button
-                        onClick={() => router.back()}
-                        className="p-2 hover:bg-neutral-100 rounded-full transition-colors"
-                    >
-                        <ArrowLeft size={20} className="text-foreground" />
-                    </button>
-                    <div className="flex items-center gap-3">
-                        <span className="text-3xl">{serviceDetails.icon}</span>
+        <div style={{ paddingBottom: '100px', backgroundColor: '#fff' }}>
+            {/* Hero Image Header */}
+            <div className="relative h-[300px] w-full">
+                <Image
+                    src="/services/ac.jpg"
+                    alt={service.name}
+                    fill
+                    className="object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/20" />
+
+                {/* Back Button */}
+                <button
+                    onClick={() => router.back()}
+                    className="absolute top-6 left-6 p-2 rounded-full bg-white/20 backdrop-blur-md text-white hover:bg-white/30 transition-colors"
+                >
+                    <ArrowLeft size={24} />
+                </button>
+            </div>
+
+            <div className="px-6 -mt-8 relative z-10">
+                {/* Title Card */}
+                <div className="bg-white rounded-v2-hero p-5 shadow-v2-card">
+                    <div className="flex justify-between items-start">
                         <div>
-                            <h1 className="text-xl font-bold text-foreground">{serviceDetails.name}</h1>
-                            <p className="text-sm text-neutral-500">{serviceDetails.category}</p>
-                        </div>
-                    </div>
-                </div>
-            </header>
-
-            {/* Main Content */}
-            <main className="max-w-4xl mx-auto px-4 py-8">
-                {/* Service Description */}
-                <div className="mb-8">
-                    <p className="text-lg text-foreground mb-2">{serviceDetails.description}</p>
-                    <p className="text-sm text-neutral-500">Select a service variant and provide your details to post a live request</p>
-                </div>
-
-                {/* Variant Selection */}
-                <section className="mb-8">
-                    <h2 className="text-2xl font-bold text-foreground mb-4">Choose Service Variant</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <ServiceCard
-                            variant="basic"
-                            serviceName={serviceDetails.name}
-                            description="Essential service with standard quality and quick turnaround"
-                            icon={serviceDetails.icon}
-                            isSelected={selectedVariant === 'basic'}
-                            onClick={() => setSelectedVariant('basic')}
-                            data-testid="variant-basic"
-                        />
-                        <ServiceCard
-                            variant="med"
-                            serviceName={serviceDetails.name}
-                            description="Standard service plus additional checks and premium materials"
-                            icon={serviceDetails.icon}
-                            isSelected={selectedVariant === 'med'}
-                            onClick={() => setSelectedVariant('med')}
-                            data-testid="variant-med"
-                        />
-                        <ServiceCard
-                            variant="full"
-                            serviceName={serviceDetails.name}
-                            description="Complete package with comprehensive service and warranty"
-                            icon={serviceDetails.icon}
-                            isSelected={selectedVariant === 'full'}
-                            onClick={() => setSelectedVariant('full')}
-                            data-testid="variant-full"
-                        />
-                    </div>
-                </section>
-
-                {/* Location Input */}
-                <section className="mb-8">
-                    <h2 className="text-2xl font-bold text-foreground mb-4">Service Location</h2>
-                    <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                            <MapPin size={20} className="text-neutral-400" />
-                        </div>
-                        <input
-                            type="text"
-                            value={location}
-                            onChange={(e) => setLocation(e.target.value)}
-                            placeholder={isLoadingLocation ? 'Detecting your location...' : 'Enter your service location'}
-                            className="w-full pl-12 pr-4 py-4 bg-white border-2 border-neutral-200 focus:border-primary rounded-xl text-foreground placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
-                            data-testid="location-input"
-                        />
-                        {isLoadingLocation && (
-                            <div className="absolute inset-y-0 right-0 pr-4 flex items-center">
-                                <div className="animate-spin w-5 h-5 border-2 border-primary border-t-transparent rounded-full" />
+                            <h1 className="text-2xl font-bold text-v2-text-primary mb-2">{service.name}</h1>
+                            <div className="flex items-center gap-3 text-sm text-v2-text-secondary">
+                                <span className="flex items-center gap-1 font-medium">
+                                    <Star size={14} className="fill-v2-accent-warning text-v2-accent-warning" />
+                                    4.8 (120 reviews)
+                                </span>
+                                <span className="flex items-center gap-1">
+                                    <Clock size={14} />
+                                    60 min
+                                </span>
                             </div>
-                        )}
+                        </div>
+                        <div className="text-right">
+                            <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">Starts at</div>
+                            <div className="text-xl font-bold text-v2-text-primary">₹{service.base_price || 499}</div>
+                        </div>
                     </div>
-                    <p className="mt-2 text-sm text-neutral-500">
-                        We've auto-detected your location. You can edit it if needed.
-                    </p>
-                </section>
-
-                {/* Optional Details */}
-                <section className="mb-8">
-                    <h2 className="text-2xl font-bold text-foreground mb-4">Additional Details (Optional)</h2>
-                    <textarea
-                        value={details}
-                        onChange={(e) => {
-                            if (e.target.value.length <= 500) {
-                                setDetails(e.target.value);
-                            }
-                        }}
-                        placeholder="Describe your issue or any specific requirements... (e.g., AC not cooling, need urgent service)"
-                        rows={4}
-                        className="w-full px-4 py-3 bg-white border-2 border-neutral-200 focus:border-primary rounded-xl text-foreground placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all resize-none"
-                        data-testid="details-textarea"
-                    />
-                    <div className="mt-2 flex justify-between items-center">
-                        <p className="text-sm text-neutral-500">
-                            Help providers understand your needs better
-                        </p>
-                        <span className="text-sm text-neutral-500">
-                            {details.length}/500
-                        </span>
-                    </div>
-                </section>
-
-                {/* Request Service Button */}
-                <div className="sticky bottom-0 bg-background/95 backdrop-blur-sm py-6 border-t border-neutral-200 -mx-4 px-4 bg-white">
-                    <button
-                        onClick={handleRequestService}
-                        disabled={!selectedVariant || !location.trim()}
-                        className="w-full group relative px-8 py-4 bg-primary hover:bg-primary-600 disabled:bg-neutral-300 disabled:cursor-not-allowed text-white font-bold text-lg rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95 disabled:scale-100 flex items-center justify-center gap-3"
-                        style={{ fontSize: '18px', minHeight: '56px' }}
-                        data-testid="request-service-btn"
-                    >
-                        <span className="relative z-10">
-                            {selectedVariant ? `Request Service - ₹${selectedVariant === 'basic' ? '350' : selectedVariant === 'med' ? '550' : '850'}` : 'Select a Variant to Continue'}
-                        </span>
-                        {selectedVariant && (
-                            <svg
-                                className="w-5 h-5 group-hover:translate-x-1 transition-transform"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                            </svg>
-                        )}
-                    </button>
                 </div>
-            </main>
+
+                {/* Best Match Badge */}
+                <div className="mt-6 flex items-center gap-3 p-4 bg-green-50 rounded-xl border border-green-100">
+                    <div className="p-2 bg-green-100 rounded-full text-green-700">
+                        <ShieldCheck size={20} />
+                    </div>
+                    <div>
+                        <div className="font-bold text-green-800 text-sm">Provider Blind Assignment</div>
+                        <div className="text-xs text-green-700">We automatically assign the highest-rated pro available near you.</div>
+                    </div>
+                </div>
+
+                {/* Description / What's Included */}
+                <div className="mt-8">
+                    <h3 className="text-lg font-bold mb-4">What's Included</h3>
+                    <ul className="space-y-3">
+                        {['Professional Service', 'Post-service cleanup', '7-day warranty', 'Locals safety assurance'].map((item, i) => (
+                            <li key={i} className="flex items-center gap-3 text-v2-text-secondary">
+                                <CheckCircle2 size={18} className="text-v2-accent-success" />
+                                <span>{item}</span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            </div>
+
+            {/* Floating CTA */}
+            <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+                <button
+                    onClick={handleBookNow}
+                    style={{ background: designTokensV2.colors.gradient.css }}
+                    className="w-full py-4 rounded-v2-pill text-v2-text-primary font-bold text-lg shadow-lg active:scale-[0.99] transition-transform"
+                >
+                    Book Now
+                </button>
+            </div>
         </div>
     );
 }
