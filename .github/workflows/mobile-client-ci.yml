@@ -1,0 +1,42 @@
+name: Mobile Client CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'frontend/new_apps/mobile-client/**'
+      - 'packages/shared/**'
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'frontend/new_apps/mobile-client/**'
+      - 'packages/shared/**'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend/new_apps/mobile-client
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+
+      - name: Install dependencies
+        # Running from root to respect monorepo lockfile
+        run: npm ci
+        working-directory: .
+
+      - name: Type Check
+        run: npx tsc --noEmit
+
+      - name: Check Expo Config
+        run: npx expo config --type public

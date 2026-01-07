@@ -9,7 +9,7 @@ if (!appName) {
 }
 
 const rootDir = path.resolve(__dirname, '..');
-const appDir = path.join(rootDir, 'frontend', 'new_apps', appName);
+const appDir = path.join(rootDir, 'apps', appName);
 
 if (!fs.existsSync(appDir)) {
     console.error(`App directory not found: ${appDir}`);
@@ -19,8 +19,8 @@ if (!fs.existsSync(appDir)) {
 console.log(`🚀 Building ${appName} from ${appDir}...`);
 
 // Paths
-const sharedCoreDir = path.join(rootDir, 'shared', 'core');
-const localCoreDir = path.join(appDir, '.local-core');
+// const sharedCoreDir = path.join(rootDir, 'shared', 'core'); // Legacy removed
+// const localCoreDir = path.join(appDir, '.local-core'); // Legacy removed
 const packageJsonPath = path.join(appDir, 'package.json');
 const packageJsonBackupPath = path.join(appDir, 'package.json.bak');
 const rootWranglerPath = path.join(rootDir, 'wrangler.toml');
@@ -56,13 +56,14 @@ process.on('uncaughtException', (err) => { console.error(err); cleanup(); proces
 
 try {
     // 1. Vendor shared/core to bypass workspace issues in isolated builds (Cloudflare Pages)
-    if (fs.existsSync(sharedCoreDir)) {
-        console.log('📦 Vendoring shared/core...');
-        if (fs.existsSync(localCoreDir)) {
-            fs.rmSync(localCoreDir, { recursive: true, force: true });
-        }
-        fs.cpSync(sharedCoreDir, localCoreDir, { recursive: true });
-    }
+    // 1. Vendor shared/core (LEGACY REMOVED)
+    // if (fs.existsSync(sharedCoreDir)) {
+    //     console.log('📦 Vendoring shared/core...');
+    //     if (fs.existsSync(localCoreDir)) {
+    //         fs.rmSync(localCoreDir, { recursive: true, force: true });
+    //     }
+    //     fs.cpSync(sharedCoreDir, localCoreDir, { recursive: true });
+    // }
 
     // 2. Patch package.json to use file dependency
     if (fs.existsSync(packageJsonPath)) {
@@ -70,8 +71,8 @@ try {
         fs.copyFileSync(packageJsonPath, packageJsonBackupPath);
 
         let packageJson = fs.readFileSync(packageJsonPath, 'utf8');
-        // Replace workspace wildcard with local file path
-        packageJson = packageJson.replace(/"@thelocals\/core": "\*"/g, '"@thelocals/core": "file:.local-core"');
+        // Replace workspace wildcard with local file path - NOT NEEDED FOR PLATFORM PACKAGES
+        // packageJson = packageJson.replace(/"@thelocals\/core": "\*"/g, '"@thelocals/core": "file:.local-core"');
         fs.writeFileSync(packageJsonPath, packageJson);
     }
 
