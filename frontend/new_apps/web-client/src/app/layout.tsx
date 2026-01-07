@@ -7,10 +7,7 @@ import { BottomNav } from "../components/navigation/BottomNav";
 import { Toaster } from "react-hot-toast";
 import dynamic from 'next/dynamic';
 
-const AIChatWidget = dynamic(() => import('../components/chat/AIChatWidget').then(mod => mod.AIChatWidget), {
-    ssr: false,
-    loading: () => null
-});
+import { AIChatWrapper } from "../components/chat/AIChatWrapper";
 
 const inter = Inter({ subsets: ["latin"], display: 'swap' });
 
@@ -69,7 +66,7 @@ export default function RootLayout({
                         <main className="pb-20">
                             {children}
                         </main>
-                        <AIChatWidget />
+                        <AIChatWrapper />
                         <BottomNav />
                         <Toaster position="top-center" />
                     </BookingProvider>

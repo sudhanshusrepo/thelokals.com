@@ -11,10 +11,20 @@ import { Skeleton } from '../../components/ui/Skeleton';
 import { IdentityBanner } from '../../components/v2/IdentityBanner';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { Briefcase } from 'lucide-react';
+import { useState } from 'react';
+import { JobDetailSheet } from '../../components/v2/JobDetailSheet';
+import { Booking } from '@thelocals/core/types';
 
 export default function Dashboard() {
     const { profile, user } = useAuth();
-    const { recentJobs, stats, loading, error } = useDashboardData(user?.id);
+    const { recentJobs, stats, loading, error, mutateActive } = useDashboardData(user?.id);
+    const [selectedJob, setSelectedJob] = useState<Booking | null>(null);
+    const [isSheetOpen, setIsSheetOpen] = useState(false);
+
+    const handleJobClick = (job: Booking) => {
+        setSelectedJob(job);
+        setIsSheetOpen(true);
+    };
 
     if (error) {
         // Simple error state for now, toast handled by service if applicable or we can useEffect to toast here.
@@ -93,13 +103,27 @@ export default function Dashboard() {
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {recentJobs.map((job) => (
-                                    <JobCard key={job.id} job={job} />
+                                    <JobCard
+                                        key={job.id}
+                                        job={job}
+                                        onClick={() => handleJobClick(job)}
+                                    />
                                 ))}
                             </div>
                         )}
                     </div>
                 </>
             )}
+
+            <JobDetailSheet
+                isOpen={isSheetOpen}
+                onClose={() => setIsSheetOpen(false)}
+                job={selectedJob}
+                onUpdate={() => {
+                    mutateActive && mutateActive();
+                    window.location.reload(); // Simple refresh for dashboard stats
+                }}
+            />
         </ProviderLayout>
     );
 }

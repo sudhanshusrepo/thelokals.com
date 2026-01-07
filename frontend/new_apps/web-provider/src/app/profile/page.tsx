@@ -258,7 +258,25 @@ export default function ProfilePage() {
 
                         {activeTab === 'settings' && (
                             <div className="space-y-6">
-                                <h3 className="font-bold text-neutral-900">Notifications</h3>
+                                <h3 className="font-bold text-neutral-900">App Preferences</h3>
+
+                                {/* Availability Toggle */}
+                                <div className="p-4 bg-white border border-neutral-200 rounded-xl shadow-sm">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse" />
+                                            <p className="font-bold text-neutral-900">Accepting New Jobs</p>
+                                        </div>
+                                        <div className="w-12 h-6 bg-brand-green rounded-full relative cursor-pointer px-1 flex items-center justify-end">
+                                            <div className="w-4 h-4 bg-white rounded-full shadow-sm" />
+                                        </div>
+                                    </div>
+                                    <p className="text-sm text-neutral-500">
+                                        You are visible to customers. Turn this off to take a break.
+                                    </p>
+                                </div>
+
+                                <h3 className="font-bold text-neutral-900 pt-4">Notifications</h3>
                                 <div className="space-y-4">
                                     <div className="flex items-center justify-between">
                                         <div>

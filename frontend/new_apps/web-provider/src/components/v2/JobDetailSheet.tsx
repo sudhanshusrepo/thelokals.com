@@ -97,6 +97,21 @@ export const JobDetailSheet = ({ isOpen, onClose, job, onUpdate }: JobDetailShee
                                     {/* Try to parse address safely */}
                                     {typeof job.address === 'string' ? job.address : (job.address as any)?.street || (job.address as any)?.formatted_address || 'Address provided on map'}
                                 </p>
+
+                                {/* Map Preview */}
+                                <div className="mt-3 w-full h-32 bg-neutral-100 rounded-lg overflow-hidden relative">
+                                    <iframe
+                                        width="100%"
+                                        height="100%"
+                                        frameBorder="0"
+                                        scrolling="no"
+                                        marginHeight={0}
+                                        marginWidth={0}
+                                        src={`https://maps.google.com/maps?q=${encodeURIComponent(typeof job.address === 'string' ? job.address : (job.address as any)?.formatted_address || 'New Delhi')}&t=&z=13&ie=UTF8&iwloc=&output=embed`}
+                                    />
+                                    <div className="absolute inset-0 bg-transparent" /> {/* Interaction shield for scrol */}
+                                </div>
+
                                 <button className="mt-3 flex items-center gap-2 text-sm font-bold text-brand-text hover:underline">
                                     <Navigation size={16} /> Get Directions
                                 </button>
