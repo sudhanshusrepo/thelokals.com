@@ -10,9 +10,10 @@ interface PageProps {
 
 async function getService(id: string) {
     // Mock for build stability
-    if (process.env.NODE_ENV === 'production' && !process.env.SUPABASE_URL) {
-        return null;
-    }
+    // Use platform config which handles fallbacks
+    // if (process.env.NODE_ENV === 'production' && !process.env.SUPABASE_URL) {
+    //    return null;
+    // }
     try {
         const services = await adminService.getServiceCategories();
         return services.find(s => s.id === id) || null;
