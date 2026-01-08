@@ -19,8 +19,7 @@ if (!fs.existsSync(appDir)) {
 console.log(`🚀 Building ${appName} from ${appDir}...`);
 
 // Paths
-// const sharedCoreDir = path.join(rootDir, 'shared', 'core'); // Legacy removed
-// const localCoreDir = path.join(appDir, '.local-core'); // Legacy removed
+
 const packageJsonPath = path.join(appDir, 'package.json');
 const packageJsonBackupPath = path.join(appDir, 'package.json.bak');
 const rootWranglerPath = path.join(rootDir, 'wrangler.toml');
@@ -43,10 +42,7 @@ function cleanup() {
         fs.copyFileSync(packageJsonBackupPath, packageJsonPath);
         fs.unlinkSync(packageJsonBackupPath);
     }
-    // Remove local core copy
-    if (fs.existsSync(localCoreDir)) {
-        fs.rmSync(localCoreDir, { recursive: true, force: true });
-    }
+
 }
 
 // Trap signals for cleanup
@@ -56,14 +52,7 @@ process.on('uncaughtException', (err) => { console.error(err); cleanup(); proces
 
 try {
     // 1. Vendor shared/core to bypass workspace issues in isolated builds (Cloudflare Pages)
-    // 1. Vendor shared/core (LEGACY REMOVED)
-    // if (fs.existsSync(sharedCoreDir)) {
-    //     console.log('📦 Vendoring shared/core...');
-    //     if (fs.existsSync(localCoreDir)) {
-    //         fs.rmSync(localCoreDir, { recursive: true, force: true });
-    //     }
-    //     fs.cpSync(sharedCoreDir, localCoreDir, { recursive: true });
-    // }
+
 
     // 2. Patch package.json to use file dependency
     if (fs.existsSync(packageJsonPath)) {
@@ -71,8 +60,7 @@ try {
         fs.copyFileSync(packageJsonPath, packageJsonBackupPath);
 
         let packageJson = fs.readFileSync(packageJsonPath, 'utf8');
-        // Replace workspace wildcard with local file path - NOT NEEDED FOR PLATFORM PACKAGES
-        // packageJson = packageJson.replace(/"@thelocals\/core": "\*"/g, '"@thelocals/core": "file:.local-core"');
+
         fs.writeFileSync(packageJsonPath, packageJson);
     }
 
@@ -135,7 +123,7 @@ compatibility_flags = ["nodejs_compat"]
         fs.writeFileSync(path.join(openNextDir, '_routes.json'), routesContent);
 
         // 3. Generate wrangler.toml for compatibility flags (App specific only)
-        const relativeOutputDir = `frontend/new_apps/${appName}/.open-next`;
+        const relativeOutputDir = `apps/${appName}/.open-next`;
         const wranglerContent = `
 name = "${appName}"
 compatibility_date = "2024-09-23"
