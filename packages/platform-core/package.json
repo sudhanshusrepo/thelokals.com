@@ -6,9 +6,22 @@
     "exports": {
         ".": "./src/index.ts",
         "./services/*": "./src/services/*.ts",
-        "./types": "./src/types/index.ts",
+        "./types": "./src/types.ts",
         "./theme/colors": "./src/theme/colors.ts",
         "./*": "./src/*.ts"
+    },
+    "typesVersions": {
+        "*": {
+            "types": [
+                "./src/types.ts"
+            ],
+            "services/*": [
+                "./src/services/*"
+            ],
+            "*": [
+                "./src/*"
+            ]
+        }
     },
     "scripts": {
         "lint": "eslint . --ext .ts,.tsx",
