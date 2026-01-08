@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { adminService } from '@thelocals/platform-core';
+import { adminService } from '@thelocals/platform-core/services/adminService';
 export const dynamic = 'force-dynamic';
 import { ServiceDetailClient } from './ServiceDetailClient';
 import { notFound } from 'next/navigation';

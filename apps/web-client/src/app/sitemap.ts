@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next';
-import { adminService } from '@thelocals/platform-core';
+import { adminService } from '@thelocals/platform-core/services/adminService';
 
 // Base URL for the client app
 const BASE_URL = 'https://thelokals.com';

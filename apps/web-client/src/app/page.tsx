@@ -7,7 +7,8 @@ import { HeroCard } from '../components/v2/HeroCard';
 import { ServiceCard } from '../components/v2/ServiceCard';
 import { StatusCard } from '../components/v2/StatusCard';
 import { designTokensV2 } from '../theme/design-tokens-v2';
-import { adminService, ServiceCategory, ServiceLocation } from '@thelocals/platform-core';
+import { adminService } from '@thelocals/platform-core/services/adminService';
+import { ServiceCategory, ServiceLocation } from '@thelocals/platform-core/types';
 import { MapPin, ChevronDown, Search } from 'lucide-react';
 
 export default function Home() {
