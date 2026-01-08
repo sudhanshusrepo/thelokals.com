@@ -71,15 +71,27 @@ export default function Listings() {
 
         // Optimistic update
         const newStatus = !isEnabled;
-        const newLocConfig = {
-            id: 'temp-' + Date.now(),
+
+        // Payload for API (Must not have temp ID)
+        const apiPayload: any = {
             service_category_id: category.id,
             location_name: selectedCity,
             city: selectedCity,
             is_active: newStatus,
-            production_mode: true, // Enable for production by default in simple toggle
-            created_at: new Date().toISOString(),
+            production_mode: true,
             updated_at: new Date().toISOString()
+        };
+
+        if (locationConfig?.id) {
+            apiPayload.id = locationConfig.id;
+        } else {
+            apiPayload.created_at = new Date().toISOString();
+        }
+
+        // Local state update (Can have temp ID for UI consistency if needed, though mostly unused)
+        const localLocConfig = {
+            ...apiPayload,
+            id: locationConfig?.id || 'temp-' + Date.now(),
         };
 
         // Update local state immediately
@@ -88,14 +100,20 @@ export default function Listings() {
         if (existingIndex >= 0) {
             updatedLocations[existingIndex] = { ...updatedLocations[existingIndex], is_active: newStatus };
         } else {
-            updatedLocations.push(newLocConfig as ServiceLocation);
+            updatedLocations.push(localLocConfig as ServiceLocation);
         }
         setLocations(updatedLocations);
 
         try {
-            await adminService.upsertServiceLocation(newLocConfig);
+            await adminService.upsertServiceLocation(apiPayload);
             toast.success(`${category.name} is now ${newStatus ? 'Active' : 'Disabled'} in ${selectedCity}`);
+
+            // Reload to get real ID if it was a new creation
+            if (!locationConfig?.id) {
+                loadData();
+            }
         } catch (error: any) {
+            console.error('Toggle failed:', error);
             toast.error("Failed to update status");
             loadData(); // Revert on error
         }
