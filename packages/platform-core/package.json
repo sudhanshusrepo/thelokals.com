@@ -18,6 +18,9 @@
             "services/*": [
                 "./src/services/*"
             ],
+            "theme/colors": [
+                "./src/theme/colors.ts"
+            ],
             "*": [
                 "./src/*"
             ]

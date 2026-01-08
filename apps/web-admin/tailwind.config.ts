@@ -1,4 +1,5 @@
-import { colors } from "@thelocals/platform-core";
+import type { Config } from "tailwindcss";
+import { colors } from "@thelocals/platform-core/theme/colors";
 
 const config: Config = {
     content: [
