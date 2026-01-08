@@ -111,9 +111,14 @@ export const JobDetailSheet = ({ isOpen, onClose, job, onUpdate }: JobDetailShee
                                     <div className="absolute inset-0 bg-transparent" /> {/* Interaction shield for scrol */}
                                 </div>
 
-                                <button className="mt-3 flex items-center gap-2 text-sm font-bold text-brand-text hover:underline">
+                                <a
+                                    href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(typeof job.address === 'string' ? job.address : (job.address as any)?.formatted_address || '')}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="mt-3 flex items-center gap-2 text-sm font-bold text-brand-text hover:underline"
+                                >
                                     <Navigation size={16} /> Get Directions
-                                </button>
+                                </a>
                             </div>
                         </div>
                     </div>

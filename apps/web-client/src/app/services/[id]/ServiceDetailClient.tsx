@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useBooking } from '../../../contexts/BookingContext';
 import { designTokensV2 } from '../../../theme/design-tokens-v2';
+import { GoogleMapWrapper } from './GoogleMapWrapper';
 import { ArrowLeft, Star, Clock, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { ServiceCategory } from '@thelocals/platform-core';
 
@@ -87,7 +88,7 @@ export function ServiceDetailClient({ service }: ServiceDetailClientProps) {
                 {/* Description / What's Included */}
                 <div className="mt-8">
                     <h3 className="text-lg font-bold mb-4">What's Included</h3>
-                    <ul className="space-y-3">
+                    <ul className="space-y-3 mb-8">
                         {['Professional Service', 'Post-service cleanup', '7-day warranty', 'Locals safety assurance'].map((item, i) => (
                             <li key={i} className="flex items-center gap-3 text-v2-text-secondary">
                                 <CheckCircle2 size={18} className="text-v2-accent-success" />
@@ -95,6 +96,26 @@ export function ServiceDetailClient({ service }: ServiceDetailClientProps) {
                             </li>
                         ))}
                     </ul>
+                </div>
+
+                {/* Pros Nearby Map */}
+                <div className="mt-8 mb-24">
+                    <h3 className="text-lg font-bold mb-2">Service Availability</h3>
+                    <p className="text-sm text-gray-500 mb-4">See active professionals in your area.</p>
+                    <div className="h-64 w-full rounded-2xl overflow-hidden shadow-inner border border-gray-100 relative bg-gray-100">
+                        {/* 
+                          NOTE: This requires NEXT_PUBLIC_GOOGLE_MAPS_KEY to be set in .env 
+                          If missing, it might show a development warning or gray box.
+                        */}
+                        <div className="absolute inset-0 flex items-center justify-center text-gray-400 z-0">
+                            Loading Map...
+                        </div>
+                        {/* Dynamic Import or Client Component usage */}
+                        <div className="absolute inset-0 z-10">
+                            {/* We use a dynamic check or error boundary in real apps. Here we assume the key exists or fails gracefully */}
+                            <GoogleMapWrapper />
+                        </div>
+                    </div>
                 </div>
             </div>
 
