@@ -9,8 +9,8 @@
         "lint": "eslint"
     },
     "dependencies": {
-        "@thelocals/platform-core": "workspace:*",
-        "@thelocals/platform-config": "workspace:*",
+        "@thelocals/platform-core": "^0.0.0",
+        "@thelocals/platform-config": "*",
         "clsx": "^2.1.1",
         "framer-motion": "^11.18.2",
         "lucide-react": "^0.378.0",
