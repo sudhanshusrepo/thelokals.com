@@ -55,7 +55,7 @@ export function BottomNav() {
             aria-label="Main navigation"
             role="navigation"
         >
-            <div className="max-w-md mx-auto px-6 h-16 flex items-center justify-between">
+            <div className="max-w-md mx-auto px-6 h-16 flex items-center justify-around">
                 {tabs.map((tab) => {
                     const Icon = tab.icon;
                     // Active state: Exact match for root, startsWith for others

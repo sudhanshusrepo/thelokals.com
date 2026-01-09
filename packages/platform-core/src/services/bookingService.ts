@@ -111,6 +111,50 @@ export const bookingService = {
   },
 
   /**
+   * Retrieves a specific booking with full details (provider, etc).
+   */
+  async getBookingDetails(bookingId: string): Promise<Booking> {
+    const { data, error } = await supabase
+      .from('bookings')
+      .select(`
+        *,
+        providers(*),
+        service_categories(name)
+      `)
+      .eq('id', bookingId)
+      .single();
+
+    if (error) {
+      logger.error('Error fetching booking details', { error, bookingId });
+      throw error;
+    }
+
+    // Map the nested provider data to match WorkerProfile structure
+    return {
+      ...data,
+      worker: data.providers ? {
+        id: data.providers.id,
+        name: data.providers.name || 'Provider',
+        category: data.providers.services?.[0] || 'General',
+        description: data.providers.description || '',
+        price: 0,
+        priceUnit: 'hr',
+        rating: 4.5,
+        status: data.providers.is_active ? 'AVAILABLE' : 'OFFLINE',
+        imageUrl: data.providers.avatar_url,
+        expertise: data.providers.services,
+        reviewCount: 0,
+        isVerified: true,
+        location: {
+          lat: data.providers.location?.coordinates?.[1] || 0,
+          lng: data.providers.location?.coordinates?.[0] || 0
+        }
+      } : undefined,
+      serviceName: data.service_categories?.name
+    } as any;
+  },
+
+  /**
    * Subscribes to real-time updates for a specific booking.
    */
   subscribeToBookingUpdates(bookingId: string, callback: (booking: Booking) => void) {
