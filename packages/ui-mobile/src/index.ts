@@ -1,6 +1,7 @@
 // Tokens
 export { PROVIDER_V2_TOKENS } from './tokens/provider-v2';
 export { CLIENT_V2_TOKENS } from './tokens/client-v2';
+export * from './ui.tokens';
 
 // Components
 export { HeroCard } from './components/HeroCard';
@@ -14,3 +15,7 @@ export { StatusCard } from './components/StatusCard';
 export { ProviderBlindBadge } from './components/ProviderBlindBadge';
 export { SkeletonLoader, SkeletonServiceCard, SkeletonBookingCard } from './components/SkeletonLoader';
 export { AnimatedCard } from './components/AnimatedCard';
+
+export { Surface } from './components/Surface';
+export { Section } from './components/Section';
+export { StatusChip } from './components/StatusChip';

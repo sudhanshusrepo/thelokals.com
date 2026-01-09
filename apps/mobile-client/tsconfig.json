@@ -8,6 +8,9 @@
       ],
       "@thelocals/platform-config": [
         "../../../packages/platform-config/src/index.ts"
+      ],
+      "@thelocals/ui-mobile": [
+        "../../../packages/ui-mobile/src/index.ts"
       ]
     }
   },

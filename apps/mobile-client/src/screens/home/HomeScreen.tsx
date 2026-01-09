@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
-import { bookingService } from '@thelocals/platform-core';
-import { Search, MapPin } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
+import { Search, MapPin } from 'lucide-react-native';
+import { bookingService } from '@thelocals/platform-core';
+import { colors, radii, shadows } from '@thelocals/ui-mobile';
 
 export const HomeScreen = () => {
     const navigation = useNavigation<any>();
@@ -29,17 +30,17 @@ export const HomeScreen = () => {
     ), [navigation]);
 
     return (
-        <View className="flex-1 bg-white pt-12 px-4">
+        <View style={{ flex: 1, backgroundColor: colors.backgroundBase, paddingTop: 48, paddingHorizontal: 16 }}>
             {/* Header */}
             <View className="flex-row justify-between items-center mb-6">
                 <View>
                     <Text className="text-gray-500 text-sm">Location</Text>
                     <View className="flex-row items-center">
-                        <MapPin size={16} color="#2563EB" {...({} as any)} />
-                        <Text className="font-bold text-lg ml-1">New York, USA</Text>
+                        <MapPin size={16} color={colors.primary} {...({} as any)} />
+                        <Text className="font-bold text-lg ml-1" style={{ color: colors.textPrimary }}>New York, USA</Text>
                     </View>
                 </View>
-                <TouchableOpacity className="bg-gray-100 p-2 rounded-full">
+                <TouchableOpacity className="bg-white p-2 rounded-full" style={shadows.chip}>
                     <Image
                         source={{ uri: 'https://ui-avatars.com/api/?name=User' }}
                         className="w-8 h-8 rounded-full"
@@ -48,15 +49,21 @@ export const HomeScreen = () => {
             </View>
 
             {/* Search Bar */}
-            <View className="bg-gray-100 p-4 rounded-xl flex-row items-center mb-6">
-                <Search size={20} color="gray" {...({} as any)} />
-                <Text className="ml-2 text-gray-500">Find a service...</Text>
+            <View className="bg-white p-4 rounded-xl flex-row items-center mb-6" style={shadows.chip}>
+                <Search size={20} color={colors.textMuted} {...({} as any)} />
+                <Text className="ml-2" style={{ color: colors.textMuted }}>Find a service...</Text>
             </View>
 
             {/* Banner */}
-            <View className="bg-blue-600 p-6 rounded-2xl mb-8">
-                <Text className="text-white font-bold text-xl mb-1">Get 20% off</Text>
-                <Text className="text-blue-100">On your first home cleaning booking</Text>
+            <View style={{
+                backgroundColor: colors.backgroundHeroStart,
+                borderRadius: radii.lg,
+                padding: 24,
+                marginBottom: 32,
+                ...shadows.card
+            }}>
+                <Text style={{ color: colors.textPrimary, fontWeight: '700', fontSize: 20, marginBottom: 4 }}>Get 20% off</Text>
+                <Text style={{ color: colors.textSecondary }}>On your first home cleaning booking</Text>
             </View>
 
             {/* Categories */}

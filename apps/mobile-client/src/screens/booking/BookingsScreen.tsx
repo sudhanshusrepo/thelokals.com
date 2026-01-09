@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, RefreshControl } from 'react-native';
-import { useAuth, bookingService } from '@thelocals/platform-core';
 import { Calendar, Clock, MapPin } from 'lucide-react-native';
+import { useAuth, bookingService } from '@thelocals/platform-core';
+import { Surface, StatusChip, colors } from '@thelocals/ui-mobile';
 
 export const BookingsScreen = () => {
     const { user } = useAuth();
@@ -30,27 +31,18 @@ export const BookingsScreen = () => {
         <BookingItem item={item} />
     ), []);
 
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case 'completed': return 'bg-green-500';
-            case 'pending': return 'bg-yellow-500';
-            case 'cancelled': return 'bg-red-500';
-            default: return 'bg-gray-400';
-        }
-    };
-
     return (
-        <View className="flex-1 bg-white pt-12">
-            <Text className="text-2xl font-bold px-4 mb-6">My Bookings</Text>
+        <View style={{ flex: 1, backgroundColor: colors.backgroundBase, paddingTop: 48 }}>
+            <Text className="text-2xl font-bold px-4 mb-6" style={{ color: colors.textPrimary }}>My Bookings</Text>
 
             {loading ? (
-                <ActivityIndicator size="large" color="#2563EB" />
+                <ActivityIndicator size="large" color={colors.primary} />
             ) : (
                 <FlatList
                     data={bookings}
                     renderItem={renderBooking}
                     keyExtractor={(item) => item.id}
-                    contentContainerStyle={{ paddingBottom: 20 }}
+                    contentContainerStyle={{ paddingBottom: 20, paddingHorizontal: 16 }}
                     refreshControl={
                         <RefreshControl refreshing={refreshing} onRefresh={() => {
                             setRefreshing(true);
@@ -62,7 +54,7 @@ export const BookingsScreen = () => {
                     windowSize={5}
                     ListEmptyComponent={
                         <View className="items-center mt-20">
-                            <Text className="text-gray-500">No bookings found</Text>
+                            <Text style={{ color: colors.textMuted }}>No bookings found</Text>
                         </View>
                     }
                 />
@@ -72,42 +64,40 @@ export const BookingsScreen = () => {
 };
 
 const BookingItem = React.memo(({ item }: { item: any }) => {
-    const getStatusColor = (status: string) => {
+    const getStatusTone = (status: string): 'success' | 'warning' | 'neutral' => {
         switch (status) {
-            case 'completed': return 'bg-green-500';
-            case 'pending': return 'bg-yellow-500';
-            case 'cancelled': return 'bg-red-500';
-            default: return 'bg-gray-400';
+            case 'completed': return 'success';
+            case 'pending': return 'warning';
+            case 'cancelled': return 'neutral';
+            default: return 'neutral';
         }
     };
 
     return (
-        <View className="bg-white p-4 mb-4 rounded-xl border border-gray-100 shadow-sm mx-4">
+        <Surface elevated padding="md" style={{ marginBottom: 16 }}>
             <View className="flex-row justify-between items-center mb-2">
-                <Text className="font-bold text-lg text-gray-800">{item.worker?.name || 'Provider'}</Text>
-                <View className={`px-2 py-1 rounded-full ${getStatusColor(item.status)}`}>
-                    <Text className="text-white text-xs font-bold uppercase">{item.status}</Text>
-                </View>
+                <Text className="font-bold text-lg" style={{ color: colors.textPrimary }}>{item.worker?.name || 'Provider'}</Text>
+                <StatusChip label={item.status} tone={getStatusTone(item.status)} />
             </View>
 
             <View className="flex-row items-center mb-1">
-                <Calendar size={14} color="#6B7280" {...({} as any)} />
-                <Text className="text-gray-500 ml-2 text-sm">
+                <Calendar size={14} color={colors.textSecondary} {...({} as any)} />
+                <Text className="ml-2 text-sm" style={{ color: colors.textSecondary }}>
                     {new Date(item.created_at).toLocaleDateString()}
                 </Text>
             </View>
 
             <View className="flex-row items-center mb-3">
-                <MapPin size={14} color="#6B7280" {...({} as any)} />
-                <Text className="text-gray-500 ml-2 text-sm">New York, USA</Text>
+                <MapPin size={14} color={colors.textSecondary} {...({} as any)} />
+                <Text className="ml-2 text-sm" style={{ color: colors.textSecondary }}>New York, USA</Text>
             </View>
 
             <View className="pt-3 border-t border-gray-100 flex-row justify-between">
-                <Text className="text-gray-900 font-semibold">${item.total_price}</Text>
+                <Text className="font-semibold" style={{ color: colors.textPrimary }}>${item.total_price}</Text>
                 <TouchableOpacity>
-                    <Text className="text-blue-600 font-medium">View Details</Text>
+                    <Text className="font-medium" style={{ color: colors.primary }}>View Details</Text>
                 </TouchableOpacity>
             </View>
-        </View>
+        </Surface>
     )
 });

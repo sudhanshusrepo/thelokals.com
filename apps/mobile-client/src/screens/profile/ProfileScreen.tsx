@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput, Image, Alert, ScrollView } from 'react-native';
-import { useAuth, customerService } from '@thelocals/platform-core';
 import { LogOut, User, Mail, Phone, Save } from 'lucide-react-native';
+import { useAuth, customerService } from '@thelocals/platform-core';
+import { Surface, Section, colors, spacing } from '@thelocals/ui-mobile';
 
 export const ProfileScreen = () => {
     const { user, profile, signOut, refreshProfile } = useAuth();
@@ -26,7 +27,7 @@ export const ProfileScreen = () => {
     };
 
     return (
-        <View className="flex-1 bg-white pt-12">
+        <View style={{ flex: 1, backgroundColor: colors.backgroundBase, paddingTop: 48 }}>
             <View className="items-center mb-8 px-4">
                 <Image
                     source={{ uri: 'https://ui-avatars.com/api/?name=' + (profile?.name || 'User') + '&background=random' }}
@@ -34,46 +35,53 @@ export const ProfileScreen = () => {
                 />
                 {!isEditing ? (
                     <TouchableOpacity onPress={() => setIsEditing(true)}>
-                        <Text className="text-2xl font-bold">{profile?.name || 'Guest User'}</Text>
-                        <Text className="text-blue-600 text-sm mt-1">Edit Profile</Text>
+                        <Text className="text-2xl font-bold" style={{ color: colors.textPrimary }}>{profile?.name || 'Guest User'}</Text>
+                        <Text style={{ color: colors.primary, marginTop: 4 }}>Edit Profile</Text>
                     </TouchableOpacity>
                 ) : (
                     <View className="flex-row items-center">
                         <TextInput
                             value={name}
                             onChangeText={setName}
-                            className="text-xl font-bold border-b border-blue-500 pb-1 min-w-[150px] text-center"
+                            className="text-xl font-bold border-b pb-1 min-w-[150px] text-center"
+                            style={{ borderColor: colors.primary, color: colors.textPrimary }}
                             autoFocus
                         />
                         <TouchableOpacity onPress={handleSave} className="ml-3 bg-blue-100 p-2 rounded-full">
-                            <Save size={18} color="#2563EB" {...({} as any)} />
+                            <Save size={18} color={colors.primary} {...({} as any)} />
                         </TouchableOpacity>
                     </View>
                 )}
             </View>
 
             <ScrollView className="flex-1 px-6">
-                <View className="mb-6">
-                    <Text className="text-gray-500 text-sm mb-2 uppercase tracking-wide">Contact Info</Text>
+                <Section>
+                    <Surface elevated padding="lg">
+                        <Text style={{ color: colors.textMuted, fontSize: 13, marginBottom: spacing.sm, textTransform: 'uppercase', letterSpacing: 1 }}>Contact Info</Text>
 
-                    <View className="flex-row items-center py-3 border-b border-gray-100">
-                        <Phone size={20} color="#6B7280" {...({} as any)} />
-                        <Text className="ml-3 text-gray-800 text-lg">{user?.phone || 'No phone'}</Text>
-                    </View>
+                        <View className="flex-row items-center py-3 border-b" style={{ borderColor: colors.borderSubtle }}>
+                            <Phone size={20} color={colors.textSecondary} {...({} as any)} />
+                            <Text className="ml-3 text-lg" style={{ color: colors.textPrimary }}>{user?.phone || 'No phone'}</Text>
+                        </View>
 
-                    <View className="flex-row items-center py-3 border-b border-gray-100">
-                        <Mail size={20} color="#6B7280" {...({} as any)} />
-                        <Text className="ml-3 text-gray-800 text-lg">{user?.email || 'No email'}</Text>
-                    </View>
-                </View>
+                        <View className="flex-row items-center py-3">
+                            <Mail size={20} color={colors.textSecondary} {...({} as any)} />
+                            <Text className="ml-3 text-lg" style={{ color: colors.textPrimary }}>{user?.email || 'No email'}</Text>
+                        </View>
+                    </Surface>
+                </Section>
 
-                <TouchableOpacity
-                    className="flex-row items-center py-4 border-t border-gray-100 mt-4"
-                    onPress={() => signOut()}
-                >
-                    <LogOut size={20} color="#EF4444" {...({} as any)} />
-                    <Text className="ml-3 text-red-500 font-semibold text-lg">Sign Out</Text>
-                </TouchableOpacity>
+                <Section>
+                    <Surface elevated padding="lg">
+                        <TouchableOpacity
+                            className="flex-row items-center justify-center py-2"
+                            onPress={() => signOut()}
+                        >
+                            <LogOut size={20} color="#EF4444" {...({} as any)} />
+                            <Text className="ml-3 text-red-500 font-semibold text-lg">Sign Out</Text>
+                        </TouchableOpacity>
+                    </Surface>
+                </Section>
             </ScrollView>
         </View>
     );
