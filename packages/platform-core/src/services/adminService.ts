@@ -569,7 +569,7 @@ export const adminService = {
 
         return (data || []).map((cat: any) => ({
             ...cat,
-            base_price: cat.service_pricing?.[0]?.base_price || cat.base_price || 499, // Fallback logic
+            base_price: cat.service_pricing?.[0]?.base_price || cat.base_price || 0, // No magic number
             currency: cat.service_pricing?.[0]?.currency || 'INR'
         }));
     },

@@ -8,16 +8,14 @@ import { ServiceCard } from '../components/v2/ServiceCard';
 import { StatusCard } from '../components/v2/StatusCard';
 import { designTokensV2 } from '../theme/design-tokens-v2';
 import { adminService } from '@thelocals/platform-core/services/adminService';
-import { ServiceCategory, ServiceLocation } from '@thelocals/platform-core/types';
+import { ServiceCategory, ServiceLocation, AVAILABLE_CITIES, CITY_COORDINATES } from '@thelocals/platform-core';
 import { MapPin, ChevronDown, Search } from 'lucide-react';
 
 export default function Home() {
     const router = useRouter();
     const { user } = useAuth();
 
-    // Available Cities (Should match Admin)
-    const AVAILABLE_CITIES = ['Gurugram', 'New Delhi', 'Navi Mumbai', 'Bangalore'];
-    const [selectedCity, setSelectedCity] = useState('Gurugram');
+    const [selectedCity, setSelectedCity] = useState<string>(AVAILABLE_CITIES[0]);
 
     const [categories, setCategories] = useState<ServiceCategory[]>([]);
     const [locations, setLocations] = useState<ServiceLocation[]>([]);
@@ -81,22 +79,17 @@ export default function Home() {
 
     useEffect(() => {
         // City Coordinates (Approximate for detection)
-        const CITY_COORDS: Record<string, { lat: number, lng: number }> = {
-            'Gurugram': { lat: 28.4595, lng: 77.0266 },
-            'New Delhi': { lat: 28.6139, lng: 77.2090 },
-            'Navi Mumbai': { lat: 19.0330, lng: 73.0297 },
-            'Bangalore': { lat: 12.9716, lng: 77.5946 }
-        };
+        // Uses CITY_COORDINATES from platform-core
 
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
                     const { latitude, longitude } = position.coords;
                     let minBody = Infinity;
-                    let measuredCity = 'Gurugram'; // Default
+                    let measuredCity = AVAILABLE_CITIES[0]; // Default
 
                     for (const city of AVAILABLE_CITIES) {
-                        const coords = CITY_COORDS[city];
+                        const coords = CITY_COORDINATES[city];
                         if (coords) {
                             const dist = calculateDistance(latitude, longitude, coords.lat, coords.lng);
                             if (dist < minBody) {
@@ -243,7 +236,7 @@ export default function Home() {
                                         id: cat.id,
                                         name: cat.name,
                                         image: '/services/ac.jpg', // Placeholder
-                                        price: cat.base_price || 499,
+                                        price: cat.base_price || 0,
                                         rating: 4.8,
                                         reviews: 120,
                                         isBestMatch: true

@@ -21,7 +21,7 @@ export function ServiceDetailClient({ service }: ServiceDetailClientProps) {
         startBooking({
             id: service.id,
             name: service.name,
-            price: service.base_price || 499,
+            price: service.base_price || 0,
             image: (service as any).image_url || 'https://images.unsplash.com/photo-1581094794329-cd109678e7ea?auto=format&fit=crop&w=200&q=80'
         });
 
@@ -69,7 +69,9 @@ export function ServiceDetailClient({ service }: ServiceDetailClientProps) {
                         </div>
                         <div className="text-right">
                             <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">Starts at</div>
-                            <div className="text-xl font-bold text-v2-text-primary">₹{service.base_price || 499}</div>
+                            <div className="text-xl font-bold text-v2-text-primary">
+                                {service.base_price ? `₹${service.base_price}` : 'Price on Request'}
+                            </div>
                         </div>
                     </div>
                 </div>

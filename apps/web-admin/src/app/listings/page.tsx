@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { AdminLayout } from '../../components/layout/AdminLayout';
 import { Plus, Edit2, Trash2, X, MapPin, Power } from 'lucide-react';
-import { adminService, ServiceCategory, ServiceLocation } from "@thelocals/platform-core";
+import { adminService, ServiceCategory, ServiceLocation, AVAILABLE_CITIES } from "@thelocals/platform-core";
 import { ServiceCategoryTable } from '../../components/listings/ServiceCategoryTable';
 import { toast } from 'react-hot-toast';
 
@@ -11,13 +11,10 @@ export default function Listings() {
     const [categories, setCategories] = useState<ServiceCategory[]>([]);
     const [locations, setLocations] = useState<ServiceLocation[]>([]);
     const [loading, setLoading] = useState(true);
-    const [selectedCity, setSelectedCity] = useState<string>('Gurugram'); // Default for Sprint 1
+    const [selectedCity, setSelectedCity] = useState<string>(AVAILABLE_CITIES[0]); // Default
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingCategory, setEditingCategory] = useState<Partial<ServiceCategory>>({});
     const [saving, setSaving] = useState(false);
-
-    // Hardcoded for Sprint 1, in future fetch from DB
-    const AVAILABLE_CITIES = ['Gurugram', 'New Delhi', 'Navi Mumbai', 'Bangalore'];
 
     useEffect(() => {
         loadData();

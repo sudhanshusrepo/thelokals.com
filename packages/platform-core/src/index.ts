@@ -1,7 +1,9 @@
 // Core Contracts (New)
 export * from './contracts';
 
-// Legacy Shared Core Exports (Migrated)
+// Legacy Shared Core Exports (Migrated)// Constants
+export * from './constants/cities';
+
 export * from './types';
 export * from './services/supabase';
 export * from './services/bookingService';
