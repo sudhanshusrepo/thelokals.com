@@ -11,6 +11,7 @@ export default function PaymentStep() {
     const router = useRouter();
     const { bookingData, clearBooking } = useBooking();
     const [processing, setProcessing] = useState(false);
+    const [paymentMethod, setPaymentMethod] = useState<'razorpay' | 'cash'>('razorpay');
 
     const handlePayment = async () => {
         setProcessing(true);
@@ -18,7 +19,7 @@ export default function PaymentStep() {
         // Mock API Call
         await new Promise(resolve => setTimeout(resolve, 2000));
 
-        toast.success('Booking Confirmed!', {
+        toast.success(paymentMethod === 'cash' ? 'Order Placed (Cash)' : 'Payment Successful!', {
             icon: '✅',
             duration: 5000,
         });
@@ -73,16 +74,30 @@ export default function PaymentStep() {
             <div className="space-y-3 mb-8">
                 <h4 className="font-bold text-sm text-gray-500 uppercase tracking-wide">Payment Method</h4>
 
-                <button className="w-full flex items-center gap-4 p-4 bg-white border border-v2-text-primary rounded-v2-card">
+                <button
+                    onClick={() => setPaymentMethod('razorpay')}
+                    className={`w-full flex items-center gap-4 p-4 bg-white border rounded-v2-card transition-all ${paymentMethod === 'razorpay' ? 'border-v2-text-primary shadow-md' : 'border-transparent shadow-sm'
+                        }`}
+                >
                     <div className="text-v2-accent-success"><CreditCard /></div>
                     <div className="font-bold flex-1 text-left">UPI / Cards (Razorpay)</div>
-                    <div className="w-4 h-4 rounded-full bg-v2-text-primary border-2 border-white ring-1 ring-black" />
+                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${paymentMethod === 'razorpay' ? 'bg-v2-text-primary border-transparent' : 'border-gray-300'
+                        }`}>
+                        {paymentMethod === 'razorpay' && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
+                    </div>
                 </button>
 
-                <button className="w-full flex items-center gap-4 p-4 bg-white border border-transparent shadow-sm rounded-v2-card opacity-50 cursor-not-allowed">
-                    <div className="text-gray-400"><Banknote /></div>
-                    <div className="font-medium flex-1 text-left text-gray-500">Cash after service</div>
-                    <div className="w-4 h-4 rounded-full border border-gray-300" />
+                <button
+                    onClick={() => setPaymentMethod('cash')}
+                    className={`w-full flex items-center gap-4 p-4 bg-white border rounded-v2-card transition-all ${paymentMethod === 'cash' ? 'border-v2-text-primary shadow-md' : 'border-transparent shadow-sm'
+                        }`}
+                >
+                    <div className={`text-gray-400 ${paymentMethod === 'cash' ? 'text-v2-text-primary' : ''}`}><Banknote /></div>
+                    <div className={`font-medium flex-1 text-left ${paymentMethod === 'cash' ? 'text-v2-text-primary font-bold' : 'text-gray-500'}`}>Cash after service</div>
+                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${paymentMethod === 'cash' ? 'bg-v2-text-primary border-transparent' : 'border-gray-300'
+                        }`}>
+                        {paymentMethod === 'cash' && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
+                    </div>
                 </button>
             </div>
 
@@ -98,7 +113,7 @@ export default function PaymentStep() {
                 style={{ background: designTokensV2.colors.gradient.css }}
                 className="w-full py-4 rounded-v2-btn font-bold text-v2-text-primary text-lg shadow-lg active:scale-[0.99] transition-transform flex items-center justify-center gap-2"
             >
-                {processing ? 'Processing...' : `Pay ₹${grandTotal.toFixed(0)}`}
+                {processing ? 'Processing...' : (paymentMethod === 'cash' ? `Place Order • ₹${grandTotal.toFixed(0)}` : `Pay ₹${grandTotal.toFixed(0)}`)}
             </button>
         </div>
     );
