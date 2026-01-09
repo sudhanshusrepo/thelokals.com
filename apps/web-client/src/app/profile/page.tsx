@@ -3,8 +3,9 @@
 import React from 'react';
 import { AuthGuard } from '../../components/auth/AuthGuard';
 import { useAuth } from '../../contexts/AuthContext';
-import { User, LogOut, Settings, CreditCard, Shield, MapPin } from 'lucide-react';
+import { LogOut, Settings, CreditCard, Shield, MapPin, ChevronRight, User as UserIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { Surface, Section } from '../../components/ui/Surface';
 
 export default function ProfilePage() {
     const { user, signOut } = useAuth();
@@ -17,50 +18,53 @@ export default function ProfilePage() {
 
     return (
         <AuthGuard>
-            <div className="min-h-screen bg-neutral-50 pb-24">
-                <header className="bg-white border-b border-neutral-200 px-6 py-4 sticky top-0 z-30">
-                    <h1 className="text-xl font-bold text-neutral-900">My Profile</h1>
+            <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-green-50 to-blue-50 pb-24 px-4 pt-4">
+                <header className="flex items-center justify-between mb-6">
+                    <h1 className="text-2xl font-bold text-gray-900">My Profile</h1>
                 </header>
 
-                <main className="p-4 space-y-6">
-                    {/* User Info */}
-                    <div className="bg-white rounded-xl p-6 shadow-sm border border-neutral-100 flex items-center gap-4">
-                        <div className="w-16 h-16 bg-neutral-100 rounded-full flex items-center justify-center text-xl font-bold text-neutral-500">
-                            {user?.email?.[0]?.toUpperCase() || 'U'}
-                        </div>
-                        <div>
-                            <h2 className="text-lg font-bold text-neutral-900">{user?.user_metadata?.name || 'User'}</h2>
-                            <p className="text-neutral-500">{user?.phone || user?.email}</p>
-                        </div>
+                {/* User Info */}
+                <Surface elevated className="flex items-center gap-4 mb-6 animate-fadeIn">
+                    <div className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-lokals-orange rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                        {user?.email?.[0]?.toUpperCase() || 'U'}
                     </div>
-
-                    {/* Menu */}
-                    <div className="bg-white rounded-xl shadow-sm border border-neutral-100 overflow-hidden">
-                        <div className="p-4 flex items-center gap-3 border-b border-neutral-50 cursor-pointer hover:bg-neutral-50">
-                            <span className="text-neutral-700 font-medium">Settings</span>
-                        </div>
-                        <div className="p-4 flex items-center gap-3 border-b border-neutral-50 cursor-pointer hover:bg-neutral-50">
-                            <MapPin size={20} className="text-neutral-400" />
-                            <span className="text-neutral-700 font-medium">Addresses</span>
-                        </div>
-                        <div className="p-4 flex items-center gap-3 border-b border-neutral-50 cursor-pointer hover:bg-neutral-50">
-                            <CreditCard size={20} className="text-neutral-400" />
-                            <span className="text-neutral-700 font-medium">Payment Methods</span>
-                        </div>
-                        <div className="p-4 flex items-center gap-3 cursor-pointer hover:bg-neutral-50">
-                            <Shield size={20} className="text-neutral-400" />
-                            <span className="text-neutral-700 font-medium">Privacy & Security</span>
-                        </div>
+                    <div>
+                        <h2 className="text-xl font-bold text-gray-900">{user?.user_metadata?.name || 'User'}</h2>
+                        <p className="text-gray-500 font-medium">{user?.phone || user?.email}</p>
                     </div>
+                </Surface>
 
+                {/* Menu */}
+                <Section>
+                    <Surface elevated className="space-y-1 !p-2">
+                        {[
+                            { icon: Settings, label: 'Settings', color: 'bg-gray-100 text-gray-600' },
+                            { icon: MapPin, label: 'Addresses', color: 'bg-blue-50 text-blue-600' },
+                            { icon: CreditCard, label: 'Payments', color: 'bg-green-50 text-green-600' },
+                            { icon: Shield, label: 'Privacy', color: 'bg-purple-50 text-purple-600' }
+                        ].map((item, idx) => (
+                            <div key={idx} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl cursor-pointer transition-colors group">
+                                <div className="flex items-center gap-4">
+                                    <div className={`w-10 h-10 ${item.color} rounded-full flex items-center justify-center`}>
+                                        <item.icon size={20} />
+                                    </div>
+                                    <span className="font-semibold text-gray-700 group-hover:text-gray-900">{item.label}</span>
+                                </div>
+                                <ChevronRight className="text-gray-300 group-hover:text-gray-500" size={20} />
+                            </div>
+                        ))}
+                    </Surface>
+                </Section>
+
+                <Section>
                     <button
                         onClick={handleSignOut}
-                        className="w-full bg-red-50 text-red-600 font-bold py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-red-100 transition-colors"
+                        className="w-full bg-white border-2 border-red-50 text-red-500 font-bold py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-red-50 hover:border-red-100 transition-all shadow-sm active:scale-95"
                     >
                         <LogOut size={20} />
                         Sign Out
                     </button>
-                </main>
+                </Section>
             </div>
         </AuthGuard>
     );
