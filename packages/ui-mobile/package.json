@@ -1,5 +1,5 @@
 {
-    "name": "@lokals/design-system",
+    "name": "@thelocals/ui-mobile",
     "version": "0.0.1",
     "main": "src/index.ts",
     "types": "src/index.ts",
