@@ -562,22 +562,45 @@ export const adminService = {
     async getServiceCategories(): Promise<import('../types').ServiceCategory[]> {
         const { data, error } = await supabase
             .from('service_categories')
-            .select('*')
+            .select('*, service_pricing(base_price, currency)')
             .order('name');
 
         if (error) throw new Error(`Failed to fetch service categories: ${error.message}`);
-        return data || [];
+
+        return (data || []).map((cat: any) => ({
+            ...cat,
+            base_price: cat.service_pricing?.[0]?.base_price || cat.base_price || 499, // Fallback logic
+            currency: cat.service_pricing?.[0]?.currency || 'INR'
+        }));
     },
 
     /**
      * Create or update a service category
      */
     async upsertServiceCategory(category: Partial<import('../types').ServiceCategory>): Promise<void> {
-        const { error } = await supabase
+        // 1. Upsert Category
+        const { data: catData, error } = await supabase
             .from('service_categories')
-            .upsert(category);
+            .upsert({
+                id: category.id,
+                name: category.name,
+                type: category.type,
+                description: category.description,
+                image_url: category.image_url || undefined
+            })
+            .select()
+            .single();
 
         if (error) throw new Error(`Failed to save service category: ${error.message}`);
+
+        // 2. Upsert Pricing if provided
+        if (category.base_price && catData) {
+            await this.upsertServicePricing({
+                service_category_id: catData.id,
+                base_price: category.base_price,
+                currency: 'INR'
+            });
+        }
     },
 
     /**
@@ -641,6 +664,45 @@ export const adminService = {
             .eq('id', id);
 
         if (error) throw new Error(`Failed to delete service item: ${error.message}`);
+    },
+
+    // ============ Service Pricing ============
+
+    /**
+     * Get pricing for a service category
+     */
+    async getServicePricing(serviceCategoryId: string): Promise<{ base_price: number; currency: string } | null> {
+        const { data, error } = await supabase
+            .from('service_pricing')
+            .select('base_price, currency')
+            .eq('service_category_id', serviceCategoryId)
+            .single();
+
+        if (error && error.code !== 'PGRST116') { // Ignore not found error
+            console.error('Failed to fetch service pricing:', error);
+            return null;
+        }
+        return data;
+    },
+
+    /**
+     * Upsert service pricing
+     */
+    async upsertServicePricing(pricing: {
+        service_category_id: string;
+        base_price: number;
+        currency?: string;
+    }): Promise<void> {
+        const { error } = await supabase
+            .from('service_pricing')
+            .upsert({
+                service_category_id: pricing.service_category_id,
+                base_price: pricing.base_price,
+                currency: pricing.currency || 'INR',
+                is_active: true
+            }, { onConflict: 'service_category_id' });
+
+        if (error) throw new Error(`Failed to save service pricing: ${error.message}`);
     },
 
     // ============ Service Locations (City-Based Availability) ============

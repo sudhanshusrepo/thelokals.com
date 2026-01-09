@@ -337,6 +337,7 @@ export interface ServiceCategory {
   name: string;
   type: 'local' | 'online';
   description?: string;
+  image_url?: string;
   base_price?: number;
   created_at?: string;
 }

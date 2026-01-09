@@ -46,6 +46,7 @@ export function ServiceCategoryTable({
                         <tr>
                             <th className="text-left py-3 px-6 text-xs font-semibold text-neutral-500 uppercase tracking-wider">Name</th>
                             <th className="text-left py-3 px-6 text-xs font-semibold text-neutral-500 uppercase tracking-wider">Type</th>
+                            <th className="text-left py-3 px-6 text-xs font-semibold text-neutral-500 uppercase tracking-wider">Base Price</th>
                             <th className="text-left py-3 px-6 text-xs font-semibold text-neutral-500 uppercase tracking-wider">Status ({selectedCity})</th>
                             <th className="text-right py-3 px-6 text-xs font-semibold text-neutral-500 uppercase tracking-wider">Actions</th>
                         </tr>
@@ -67,6 +68,11 @@ export function ServiceCategoryTable({
                                         <Badge variant={cat.type === 'local' ? 'success' : 'info'}>
                                             {cat.type?.toUpperCase() || 'UNKNOWN'}
                                         </Badge>
+                                    </td>
+                                    <td className="py-4 px-6">
+                                        <span className="font-medium text-neutral-900">
+                                            ₹{cat.base_price || 499}
+                                        </span>
                                     </td>
                                     <td className="py-4 px-6">
                                         <button

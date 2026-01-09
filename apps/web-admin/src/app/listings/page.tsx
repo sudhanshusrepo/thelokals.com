@@ -198,6 +198,17 @@ export default function Listings() {
                                 </select>
                             </div>
                             <div>
+                                <label className="block text-sm font-medium text-neutral-500 mb-1">Base Price (₹)</label>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    value={editingCategory.base_price || 499}
+                                    onChange={e => setEditingCategory({ ...editingCategory, base_price: parseFloat(e.target.value) })}
+                                    className="w-full p-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                                />
+                            </div>
+                            <div>
                                 <label className="block text-sm font-medium text-neutral-500 mb-1">Description</label>
                                 <textarea
                                     value={editingCategory.description || ''}
