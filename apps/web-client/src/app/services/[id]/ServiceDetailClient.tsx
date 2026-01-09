@@ -119,8 +119,7 @@ export function ServiceDetailClient({ service }: ServiceDetailClientProps) {
                 </div>
             </div>
 
-            {/* Floating CTA */}
-            <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+            <div className="fixed bottom-16 left-0 right-0 p-4 bg-white border-t border-gray-100 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-40">
                 <button
                     onClick={handleBookNow}
                     style={{ background: designTokensV2.colors.gradient.css }}
