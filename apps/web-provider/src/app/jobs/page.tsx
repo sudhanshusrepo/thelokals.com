@@ -13,8 +13,9 @@ import { useJobsData } from '../../hooks/useJobsData';
 import { EmptyState } from '../../components/ui/EmptyState';
 
 export default function JobsPage() {
-    const { user } = useAuth();
+    const { user, profile, refreshProfile } = useAuth();
     const [activeTab, setActiveTab] = useState<'requests' | 'active' | 'history'>('active');
+    const [statusLoading, setStatusLoading] = useState(false);
 
     const { requests, activeJobs, historyJobs, isLoading: loading, mutateRequests, mutateActive } = useJobsData(user?.id, activeTab);
 
@@ -24,6 +25,23 @@ export default function JobsPage() {
 
     const [selectedJob, setSelectedJob] = useState<Booking | null>(null);
     const [isSheetOpen, setIsSheetOpen] = useState(false);
+
+    const isOnline = profile?.status === 'AVAILABLE' || profile?.status === 'BUSY';
+
+    const handleToggleOnline = async () => {
+        if (!user?.id) return;
+        setStatusLoading(true);
+        const newStatus = isOnline ? 'OFFLINE' : 'AVAILABLE';
+        try {
+            await providerService.updateAvailability(user.id, newStatus);
+            await refreshProfile();
+            toast.success(newStatus === 'AVAILABLE' ? "You are now ONLINE" : "You are now OFFLINE");
+        } catch (error) {
+            toast.error("Failed to update status");
+        } finally {
+            setStatusLoading(false);
+        }
+    };
 
     const refreshData = () => {
         mutateRequests();
@@ -76,24 +94,40 @@ export default function JobsPage() {
                     <p className="text-neutral-500">Manage your bookings and service requests.</p>
                 </div>
 
-                {/* Tabs */}
-                <div className="flex bg-white p-1 rounded-xl shadow-sm border border-neutral-100 overflow-x-auto no-scrollbar">
-                    {tabs.map((tab) => (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id as any)}
-                            aria-label={`Switch to ${tab.label} tab`}
-                            className={`flex-1 flex items-center gap-2 px-6 py-2.5 text-sm font-semibold rounded-lg transition-all whitespace-nowrap
-                                ${activeTab === tab.id
-                                    ? 'bg-neutral-900 text-white shadow-md'
-                                    : 'text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900'
-                                }`}
-                        >
-                            <tab.icon size={16} />
-                            {tab.label}
-                            {tab.count > 0 && <span className={`px-1.5 rounded text-xs ${activeTab === tab.id ? 'bg-white/20' : 'bg-neutral-200 text-neutral-700'}`}>{tab.count}</span>}
-                        </button>
-                    ))}
+                <div className="flex items-center gap-4">
+                    {/* Availability Toggle */}
+                    <button
+                        onClick={handleToggleOnline}
+                        disabled={statusLoading}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold transition-all shadow-sm
+                            ${isOnline
+                                ? 'bg-green-100 text-green-700 hover:bg-green-200 border border-green-200'
+                                : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 border border-neutral-200'
+                            }`}
+                    >
+                        <div className={`w-3 h-3 rounded-full ${isOnline ? 'bg-green-500 animate-pulse' : 'bg-neutral-400'}`} />
+                        {statusLoading ? 'Updating...' : (isOnline ? 'Online' : 'Offline')}
+                    </button>
+
+                    {/* Tabs */}
+                    <div className="flex bg-white p-1 rounded-xl shadow-sm border border-neutral-100 overflow-x-auto no-scrollbar">
+                        {tabs.map((tab) => (
+                            <button
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id as any)}
+                                aria-label={`Switch to ${tab.label} tab`}
+                                className={`flex-1 flex items-center gap-2 px-6 py-2.5 text-sm font-semibold rounded-lg transition-all whitespace-nowrap
+                                    ${activeTab === tab.id
+                                        ? 'bg-neutral-900 text-white shadow-md'
+                                        : 'text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900'
+                                    }`}
+                            >
+                                <tab.icon size={16} />
+                                {tab.label}
+                                {tab.count > 0 && <span className={`px-1.5 rounded text-xs ${activeTab === tab.id ? 'bg-white/20' : 'bg-neutral-200 text-neutral-700'}`}>{tab.count}</span>}
+                            </button>
+                        ))}
+                    </div>
                 </div>
             </div>
 
@@ -106,12 +140,32 @@ export default function JobsPage() {
                 ) : (
                     <>
                         {activeTab === 'requests' && currentData.length === 0 && (
-                            <EmptyState
-                                icon={Bell}
-                                title="No new job requests"
-                                description="You'll be notified when a customer books a service."
-                                action={{ label: 'Refresh', onClick: refreshData }}
-                            />
+                            <div className="flex flex-col items-center justify-center p-8 text-center bg-white rounded-xl border border-neutral-100">
+                                {isOnline ? (
+                                    <EmptyState
+                                        icon={Bell}
+                                        title="No new job requests"
+                                        description="You'll be notified when a customer books a service. Ensure you stay online."
+                                        action={{ label: 'Refresh', onClick: refreshData }}
+                                    />
+                                ) : (
+                                    <div className="py-8">
+                                        <div className="w-16 h-16 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-4 text-neutral-400">
+                                            <Bell size={32} />
+                                        </div>
+                                        <h3 className="text-lg font-bold text-neutral-900 mb-2">You are Offline</h3>
+                                        <p className="text-neutral-500 max-w-sm mx-auto mb-6">
+                                            Go Online to start receiving job requests from customers nearby.
+                                        </p>
+                                        <button
+                                            onClick={handleToggleOnline}
+                                            className="bg-brand-green text-black px-6 py-2 rounded-full font-bold hover:opacity-90 transition-opacity"
+                                        >
+                                            Go Online Now
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
                         )}
                         {activeTab === 'active' && currentData.length === 0 && (
                             <EmptyState

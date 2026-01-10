@@ -1,11 +1,21 @@
-'use client';
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '../context/AuthContext';
 import { CheckCircle, ArrowRight, Shield, Wallet, Users } from 'lucide-react';
 
 export default function LandingPage() {
     const router = useRouter();
+    const { user, isLoading } = useAuth();
+
+    React.useEffect(() => {
+        if (!isLoading && user) {
+            router.push('/jobs');
+        }
+    }, [user, isLoading, router]);
+
+
+    if (isLoading) return null; // Or a loading spinner
 
     return (
         <div className="min-h-screen bg-white">
