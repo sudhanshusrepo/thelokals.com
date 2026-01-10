@@ -49,11 +49,19 @@ function BookingFlowContent() {
         exit: { opacity: 0, x: -20 }
     };
 
+    if (loading) {
+        return (
+            <div className="flex bg-white h-screen items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
+            </div>
+        );
+    }
+
     return (
         <BookingErrorBoundary>
             <main className="min-h-screen bg-gray-50 overflow-hidden relative">
                 <AnimatePresence mode="wait">
-                    {view === 'SELECTION' && (
+                    {view === 'SELECTION' && category && (
                         <motion.div
                             key="selection"
                             variants={variants}
