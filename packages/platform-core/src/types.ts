@@ -183,6 +183,9 @@ export interface User {
 
 export interface Provider {
   providerId: string;
+  name?: string;       // Added
+  rating?: number;     // Added
+  imageUrl?: string;   // Added
   services: string[];
   isOnline: boolean;
   location: Coordinates;

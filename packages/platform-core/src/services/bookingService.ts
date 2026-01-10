@@ -550,5 +550,46 @@ export const bookingService = {
       ];
     }
     return data;
+  },
+
+  /**
+   * Retrieves all service items for a category (Public).
+   */
+  async getServiceItems(categoryId: string) {
+    const { data, error } = await supabase
+      .from('service_items')
+      .select('*')
+      .eq('category_id', categoryId)
+      .eq('is_active', true)
+      .order('base_price', { ascending: true });
+
+    if (error) {
+      logger.error('Error fetching service items', { error, categoryId });
+      // Fallback mocks
+      return [
+        { id: '1', name: 'Basic Inspection', base_price: 249, description: 'Diagnosis & Minor Fixes', price_unit: 'visit' },
+        { id: '2', name: 'Standard Service', base_price: 499, description: 'Deep Cleaning & Maintenance', price_unit: 'fixed' },
+        { id: '3', name: 'Premium Service', base_price: 799, description: 'Advanced Repair & Parts', price_unit: 'fixed' },
+      ] as any[];
+    }
+    return data;
+  },
+
+  /**
+   * Retrieves a single service category by ID.
+   */
+  async getServiceCategory(id: string) {
+    const { data, error } = await supabase
+      .from('service_categories')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      logger.error('Error fetching service category', { error, id });
+      // Fallback
+      return { id, name: 'Service', icon: 'Tool' };
+    }
+    return data;
   }
 };

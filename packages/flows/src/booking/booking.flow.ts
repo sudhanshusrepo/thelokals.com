@@ -10,21 +10,25 @@ export const BookingFlow = {
                 break;
 
             case "DRAFT":
-                if (event === "SUBMIT_ESTIMATE") return "ESTIMATING";
-                if (event === "SUBMIT_LIVE") return "SEARCHING"; // Skip estimate for live
+                // Screen 1: Selection -> Confirmation
+                if (event === "CONFIRM_DETAILS") return "ESTIMATING";
+                if (event === "SUBMIT_ESTIMATE") return "ESTIMATING"; // Legacy compat
+                if (event === "SUBMIT_LIVE") return "SEARCHING"; // Skip estimate
                 break;
 
             case "ESTIMATING":
+                // Screen 2: Pre-Booking -> Requesting
                 if (event === "ACCEPT_ESTIMATE") return "REQUESTING";
                 if (event === "CANCEL") return "IDLE";
                 break;
 
             case "REQUESTING":
-                if (event === "SUCCESS") return "SEARCHING"; // Wait for provider
+                if (event === "SUCCESS") return "SEARCHING";
                 if (event === "FAIL") return "FAILED";
                 break;
 
             case "SEARCHING":
+                // Screen 2: Pulse -> Found
                 if (event === "PROVIDER_FOUND") return "CONFIRMED";
                 if (event === "TIMEOUT") return "FAILED";
                 if (event === "CANCEL") return "CANCELLED";
@@ -42,6 +46,11 @@ export const BookingFlow = {
 
             case "IN_PROGRESS":
                 if (event === "COMPLETE") return "COMPLETED";
+                break;
+
+            case "COMPLETED":
+                // Screen 3: Payment
+                if (event === "SUBMIT_FEEDBACK") return "IDLE";
                 break;
         }
         return state;

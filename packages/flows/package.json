@@ -12,5 +12,8 @@
     },
     "dependencies": {
         "@thelocals/platform-core": "*"
+    },
+    "peerDependencies": {
+        "react": "^18.0.0"
     }
 }
