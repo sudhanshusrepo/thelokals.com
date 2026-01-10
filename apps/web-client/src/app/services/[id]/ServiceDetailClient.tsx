@@ -20,7 +20,7 @@ export function ServiceDetailClient({ service }: ServiceDetailClientProps) {
 
     const handleBookNow = () => {
         startBooking({
-            serviceCategory: service.id,
+            serviceCategory: service,
             serviceName: service.name,
             price: service.base_price || 0,
             image: (service as any).image_url || 'https://images.unsplash.com/photo-1581094794329-cd109678e7ea?auto=format&fit=crop&w=200&q=80'
