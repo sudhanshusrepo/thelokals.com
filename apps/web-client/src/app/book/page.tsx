@@ -40,7 +40,9 @@ function BookingFlowContent() {
             // Redirect to Home to select a service
             router.replace('/');
             return;
-        }
+        }, [categoryId, router]);
+
+    return (
         <BookingErrorBoundary>
             <main className="min-h-screen bg-gray-50">
                 {view === 'SELECTION' && (
@@ -60,7 +62,7 @@ function BookingFlowContent() {
                 )}
             </main>
         </BookingErrorBoundary>
-        );
+    );
 }
 
 export default function BookingFlowV2() {
