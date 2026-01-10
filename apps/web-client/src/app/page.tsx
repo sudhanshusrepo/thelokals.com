@@ -16,6 +16,7 @@ import { useMyBookings } from '../hooks/useMyBookings';
 export default function Home() {
     const router = useRouter();
     const { user } = useAuth();
+    const { activeBooking } = useMyBookings();
 
     const [selectedCity, setSelectedCity] = useState<string>(AVAILABLE_CITIES[0]);
 
@@ -198,21 +199,24 @@ export default function Home() {
                         )}
                     </section>
 
+
+                    // ...
+
                     {/* Upcoming Bookings (Active) */}
-                    {user && (
+                    {activeBooking && (
                         <Section>
                             <h3 className="text-lg font-bold font-poppins mb-3 text-gray-900">Upcoming</h3>
                             <Surface elevated className="border-l-4 border-l-lokals-orange">
                                 <StatusCard
                                     booking={{
-                                        id: '123',
-                                        serviceName: 'Deep Cleaning (3 BHK)',
-                                        status: 'assigned',
-                                        date: 'Today, 2:30 PM',
-                                        time: '2:30 PM',
-                                        imageUrl: '/services/ac.jpg' // Placeholder
+                                        id: activeBooking.id,
+                                        serviceName: (activeBooking as any).serviceName || 'Service',
+                                        status: activeBooking.status === 'PENDING' ? 'assigned' : (activeBooking.status.toLowerCase() as any),
+                                        date: new Date(activeBooking.scheduled_date || activeBooking.created_at).toLocaleDateString(),
+                                        time: new Date(activeBooking.scheduled_date || activeBooking.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                                        imageUrl: '/services/ac.jpg'
                                     }}
-                                    onClick={() => router.push('/bookings/123')}
+                                    onClick={() => router.push(`/bookings/${activeBooking.id}`)}
                                 />
                             </Surface>
                         </Section>

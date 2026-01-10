@@ -5,7 +5,7 @@ import { AuthGuard } from '../../components/auth/AuthGuard';
 import { useAuth } from '../../contexts/AuthContext';
 import { LogOut, Settings, CreditCard, Shield, MapPin, ChevronRight, User as UserIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { Surface, Section } from '../../components/ui/Surface';
+import { Surface, Section } from '../../components/ui/Wrappers';
 
 export default function ProfilePage() {
     const { user, signOut } = useAuth();
@@ -44,7 +44,15 @@ export default function ProfilePage() {
                                 { icon: CreditCard, label: 'Payments', color: 'bg-green-50 text-green-600' },
                                 { icon: Shield, label: 'Privacy', color: 'bg-purple-50 text-purple-600' }
                             ].map((item, idx) => (
-                                <div key={idx} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl cursor-pointer transition-colors group">
+                                <div
+                                    key={idx}
+                                    onClick={() => {
+                                        if (item.label === 'Payments') router.push('/wallet');
+                                        if (item.label === 'Help') router.push('/help'); // Assuming Help item exists or will exist
+                                        // Other items are placeholders
+                                    }}
+                                    className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl cursor-pointer transition-colors group"
+                                >
                                     <div className="flex items-center gap-4">
                                         <div className={`w-10 h-10 ${item.color} rounded-full flex items-center justify-center`}>
                                             <item.icon size={20} />
