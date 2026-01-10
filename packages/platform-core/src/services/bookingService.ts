@@ -204,7 +204,8 @@ export const bookingService = {
       .from('bookings')
       .select(`
         *,
-        providers(*)
+        providers(*),
+        service_categories(name)
       `)
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
@@ -234,7 +235,8 @@ export const bookingService = {
           lat: b.providers.location?.coordinates?.[1] || 0,
           lng: b.providers.location?.coordinates?.[0] || 0
         }
-      } : undefined
+      } : undefined,
+      serviceName: b.service_categories?.name
     }));
   },
 
