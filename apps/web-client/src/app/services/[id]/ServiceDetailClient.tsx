@@ -26,7 +26,7 @@ export function ServiceDetailClient({ service }: ServiceDetailClientProps) {
             image: (service as any).image_url || 'https://images.unsplash.com/photo-1581094794329-cd109678e7ea?auto=format&fit=crop&w=200&q=80'
         });
 
-        router.push('/book/package');
+        router.push(`/book?category_id=${service.id}`);
     };
 
     return (
