@@ -7,6 +7,7 @@ export type BookingState =
     | "CONFIRMED"
     | "EN_ROUTE"
     | "IN_PROGRESS"
+    | "PAYMENT_PENDING" // Added
     | "COMPLETED"
     | "CANCELLED"
     | "FAILED";

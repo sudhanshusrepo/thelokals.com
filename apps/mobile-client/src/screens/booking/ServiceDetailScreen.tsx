@@ -27,7 +27,7 @@ export const ServiceDetailScreen = () => {
     };
 
     const renderProvider = useCallback(({ item }: { item: any }) => (
-        <ProviderItem item={item} onPress={() => navigation.navigate('BookingForm', { provider: item, category })} />
+        <ProviderItem item={item} onPress={() => navigation.navigate('ServiceSelection', { categoryId: category.id, categoryName: category.name })} />
     ), [navigation, category]);
 
     return (
@@ -51,9 +51,9 @@ export const ServiceDetailScreen = () => {
                     <Text className="text-gray-500 text-lg">No providers found nearby.</Text>
                     <TouchableOpacity
                         className="mt-4 bg-blue-600 px-6 py-3 rounded-lg"
-                        onPress={() => navigation.navigate('BookingForm', { category, aiMode: true })}
+                        onPress={() => navigation.navigate('ServiceSelection', { categoryId: category.id, categoryName: category.name })}
                     >
-                        <Text className="text-white font-bold">Try AI Booking</Text>
+                        <Text className="text-white font-bold">Book Service</Text>
                     </TouchableOpacity>
                 </View>
             )}

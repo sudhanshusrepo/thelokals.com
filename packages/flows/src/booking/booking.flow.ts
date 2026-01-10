@@ -45,11 +45,15 @@ export const BookingFlow = {
                 break;
 
             case "IN_PROGRESS":
-                if (event === "COMPLETE") return "COMPLETED";
+                if (event === "COMPLETE_JOB") return "PAYMENT_PENDING";
+                break;
+
+            case "PAYMENT_PENDING":
+                if (event === "PAYMENT_SUCCESS") return "COMPLETED";
                 break;
 
             case "COMPLETED":
-                // Screen 3: Payment
+                // Screen 3: Feedback
                 if (event === "SUBMIT_FEEDBACK") return "IDLE";
                 break;
         }

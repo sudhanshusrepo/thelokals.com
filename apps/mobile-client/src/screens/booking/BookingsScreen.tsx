@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, RefreshControl } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { Calendar, Clock, MapPin } from 'lucide-react-native';
 import { useAuth, bookingService } from '@thelocals/platform-core';
 import { Surface, StatusChip, colors } from '@thelocals/ui-mobile';
@@ -64,12 +65,29 @@ export const BookingsScreen = () => {
 };
 
 const BookingItem = React.memo(({ item }: { item: any }) => {
+    const navigation = useNavigation<any>();
+
     const getStatusTone = (status: string): 'success' | 'warning' | 'neutral' => {
         switch (status) {
             case 'completed': return 'success';
             case 'pending': return 'warning';
             case 'cancelled': return 'neutral';
             default: return 'neutral';
+        }
+    };
+
+    const handleRebook = () => {
+        // Assuming item has category info. If not, this might fail or we default.
+        // For now, let's assume we can derive it or it's present.
+        // If missing, we can redirect to Home.
+        if (item.category_id) {
+            navigation.navigate('ServiceSelection', {
+                categoryId: item.category_id,
+                categoryName: item.service_name || 'Service'
+            });
+        } else {
+            // Fallback
+            navigation.navigate('Home');
         }
     };
 
@@ -92,11 +110,14 @@ const BookingItem = React.memo(({ item }: { item: any }) => {
                 <Text className="ml-2 text-sm" style={{ color: colors.textSecondary }}>New York, USA</Text>
             </View>
 
-            <View className="pt-3 border-t border-gray-100 flex-row justify-between">
+            <View className="pt-3 border-t border-gray-100 flex-row justify-between items-center">
                 <Text className="font-semibold" style={{ color: colors.textPrimary }}>${item.total_price}</Text>
-                <TouchableOpacity>
-                    <Text className="font-medium" style={{ color: colors.primary }}>View Details</Text>
-                </TouchableOpacity>
+
+                {item.status === 'completed' && (
+                    <TouchableOpacity onPress={handleRebook} className="bg-black px-3 py-1.5 rounded-full">
+                        <Text className="text-white text-xs font-bold">Rebook</Text>
+                    </TouchableOpacity>
+                )}
             </View>
         </Surface>
     )
