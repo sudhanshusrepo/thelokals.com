@@ -6,10 +6,7 @@ const nextConfig = {
     transpilePackages: ['@thelocals/platform-core', '@thelocals/platform-config', '@thelocals/ui-web', '@thelocals/flows'],
     outputFileTracingRoot: path.join(__dirname, '../../'),
     cacheHandler: require.resolve('./cache-handler.js'),
-    experimental: {
-        turbopack: true,
-        ppr: 'incremental',
-    },
+    cacheHandler: require.resolve('./cache-handler.js'),
     images: {
         remotePatterns: [
             {
