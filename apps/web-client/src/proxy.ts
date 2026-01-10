@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-export async function middleware(request: NextRequest) {
+export default async function proxy(request: NextRequest) {
     const response = NextResponse.next({
         request: {
             headers: request.headers,
@@ -32,23 +32,7 @@ export async function middleware(request: NextRequest) {
     );
 
     // Refresh session if needed
-    const {
-        data: { user },
-    } = await supabase.auth.getUser();
-
-    // Protected Routes Logic removed to rely on client-side AuthGuard
-    // due to potential cookie synchronization issues with OTP flow.
-    // if (!user && request.nextUrl.pathname.startsWith('/bookings')) {
-    //     const url = request.nextUrl.clone();
-    //     url.pathname = '/auth';
-    //     return NextResponse.redirect(url);
-    // }
+    await supabase.auth.getUser();
 
     return response;
 }
-
-export const config = {
-    matcher: [
-        "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
-    ],
-};
