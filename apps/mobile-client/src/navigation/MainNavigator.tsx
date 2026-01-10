@@ -3,9 +3,6 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { HomeScreen } from '../screens/home/HomeScreen';
 import { ServiceDetailScreen } from '../screens/booking/ServiceDetailScreen';
-import { BookingFormScreen } from '../screens/booking/BookingFormScreen';
-import { BookingConfirmationScreen } from '../screens/booking/BookingConfirmationScreen';
-import { PaymentScreen } from '../screens/booking/PaymentScreen';
 import { ServiceSelectionScreen } from '../screens/booking/ServiceSelectionScreen';
 import { LiveBookingHub } from '../screens/booking/LiveBookingHub';
 import { PostBookingScreen } from '../screens/booking/PostBookingScreen';
@@ -25,13 +22,10 @@ const HomeNavigator = () => {
         <HomeStack.Navigator screenOptions={{ headerShown: true }}>
             <HomeStack.Screen name="HomeIndex" component={HomeScreen} options={{ headerShown: false }} />
             <HomeStack.Screen name="ServiceDetail" component={ServiceDetailScreen} options={{ title: 'Service Details' }} />
-            <HomeStack.Screen name="BookingForm" component={BookingFormScreen} options={{ title: 'Book Service' }} />
-            <HomeStack.Screen name="Payment" component={PaymentScreen} options={{ title: 'Payment' }} />
-            <HomeStack.Screen name="BookingConfirmation" component={BookingConfirmationScreen} options={{ headerShown: false }} />
             <HomeStack.Screen name="ServiceSelection" component={ServiceSelectionScreen} options={{ headerShown: false }} />
             <HomeStack.Screen name="LiveBookingHub" component={LiveBookingHub} options={{ headerShown: false }} />
             <HomeStack.Screen name="PostBooking" component={PostBookingScreen} options={{ headerShown: false }} />
-        </HomeStack.Navigator>
+        </HomeStack.Navigator >
     );
 };
 

@@ -13,9 +13,9 @@ export const linking = {
                         screens: {
                             HomeIndex: 'home',
                             ServiceDetail: 'service/:category',
-                            BookingForm: 'book',
-                            Payment: 'pay/:bookingId',
-                            BookingConfirmation: 'booking/success',
+                            ServiceSelection: 'book/selection',
+                            LiveBookingHub: 'book/live',
+                            PostBooking: 'book/complete',
                         }
                     },
                     Search: 'search',
