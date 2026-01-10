@@ -12,6 +12,7 @@ import { ServiceCategory, ServiceLocation, AVAILABLE_CITIES, CITY_COORDINATES } 
 import { MapPin, ChevronDown, Search } from 'lucide-react';
 import { Surface, Section, HeroSurface, CardGrid } from '../components/ui/Wrappers';
 import { useMyBookings } from '../hooks/useMyBookings';
+import { LocationSearchBar } from '../components/maps/LocationSearchBar';
 
 export default function Home() {
     const router = useRouter();
@@ -119,49 +120,15 @@ export default function Home() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-lokals-yellow/10 via-lokals-green/10 to-blue-50 pb-24">
             <div className="max-w-md mx-auto min-h-screen bg-white shadow-2xl overflow-hidden relative">
-                {/* Header */}
-                <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm px-6 py-4 flex justify-between items-center transition-all duration-300 mb-6 border-b border-gray-100/50">
-                    {/* Left: Location */}
-                    <div className="flex items-center gap-3">
-                        <Surface className="!p-2 !rounded-xl !shadow-none border-gray-200/50 bg-gray-50/50">
-                            <div className="flex items-center gap-1 group cursor-pointer relative">
-                                <MapPin size={16} className="text-lokals-green" />
-                                <select
-                                    value={selectedCity}
-                                    onChange={(e) => setSelectedCity(e.target.value)}
-                                    className="appearance-none bg-transparent font-bold text-sm text-gray-900 border-none outline-none cursor-pointer pr-4 z-10"
-                                >
-                                    {AVAILABLE_CITIES.map(city => (
-                                        <option key={city} value={city}>{city}</option>
-                                    ))}
-                                </select>
-                                <ChevronDown size={14} className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                            </div>
-                        </Surface>
-                    </div>
+                {/* Header - Replaced with Smart Location Bar */}
+                <LocationSearchBar
+                    onLocationSelect={(addr, lat, lng) => {
+                        console.log("Location Selected:", addr, lat, lng);
+                        // TODO: Update global user location context if needed
+                    }}
+                />
 
-                    {/* Right: User & Bell */}
-                    <div className="flex items-center gap-3">
-                        <Surface className="!p-2 !rounded-full !shadow-none hover:bg-gray-100 cursor-pointer" onClick={() => { }}>
-                            <Search size={20} className="text-gray-600" />
-                        </Surface>
-
-                        {user ? (
-                            <div onClick={() => router.push('/profile')} className="w-10 h-10 rounded-full bg-gradient-to-br from-lokals-yellow to-lokals-orange p-[2px] cursor-pointer shadow-md hover:scale-105 transition-transform">
-                                <div className="w-full h-full rounded-full bg-white flex items-center justify-center text-xs font-bold text-gray-700">
-                                    {user.email?.[0]?.toUpperCase() || 'U'}
-                                </div>
-                            </div>
-                        ) : (
-                            <button
-                                onClick={() => router.push('/auth')}
-                                className="bg-lokals-green text-white text-sm font-bold px-5 py-2.5 rounded-v2-btn shadow-lg shadow-lokals-green/20 hover:bg-lokals-green/90 transition-transform active:scale-95"
-                            >
-                                Login
-                            </button>
-                        )}
-                    </div>
-                </header>
+                {/* Legacy Header Removed */}
 
                 <main className="flex flex-col gap-6 px-4">
                     {/* Hero Card */}

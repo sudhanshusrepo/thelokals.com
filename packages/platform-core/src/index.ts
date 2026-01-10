@@ -42,3 +42,13 @@ export { useTheme as useThemeHook } from './hooks/useTheme';
 
 export { ErrorFallback } from './components/ErrorFallback';
 export { logger } from './services/logger';
+
+// Maps (Phase 11)
+export * from './maps/LocationHooks';
+export * from './maps/GoogleMapProvider';
+export * from './maps/ProviderCircle';
+export * from './maps/LiveTracker';
+export * from './maps/MapOverlays';
+export * from './maps/MapSkeleton';
+export * from './maps/MapError';
+export * from './maps/mapStyles';

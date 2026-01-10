@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { providerService } from "@thelocals/platform-core";
 import { toast } from 'react-hot-toast';
 import { Calendar as CalendarIcon, Clock, Power, Info, MapPin, Sliders } from 'lucide-react';
+import { ServiceAreaEditor } from '../../components/maps/ServiceAreaEditor';
 
 export default function CalendarPage() {
     const { user, profile, refreshProfile } = useAuth();
@@ -93,19 +94,15 @@ export default function CalendarPage() {
                     </h3>
 
                     <div className="mb-6">
-                        <input
-                            type="range"
-                            min="5"
-                            max="15"
-                            step="1"
-                            value={radius}
-                            onChange={(e) => setRadius(Number(e.target.value))}
-                            className="w-full h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-brand-green"
+                        <ServiceAreaEditor
+                            radiusKm={radius}
+                            onRadiusChange={setRadius}
+                            className="h-64 w-full mb-4"
                         />
-                        <div className="flex justify-between text-xs text-neutral-400 mt-2">
-                            <span>5km (Local)</span>
-                            <span>15km (City)</span>
-                        </div>
+
+                        <p className="text-sm text-neutral-500 text-center">
+                            Drag the circle to adjust your service area.
+                        </p>
                     </div>
 
                     <h3 className="font-bold text-lg mb-4 flex items-center gap-2 border-t border-neutral-100 pt-6">

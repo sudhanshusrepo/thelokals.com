@@ -1,10 +1,26 @@
-
 'use client';
 
 import { Booking, providerService } from "@thelocals/platform-core";
 import { X, MapPin, Calendar, Clock, Phone, Navigation, CheckCircle, Play, CreditCard } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
+
+export const NavigateButton = ({ lat, lng }: { lat: number, lng: number }) => {
+    const handleNavigate = () => {
+        const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`;
+        window.open(url, '_blank');
+    };
+
+    return (
+        <button
+            onClick={handleNavigate}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg font-medium hover:bg-blue-100 transition-colors"
+        >
+            <Navigation size={16} />
+            <span>Navigate</span>
+        </button>
+    );
+};
 
 interface JobDetailSheetProps {
     isOpen: boolean;
