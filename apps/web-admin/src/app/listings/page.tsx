@@ -116,7 +116,7 @@ export default function Listings() {
         }
     };
 
-    const openModal = (category: Partial<ServiceCategory> = { type: 'local' }) => {
+    const openModal = (category: Partial<ServiceCategory> = { type: 'SERVICE' }) => {
         setEditingCategory(category);
         setIsModalOpen(true);
     };
