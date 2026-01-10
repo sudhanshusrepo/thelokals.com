@@ -4,6 +4,7 @@ import React, { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@thelocals/platform-core';
 import { toast } from 'react-hot-toast';
+import { useAuthFlow } from '../../hooks/useAuthFlow';
 
 function PhoneAuthContent() {
     const router = useRouter();
@@ -12,8 +13,15 @@ function PhoneAuthContent() {
 
     const [phone, setPhone] = useState('');
     const [otp, setOtp] = useState('');
-    const [step, setStep] = useState<'phone' | 'otp'>('phone');
     const [loading, setLoading] = useState(false);
+
+    // Canonical Flow
+    const { state, transition } = useAuthFlow();
+
+    // Init flow on mount if needed
+    React.useEffect(() => {
+        if (state === 'IDLE') transition('INIT');
+    }, [state, transition]);
 
     const handleSendOTP = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -35,10 +43,11 @@ function PhoneAuthContent() {
             if (error) throw error;
 
             toast.success('OTP sent successfully!');
-            setStep('otp');
+            transition('SEND_OTP');
         } catch (error: any) {
             console.error('OTP Send Error:', error);
             toast.error(error.message || 'Failed to send OTP');
+            // transition('FAIL'); // Optional: Error state
         } finally {
             setLoading(false);
         }
@@ -47,6 +56,7 @@ function PhoneAuthContent() {
     const handleVerifyOTP = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
+        transition('VERIFY');
 
         try {
             // Validate OTP
@@ -65,15 +75,19 @@ function PhoneAuthContent() {
 
             if (error) throw error;
 
+            transition('SUCCESS');
             toast.success('Login successful!');
             router.push(redirectTo);
         } catch (error: any) {
             console.error('OTP Verify Error:', error);
             toast.error(error.message || 'Invalid OTP');
+            transition('FAIL');
         } finally {
             setLoading(false);
         }
     };
+
+    const showOtpForm = state === 'OTP_SENT' || state === 'VERIFYING';
 
     return (
         <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -86,7 +100,7 @@ function PhoneAuthContent() {
 
                 {/* Auth Card */}
                 <div className="bg-white rounded-2xl shadow-xl border border-slate-100 p-8">
-                    {step === 'phone' ? (
+                    {!showOtpForm ? (
                         <form onSubmit={handleSendOTP} className="space-y-6">
                             <div>
                                 <h2 className="text-2xl font-bold text-slate-900 mb-2">Welcome!</h2>
@@ -155,7 +169,7 @@ function PhoneAuthContent() {
                             <button
                                 type="button"
                                 onClick={() => {
-                                    setStep('phone');
+                                    transition('RETRY');
                                     setOtp('');
                                 }}
                                 className="w-full text-primary font-medium text-sm hover:text-primary-600 transition-colors"

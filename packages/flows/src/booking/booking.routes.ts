@@ -3,7 +3,7 @@ import { BookingState } from './booking.state';
 export const bookingRouteMap = {
     web: {
         IDLE: "/",
-        DRAFT: "/book/service",
+        DRAFT: "/book/now",
         ESTIMATING: "/book/estimate",
         SEARCHING: "/live-request", // Suffix with ID dynamically
         CONFIRMED: "/live-request",
