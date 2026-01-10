@@ -134,7 +134,7 @@ export const bookingService = {
       ...data,
       worker: data.providers ? {
         id: data.providers.id,
-        name: data.providers.name || 'Provider',
+        name: data.providers.full_name || data.providers.name || 'Provider',
         category: data.providers.services?.[0] || 'General',
         description: data.providers.description || '',
         price: 0,
@@ -220,7 +220,7 @@ export const bookingService = {
       ...b,
       worker: b.providers ? {
         id: b.providers.id,
-        name: b.providers.name || 'Provider',
+        name: b.providers.full_name || b.providers.name || 'Provider',
         category: b.providers.services?.[0] || 'General',
         description: b.providers.description || '',
         price: 0,

@@ -115,6 +115,7 @@ export const providerService = {
             .from('booking_requests')
             .select(`
          *,
+         id:request_id,
          bookings:booking_id (*, user:user_id(*))
        `)
             .eq('provider_id', providerId)
