@@ -65,7 +65,7 @@ export function ServiceCategoryTable({
                                         </div>
                                     </td>
                                     <td className="py-4 px-6">
-                                        <Badge variant={cat.type === 'local' ? 'success' : 'info'}>
+                                        <Badge variant={cat.type === 'SERVICE' ? 'success' : 'info'}>
                                             {cat.type?.toUpperCase() || 'UNKNOWN'}
                                         </Badge>
                                     </td>
