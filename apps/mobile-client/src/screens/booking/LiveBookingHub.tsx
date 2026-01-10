@@ -1,11 +1,51 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
+import { View, Text, TouchableOpacity, ActivityIndicator, Image, Animated, Easing } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useBookingLogic, PricingUtils } from '@thelocals/flows';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
 import * as Location from 'expo-location';
+
+const PulseCircle = ({ delay }: { delay: number }) => {
+    const scale = React.useRef(new Animated.Value(1)).current;
+    const opacity = React.useRef(new Animated.Value(0.5)).current;
+
+    React.useEffect(() => {
+        const animation = Animated.loop(
+            Animated.parallel([
+                Animated.timing(scale, {
+                    toValue: 2.5,
+                    duration: 2000,
+                    delay,
+                    easing: Easing.out(Easing.ease),
+                    useNativeDriver: true,
+                }),
+                Animated.timing(opacity, {
+                    toValue: 0,
+                    duration: 2000,
+                    delay,
+                    easing: Easing.out(Easing.ease),
+                    useNativeDriver: true,
+                }),
+            ])
+        );
+        animation.start();
+        return () => animation.stop();
+    }, [delay, scale, opacity]);
+
+    return (
+        <Animated.View
+            className="absolute bg-green-500 rounded-full w-full h-full"
+            style={{
+                transform: [{ scale }],
+                opacity,
+                width: '100%',
+                height: '100%'
+            }}
+        />
+    );
+};
 
 export const LiveBookingHub = () => {
     const route = useRoute<any>();
@@ -102,12 +142,24 @@ export const LiveBookingHub = () => {
 
                 {/* SEARCHING */}
                 {isSearching && (
-                    <View className="items-center py-4">
-                        <ActivityIndicator size="large" color="#10B981" />
-                        <Text className="text-lg font-bold mt-4 text-gray-900">Finding Process...</Text>
-                        <Text className="text-gray-500 mb-6">Connecting to best rated pros</Text>
-                        <TouchableOpacity onPress={() => send('CANCEL')}>
-                            <Text className="text-red-500 font-bold">Cancel</Text>
+                    <View className="items-center py-8">
+                        <View className="items-center justify-center mb-6 h-24 w-24">
+                            {/* Pulse Circles */}
+                            <PulseCircle delay={0} />
+                            <PulseCircle delay={500} />
+
+                            <View className="bg-white p-3 rounded-full shadow-sm z-10">
+                                <ActivityIndicator size="small" color="#10B981" />
+                            </View>
+                        </View>
+                        <Text className="text-lg font-bold mt-2 text-gray-900">Finding nearby pros...</Text>
+                        <Text className="text-gray-500 mb-6 text-center">Connecting with the best rated providers{'\n'}in your area.</Text>
+
+                        <TouchableOpacity
+                            onPress={() => send('CANCEL')}
+                            className="bg-gray-100 px-6 py-2 rounded-full"
+                        >
+                            <Text className="text-gray-600 font-bold text-sm">Cancel</Text>
                         </TouchableOpacity>
                     </View>
                 )}

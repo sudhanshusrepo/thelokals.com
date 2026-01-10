@@ -118,10 +118,26 @@ export default function LiveBookingHub() {
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                         className="absolute inset-0 z-30 bg-black/40 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center"
                     >
-                        <div className="w-32 h-32 relative mb-8">
-                            <div className="absolute inset-0 border-4 border-lokals-green/30 rounded-full animate-ping" />
-                            <div className="absolute inset-0 border-4 border-lokals-green/50 rounded-full animate-ping delay-150" />
-                            <div className="absolute inset-0 bg-white rounded-full flex items-center justify-center shadow-xl">
+                        <div className="w-32 h-32 relative mb-8 flex items-center justify-center">
+                            {[0, 1, 2].map((i) => (
+                                <motion.div
+                                    key={i}
+                                    className="absolute border-4 border-lokals-green rounded-full"
+                                    initial={{ width: '100%', height: '100%', opacity: 0.5 }}
+                                    animate={{
+                                        width: ['100%', '300%'],
+                                        height: ['100%', '300%'],
+                                        opacity: [0.5, 0]
+                                    }}
+                                    transition={{
+                                        duration: 2,
+                                        repeat: Infinity,
+                                        delay: i * 0.6,
+                                        ease: "easeOut"
+                                    }}
+                                />
+                            ))}
+                            <div className="absolute inset-0 bg-white rounded-full flex items-center justify-center shadow-xl z-10 w-full h-full">
                                 <Loader2 size={48} className="text-lokals-green animate-spin" />
                             </div>
                         </div>

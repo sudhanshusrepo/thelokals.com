@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Alert, LayoutAnimation, Platform, UIManager } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useBookingLogic, PricingUtils } from '@thelocals/flows';
 import { bookingService, ServiceItem } from '@thelocals/platform-core';
@@ -34,7 +34,14 @@ export const ServiceSelectionScreen = () => {
         loadOptions();
     }, [categoryId]);
 
+    if (Platform.OS === 'android') {
+        if (UIManager.setLayoutAnimationEnabledExperimental) {
+            UIManager.setLayoutAnimationEnabledExperimental(true);
+        }
+    }
+
     const handleSelect = (item: ServiceItem) => {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         setSelectedOption(item.id);
         const estimate = PricingUtils.calculateEstimate(item);
         send('UPDATE_CONTEXT', {
@@ -74,8 +81,8 @@ export const ServiceSelectionScreen = () => {
                         key={item.id}
                         onPress={() => handleSelect(item)}
                         className={`p-4 mb-3 rounded-2xl border-2 flex-row items-center justify-between ${selectedOption === item.id
-                                ? 'border-green-500 bg-green-50'
-                                : 'border-gray-100 bg-white'
+                            ? 'border-green-500 bg-green-50'
+                            : 'border-gray-100 bg-white'
                             }`}
                     >
                         <View className="flex-1 mr-4">
