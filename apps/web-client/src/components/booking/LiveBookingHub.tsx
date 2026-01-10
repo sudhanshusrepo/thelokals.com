@@ -3,42 +3,97 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, MapPin, Loader2, Phone, MessageCircle, Star } from 'lucide-react';
-import { GoogleMapProvider, Marker } from '@thelocals/platform-core';
+import { GoogleMapProvider, Marker, liveBookingService, bookingService } from '@thelocals/platform-core';
+import { useAuth } from '../../contexts/AuthContext';
 import { useBookingLogic, PricingUtils } from '@thelocals/flows';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 
 export default function LiveBookingHub() {
     const router = useRouter();
     const { state, context, send } = useBookingLogic();
+    const { user } = useAuth();
     const mapRef = useRef<google.maps.Map | null>(null);
 
     // Derived State
     const isSearching = state === 'SEARCHING' || state === 'REQUESTING';
     const isAssigned = state === 'CONFIRMED' || state === 'EN_ROUTE' || state === 'IN_PROGRESS';
 
-    // Mock Provider Location (would be real-time in prod)
-    const [providerLoc, setProviderLoc] = useState<{ lat: number, lng: number } | null>(null);
-
     // Initial Center from Context or Default (Mumbai)
     const center = context.location ? { lat: context.location.lat, lng: context.location.lng } : { lat: 19.0760, lng: 72.8777 };
 
-    const handleConfirmBooking = () => {
-        send('SUBMIT_LIVE');
-        // Mock finding provider after 3s
-        setTimeout(() => {
-            send('PROVIDER_FOUND', {
-                provider: {
-                    id: 'p1',
-                    name: 'Rajesh Kumar',
-                    rating: 4.8,
-                    location: { lat: center.lat + 0.001, lng: center.lng + 0.001 } as any,
-                    imageUrl: '',
-                    services: [],
-                    isOnline: true
-                } as any
+    const handleConfirmBooking = async () => {
+        if (!context.serviceCategory || !context.location) return;
+
+        try {
+            // 1. Find Nearby Providers
+            const providers = await bookingService.findNearbyProviders(
+                context.serviceCategory.id,
+                context.location.lat,
+                context.location.lng,
+                10000 // 10km
+            );
+
+            if (!providers || providers.length === 0) {
+                toast.error("No providers found nearby. Please try again later.");
+                return;
+            }
+
+            // 2. Create Live Booking
+            const booking = await liveBookingService.createLiveBooking({
+                clientId: user?.id || 'anon_user',
+                serviceId: context.serviceCategory.id,
+                requirements: {
+                    location: context.location,
+                    option: context.selectedOption
+                }
             });
-        }, 3000);
+
+            // 3. Create Requests for Providers
+            const providerIds = providers.map(p => p.id);
+            await liveBookingService.createBookingRequests(booking.id, providerIds);
+
+            // 4. Set State to SEARCHING
+            send('SUBMIT_LIVE', { bookingId: booking.id });
+
+            // 5. Subscribe to Updates
+            const channel = liveBookingService.subscribeToBookingUpdates(booking.id, (payload) => {
+                const newData = payload.new as any;
+                if (!newData) return;
+
+                if (newData.status === 'CONFIRMED' || newData.status === 'ACCEPTED') {
+                    // Update Provider Info
+                    send('PROVIDER_FOUND', {
+                        provider: {
+                            providerId: newData.provider_id,
+                            name: 'Provider', // We could fetch real name here
+                            rating: 4.8,
+                            location: { lat: center.lat + 0.001, lng: center.lng + 0.001 },
+                            isOnline: true,
+                            services: [] // Added missing property
+                        }
+                    });
+                }
+            });
+
+            // Cleanup subscription on unmount or state change handled by effect if needed
+            mapRef.current = channel as any;
+
+        } catch (error) {
+            console.error("Failed to create booking:", error);
+            toast.error("Failed to not create booking. Please try again.");
+            // send('FAIL'); 
+        }
     };
+
+    // Cleanup channel on unmount
+    useEffect(() => {
+        return () => {
+            if (mapRef.current && (mapRef.current as any).unsubscribe) {
+                (mapRef.current as any).unsubscribe();
+            }
+        }
+    }, []);
 
     return (
         <div className="relative h-screen w-full bg-gray-100 overflow-hidden">
@@ -81,7 +136,7 @@ export default function LiveBookingHub() {
             <AnimatePresence mode="wait">
 
                 {/* STATE: PRE-BOOKING (Confirm) */}
-                {state === 'DRAFT' || state === 'ESTIMATING' && (
+                {(state === 'DRAFT' || state === 'ESTIMATING') && (
                     <motion.div
                         initial={{ y: 200 }} animate={{ y: 0 }} exit={{ y: 200 }}
                         className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl p-6 z-20 pb-10"
