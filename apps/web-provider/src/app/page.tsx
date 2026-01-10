@@ -16,7 +16,8 @@ export default function LandingPage() {
     }, [user, loading, router]);
 
 
-    if (isLoading) return null; // Or a loading spinner
+
+    if (loading) return null; // Or a loading spinner
 
     return (
         <div className="min-h-screen bg-white">
