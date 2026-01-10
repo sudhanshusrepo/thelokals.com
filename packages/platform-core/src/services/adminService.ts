@@ -579,22 +579,27 @@ export const adminService = {
      */
     async upsertServiceCategory(category: Partial<import('../types').ServiceCategory>): Promise<void> {
         // 1. Upsert Category
+        const payload: any = {
+            name: category.name,
+            type: category.type || 'SERVICE', // Default to SERVICE
+            description: category.description,
+            image_url: category.image_url || undefined
+        };
+
+        if (category.id) {
+            payload.id = category.id;
+        }
+
         const { data: catData, error } = await supabase
             .from('service_categories')
-            .upsert({
-                id: category.id,
-                name: category.name,
-                type: category.type || 'SERVICE', // Default to SERVICE
-                description: category.description,
-                image_url: category.image_url || undefined
-            })
+            .upsert(payload)
             .select()
             .single();
 
         if (error) throw new Error(`Failed to save service category: ${error.message}`);
 
         // 2. Upsert Pricing if provided
-        if (category.base_price && catData) {
+        if (category.base_price !== undefined && catData) {
             await this.upsertServicePricing({
                 service_category_id: catData.id,
                 base_price: category.base_price,
