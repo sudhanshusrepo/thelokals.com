@@ -10,7 +10,10 @@ const config: Config = {
     theme: {
         extend: {
             colors: {
-                primary: colors.admin.primary,
+                primary: {
+                    ...colors.admin.primary,
+                    DEFAULT: colors.admin.primary[500],
+                },
                 neutral: colors.common.slate,
                 success: colors.common.success,
                 warning: colors.common.warning,
