@@ -228,6 +228,36 @@ export default function Home() {
                             </div>
                         )}
                     </Section>
+
+                    {/* Rental Services Section */}
+                    <Section>
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-lg font-bold font-poppins text-gray-900">Rentals & More</h3>
+                            <button onClick={() => router.push('/rentals')} className="font-semibold text-lokals-green text-sm hover:underline">See All</button>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                            {/* Hardcoded Entry Point for Rentals for now until DB populated */}
+                            <button
+                                onClick={() => router.push('/rentals')}
+                                className="p-4 bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col gap-2 items-center text-center hover:border-lokals-green/50 hover:shadow-md transition-all active:scale-95"
+                            >
+                                <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-2xl">
+                                    🚗
+                                </div>
+                                <span className="font-bold text-gray-800 text-sm">Car Rental</span>
+                            </button>
+                            <button
+                                onClick={() => router.push('/rentals')}
+                                className="p-4 bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col gap-2 items-center text-center hover:border-lokals-green/50 hover:shadow-md transition-all active:scale-95"
+                            >
+                                <div className="w-12 h-12 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center text-2xl">
+                                    🛵
+                                </div>
+                                <span className="font-bold text-gray-800 text-sm">Bike Rental</span>
+                            </button>
+                        </div>
+                    </Section>
                 </main>
             </div>
         </div>

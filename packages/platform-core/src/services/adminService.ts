@@ -584,7 +584,7 @@ export const adminService = {
             .upsert({
                 id: category.id,
                 name: category.name,
-                type: category.type,
+                type: category.type || 'SERVICE', // Default to SERVICE
                 description: category.description,
                 image_url: category.image_url || undefined
             })

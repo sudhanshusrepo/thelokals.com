@@ -335,11 +335,14 @@ export interface AdminBookingSummary {
 export interface ServiceCategory {
   id: string;
   name: string;
-  type: 'local' | 'online';
+  type: 'SERVICE' | 'RENTAL'; // Added for rental module
   description?: string;
+  icon?: string;
   image_url?: string;
   base_price?: number;
-  created_at?: string;
+  currency?: string;
+  is_enabled?: boolean;
+  sort_order?: number;
 }
 
 export interface ServiceItem {

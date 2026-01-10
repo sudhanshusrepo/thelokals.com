@@ -46,6 +46,13 @@ export const useReverseGeocode = () => {
         setLoading(true);
         setError(null);
         try {
+            if (typeof google === 'undefined' || !google.maps || !google.maps.Geocoder) {
+                // If API not loaded yet, silently fail or retry. 
+                // Since this hook is often used inside contexts or after load, 
+                // we'll rely on the caller to ensure API presence or use useJsApiLoader themselves.
+                // However, for safety:
+                throw new Error('Google Maps API not loaded');
+            }
             const geocoder = new google.maps.Geocoder();
             const response = await geocoder.geocode({ location: { lat, lng } });
 
