@@ -14,5 +14,8 @@ export type BookingState =
 export interface BookingContext {
     bookingId?: string;
     serviceCategory?: string;
+    serviceName?: string;
+    price?: number;
+    image?: string;
     error?: string;
 }

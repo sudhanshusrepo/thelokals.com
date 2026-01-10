@@ -13,6 +13,7 @@ import { MapPin, ChevronDown, Search } from 'lucide-react';
 import { Surface, Section, HeroSurface, CardGrid } from '../components/ui/Wrappers';
 import { useMyBookings } from '../hooks/useMyBookings';
 import { LocationSearchBar } from '../components/maps/LocationSearchBar';
+import { useLocation } from '../contexts/LocationContext';
 
 export default function Home() {
     const router = useRouter();
@@ -66,55 +67,19 @@ export default function Home() {
         router.push(`/services/${serviceId}`);
     };
 
-    // Geolocation Logic
-    const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
-        const R = 6371; // Radius of the earth in km
-        const dLat = deg2rad(lat2 - lat1);
-        const dLon = deg2rad(lon2 - lon1);
-        const a =
-            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
-            Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return R * c; // Distance in km
-    };
 
-    const deg2rad = (deg: number) => deg * (Math.PI / 180);
+    // Location Context Integration
+    const { locationState } = useLocation();
 
     useEffect(() => {
-        // City Coordinates (Approximate for detection)
-        // Uses CITY_COORDINATES from platform-core
-
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const { latitude, longitude } = position.coords;
-                    let minBody = Infinity;
-                    let measuredCity = AVAILABLE_CITIES[0]; // Default
-
-                    for (const city of AVAILABLE_CITIES) {
-                        const coords = CITY_COORDINATES[city];
-                        if (coords) {
-                            const dist = calculateDistance(latitude, longitude, coords.lat, coords.lng);
-                            if (dist < minBody) {
-                                minBody = dist;
-                                measuredCity = city;
-                            }
-                        }
-                    }
-
-                    // If user is reasonably close to a supported city (e.g. < 50km), switch to it. 
-                    // Or just switch to nearest regardless.
-                    if (minBody < 50) {
-                        setSelectedCity(measuredCity);
-                    }
-                },
-                (error) => {
-                    console.log('Location permission denied or error', error);
-                }
-            );
+        if (locationState.city) {
+            // Check if city matches one of our available cities
+            const matchedCity = AVAILABLE_CITIES.find(c => locationState.city?.includes(c));
+            if (matchedCity) {
+                setSelectedCity(matchedCity);
+            }
         }
-    }, []);
+    }, [locationState.city]);
 
 
     return (

@@ -35,7 +35,7 @@ export class OTPService {
      * @param phone - Phone number
      * @param _appVerifier - Ignored (Legacy Firebase arg)
      */
-    static async sendOTP(phone: string, _appVerifier?: any): Promise<OTPConfirmation> {
+    static async sendOTP(phone: string, _unused?: any): Promise<OTPConfirmation> {
         if (this.isTestMode()) {
 
             return {

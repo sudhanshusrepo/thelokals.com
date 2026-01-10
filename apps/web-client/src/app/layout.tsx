@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "../contexts/AuthContext";
 import { BookingProvider } from "../contexts/BookingContext";
+import { LocationProvider } from "../contexts/LocationContext";
 import { BottomNav } from "../components/navigation/BottomNav";
 import { Toaster } from "react-hot-toast";
 import dynamic from 'next/dynamic';
@@ -63,12 +64,14 @@ export default function RootLayout({
             <body className={inter.className}>
                 <AuthProvider>
                     <BookingProvider>
-                        <main className="pb-20">
-                            {children}
-                        </main>
-                        <AIChatWrapper />
-                        <BottomNav />
-                        <Toaster position="top-center" />
+                        <LocationProvider>
+                            <main className="min-h-screen relative pb-16 md:pb-0 font-sans antialiased">
+                                {children}
+                            </main>
+                            <AIChatWrapper />
+                            <BottomNav />
+                            <Toaster position="top-center" />
+                        </LocationProvider>
                     </BookingProvider>
                 </AuthProvider>
             </body>

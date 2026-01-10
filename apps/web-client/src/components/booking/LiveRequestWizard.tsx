@@ -2,8 +2,16 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { adminService, bookingService, ServiceCategory, useCurrentPosition, useReverseGeocode } from '@thelocals/platform-core';
-import { MapPin, ArrowRight, Loader2, Sparkles, Clock, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import {
+    adminService,
+    bookingService,
+    ServiceCategory,
+    GoogleMapProvider,
+    Marker
+} from '@thelocals/platform-core';
+import { useBookingFlow } from '../../contexts/BookingContext';
+import { useLocation } from '../../contexts/LocationContext';
+import { MapPin, ArrowRight, Loader2, Sparkles, ArrowLeft } from 'lucide-react';
 import { AddressEditor } from '../maps/AddressEditor';
 import { toast } from 'react-hot-toast';
 
@@ -12,38 +20,45 @@ export const LiveRequestWizard = () => {
     const [step, setStep] = useState<'service' | 'location' | 'broadcasting'>('service');
     const [categories, setCategories] = useState<ServiceCategory[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<ServiceCategory | null>(null);
-    const [loading, setLoading] = useState(false);
+    const { bookingState, send } = useBookingFlow();
+    const { locationState, updateLocation } = useLocation();
 
-    // Location State
-    const { position } = useCurrentPosition();
-    const { address, geocode } = useReverseGeocode();
-    const [confirmedAddress, setConfirmedAddress] = useState<string>('');
-    const [confirmedLocation, setConfirmedLocation] = useState<{ lat: number, lng: number } | null>(null);
+    const [loading, setLoading] = useState(false);
     const [showAddressEditor, setShowAddressEditor] = useState(false);
+
+    // Use cached location or fallback
+    const mapPosition = {
+        lat: locationState.latitude || 19.0760,
+        lng: locationState.longitude || 72.8777
+    };
+    const displayAddress = locationState.address || "Select Location";
+
+    const handleLocationConfirm = (addr: string, lat: number, lng: number) => {
+        updateLocation(lat, lng, addr);
+        setShowAddressEditor(false);
+    };
 
     useEffect(() => {
         loadCategories();
-        if (position) {
-            setConfirmedLocation(position);
-            geocode(position.lat, position.lng).then(addr => {
-                if (addr) setConfirmedAddress(addr);
-            });
-        }
-    }, [position]);
+    }, []);
 
     const loadCategories = async () => {
-        const cats = await adminService.getServiceCategories();
-        setCategories(cats);
+        try {
+            const cats = await adminService.getServiceCategories();
+            setCategories(cats);
+        } catch (err) {
+            console.error(err);
+        }
     };
 
     const handleCreateRequest = async () => {
-        if (!selectedCategory || !confirmedLocation || !confirmedAddress) return;
+        if (!selectedCategory || !locationState.address || !locationState.latitude) return;
 
         setLoading(true);
         try {
-            // Hardcoded "user" ID for now, in real app usage auth context
-            const userString = localStorage.getItem('sb-persist-auth-v2-key'); // fallback auth check
-            let userId = 'user_123'; // Default for testing if no auth
+            // Hardcoded "user" ID for now
+            const userString = localStorage.getItem('sb-persist-auth-v2-key');
+            let userId = 'user_123';
             if (userString) {
                 const session = JSON.parse(userString);
                 if (session?.user?.id) userId = session.user.id;
@@ -56,13 +71,12 @@ export const LiveRequestWizard = () => {
                 requirements: { type: 'Live Request', urgecy: 'Immediate' },
                 aiChecklist: ['Standard Service'],
                 estimatedCost: selectedCategory.base_price || 500,
-                location: confirmedLocation,
-                address: { formatted_address: confirmedAddress, city: 'Mumbai' }, // Simplified address obj
+                location: { lat: locationState.latitude, lng: locationState.longitude! },
+                address: { formatted_address: locationState.address, city: locationState.city || 'Mumbai' },
                 notes: 'Live request via Wizard',
                 deliveryMode: 'LOCAL' as const
             };
 
-            console.log("Creating AI Booking...", params);
             const result = await bookingService.createAIBooking(params);
 
             toast.success('Broadcasting to providers...');
@@ -88,7 +102,7 @@ export const LiveRequestWizard = () => {
                 <div className="font-bold text-lg">
                     {step === 'service' ? 'What do you need?' : 'Confirm Location'}
                 </div>
-                <div className="w-10" /> {/* Spacer */}
+                <div className="w-10" />
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 pb-24">
@@ -111,7 +125,6 @@ export const LiveRequestWizard = () => {
                                     className="flex flex-col items-center p-6 rounded-2xl border border-gray-100 bg-gray-50 hover:border-lokals-green/50 hover:bg-lokals-green/5 transition-all active:scale-95 text-center gap-3"
                                 >
                                     <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center text-2xl">
-                                        {/* Simple icon mapping based on name or default */}
                                         {cat.name.includes('Clean') ? '🧹' :
                                             cat.name.includes('Plumb') ? '🔧' :
                                                 cat.name.includes('Elect') ? '⚡' :
@@ -148,27 +161,34 @@ export const LiveRequestWizard = () => {
                                 </button>
                             </div>
 
-                            {/* Location Confirmation */}
-                            <div>
-                                <h3 className="font-bold text-gray-900 mb-2 flex items-center gap-2">
-                                    <MapPin size={18} className="text-lokals-green" />
-                                    Where do you need this?
-                                </h3>
-
-                                <div
-                                    onClick={() => setShowAddressEditor(true)}
-                                    className="p-4 rounded-xl border border-gray-200 bg-gray-50 flex items-center gap-3 cursor-pointer hover:border-lokals-green transition-colors"
+                            {/* 1. Map / Location Section */}
+                            <div className="relative h-48 bg-gray-100 mb-6 rounded-2xl overflow-hidden shadow-inner">
+                                <GoogleMapProvider
+                                    center={mapPosition}
+                                    zoom={16}
+                                    className="h-full w-full pointer-events-none"
+                                    options={{ disableDefaultUI: true }}
                                 >
-                                    <div className="flex-1">
-                                        {confirmedAddress ? (
-                                            <p className="font-medium text-gray-900">{confirmedAddress}</p>
-                                        ) : (
-                                            <p className="text-gray-400 italic">Detecting location...</p>
-                                        )}
+                                    <Marker position={mapPosition} />
+                                </GoogleMapProvider>
+
+                                {/* Location Overlay Card */}
+                                <div className="absolute bottom-4 left-4 right-4 bg-white p-3 rounded-xl shadow-lg flex items-center justify-between pointer-events-auto">
+                                    <div className="flex-1 min-w-0 mr-3">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <MapPin size={14} className="text-lokals-green" />
+                                            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Service Location</span>
+                                        </div>
+                                        <p className="text-sm font-semibold text-gray-900 truncate">
+                                            {displayAddress}
+                                        </p>
                                     </div>
-                                    <span className="text-xs font-bold text-lokals-green bg-white px-3 py-1.5 rounded-lg shadow-sm">
-                                        Change
-                                    </span>
+                                    <button
+                                        onClick={() => setShowAddressEditor(true)}
+                                        className="p-2 bg-gray-50 hover:bg-gray-100 rounded-lg text-lokals-green transition-colors"
+                                    >
+                                        <span className="text-xs font-bold">CHANGE</span>
+                                    </button>
                                 </div>
                             </div>
 
@@ -193,7 +213,7 @@ export const LiveRequestWizard = () => {
                 <div className="p-4 border-t border-gray-100 bg-white sticky bottom-0 safe-pb">
                     <button
                         onClick={handleCreateRequest}
-                        disabled={loading || !confirmedAddress}
+                        disabled={loading || !locationState.address}
                         className="w-full py-4 bg-lokals-green text-white font-bold rounded-xl shadow-lg shadow-lokals-green/20 flex items-center justify-center gap-2 active:scale-95 transition-all disabled:opacity-50 disabled:scale-100 text-lg"
                     >
                         {loading ? (
@@ -214,15 +234,11 @@ export const LiveRequestWizard = () => {
             )}
 
             {/* Address Editor Modal */}
-            {showAddressEditor && confirmedLocation && (
+            {showAddressEditor && (
                 <AddressEditor
-                    initialPosition={confirmedLocation}
-                    initialAddress={confirmedAddress}
-                    onConfirm={(addr, lat, lng) => {
-                        setConfirmedAddress(addr);
-                        setConfirmedLocation({ lat, lng });
-                        setShowAddressEditor(false);
-                    }}
+                    initialPosition={mapPosition}
+                    initialAddress={displayAddress}
+                    onConfirm={handleLocationConfirm}
                     onClose={() => setShowAddressEditor(false)}
                 />
             )}
