@@ -136,7 +136,7 @@ export default function Home() {
                         <HeroCard
                             title={`Welcome to ${selectedCity}`}
                             subtitle="Best providers, assigned instantly."
-                            cta1={{ label: "Book Service", onClick: () => router.push('/services') }}
+                            cta1={{ label: "Book Service", onClick: () => router.push('/book/now') }}
                             variant="gradient"
                         />
                     </HeroSurface>

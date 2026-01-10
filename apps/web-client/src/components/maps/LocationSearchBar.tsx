@@ -40,20 +40,7 @@ export const LocationSearchBar: React.FC<LocationSearchBarProps> = ({ onLocation
         <>
             <div className="sticky top-0 bg-white/95 backdrop-blur-md p-4 z-40 rounded-b-2xl shadow-sm border-b border-gray-100">
                 {/* Mini Map Preview */}
-                <div className="rounded-xl overflow-hidden h-32 mb-3 shadow-inner relative bg-gray-100 opacity-90">
-                    {mapCenter ? (
-                        <GoogleMapProvider
-                            center={mapCenter}
-                            zoom={14}
-                            className="h-full w-full pointer-events-none" // Non-interactive preview
-                            options={{ disableDefaultUI: true, zoomControl: false }}
-                        />
-                    ) : (
-                        <div className="h-full w-full flex items-center justify-center text-gray-400">
-                            <Loader2 className="animate-spin" />
-                        </div>
-                    )}
-                </div>
+                {/* Mini Map Preview Removed per user request */}
 
                 <div className="flex items-center gap-2" onClick={() => setIsEditorOpen(true)}>
                     <div className="w-8 h-8 rounded-full bg-lokals-green/10 flex items-center justify-center text-lokals-green flex-shrink-0">
