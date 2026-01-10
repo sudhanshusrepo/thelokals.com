@@ -186,12 +186,12 @@ export default function Listings() {
                             <div>
                                 <label className="block text-sm font-medium text-neutral-500 mb-1">Type</label>
                                 <select
-                                    value={editingCategory.type || 'local'}
-                                    onChange={e => setEditingCategory({ ...editingCategory, type: e.target.value as 'local' | 'online' })}
+                                    value={editingCategory.type || 'SERVICE'}
+                                    onChange={e => setEditingCategory({ ...editingCategory, type: e.target.value as 'SERVICE' | 'RENTAL' })}
                                     className="w-full p-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
                                 >
-                                    <option value="local">Local (Physical)</option>
-                                    <option value="online">Online (Remote)</option>
+                                    <option value="SERVICE">Service (Standard)</option>
+                                    <option value="RENTAL">Rental (Duration based)</option>
                                 </select>
                             </div>
                             <div>
