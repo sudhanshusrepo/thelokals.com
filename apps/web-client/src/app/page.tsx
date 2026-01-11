@@ -60,11 +60,11 @@ export default function Home() {
     }));
 
     const handleSelectCategory = (categoryId: string) => {
-        router.push(`/book?category_id=${categoryId}`);
+        router.push(`/services/${categoryId}`);
     };
 
     const handleSelectService = (serviceId: string) => {
-        router.push(`/book?category_id=${serviceId}`);
+        router.push(`/services/${serviceId}`);
     };
 
 
