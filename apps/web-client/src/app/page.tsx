@@ -60,16 +60,16 @@ export default function Home() {
     }));
 
     const handleSelectCategory = (categoryId: string) => {
-        router.push(`/services/${categoryId}`);
+        router.push(`/book?category_id=${categoryId}`);
     };
 
     const handleSelectService = (serviceId: string) => {
-        router.push(`/services/${serviceId}`);
+        router.push(`/book?category_id=${serviceId}`);
     };
 
 
     // Location Context Integration
-    const { locationState } = useLocation();
+    const { locationState, setLocation } = useLocation();
 
     useEffect(() => {
         if (locationState.city) {
@@ -88,8 +88,12 @@ export default function Home() {
                 {/* Header - Replaced with Smart Location Bar */}
                 <LocationSearchBar
                     onLocationSelect={(addr, lat, lng) => {
-                        console.log("Location Selected:", addr, lat, lng);
-                        // TODO: Update global user location context if needed
+                        setLocation({
+                            address: addr,
+                            lat: lat,
+                            lng: lng,
+                            city: addr.split(',').pop()?.trim() || 'Mumbai' // Simple parse, ideally more robust
+                        });
                     }}
                 />
 

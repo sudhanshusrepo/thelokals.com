@@ -43,6 +43,10 @@ function BookingFlowContent() {
         }
     }, [categoryId, router]);
 
+    const [selectedItem, setSelectedItem] = useState<any | null>(null);
+
+    // ... (keep useEffects)
+
     const variants = {
         enter: { opacity: 0, x: 20 },
         center: { opacity: 1, x: 0 },
@@ -73,12 +77,15 @@ function BookingFlowContent() {
                         >
                             <ServiceSelection
                                 category={category}
-                                onContinue={() => setView('FLOW')}
+                                onContinue={(item) => {
+                                    setSelectedItem(item);
+                                    setView('FLOW');
+                                }}
                             />
                         </motion.div>
                     )}
 
-                    {view === 'FLOW' && (
+                    {view === 'FLOW' && category && selectedItem && (
                         <motion.div
                             key="flow"
                             variants={variants}
@@ -88,8 +95,14 @@ function BookingFlowContent() {
                             transition={{ duration: 0.3 }}
                             className="w-full"
                         >
-                            {/* Components check internal state to decide visibility */}
-                            <LiveBookingHub />
+                            {/* Pass context to initialize the machine properly */}
+                            <LiveBookingHub
+                                serviceCategory={category}
+                                initialServiceItem={selectedItem}
+                            />
+                            {/* PostBookingScreen is likely internal to LiveBookingHub flow or separate? 
+                                Keeping it here as per original, but state usage might need check. 
+                            */}
                             <PostBookingScreen />
                         </motion.div>
                     )}

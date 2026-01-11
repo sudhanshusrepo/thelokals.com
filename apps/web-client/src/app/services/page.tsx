@@ -68,7 +68,7 @@ export default function ServicesPage() {
                                     rating: 4.8,
                                     reviews: 120
                                 }}
-                                onClick={(id) => router.push(`/services/${id}`)}
+                                onClick={(id) => router.push(`/book?category_id=${id}`)}
                             />
                         ))}
                     </div>

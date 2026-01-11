@@ -9,9 +9,22 @@ import { useBookingLogic, PricingUtils } from '@thelocals/flows';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 
-export default function LiveBookingHub() {
+import { ServiceCategory, ServiceItem } from '@thelocals/platform-core';
+
+interface LiveBookingHubProps {
+    serviceCategory?: ServiceCategory;
+    initialServiceItem?: ServiceItem;
+}
+
+export default function LiveBookingHub({ serviceCategory, initialServiceItem }: LiveBookingHubProps) {
     const router = useRouter();
-    const { state, context, send } = useBookingLogic();
+
+    // Initialize with passed props
+    const { state, context, send } = useBookingLogic('DRAFT', {
+        serviceCategory,
+        selectedOption: initialServiceItem,
+        price: initialServiceItem ? PricingUtils.calculateEstimate(initialServiceItem).total : 0
+    });
     const { user } = useAuth();
     const mapRef = useRef<google.maps.Map | null>(null);
 
@@ -95,9 +108,91 @@ export default function LiveBookingHub() {
         }
     }, []);
 
+    // Layout Variance based on State
+    if (state === 'DRAFT' || state === 'ESTIMATING') {
+        return (
+            <div className="min-h-screen bg-gray-50 flex flex-col">
+                {/* Header */}
+                <div className="bg-white p-4 shadow-sm z-10 flex items-center gap-4">
+                    <button
+                        onClick={() => router.back()}
+                        className="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-700 hover:bg-gray-100"
+                    >
+                        <ArrowLeft size={20} />
+                    </button>
+                    <h1 className="font-bold text-lg text-gray-900">Confirm Booking</h1>
+                </div>
+
+                <div className="flex-1 overflow-y-auto p-4 max-w-2xl mx-auto w-full space-y-4">
+                    {/* Location Section */}
+                    <div className="bg-white p-4 rounded-2xl border border-gray-100">
+                        <div className="flex items-start gap-4">
+                            <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 shrink-0">
+                                <MapPin size={20} />
+                            </div>
+                            <div className="flex-1">
+                                <p className="text-xs font-bold text-gray-500 uppercase">Service Location</p>
+                                <p className="font-medium text-gray-900 mt-1">{context.location?.address || 'Select a location'}</p>
+                            </div>
+                        </div>
+                        {/* Contained Map */}
+                        <div className="mt-4 h-48 w-full rounded-xl overflow-hidden border border-gray-100 relative">
+                            <GoogleMapProvider
+                                center={center}
+                                zoom={15}
+                                className="h-full w-full"
+                                options={{ disableDefaultUI: true, styles: mapStyles, draggable: false }}
+                            >
+                                <Marker position={center} />
+                            </GoogleMapProvider>
+                        </div>
+                    </div>
+
+                    {/* Service Details */}
+                    <div className="bg-white p-4 rounded-2xl border border-gray-100">
+                        <div className="flex gap-4">
+                            <div className="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center text-2xl shrink-0">
+                                🛠️
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-lg text-gray-900">{context.selectedOption?.name || 'Service'}</h3>
+                                <p className="text-sm text-gray-500">{context.selectedOption?.description || 'Standard Service'}</p>
+                                <div className="mt-2 text-xl font-bold text-gray-900">
+                                    {PricingUtils.formatPrice(context.price || 0)}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* What's Included (Added as per feedback) */}
+                        <div className="mt-4 pt-4 border-t border-gray-50">
+                            <h4 className="text-sm font-bold text-gray-900 mb-2">What's Included</h4>
+                            <ul className="text-sm text-gray-600 space-y-2">
+                                <li className="flex items-center gap-2">✓ Professional Service</li>
+                                <li className="flex items-center gap-2">✓ Post-service cleanup</li>
+                                <li className="flex items-center gap-2">✓ 7-day warranty</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Footer Action */}
+                <div className="p-4 bg-white border-t border-gray-100">
+                    <div className="max-w-2xl mx-auto">
+                        <button
+                            onClick={handleConfirmBooking}
+                            className="w-full bg-black text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:bg-gray-900 transition-all active:scale-95"
+                        >
+                            Find Provider
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="relative h-screen w-full bg-gray-100 overflow-hidden">
-            {/* 1. Full Screen Map Background */}
+            {/* 1. Full Screen Map Background (Only for Searching/Assigned) */}
             <div className="absolute inset-0 z-0">
                 <GoogleMapProvider
                     center={center}
@@ -134,38 +229,6 @@ export default function LiveBookingHub() {
 
             {/* 3. Interface Layers */}
             <AnimatePresence mode="wait">
-
-                {/* STATE: PRE-BOOKING (Confirm) */}
-                {(state === 'DRAFT' || state === 'ESTIMATING') && (
-                    <motion.div
-                        initial={{ y: 200 }} animate={{ y: 0 }} exit={{ y: 200 }}
-                        className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl p-6 z-20 pb-10"
-                    >
-                        <div className="w-12 h-1 bg-gray-200 rounded-full mx-auto mb-6" />
-
-                        <div className="flex gap-4 mb-6">
-                            <div className="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center text-2xl">
-                                🛠️
-                            </div>
-                            <div>
-                                <h3 className="font-bold text-lg text-gray-900">{context.selectedOption?.name || 'Service'}</h3>
-                                <div className="text-gray-500 text-sm flex items-center gap-1">
-                                    <MapPin size={12} /> {context.location?.address}
-                                </div>
-                                <div className="mt-2 text-xl font-bold text-gray-900">
-                                    {PricingUtils.formatPrice(context.price || 0)}
-                                </div>
-                            </div>
-                        </div>
-
-                        <button
-                            onClick={handleConfirmBooking}
-                            className="w-full bg-black text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:bg-gray-900 transition-all active:scale-95"
-                        >
-                            Find Provider
-                        </button>
-                    </motion.div>
-                )}
 
                 {/* STATE: SEARCHING */}
                 {isSearching && (

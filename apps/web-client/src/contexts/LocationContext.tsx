@@ -18,6 +18,7 @@ interface LocationContextType {
     locationState: LocationState;
     detectLocation: () => Promise<void>;
     updateLocation: (lat: number, lng: number, address: string, city?: string) => void;
+    setLocation: (loc: { lat: number; lng: number; address: string; city?: string }) => void;
 }
 
 const STORAGE_KEY = 'user_location_v1';
@@ -152,14 +153,13 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         );
     }, []);
 
-    // 3. Manual Update
     const updateLocation = useCallback((lat: number, lng: number, address: string, city?: string) => {
         const newState: LocationState = {
             status: 'resolved',
             latitude: lat,
             longitude: lng,
             address,
-            city: city || DEFAULT_CITY, // Should refine this
+            city: city || DEFAULT_CITY,
             source: 'manual',
             timestamp: Date.now()
         };
@@ -167,8 +167,12 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         localStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
     }, []);
 
+    const setLocation = useCallback((loc: { lat: number; lng: number; address: string; city?: string }) => {
+        updateLocation(loc.lat, loc.lng, loc.address, loc.city);
+    }, [updateLocation]);
+
     return (
-        <LocationContext.Provider value={{ locationState: state, detectLocation, updateLocation }}>
+        <LocationContext.Provider value={{ locationState: state, detectLocation, updateLocation, setLocation }}>
             {children}
         </LocationContext.Provider>
     );

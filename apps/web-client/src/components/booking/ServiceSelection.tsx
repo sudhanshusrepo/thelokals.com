@@ -9,12 +9,12 @@ import { useLocation } from '../../contexts/LocationContext';
 
 interface ServiceSelectionProps {
     category: ServiceCategory;
-    onContinue: () => void;
+    onContinue: (item: ServiceItem) => void;
 }
 
 export default function ServiceSelection({ category, onContinue }: ServiceSelectionProps) {
     const { locationState } = useLocation();
-    const { context, send } = useBookingLogic('DRAFT', { serviceCategory: category });
+    // Removed local machine, unnecessary here as we lift state up
 
     const [options, setOptions] = useState<ServiceItem[]>([]);
     const [loading, setLoading] = useState(true);
@@ -37,13 +37,6 @@ export default function ServiceSelection({ category, onContinue }: ServiceSelect
 
     const handleSelect = (item: ServiceItem) => {
         setSelectedOption(item.id);
-        const estimate = PricingUtils.calculateEstimate(item);
-
-        send('UPDATE_CONTEXT', {
-            selectedOption: item,
-            price: estimate.total,
-            serviceName: category.name // Legacy compat
-        });
     };
 
     const activeItem = options.find(o => o.id === selectedOption);
@@ -79,8 +72,8 @@ export default function ServiceSelection({ category, onContinue }: ServiceSelect
                             whileTap={{ scale: 0.98 }}
                             onClick={() => handleSelect(item)}
                             className={`p-4 rounded-xl border-2 transition-all cursor-pointer flex justify-between items-center ${selectedOption === item.id
-                                    ? 'border-lokals-green bg-green-50'
-                                    : 'border-gray-100 hover:border-gray-200'
+                                ? 'border-lokals-green bg-green-50'
+                                : 'border-gray-100 hover:border-gray-200'
                                 }`}
                         >
                             <div>
@@ -126,7 +119,7 @@ export default function ServiceSelection({ category, onContinue }: ServiceSelect
                                 <p className="text-xs text-gray-400">+ Applicable Taxes</p>
                             </div>
                             <button
-                                onClick={onContinue}
+                                onClick={() => activeItem && onContinue(activeItem)}
                                 className="bg-black text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-gray-800 transition-colors"
                             >
                                 Continue <ChevronRight size={18} />

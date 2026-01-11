@@ -1,7 +1,8 @@
 'use client';
-import React, { useCallback, useState } from 'react';
+import React from 'react';
 import { GoogleMap, LoadScript } from '@react-google-maps/api';
 import { MAP_STYLES_LOKALS } from './mapStyles';
+import { CONFIG } from '../config';
 
 const containerStyleDefault = { width: '100%', height: '100%' };
 const centerDefault = { lat: 19.0760, lng: 72.8777 }; // Mumbai
@@ -29,7 +30,7 @@ export const GoogleMapProvider: React.FC<MapProviderProps> = ({
 }) => {
     return (
         <React.Fragment>
-            <LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}>
+            <LoadScript googleMapsApiKey={CONFIG.GOOGLE_MAPS_KEY}>
                 <GoogleMap
                     mapContainerStyle={style || containerStyleDefault}
                     mapContainerClassName={className}
