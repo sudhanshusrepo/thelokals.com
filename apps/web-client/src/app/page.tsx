@@ -86,7 +86,7 @@ export default function Home() {
 
     return (
         <ErrorBoundary>
-            <div className="min-h-screen bg-gradient-to-br from-lokals-yellow/10 via-lokals-green/10 to-blue-50 pb-24">
+            <div className="min-h-screen bg-neutral-50 pb-4 md:pb-0">
                 <div className="max-w-md mx-auto min-h-screen bg-white shadow-2xl overflow-hidden relative">
                     {/* Header - Replaced with Smart Location Bar */}
                     <LocationSearchBar

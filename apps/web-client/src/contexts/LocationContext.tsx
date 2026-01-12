@@ -116,18 +116,18 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                 status: 'resolved',
                 latitude: DEFAULT_COORDS.lat,
                 longitude: DEFAULT_COORDS.lng,
-                address: 'Mumbai, Maharashtra (Default)',
-                city: 'Mumbai',
+                address: 'Select Location',
+                city: 'Gurugram',
                 source: 'auto',
                 timestamp: Date.now()
             };
             setState(newState);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
-        }, 12000); // 12 seconds (bit longer than geo timeout)
+            // localStorage.setItem(STORAGE_KEY, JSON.stringify(newState)); // Don't save default
+        }, 5000); // 5 seconds
 
         navigator.geolocation.getCurrentPosition(
             async (position) => {
-                clearTimeout(safetyTimeout); // Clear safety
+                clearTimeout(safetyTimeout);
                 const { latitude, longitude } = position.coords;
 
                 // Attempt Reverse Geocode immediately checking Google availability
@@ -137,33 +137,32 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                     status: 'resolved',
                     latitude,
                     longitude,
-                    address: geoResult?.address || `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`, // Fallback
-                    city: geoResult?.city || DEFAULT_CITY,
+                    address: geoResult?.address || `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`,
+                    city: geoResult?.city || 'Gurugram',
                     source: 'auto',
                     timestamp: Date.now()
                 };
-
                 setState(newState);
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
             },
             (error) => {
-                clearTimeout(safetyTimeout); // Clear safety
-                console.warn("Geolocation denied/error:", error);
+                clearTimeout(safetyTimeout);
+                console.warn("Geolocation error:", error);
 
-                // Fallback to Default (Mumbai) if error
+                // Fallback to Gurugram
                 const newState: LocationState = {
-                    status: 'resolved', // Resolved to fallback
+                    status: 'resolved',
                     latitude: DEFAULT_COORDS.lat,
                     longitude: DEFAULT_COORDS.lng,
-                    address: 'Mumbai, Maharashtra (Default)',
-                    city: 'Mumbai',
-                    source: 'auto',
+                    address: 'Gurugram, Haryana',
+                    city: 'Gurugram',
+                    source: 'manual',
                     timestamp: Date.now()
                 };
                 setState(newState);
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
             },
-            { timeout: 10000, maximumAge: 60000 }
+            { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
         );
     }, []);
 
