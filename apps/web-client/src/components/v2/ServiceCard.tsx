@@ -62,7 +62,7 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ service, onClick }) =>
 
                 <div className="mt-2 flex items-center justify-between">
                     <div className="text-sm font-bold text-v2-text-primary">
-                        From ₹{service.price}
+                        {service.price ? `From ₹${service.price}` : 'Price on Request'}
                     </div>
                     <div className="w-7 h-7 rounded-full bg-v2-bg flex items-center justify-center text-v2-text-primary hover:bg-v2-text-primary hover:text-white transition-colors duration-200">
                         <span className="text-lg leading-none -mt-0.5">+</span>
