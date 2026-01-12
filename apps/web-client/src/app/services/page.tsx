@@ -29,8 +29,8 @@ export default function ServicesPage() {
         const timeoutId = setTimeout(() => {
             const query = searchQuery.toLowerCase();
             const filtered = categories.filter(cat =>
-                cat.name.toLowerCase().includes(query) ||
-                cat.description?.toLowerCase().includes(query)
+                (cat.name || '').toLowerCase().includes(query) ||
+                (cat.description || '').toLowerCase().includes(query)
             );
             setFilteredCategories(filtered);
         }, 300);

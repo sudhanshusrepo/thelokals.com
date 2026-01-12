@@ -182,7 +182,7 @@ export default function Home() {
                                                     id: cat.id,
                                                     name: cat.name,
                                                     image: '/services/ac.jpg', // Placeholder
-                                                    price: cat.base_price || 0,
+                                                    price: cat.base_price || 499,
                                                     rating: 4.8,
                                                     reviews: 120,
                                                     isBestMatch: true
