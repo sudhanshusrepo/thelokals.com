@@ -36,6 +36,12 @@ export default function LiveBookingHub({ serviceCategory, initialServiceItem }: 
     const center = context.location ? { lat: context.location.lat, lng: context.location.lng } : { lat: 19.0760, lng: 72.8777 };
 
     const handleConfirmBooking = async () => {
+        if (!user) {
+            toast.error("Please login to continue");
+            router.push(`/login?redirect=/book?category_id=${serviceCategory?.id || ''}`);
+            return;
+        }
+
         if (!context.serviceCategory || !context.location) return;
 
         try {
@@ -54,7 +60,7 @@ export default function LiveBookingHub({ serviceCategory, initialServiceItem }: 
 
             // 2. Create Live Booking
             const booking = await liveBookingService.createLiveBooking({
-                clientId: user?.id || 'anon_user',
+                clientId: user.id,
                 serviceId: context.serviceCategory.id,
                 requirements: {
                     location: context.location,
@@ -74,18 +80,25 @@ export default function LiveBookingHub({ serviceCategory, initialServiceItem }: 
                 const newData = payload.new as any;
                 if (!newData) return;
 
+                console.log('[LiveHub] Update:', newData.status);
+
                 if (newData.status === 'CONFIRMED' || newData.status === 'ACCEPTED') {
-                    // Update Provider Info
                     send('PROVIDER_FOUND', {
                         provider: {
                             providerId: newData.provider_id,
-                            name: 'Provider', // We could fetch real name here
+                            name: 'Provider',
                             rating: 4.8,
                             location: { lat: center.lat + 0.001, lng: center.lng + 0.001 },
                             isOnline: true,
-                            services: [] // Added missing property
+                            services: []
                         }
                     });
+                } else if (newData.status === 'EN_ROUTE') {
+                    send('PROVIDER_EN_ROUTE');
+                } else if (newData.status === 'IN_PROGRESS') {
+                    send('START_JOB');
+                } else if (newData.status === 'COMPLETED') {
+                    send('COMPLETE_JOB');
                 }
             });
 
@@ -94,7 +107,7 @@ export default function LiveBookingHub({ serviceCategory, initialServiceItem }: 
 
         } catch (error) {
             console.error("Failed to create booking:", error);
-            toast.error("Failed to not create booking. Please try again.");
+            toast.error("Failed to create booking. Please try again.");
             // send('FAIL'); 
         }
     };
