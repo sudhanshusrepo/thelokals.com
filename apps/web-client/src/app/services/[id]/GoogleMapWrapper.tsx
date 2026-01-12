@@ -28,8 +28,12 @@ export function GoogleMapWrapper() {
                         lng: center.lng + getRandomOffset()
                     }}
                     icon={{
-                        url: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png',
-                        scaledSize: { width: 40, height: 40 } as any
+                        path: 'M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1,1 10,-30 C 10,-22 2,-20 0,0 z',
+                        fillColor: '#00C853',
+                        fillOpacity: 1,
+                        strokeWeight: 2,
+                        strokeColor: '#ffffff',
+                        scale: 1,
                     }}
                 />
             ))}

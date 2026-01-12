@@ -6,7 +6,7 @@ interface MarkerProps {
     position: google.maps.LatLngLiteral;
     title?: string;
     label?: string;
-    icon?: string | google.maps.Icon;
+    icon?: string | google.maps.Icon | google.maps.Symbol;
     onClick?: () => void;
     draggable?: boolean;
     onDragEnd?: (e: google.maps.MapMouseEvent) => void;
