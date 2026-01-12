@@ -125,7 +125,9 @@ export default function Home() {
                             {loading ? (
                                 <div className="flex gap-3">
                                     {[1, 2, 3, 4].map(i => (
-                                        <div key={i} className="h-10 w-24 bg-gray-200/50 rounded-v2-pill animate-pulse flex-shrink-0" />
+                                        <div key={i} className="h-10 w-24 bg-gray-200 rounded-v2-pill animate-pulse flex-shrink-0 flex items-center justify-center">
+                                            <span className="text-xs text-gray-400 font-medium">Loading...</span>
+                                        </div>
                                     ))}
                                 </div>
                             ) : quickActions.length > 0 ? (
