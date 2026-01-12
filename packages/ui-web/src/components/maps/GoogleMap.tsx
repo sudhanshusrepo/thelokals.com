@@ -1,33 +1,50 @@
-'use client';
+import React, { useEffect, useRef, useState, Children, cloneElement, isValidElement } from 'react';
 
-import React from 'react';
-import { APIProvider, Map, MapProps } from '@vis.gl/react-google-maps';
-
-interface GoogleMapProps extends MapProps {
-    apiKey: string;
+// Native implementation to avoid library conflicts
+interface GoogleMapProps {
+    apiKey?: string; // Ignored, as we use global script
     className?: string;
+    defaultCenter?: google.maps.LatLngLiteral;
+    defaultZoom?: number;
     children?: React.ReactNode;
+    mapId?: string;
+    options?: google.maps.MapOptions;
 }
 
-// Cast to any to avoid React 19/18 type mismatches (TS2786)
-const APIProviderComponent = APIProvider as any;
-const MapComponent = Map as any;
+export function GoogleMap({ className, defaultCenter, defaultZoom, children, mapId, options }: GoogleMapProps) {
+    const ref = useRef<HTMLDivElement>(null);
+    const [map, setMap] = useState<google.maps.Map | null>(null);
 
-export function GoogleMap({ apiKey, className, children, ...props }: GoogleMapProps) {
+    useEffect(() => {
+        if (!ref.current || !window.google) return;
+
+        const mapInstance = new window.google.maps.Map(ref.current, {
+            center: defaultCenter || { lat: 28.4595, lng: 77.0266 },
+            zoom: defaultZoom || 12,
+            mapId: mapId || "bf51a910020fa25a",
+            disableDefaultUI: true,
+            gestureHandling: 'cooperative',
+            ...options,
+        });
+
+        setMap(mapInstance);
+
+        return () => {
+            // Cleanup markers/listeners if needed
+        };
+    }, []);
+
+    // Pass map instance to children (markers)
+    const childrenWithProps = Children.map(children, child => {
+        if (isValidElement(child)) {
+            return cloneElement(child, { map } as any);
+        }
+        return child;
+    });
+
     return (
-        <APIProviderComponent apiKey={apiKey}>
-            <div className={className || "w-full h-full"}>
-                <MapComponent
-                    {...props}
-                    defaultCenter={props.defaultCenter || { lat: 28.4595, lng: 77.0266 }} // Gurugram
-                    defaultZoom={props.defaultZoom || 12}
-                    gestureHandling={'cooperative'}
-                    disableDefaultUI={true}
-                    mapId={props.mapId || "bf51a910020fa25a"} // Custom Styling ID (optional)
-                >
-                    {children}
-                </MapComponent>
-            </div>
-        </APIProviderComponent>
+        <div ref={ref} className={className || "w-full h-full"}>
+            {map && childrenWithProps}
+        </div>
     );
 }

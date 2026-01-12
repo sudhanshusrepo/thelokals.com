@@ -5,6 +5,7 @@ import { useLocation } from '../../contexts/LocationContext';
 import { AddressEditor } from './AddressEditor';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
+import { ErrorBoundary } from '../ui/ErrorBoundary';
 
 interface LocationSearchBarProps {
     onLocationSelect?: (address: string, lat: number, lng: number) => void;
@@ -56,7 +57,7 @@ export const LocationSearchBar: React.FC<LocationSearchBarProps> = ({ onLocation
     };
 
     return (
-        <>
+        <ErrorBoundary>
             <div className="sticky top-0 bg-white/95 backdrop-blur-md p-4 z-40 rounded-b-2xl shadow-sm border-b border-gray-100">
                 <div
                     className="flex items-center gap-3 cursor-pointer group"
@@ -109,6 +110,7 @@ export const LocationSearchBar: React.FC<LocationSearchBarProps> = ({ onLocation
                     onClose={() => setIsEditorOpen(false)}
                 />
             )}
-        </>
+
+        </ErrorBoundary>
     );
 };

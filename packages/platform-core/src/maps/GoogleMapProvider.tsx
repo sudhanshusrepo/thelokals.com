@@ -1,8 +1,9 @@
-'use client';
-import React from 'react';
-import { GoogleMap, LoadScript } from '@react-google-maps/api';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { MAP_STYLES_LOKALS } from './mapStyles';
-import { CONFIG } from '../config';
+
+const GoogleMapContext = createContext<google.maps.Map | null>(null);
+
+export const useGoogleMap = () => useContext(GoogleMapContext);
 
 const containerStyleDefault = { width: '100%', height: '100%' };
 const centerDefault = { lat: 19.0760, lng: 72.8777 }; // Mumbai
@@ -28,27 +29,58 @@ export const GoogleMapProvider: React.FC<MapProviderProps> = ({
     onLoad,
     options
 }) => {
+    const mapRef = useRef<HTMLDivElement>(null);
+    const [map, setMap] = useState<google.maps.Map | null>(null);
+
+    // Initialize Map
+    useEffect(() => {
+        if (!mapRef.current) return;
+        if (typeof google === 'undefined') return;
+
+        if (!map) {
+            const mapInstance = new google.maps.Map(mapRef.current, {
+                center,
+                zoom,
+                styles: MAP_STYLES_LOKALS,
+                disableDefaultUI: true,
+                gestureHandling: 'greedy',
+                ...options
+            });
+
+            setMap(mapInstance);
+            if (onLoad) onLoad(mapInstance);
+
+            if (onClick) {
+                mapInstance.addListener("click", onClick);
+            }
+        }
+    }, [mapRef, map, onLoad, onClick, options]);
+
+    // Update Props
+    useEffect(() => {
+        if (map && center) {
+            map.panTo(center);
+        }
+    }, [center, map]);
+
+    useEffect(() => {
+        if (map && zoom) {
+            map.setZoom(zoom);
+        }
+    }, [zoom, map]);
+
     return (
-        <React.Fragment>
-            <LoadScript googleMapsApiKey={CONFIG.GOOGLE_MAPS_KEY}>
-                <GoogleMap
-                    mapContainerStyle={style || containerStyleDefault}
-                    mapContainerClassName={className}
-                    center={center}
-                    zoom={zoom}
-                    onLoad={onLoad}
-                    onUnmount={() => { }}
-                    onClick={onClick}
-                    options={{
-                        styles: MAP_STYLES_LOKALS,
-                        disableDefaultUI: true,
-                        gestureHandling: 'greedy',
-                        ...options
-                    }}
-                >
-                    {children}
-                </GoogleMap>
-            </LoadScript>
-        </React.Fragment>
+        <GoogleMapContext.Provider value={map}>
+            <div
+                ref={mapRef}
+                style={style || containerStyleDefault}
+                className={className}
+            >
+                {/* Map is rendered in this div */}
+            </div>
+            {/* Children rendered within context but outside map div DOM (React Portal style or just Context access) */}
+            {map && children}
+        </GoogleMapContext.Provider>
     );
 };
+

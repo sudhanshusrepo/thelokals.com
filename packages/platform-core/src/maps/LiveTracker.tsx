@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { DirectionsRenderer } from '@react-google-maps/api';
+import { useGoogleMap } from './GoogleMapProvider';
 
 interface LiveTrackerProps {
     from: google.maps.LatLngLiteral;
@@ -8,11 +8,31 @@ interface LiveTrackerProps {
 }
 
 export const LiveTracker: React.FC<LiveTrackerProps> = ({ from, to, showEta }) => {
-    const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
+    const map = useGoogleMap();
+    const [directionsRenderer, setDirectionsRenderer] = useState<google.maps.DirectionsRenderer | null>(null);
     const [eta, setEta] = useState<string | null>(null);
 
+    // Initialize/Update Directions
     useEffect(() => {
+        if (!map || typeof google === 'undefined') return;
+
         const directionsService = new google.maps.DirectionsService();
+        // Renderer
+        let renderer = directionsRenderer;
+        if (!renderer) {
+            renderer = new google.maps.DirectionsRenderer({
+                map,
+                suppressMarkers: false,
+                polylineOptions: {
+                    strokeColor: "#22CC88",
+                    strokeWeight: 5,
+                    strokeOpacity: 0.8
+                }
+            });
+            setDirectionsRenderer(renderer);
+        } else {
+            renderer.setMap(map);
+        }
 
         directionsService.route(
             {
@@ -21,34 +41,24 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({ from, to, showEta }) =
                 travelMode: google.maps.TravelMode.DRIVING
             },
             (result, status) => {
-                if (status === google.maps.DirectionsStatus.OK && result) { // Check result exists
-                    setDirections(result);
+                if (status === google.maps.DirectionsStatus.OK && result && renderer) {
+                    renderer.setDirections(result);
                     if (result.routes[0]?.legs[0]?.duration?.text) {
                         setEta(result.routes[0].legs[0].duration.text);
                     }
                 } else {
-                    console.error(`error fetching directions ${result}`);
+                    console.error(`error fetching directions ${status}`);
                 }
             }
         );
-    }, [from, to]);
+
+        return () => {
+            if (renderer) renderer.setMap(null);
+        }
+    }, [map, from, to]); // Re-run if from/to changes
 
     return (
         <>
-            {directions && (
-                <DirectionsRenderer
-                    directions={directions}
-                    options={{
-                        suppressMarkers: false, // Let GMaps handle markers for now, or true if customizing icons
-                        polylineOptions: {
-                            strokeColor: "#22CC88",
-                            strokeWeight: 5,
-                            strokeOpacity: 0.8
-                        }
-                    }}
-                />
-            )}
-
             {showEta && eta && (
                 <div className="absolute bottom-24 left-1/2 -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-full backdrop-blur-md shadow-lg z-10 font-bold text-sm flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
@@ -58,3 +68,4 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({ from, to, showEta }) =
         </>
     );
 };
+

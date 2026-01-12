@@ -7,6 +7,7 @@ import { LocationProvider } from "../contexts/LocationContext";
 import { BottomNav } from "../components/navigation/BottomNav";
 import { Toaster } from "react-hot-toast";
 import dynamic from 'next/dynamic';
+import Script from 'next/script';
 
 import { AIChatWrapper } from "../components/chat/AIChatWrapper";
 
@@ -74,6 +75,11 @@ export default function RootLayout({
                         </LocationProvider>
                     </BookingProvider>
                 </AuthProvider>
+                <Script
+                    id="google-maps"
+                    strategy="afterInteractive"
+                    src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}&libraries=places,geometry`}
+                />
             </body>
         </html>
     );

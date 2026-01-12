@@ -1,21 +1,29 @@
-'use client';
-
-import React from 'react';
-import { AdvancedMarker, Pin } from '@vis.gl/react-google-maps';
+import React, { useEffect, useState } from 'react';
 
 interface ProviderMarkerProps {
     position: { lat: number; lng: number };
     onClick?: () => void;
+    map?: google.maps.Map; // Injected by parent
 }
 
-// Cast to any to avoid React 19/18 type mismatches (TS2786)
-const AdvancedMarkerComponent = AdvancedMarker as any;
-const PinComponent = Pin as any;
+export function ProviderMarker({ position, onClick, map }: ProviderMarkerProps) {
+    useEffect(() => {
+        if (!map || !window.google) return;
 
-export function ProviderMarker({ position, onClick }: ProviderMarkerProps) {
-    return (
-        <AdvancedMarkerComponent position={position} onClick={onClick}>
-            <PinComponent background={'#000000'} borderColor={'#000000'} glyphColor={'#ffffff'} />
-        </AdvancedMarkerComponent>
-    );
+        const marker = new google.maps.marker.AdvancedMarkerElement({
+            map,
+            position,
+            // Content can be customized here if needed
+        });
+
+        if (onClick) {
+            marker.addEventListener('gmp-click', onClick);
+        }
+
+        return () => {
+            marker.map = null;
+        };
+    }, [map, position]);
+
+    return null;
 }

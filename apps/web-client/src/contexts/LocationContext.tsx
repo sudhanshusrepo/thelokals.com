@@ -109,15 +109,28 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             return;
         }
 
+        // Safety timeout in case geolocation hangs
+        const safetyTimeout = setTimeout(() => {
+            console.warn("Location detection timed out (safety).");
+            const newState: LocationState = {
+                status: 'resolved',
+                latitude: DEFAULT_COORDS.lat,
+                longitude: DEFAULT_COORDS.lng,
+                address: 'Mumbai, Maharashtra (Default)',
+                city: 'Mumbai',
+                source: 'auto',
+                timestamp: Date.now()
+            };
+            setState(newState);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
+        }, 12000); // 12 seconds (bit longer than geo timeout)
+
         navigator.geolocation.getCurrentPosition(
             async (position) => {
+                clearTimeout(safetyTimeout); // Clear safety
                 const { latitude, longitude } = position.coords;
 
                 // Attempt Reverse Geocode immediately checking Google availability
-                // If Google Maps isn't loaded yet (race condition), we might set coords but minimal address
-                // Ideally we wait for it.
-
-                // For now, set coords and try geocode
                 const geoResult = await reverseGeocode(latitude, longitude);
 
                 const newState: LocationState = {
@@ -134,6 +147,7 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
             },
             (error) => {
+                clearTimeout(safetyTimeout); // Clear safety
                 console.warn("Geolocation denied/error:", error);
 
                 // Fallback to Default (Mumbai) if error
@@ -149,7 +163,7 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                 setState(newState);
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
             },
-            { timeout: 10000, maximumAge: 60000 } // Don't wait forever, accept cached OS loc
+            { timeout: 10000, maximumAge: 60000 }
         );
     }, []);
 

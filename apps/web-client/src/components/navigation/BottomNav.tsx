@@ -10,8 +10,8 @@ export function BottomNav() {
     const pathname = usePathname();
     const { user, loading } = useAuth();
 
-    // 1. Don't render if loading or no user
-    if (loading || !user) return null;
+    // 1. Don't render if loading (but allow guests)
+    if (loading) return null;
 
     // 2. Exclude paths (Full screen flows)
     const excludedPaths = [

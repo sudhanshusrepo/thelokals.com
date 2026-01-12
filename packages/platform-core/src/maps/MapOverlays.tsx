@@ -1,26 +1,68 @@
-import React from 'react';
-import { Marker, InfoWindow, Circle } from '@react-google-maps/api';
+import React, { useEffect, useState } from 'react';
+import { useGoogleMap } from './GoogleMapProvider';
 
-interface MapMarkerProps {
+// Compatible Interfaces
+interface MarkerProps {
     position: google.maps.LatLngLiteral;
     title?: string;
     label?: string;
     icon?: string | google.maps.Icon;
     onClick?: () => void;
-    children?: React.ReactNode; // For InfoWindow content if passed directly?
+    children?: React.ReactNode;
 }
 
-export const MapMarker: React.FC<MapMarkerProps> = ({ position, title, label, icon, onClick }) => {
-    return (
-        <Marker
-            position={position}
-            title={title}
-            label={label}
-            icon={icon}
-            onClick={onClick}
-        />
-    );
+export const Marker: React.FC<MarkerProps> = ({ position, title, label, icon, onClick }) => {
+    const map = useGoogleMap();
+    const [marker, setMarker] = useState<google.maps.Marker | null>(null);
+
+    useEffect(() => {
+        if (!map) return;
+
+        const m = new google.maps.Marker({
+            position,
+            map,
+            title,
+            label,
+            icon,
+        });
+
+        if (onClick) {
+            m.addListener("click", onClick);
+        }
+
+        setMarker(m);
+
+        return () => {
+            if (m) m.setMap(null);
+        };
+    }, [map]); // Re-create if map changes (simple)
+
+    // Update position effectively
+    useEffect(() => {
+        if (marker && position) {
+            marker.setPosition(position);
+        }
+    }, [position, marker]);
+
+    // Icon update
+    useEffect(() => {
+        if (marker && icon) {
+            marker.setIcon(icon);
+        }
+    }, [icon, marker]);
+
+
+    return null; // Markers don't render DOM elements here
 };
 
-// Re-export common types overlay logic if needed
-export { Marker, InfoWindow, Circle };
+// Mock InfoWindow and Circle for now if unused, or implement similarly
+export const InfoWindow: React.FC<any> = () => null;
+export const Circle: React.FC<any> = () => null;
+
+
+interface MapMarkerProps extends MarkerProps { }
+
+export const MapMarker: React.FC<MapMarkerProps> = (props) => {
+    return <Marker {...props} />;
+};
+
