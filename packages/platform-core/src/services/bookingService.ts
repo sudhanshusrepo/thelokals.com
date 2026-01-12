@@ -49,6 +49,7 @@ export const bookingService = {
     clientId: string;
     serviceCategory: string;
     serviceCategoryId?: string;
+    serviceItemId?: string;
     deliveryMode?: 'LOCAL' | 'ONLINE';
     requirements: object;
     aiChecklist: string[];
@@ -76,6 +77,7 @@ export const bookingService = {
       p_address: params.address,
       p_notes: params.notes || null,
       p_service_category_id: params.serviceCategoryId || null,
+      p_service_item_id: params.serviceItemId || null,
       p_delivery_mode: params.deliveryMode || 'LOCAL',
     });
 

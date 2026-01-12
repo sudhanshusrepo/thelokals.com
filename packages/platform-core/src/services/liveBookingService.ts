@@ -46,6 +46,7 @@ export const liveBookingService = {
         status: 'PENDING', // Initial status in DB
         requirements: bookingData.requirements,
         location: `POINT(${requirements?.location?.lng} ${requirements?.location?.lat})`,
+        service_item_id: requirements?.option?.id,
       })
       .select()
       .single();
