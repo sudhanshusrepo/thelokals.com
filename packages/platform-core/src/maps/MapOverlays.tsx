@@ -8,10 +8,13 @@ interface MarkerProps {
     label?: string;
     icon?: string | google.maps.Icon;
     onClick?: () => void;
+    draggable?: boolean;
+    onDragEnd?: (e: google.maps.MapMouseEvent) => void;
+    animation?: google.maps.Animation;
     children?: React.ReactNode;
 }
 
-export const Marker: React.FC<MarkerProps> = ({ position, title, label, icon, onClick }) => {
+export const Marker: React.FC<MarkerProps> = ({ position, title, label, icon, onClick, draggable, onDragEnd, animation }) => {
     const map = useGoogleMap();
     const [marker, setMarker] = useState<google.maps.Marker | null>(null);
 
@@ -24,10 +27,16 @@ export const Marker: React.FC<MarkerProps> = ({ position, title, label, icon, on
             title,
             label,
             icon,
+            draggable,
+            animation
         });
 
         if (onClick) {
             m.addListener("click", onClick);
+        }
+
+        if (onDragEnd) {
+            m.addListener("dragend", onDragEnd);
         }
 
         setMarker(m);
