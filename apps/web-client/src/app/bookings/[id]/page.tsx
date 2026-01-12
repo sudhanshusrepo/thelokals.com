@@ -7,6 +7,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { bookingService, Booking } from '@thelocals/platform-core';
 import { Surface, Section } from '../../../components/ui/Wrappers';
 import { Calendar, Clock, MapPin, User, CheckCircle, ArrowLeft } from 'lucide-react';
+import Image from 'next/image';
 import { StatusCard } from '../../../components/v2/StatusCard';
 
 export default function BookingDetailPage() {
@@ -85,7 +86,7 @@ export default function BookingDetailPage() {
                                 status: booking.status === 'PENDING' ? 'assigned' : (booking.status.toLowerCase() as any),
                                 date: new Date(booking.scheduled_date || booking.created_at).toLocaleDateString(),
                                 time: new Date(booking.scheduled_date || booking.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                                imageUrl: worker?.imageUrl || '/services/ac.jpg'
+                                imageUrl: worker?.imageUrl
                             }}
                             onClick={() => { }}
                         />
@@ -127,9 +128,9 @@ export default function BookingDetailPage() {
                         <Section>
                             <h3 className="font-bold text-gray-900 mb-3">Provider</h3>
                             <Surface className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-gray-200 rounded-full overflow-hidden">
+                                <div className="w-12 h-12 bg-gray-200 rounded-full overflow-hidden relative">
                                     {worker.imageUrl ? (
-                                        <img src={worker.imageUrl} alt={worker.name} className="w-full h-full object-cover" />
+                                        <Image src={worker.imageUrl} alt={worker.name} fill className="object-cover" />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center bg-gray-300">
                                             <User size={20} className="text-gray-500" />

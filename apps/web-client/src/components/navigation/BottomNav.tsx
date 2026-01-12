@@ -67,7 +67,7 @@ export function BottomNav() {
                         <Link
                             key={tab.name}
                             href={tab.href}
-                            className={`flex flex-col items-center justify-center gap-1 w-16 h-full transition-all duration-200 hover:scale-110 ${isActive
+                            className={`flex flex-col items-center justify-center gap-1 w-16 h-full transition-all duration-200 active:scale-95 ${isActive
                                 ? 'text-lokals-green'
                                 : 'text-gray-400 hover:text-lokals-green'
                                 }`}

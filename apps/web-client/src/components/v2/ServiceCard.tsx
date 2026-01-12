@@ -3,6 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { designTokensV2 } from '../../theme/design-tokens-v2';
+import { getServiceImageUrl } from '../../utils/imageUtils';
 import { Star } from 'lucide-react';
 
 export interface ServiceCardProps {
@@ -33,10 +34,10 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ service, onClick }) =>
             {/* Image Section */}
             <div className="relative h-[120px] bg-gray-200">
                 <Image
-                    src={service.image}
+                    src={getServiceImageUrl(service.name)}
                     alt={service.name}
                     fill
-                    className="object-cover"
+                    className="object-cover p-4" // Added padding for SVGs to look better
                     sizes="(max-width: 768px) 50vw, 33vw"
                 />
 
@@ -62,7 +63,7 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ service, onClick }) =>
 
                 <div className="mt-2 flex items-center justify-between">
                     <div className="text-sm font-bold text-v2-text-primary">
-                        {service.price ? `From ₹${service.price}` : 'Price on Request'}
+                        {(service.price || 499) ? `From ₹${service.price || 499}` : 'Price on Request'}
                     </div>
                     <div className="w-7 h-7 rounded-full bg-v2-bg flex items-center justify-center text-v2-text-primary hover:bg-v2-text-primary hover:text-white transition-colors duration-200">
                         <span className="text-lg leading-none -mt-0.5">+</span>

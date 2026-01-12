@@ -10,8 +10,8 @@ interface ServiceImageProps extends Omit<ImageProps, 'src'> {
 }
 
 const FALLBACK_IMAGES = {
-    service: '/images/placeholders/service-def.png',
-    header: '/images/placeholders/header-def.jpg',
+    service: '/images/placeholders/service-def.svg',
+    header: '/images/placeholders/header-def.svg',
     icon: '/images/placeholders/icon-def.svg'
 };
 

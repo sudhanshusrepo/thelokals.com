@@ -1,5 +1,7 @@
 import React from 'react';
 import { designTokensV2 } from '../../theme/design-tokens-v2';
+import NextImage from 'next/image';
+import { getServiceImageUrl } from '../../utils/imageUtils';
 import { Calendar, Clock, ChevronRight } from 'lucide-react';
 
 interface StatusCardProps {
@@ -40,13 +42,15 @@ export const StatusCard: React.FC<StatusCardProps> = ({ booking, onClick }) => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '24px'
+                    fontSize: '24px',
+                    position: 'relative'
                 }}>
-                    {booking.imageUrl ? (
-                        <img src={booking.imageUrl} alt={booking.serviceName} className="w-full h-full object-cover" />
-                    ) : (
-                        <span>🔧</span>
-                    )}
+                    <NextImage
+                        src={booking.imageUrl || getServiceImageUrl(booking.serviceName)}
+                        alt={booking.serviceName}
+                        fill
+                        className="object-contain p-2"
+                    />
                 </div>
 
                 {/* Status Dot */}

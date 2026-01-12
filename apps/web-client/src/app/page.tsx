@@ -47,12 +47,21 @@ export default function Home() {
         }
     };
 
+
+    // Search State
+    const [searchQuery, setSearchQuery] = useState('');
+
     // Filter logic
     const enabledCategoryIds = new Set(
         locations.filter(l => l.is_active).map(l => l.service_category_id)
     );
 
-    const visibleServices = categories.filter(cat => enabledCategoryIds.has(cat.id));
+    const visibleServices = categories.filter(cat => {
+        const isEnabled = enabledCategoryIds.has(cat.id);
+        const matchesSearch = searchQuery === '' || cat.name.toLowerCase().includes(searchQuery.toLowerCase());
+        return isEnabled && matchesSearch;
+    });
+
     const displayServices = visibleServices.length > 0 ? visibleServices : [];
 
     const quickActions = displayServices.slice(0, 5).map(cat => ({
@@ -102,16 +111,29 @@ export default function Home() {
                     {/* Legacy Header Removed */}
 
                     <main className="flex flex-col gap-6 px-4">
-                        {/* Hero Card */}
-                        <HeroSurface>
-                            <HeroCard
-                                title={`Welcome to ${selectedCity}`}
-                                subtitle="Best providers, assigned instantly."
-                                cta1={{ label: "Book Service", onClick: () => router.push('/services') }}
-                                variant="gradient"
+                        {/* Search Bar */}
+                        <div className="relative mt-2">
+                            <input
+                                type="text"
+                                placeholder="Search for 'electrician', 'cleaning'..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="w-full px-4 py-3 pl-11 rounded-xl bg-white border border-gray-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-lokals-green/20 focus:border-lokals-green transition-all"
                             />
-                        </HeroSurface>
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                        </div>
 
+                        {/* Hero Card - Hide if searching */}
+                        {!searchQuery && (
+                            <HeroSurface>
+                                <HeroCard
+                                    title={`Welcome to ${selectedCity}`}
+                                    subtitle="Best providers, assigned instantly."
+                                    cta1={{ label: "Book Service", onClick: () => router.push('/services') }}
+                                    variant="gradient"
+                                />
+                            </HeroSurface>
+                        )}
                         {/* Sticky Quick Actions */}
                         <section className="sticky top-[80px] z-40 -mx-4 px-4 py-2 bg-gradient-to-br from-white/80 to-white/40 backdrop-blur-md overflow-x-auto no-scrollbar border-y border-white/20">
                             {loading ? (
@@ -151,8 +173,7 @@ export default function Home() {
                                             serviceName: (activeBooking as any).serviceName || 'Service',
                                             status: activeBooking.status === 'PENDING' ? 'assigned' : (activeBooking.status.toLowerCase() as any),
                                             date: new Date(activeBooking.scheduled_date || activeBooking.created_at).toLocaleDateString(),
-                                            time: new Date(activeBooking.scheduled_date || activeBooking.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                                            imageUrl: '/services/ac.jpg'
+                                            time: new Date(activeBooking.scheduled_date || activeBooking.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                                         }}
                                         onClick={() => router.push(`/bookings/${activeBooking.id}`)}
                                     />

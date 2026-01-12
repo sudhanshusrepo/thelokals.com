@@ -9,6 +9,7 @@ import { GoogleMapWrapper } from './GoogleMapWrapper';
 import { ArrowLeft, Star, Clock, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { ServiceCategory } from '@thelocals/platform-core';
 import { Surface, Section } from '../../../components/ui/Wrappers';
+import { getServiceImageUrl } from '../../../utils/imageUtils';
 
 interface ServiceDetailClientProps {
     service: ServiceCategory;
@@ -35,10 +36,10 @@ export function ServiceDetailClient({ service }: ServiceDetailClientProps) {
                 {/* Hero Image Header */}
                 <div className="relative h-[300px] w-full">
                     <Image
-                        src={(service as any).image_url || "https://images.unsplash.com/photo-1581094794329-cd109678e7ea?auto=format&fit=crop&w=800&q=80"}
+                        src={getServiceImageUrl(service.name)}
                         alt={service.name}
                         fill
-                        className="object-cover"
+                        className="object-contain p-8 bg-gray-50" // Contain for SVGs, light bg
                         priority
                     />
                     <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/20" />

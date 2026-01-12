@@ -62,7 +62,7 @@ export const AddressEditor: React.FC<AddressEditorProps> = ({
                         position={position}
                         draggable={true}
                         onDragEnd={onDragEnd}
-                        animation={google.maps.Animation.DROP}
+                        animation={typeof google !== 'undefined' ? google.maps.Animation.DROP : undefined}
                     />
                 </GoogleMapProvider>
 

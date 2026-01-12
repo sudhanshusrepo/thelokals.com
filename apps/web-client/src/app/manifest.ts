@@ -2,22 +2,22 @@ import { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
     return {
-        name: 'The Lokals: Home Services',
+        name: 'Lokals - Trusted Home Services',
         short_name: 'Lokals',
-        description: 'Book trusted home service professionals for cleaning, repair, and more.',
+        description: 'Book trusted local professionals instantly.',
         start_url: '/',
         display: 'standalone',
         background_color: '#ffffff',
-        theme_color: '#F7C846',
+        theme_color: '#ffffff',
         icons: [
             {
-                src: '/icon',
-                sizes: '32x32',
+                src: '/icon.png',
+                sizes: '192x192',
                 type: 'image/png',
             },
             {
-                src: '/apple-icon',
-                sizes: '180x180',
+                src: '/icon-512.png',
+                sizes: '512x512',
                 type: 'image/png',
             },
         ],
