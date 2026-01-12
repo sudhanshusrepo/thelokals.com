@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import Image from 'next/image';
+import { ServiceImage } from '../ui/ServiceImage';
 import { designTokensV2 } from '../../theme/design-tokens-v2';
 import { getServiceImageUrl } from '../../utils/imageUtils';
 import { Star } from 'lucide-react';
@@ -33,12 +33,13 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ service, onClick }) =>
         >
             {/* Image Section */}
             <div className="relative h-[120px] bg-gray-200">
-                <Image
+                <ServiceImage
                     src={getServiceImageUrl(service.name)}
                     alt={service.name}
                     fill
-                    className="object-cover p-4" // Added padding for SVGs to look better
+                    className="object-cover p-4"
                     sizes="(max-width: 768px) 50vw, 33vw"
+                    category="service"
                 />
 
                 {/* Best Match Badge (Provider Blind) */}

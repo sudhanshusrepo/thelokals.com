@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import { useBooking } from '../../../contexts/BookingContext';
 import { designTokensV2 } from '../../../theme/design-tokens-v2';
 import { GoogleMapWrapper } from './GoogleMapWrapper';
@@ -10,6 +9,7 @@ import { ArrowLeft, Star, Clock, ShieldCheck, CheckCircle2 } from 'lucide-react'
 import { ServiceCategory } from '@thelocals/platform-core';
 import { Surface, Section } from '../../../components/ui/Wrappers';
 import { getServiceImageUrl } from '../../../utils/imageUtils';
+import { ServiceImage } from '../../../components/ui/ServiceImage';
 
 interface ServiceDetailClientProps {
     service: ServiceCategory;
@@ -63,12 +63,14 @@ export function ServiceDetailClient({ service }: ServiceDetailClientProps) {
             <div className="max-w-md mx-auto bg-white min-h-screen shadow-2xl relative">
                 {/* Hero Image Header */}
                 <div className="relative h-[300px] w-full">
-                    <Image
+                    <ServiceImage
                         src={getServiceImageUrl(service.name)}
                         alt={service.name}
                         fill
-                        className="object-contain p-8 bg-gray-50" // Contain for SVGs, light bg
+                        className="object-cover p-8"
                         priority
+                        category="service"
+                        fallbackSrc="/images/placeholders/service-def.svg"
                     />
                     <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/20" />
 
@@ -136,16 +138,10 @@ export function ServiceDetailClient({ service }: ServiceDetailClientProps) {
                         <h3 className="text-lg font-bold mb-2">Service Availability</h3>
                         <p className="text-sm text-gray-500 mb-4">See active professionals in your area.</p>
                         <div className="h-64 w-full rounded-2xl overflow-hidden shadow-inner border border-gray-100 relative bg-gray-100">
-                            {/* 
-                          NOTE: This requires NEXT_PUBLIC_GOOGLE_MAPS_KEY to be set in .env 
-                          If missing, it might show a development warning or gray box.
-                        */}
                             <div className="absolute inset-0 flex items-center justify-center text-gray-400 z-0">
                                 Loading Map...
                             </div>
-                            {/* Dynamic Import or Client Component usage */}
                             <div className="absolute inset-0 z-10">
-                                {/* We use a dynamic check or error boundary in real apps. Here we assume the key exists or fails gracefully */}
                                 <GoogleMapWrapper />
                             </div>
                         </div>
