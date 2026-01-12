@@ -565,8 +565,8 @@ export const bookingService = {
       .eq('is_active', true)
       .order('base_price', { ascending: true });
 
-    if (error) {
-      logger.error('Error fetching service items', { error, categoryId });
+    if (error || !data || data.length === 0) {
+      if (error) logger.error('Error fetching service items', { error, categoryId });
       // Fallback mocks
       return [
         { id: '1', name: 'Basic Inspection', base_price: 249, description: 'Diagnosis & Minor Fixes', price_unit: 'visit' },

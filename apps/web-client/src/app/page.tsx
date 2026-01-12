@@ -86,7 +86,7 @@ export default function Home() {
 
     return (
         <ErrorBoundary>
-            <div className="min-h-screen bg-neutral-50 pb-4 md:pb-0">
+            <div className="min-h-screen bg-neutral-50 pb-24 md:pb-0">
                 <div className="max-w-md mx-auto min-h-screen bg-white shadow-2xl overflow-hidden relative">
                     {/* Header - Replaced with Smart Location Bar */}
                     <LocationSearchBar
@@ -104,11 +104,14 @@ export default function Home() {
 
                     <main className="flex flex-col gap-6 px-4">
                         {/* Search Bar - Redirects to /search */}
-                        <div className="relative mt-2" onClick={() => router.push('/search')}>
-                            <div className="w-full px-4 py-3 pl-11 rounded-xl bg-white border border-gray-200 shadow-sm flex items-center text-gray-400 cursor-text hover:border-lokals-green transition-all">
+                        <div className="relative mt-2 z-10">
+                            <button
+                                onClick={() => router.push('/search')}
+                                className="w-full px-4 py-3 pl-11 rounded-xl bg-white border border-gray-200 shadow-sm flex items-center text-gray-400 cursor-pointer hover:border-lokals-green hover:shadow-md transition-all text-left"
+                            >
                                 <span>Search for 'electrician', 'cleaning'...</span>
-                            </div>
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                            </button>
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
                         </div>
 
                         {/* Hero Card */}
@@ -158,7 +161,7 @@ export default function Home() {
                                     <StatusCard
                                         booking={{
                                             id: activeBooking.id,
-                                            serviceName: (activeBooking as any).serviceName || 'Service',
+                                            serviceName: (activeBooking as any).serviceName || categories.find(c => c.id === activeBooking.service_category_id)?.name || activeBooking.service_category || 'Service',
                                             status: activeBooking.status === 'PENDING' ? 'assigned' : (activeBooking.status.toLowerCase() as any),
                                             date: new Date(activeBooking.scheduled_date || activeBooking.created_at).toLocaleDateString(),
                                             time: new Date(activeBooking.scheduled_date || activeBooking.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
