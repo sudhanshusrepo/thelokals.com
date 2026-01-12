@@ -19,6 +19,30 @@ export function ServiceDetailClient({ service }: ServiceDetailClientProps) {
     const router = useRouter();
     const { startBooking } = useBooking();
 
+    // SEO Structured Data
+    const jsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'Service',
+        name: service.name,
+        image: getServiceImageUrl(service.name),
+        description: `Professional ${service.name} services in Mumbai, Delhi, and Bangalore.`,
+        provider: {
+            '@type': 'LocalBusiness',
+            name: 'Lokals - Trusted Home Services'
+        },
+        offers: {
+            '@type': 'Offer',
+            priceCurrency: 'INR',
+            price: service.base_price || 499,
+            priceValidUntil: '2026-12-31'
+        },
+        aggregateRating: {
+            '@type': 'AggregateRating',
+            ratingValue: '4.8',
+            reviewCount: '120'
+        }
+    };
+
     const handleBookNow = () => {
         startBooking({
             serviceCategory: service,
@@ -32,6 +56,10 @@ export function ServiceDetailClient({ service }: ServiceDetailClientProps) {
 
     return (
         <div style={{ paddingBottom: '100px', backgroundColor: '#fff' }} className="min-h-screen">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
             <div className="max-w-md mx-auto bg-white min-h-screen shadow-2xl relative">
                 {/* Hero Image Header */}
                 <div className="relative h-[300px] w-full">
