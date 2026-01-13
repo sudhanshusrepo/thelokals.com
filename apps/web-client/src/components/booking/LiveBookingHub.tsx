@@ -253,18 +253,11 @@ export default function LiveBookingHub({ serviceCategory, initialServiceItem }: 
                                 </div>
                                 <div>
                                     <label className="text-xs text-gray-400 font-medium ml-1">Time</label>
-                                    <select
+                                    <input
+                                        type="time"
                                         className="w-full mt-1 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-lokals-green"
                                         value={bookingTime}
                                         onChange={(e) => setBookingTime(e.target.value)}
-                                    >
-                                        <option>Now (ASAP)</option>
-                                        <option>10:00 AM</option>
-                                        <option>12:00 PM</option>
-                                        <option>02:00 PM</option>
-                                        <option>04:00 PM</option>
-                                        <option>06:00 PM</option>
-                                    </select>
                                 </div>
                             </div>
                         </div>
