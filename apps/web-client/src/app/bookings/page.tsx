@@ -37,7 +37,9 @@ export default function BookingsPage() {
                                         status: booking.status === 'PENDING' ? 'assigned' : (booking.status.toLowerCase() as any),
                                         date: new Date(booking.scheduled_date || booking.created_at).toLocaleDateString(),
                                         time: new Date(booking.scheduled_date || booking.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                                        imageUrl: '/services/ac.jpg'
+                                        imageUrl: '/services/ac.jpg',
+                                        address: (booking as any).address?.formatted || (booking as any).address,
+                                        providerName: booking.worker?.name || (booking as any).providers?.full_name
                                     }}
                                     onClick={() => router.push(`/bookings/${booking.id}`)}
                                 />

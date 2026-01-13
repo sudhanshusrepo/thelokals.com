@@ -13,6 +13,11 @@ interface StatusCardProps {
         date: string;
         time: string;
         imageUrl?: string;
+        address?: string;
+        provider?: {
+            name: string;
+            rating: number;
+        }
     };
     onClick?: () => void;
 }
@@ -73,8 +78,24 @@ export const StatusCard: React.FC<StatusCardProps> = ({ booking, onClick }) => {
                         <span>{booking.time}</span>
                     </div>
                 </div>
-                <div className="mt-1 text-xs font-medium text-v2-accent-success">
-                    {isAssigned ? 'Provider assigned' : 'Finding best provider...'}
+                {/* Address (New) */}
+                {booking.address && (
+                    <div className="mt-1 flex items-center gap-1 text-xs text-gray-500">
+                        <div className="w-1 h-1 rounded-full bg-gray-300" />
+                        <span className="truncate max-w-[150px]">{booking.address}</span>
+                    </div>
+                )}
+
+                <div className="mt-2 flex items-center gap-3">
+                    <div className="text-xs font-medium text-v2-accent-success">
+                        {isAssigned ? 'Provider assigned' : 'Finding best provider...'}
+                    </div>
+                    {/* Provider Pill (New) */}
+                    {isAssigned && booking.providerName && (
+                        <div className="text-[10px] bg-gray-100 px-2 py-0.5 rounded-full text-gray-600 font-medium">
+                            {booking.providerName}
+                        </div>
+                    )}
                 </div>
             </div>
 
