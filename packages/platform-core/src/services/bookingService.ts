@@ -238,7 +238,7 @@ export const bookingService = {
           lng: b.providers.location?.coordinates?.[0] || 0
         }
       } : undefined,
-      serviceName: b.service_categories?.name
+      serviceName: (Array.isArray(b.service_categories) ? b.service_categories[0]?.name : b.service_categories?.name) || 'Service'
     }));
   },
 

@@ -2,7 +2,7 @@
 
 import React, { Suspense, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { ServiceCategory } from '@thelocals/platform-core';
+import { bookingService, ServiceCategory } from '@thelocals/platform-core';
 import { getServiceImageUrl } from '../../utils/imageUtils';
 import { ServiceCard } from '../../components/v2/ServiceCard';
 import { Search, Filter, X, ArrowLeft } from 'lucide-react';
@@ -31,43 +31,40 @@ function SearchContent() {
     const [searchTerm, setSearchTerm] = useState(query);
     const [sortBy, setSortBy] = useState<'relevance' | 'price_low' | 'price_high'>('relevance');
 
-    // Derived Data
-    const allServices: DisplayService[] = React.useMemo(() => {
-        // Flatten services from constants
-        const services: DisplayService[] = [];
+    const [allServices, setAllServices] = useState<DisplayService[]>([]);
+    const [isLoadingData, setIsLoadingData] = useState(true);
 
-        // Mocking some data structure conversion since SERVICES_BY_CATEGORY might be just names or IDs
-        // In a real app we'd fetch this. heavily relying on constants for now.
-        // Let's assume we have a list of categories we can search through.
+    // Fetch Real Categories via BookingService to ensuring UUIDs are correct
+    useEffect(() => {
+        const loadServices = async () => {
+            try {
+                // Fetch categories serving as "Services" for search
+                // In a real scenario, this might search full items + categories
+                const categories = await bookingService.getServiceCategories();
 
-        // We will simulate "All Services" from our known categories for now
-        const categories = [
-            { id: 'ac-service', name: 'AC Service', price: 499 },
-            { id: 'cleaning', name: 'Cleaning', price: 399 },
-            { id: 'plumber', name: 'Plumber', price: 299 },
-            { id: 'electrician', name: 'Electrician', price: 299 },
-            { id: 'carpenter', name: 'Carpenter', price: 349 },
-            { id: 'painter', name: 'Painter', price: 999 },
-            { id: 'pest-control', name: 'Pest Control', price: 599 },
-            { id: 'appliance', name: 'Appliance Repair', price: 449 },
-            // Add more variations for search richness
-            { id: 'sofa-cleaning', name: 'Sofa Cleaning', price: 799, category: 'cleaning' },
-            { id: 'bathroom-cleaning', name: 'Bathroom Cleaning', price: 499, category: 'cleaning' },
-        ];
-
-        return categories.map(cat => ({
-            id: cat.id,
-            name: cat.name,
-            image: getServiceImageUrl(cat.name),
-            price: cat.price,
-            rating: 4.8, // Mock
-            reviews: 120 + Math.floor(Math.random() * 500),
-            isBestMatch: false
-        }));
+                if (categories) {
+                    const mapped = categories.map((cat: any) => ({
+                        id: cat.id,
+                        name: cat.name,
+                        image: getServiceImageUrl(cat.name),
+                        price: 299, // Base start price generic
+                        rating: 4.8,
+                        reviews: 150,
+                        category: 'general'
+                    }));
+                    setAllServices(mapped);
+                }
+            } catch (e) {
+                console.error("Search fetch failed", e);
+            } finally {
+                setIsLoadingData(false);
+            }
+        };
+        loadServices();
     }, []);
 
     const filteredServices = React.useMemo(() => {
-        if (!searchTerm) return [];
+        if (!searchTerm) return allServices;
 
         let results = allServices.filter(s =>
             s.name.toLowerCase().includes(searchTerm.toLowerCase())
