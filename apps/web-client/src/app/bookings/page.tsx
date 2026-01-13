@@ -33,7 +33,7 @@ export default function BookingsPage() {
                                 <StatusCard
                                     booking={{
                                         id: booking.id,
-                                        serviceName: (booking as any).serviceName || 'Service',
+                                        serviceName: (booking as any).serviceName || (booking as any).service_categories?.name || 'Service',
                                         status: booking.status === 'PENDING' ? 'assigned' : (booking.status.toLowerCase() as any),
                                         date: new Date(booking.scheduled_date || booking.created_at).toLocaleDateString(),
                                         time: new Date(booking.scheduled_date || booking.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),

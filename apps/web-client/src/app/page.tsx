@@ -104,15 +104,20 @@ export default function Home() {
 
                     <main className="flex flex-col gap-6 px-4">
                         {/* Search Bar - Redirects to /search */}
-                        <div className="relative mt-2 z-10">
-                            <button
-                                onClick={() => router.push('/search')}
-                                className="w-full px-4 py-3 pl-11 rounded-xl bg-white border border-gray-200 shadow-sm flex items-center text-gray-400 cursor-pointer hover:border-lokals-green hover:shadow-md transition-all text-left"
-                            >
-                                <span>Search for 'electrician', 'cleaning'...</span>
-                            </button>
+                        <form className="relative mt-2 z-10" onSubmit={(e) => {
+                            e.preventDefault();
+                            const formData = new FormData(e.currentTarget);
+                            const query = formData.get('q');
+                            if (query) router.push(`/search?q=${encodeURIComponent(query.toString())}`);
+                        }}>
+                            <input
+                                name="q"
+                                type="text"
+                                placeholder="Search for 'electrician', 'cleaning'..."
+                                className="w-full px-4 py-3 pl-11 rounded-xl bg-white border border-gray-200 shadow-sm text-gray-700 placeholder:text-gray-400 focus:outline-none focus:border-lokals-green focus:ring-1 focus:ring-lokals-green transition-all"
+                            />
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
-                        </div>
+                        </form>
 
                         {/* Hero Card */}
                         <HeroSurface>
