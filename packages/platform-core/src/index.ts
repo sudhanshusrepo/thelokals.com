@@ -19,6 +19,7 @@ export * from './services/adminService';
 export * from './services/liveBookingService';
 export * from './services/otp';
 export * from './services/matchingService';
+export * from './services/notificationService';
 export * from './services/dynamicPricingService';
 export * from './services/aiClassificationService';
 export * from './services/voiceInputService';

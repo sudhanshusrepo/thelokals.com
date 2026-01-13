@@ -593,5 +593,42 @@ export const bookingService = {
       return { id, name: 'Service', icon: 'Tool' };
     }
     return data;
+  },
+
+  /**
+   * Retrieves any available providers (Fallback for demo/testing).
+   */
+  async getFallbackProviders(limit: number = 3) {
+    const { data, error } = await supabase
+      .from('workers') // Assuming 'workers' or 'providers' table. 'workers' seems to be used directly to fill 'providers' view often.
+      .select('id, name, location_lat, location_lng')
+      .limit(limit);
+
+    if (error || !data) {
+      // Try 'profiles' where role is provider if workers fails
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('id, full_name, role')
+        .eq('role', 'PROVIDER')
+        .limit(limit);
+
+      if (profileData) {
+        return profileData.map(p => ({
+          id: p.id,
+          name: p.full_name || 'Provider',
+          lat: 19.0760, // Mock loc
+          lng: 72.8777
+        }));
+      }
+      return [];
+    }
+
+    return data.map((p: any) => ({
+      id: p.id,
+      name: p.name,
+      lat: p.location_lat || 19.0760,
+      lng: p.location_lng || 72.8777
+    }));
   }
 };
+

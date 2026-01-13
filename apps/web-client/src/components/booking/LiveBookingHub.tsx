@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, MapPin, Loader2, Phone, MessageCircle, Star, CreditCard, Wallet, Banknote, CheckCircle } from 'lucide-react';
-import { GoogleMapProvider, Marker, liveBookingService, bookingService, MAP_STYLES_LOKALS } from '@thelocals/platform-core';
+import { GoogleMapProvider, Marker, liveBookingService, bookingService, notificationService, MAP_STYLES_LOKALS } from '@thelocals/platform-core';
 import { useAuth } from '../../contexts/AuthContext';
 import { useBookingLogic, PricingUtils } from '@thelocals/flows';
 import { useRouter } from 'next/navigation';
@@ -53,16 +53,39 @@ export default function LiveBookingHub({ serviceCategory, initialServiceItem }: 
         if (!context.serviceCategory || !context.location) return;
 
         try {
-            // 1. Find Nearby Providers
-            const providers = await bookingService.findNearbyProviders(
+            // 1. Find Nearby Providers (Real)
+            let providers = await bookingService.findNearbyProviders(
                 context.serviceCategory.id,
                 context.location.lat,
                 context.location.lng,
                 10000 // 10km
             );
 
-            // Mock providers if none found for testing flow
-            const providerIds = (providers && providers.length > 0) ? providers.map(p => p.id) : ['mock-provider-1', 'mock-provider-2'];
+            // 1b. Fallback if no nearby providers (For Demo/Testing to ensure booking works)
+            if (!providers || providers.length === 0) {
+                console.log("No nearby providers found. Fetching fallback providers...");
+                const fallbacks = await bookingService.getFallbackProviders();
+                if (fallbacks && fallbacks.length > 0) {
+                    // Cast to match nearby structure
+                    providers = fallbacks.map(f => ({
+                        ...f,
+                        distance: 1000,
+                        category: context.serviceCategory?.id || 'general',
+                        price: 0,
+                        rating: 4.5,
+                        review_count: 10,
+                        image_url: '',
+                    })) as any;
+                }
+            }
+
+            if (!providers || providers.length === 0) {
+                toast.error("No providers found available. Please try again later.");
+                return;
+            }
+
+            // Extract IDs
+            const providerIds = providers.map(p => p.id);
 
             // 2. Create Live Booking
             const booking = await liveBookingService.createLiveBooking({
@@ -77,54 +100,55 @@ export default function LiveBookingHub({ serviceCategory, initialServiceItem }: 
                 }
             });
 
-            // 3. Create Requests for Providers
+            // 3. Create Requests for Providers & Notify
             if (providerIds.length > 0) {
-                // Try/Catch for this specific step as it relies on provider existence
-                try {
-                    await liveBookingService.createBookingRequests(booking.id, providerIds);
-                } catch (e) {
-                    console.warn("Failed to create provider requests (using mock/skip)", e);
-                }
+                await liveBookingService.createBookingRequests(booking.id, providerIds);
+
+                // 4. Notify Providers (New)
+                await notificationService.notifyProviders(
+                    providerIds,
+                    "New Job Available",
+                    `New ${context.serviceCategory.name} request nearby!`,
+                    { bookingId: booking.id }
+                );
             }
 
-            // 4. Set State to SEARCHING
+            // 5. Set State to SEARCHING
             send('SUBMIT_LIVE', { bookingId: booking.id });
 
-            // 5. Subscribe to Updates
-            // Using a mock simulation for demo purposes if no real updates come
+            // 6. Polling/Subscription
             const channel = liveBookingService.subscribeToBookingUpdates(booking.id, (payload) => {
                 const newData = payload.new as any;
-                if (!newData) return;
-
-                console.log('[LiveHub] Update:', newData.status);
-                handleStatusUpdate(newData.status, newData);
+                if (newData) handleStatusUpdate(newData.status, newData);
             });
-
-            // Cleanup subscription on unmount or state change handled by effect if needed
             mapRef.current = channel as any;
 
-            // SIMULATION: If we are in Dev/Demo mode, simulate provider found after 3s
-            if (process.env.NODE_ENV === 'development' || true) {
+            // SIMULATION (Optional: Only if no real providers respond in dev)
+            if (process.env.NODE_ENV === 'development') {
                 setTimeout(() => {
-                    if (state === 'SEARCHING' || state === 'DRAFT') { // Check if still searching
-                        send('PROVIDER_FOUND', {
-                            provider: {
-                                providerId: 'mock-p-1',
-                                name: 'Rajesh Kumar',
-                                rating: 4.8,
-                                location: { lat: center.lat + 0.001, lng: center.lng + 0.001 },
-                                isOnline: true,
-                                services: []
-                            }
-                        });
+                    // Only simulate if still searching
+                    if (state === 'SEARCHING' || state === 'REQUESTING') {
+                        // Check if we have a provider to assign
+                        const assignedProvider = providers[0];
+                        if (assignedProvider) {
+                            send('PROVIDER_FOUND', {
+                                provider: {
+                                    providerId: assignedProvider.id,
+                                    name: assignedProvider.name,
+                                    rating: assignedProvider.rating,
+                                    location: { lat: center.lat + 0.001, lng: center.lng + 0.001 },
+                                    isOnline: true,
+                                    services: []
+                                }
+                            });
+                        }
                     }
-                }, 4000);
+                }, 5000);
             }
 
         } catch (error) {
             console.error("Failed to create booking:", error);
             toast.error("Failed to create booking. Please try again.");
-            // send('FAIL'); 
         }
     };
 
