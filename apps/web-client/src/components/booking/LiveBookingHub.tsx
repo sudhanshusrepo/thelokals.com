@@ -67,7 +67,7 @@ export default function LiveBookingHub({ serviceCategory, initialServiceItem }: 
                 const fallbacks = await bookingService.getFallbackProviders();
                 if (fallbacks && fallbacks.length > 0) {
                     // Cast to match nearby structure
-                    providers = fallbacks.map(f => ({
+                    providers = fallbacks.map((f: any) => ({
                         ...f,
                         distance: 1000,
                         category: context.serviceCategory?.id || 'general',
