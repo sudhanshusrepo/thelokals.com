@@ -613,7 +613,7 @@ export const bookingService = {
         .limit(limit);
 
       if (profileData) {
-        return profileData.map(p => ({
+        return profileData.map((p: any) => ({
           id: p.id,
           name: p.full_name || 'Provider',
           lat: 19.0760, // Mock loc
