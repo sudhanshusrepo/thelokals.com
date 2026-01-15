@@ -40,7 +40,7 @@ export const liveBookingService = {
     const { data, error } = await supabase
       .from('bookings')
       .insert({
-        client_id: bookingData.clientId,
+        user_id: bookingData.clientId,
         service_category: bookingData.serviceId, // Mapping serviceId to category for now
         booking_type: 'LIVE',
         status: 'PENDING', // Initial status in DB
@@ -59,7 +59,7 @@ export const liveBookingService = {
     // Map DB response to LiveBooking type
     return {
       id: data.id,
-      clientId: data.client_id,
+      clientId: data.user_id,
       serviceId: data.service_category,
       providerId: data.provider_id,
       status: 'REQUESTED', // Client-side status mapping
@@ -167,7 +167,7 @@ export const liveBookingService = {
       .on(
         'broadcast',
         { event: 'provider_location' },
-        (payload) => {
+        (payload: any) => {
           if (onLocationUpdate) onLocationUpdate(payload.payload);
         }
       )
@@ -243,6 +243,56 @@ export const liveBookingService = {
       logger.error('Error processing payment', { error, bookingId });
       throw error;
     }
+  },
+
+  /**
+   * Subscribes to new booking requests for a specific provider.
+   * @param {string} providerId - The ID of the provider.
+   * @param {function} onNewRequest - Callback when a new request is received.
+   * @returns {RealtimeChannel}
+   */
+  subscribeToProviderRequests(
+    providerId: string,
+    onNewRequest: (payload: any) => void
+  ): RealtimeChannel {
+    const channel = supabase
+      .channel(`provider-requests:${providerId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'booking_requests',
+          filter: `provider_id=eq.${providerId}`
+        },
+        onNewRequest
+      )
+      .subscribe();
+
+    return channel;
+  },
+
+  /**
+   * Updates the status of a booking (Provider Side).
+   * @param {string} bookingId - The Booking ID.
+   * @param {string} status - New status.
+   */
+  async updateBookingStatus(bookingId: string, status: string): Promise<void> {
+    // Using the Admin RPC wrapper if strictly needed, or direct update if policy allows.
+    // Let's force use of RPC we created `update_booking_status_admin` OR assume RLS works.
+    // Ideally we should have `update_booking_status_provider` RPC.
+    // For this sprint, reusing the admin/god RPC if possible? No, strictly RLS.
+    // Let's try direct update.
+    const { error } = await supabase.from('bookings').update({ status }).eq('id', bookingId);
+    if (error) {
+      // If direct update fails (likely RLS), try the RPC approach or log error.
+      console.error("Direct update failed, checking RLS policies.", error);
+      throw error;
+    }
+  },
+
+  async getBookingById(bookingId: string) {
+    return await supabase.from('bookings').select('*').eq('id', bookingId).single();
   },
 
   /**

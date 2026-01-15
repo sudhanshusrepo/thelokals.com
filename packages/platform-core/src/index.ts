@@ -25,6 +25,7 @@ export * from './services/aiClassificationService';
 export * from './services/voiceInputService';
 export * from './databaseTypes';
 export * from './utils/headerUtils';
+export * from './utils/pricingUtils';
 export * from './utils/featureFlags';
 export * from './components/auth';
 
