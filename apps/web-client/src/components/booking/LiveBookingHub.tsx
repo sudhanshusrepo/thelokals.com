@@ -43,6 +43,9 @@ export default function LiveBookingHub({ serviceCategory, initialServiceItem }: 
     // Initial Center from Context or Default (Mumbai)
     const center = context.location ? { lat: context.location.lat, lng: context.location.lng } : { lat: 19.0760, lng: 72.8777 };
 
+    // Local state for smooth animation (bypassing XState context for high-freq updates)
+    const [providerLocation, setProviderLocation] = useState<{ lat: number, lng: number } | null>(null);
+
     const handleConfirmBooking = async () => {
         if (!user) {
             toast.error("Please login to continue");
@@ -54,38 +57,25 @@ export default function LiveBookingHub({ serviceCategory, initialServiceItem }: 
 
         try {
             // 1. Find Nearby Providers (Real)
+            // Using the real DB seeded data (Indiranagar fallback if needed)
             let providers = await bookingService.findNearbyProviders(
                 context.serviceCategory.id,
                 context.location.lat,
                 context.location.lng,
-                10000 // 10km
+                10000 // 10km radius
             );
 
-            // 1b. Fallback if no nearby providers (For Demo/Testing to ensure booking works)
-            if (!providers || providers.length === 0) {
-                console.log("No nearby providers found. Fetching fallback providers...");
-                const fallbacks = await bookingService.getFallbackProviders();
-                if (fallbacks && fallbacks.length > 0) {
-                    // Cast to match nearby structure
-                    providers = fallbacks.map((f: any) => ({
-                        ...f,
-                        distance: 1000,
-                        category: context.serviceCategory?.id || 'general',
-                        price: 0,
-                        rating: 4.5,
-                        review_count: 10,
-                        image_url: '',
-                    })) as any;
-                }
-            }
+            console.log("Found Providers:", providers);
 
+            // 1b. Strict Fallback - Only if absolutely 0 from DB and we want to demo
+            // In Sprint 3, we expect REAL providers.
             if (!providers || providers.length === 0) {
-                toast.error("No providers found available. Please try again later.");
+                toast.error("No service providers found in this area.");
                 return;
             }
 
             // Extract IDs
-            const providerIds = providers.map(p => p.id);
+            const providerIds = providers.map(p => p.provider_id);
 
             // 2. Create Live Booking
             const booking = await liveBookingService.createLiveBooking({
@@ -96,7 +86,8 @@ export default function LiveBookingHub({ serviceCategory, initialServiceItem }: 
                     option: context.selectedOption,
                     date: bookingDate,
                     time: bookingTime,
-                    notes: notes
+                    notes: notes,
+                    price_locked: context.price // Pass locked price
                 }
             });
 
@@ -113,38 +104,27 @@ export default function LiveBookingHub({ serviceCategory, initialServiceItem }: 
                 );
             }
 
-            // 5. Set State to SEARCHING
+            // 5. Update State to MATCHING
+            // Note: We need to align Flow state with this. 'SEARCHING' -> 'BOOKING_CREATED' -> 'PROVIDER_MATCHING'
+            // For now, assuming LiveBookingHub still uses simplified local state mapping or we update the Hub state logic too.
+            // Let's keep 'SEARCHING' as the UI state for "Matching"
             send('SUBMIT_LIVE', { bookingId: booking.id });
 
             // 6. Polling/Subscription
-            const channel = liveBookingService.subscribeToBookingUpdates(booking.id, (payload) => {
-                const newData = payload.new as any;
-                if (newData) handleStatusUpdate(newData.status, newData);
-            });
-            mapRef.current = channel as any;
-
-            // SIMULATION (Optional: Only if no real providers respond in dev)
-            if (process.env.NODE_ENV === 'development') {
-                setTimeout(() => {
-                    // Only simulate if still searching
-                    if (state === 'SEARCHING' || state === 'REQUESTING') {
-                        // Check if we have a provider to assign
-                        const assignedProvider = providers[0];
-                        if (assignedProvider) {
-                            send('PROVIDER_FOUND', {
-                                provider: {
-                                    providerId: assignedProvider.id,
-                                    name: assignedProvider.name,
-                                    rating: assignedProvider.rating,
-                                    location: { lat: center.lat + 0.001, lng: center.lng + 0.001 },
-                                    isOnline: true,
-                                    services: []
-                                }
-                            });
-                        }
+            const channel = liveBookingService.subscribeToBookingUpdates(
+                booking.id,
+                (payload) => {
+                    const newData = payload.new as any;
+                    if (newData) handleStatusUpdate(newData.status, newData);
+                },
+                (locationPayload) => {
+                    // Update local state for smooth animation
+                    if (locationPayload && locationPayload.lat && locationPayload.lng) {
+                        setProviderLocation({ lat: locationPayload.lat, lng: locationPayload.lng });
                     }
-                }, 5000);
-            }
+                }
+            );
+            mapRef.current = channel as any;
 
         } catch (error) {
             console.error("Failed to create booking:", error);
@@ -153,40 +133,77 @@ export default function LiveBookingHub({ serviceCategory, initialServiceItem }: 
     };
 
     const handleStatusUpdate = (status: string, data: any) => {
-        if (status === 'CONFIRMED' || status === 'ACCEPTED') {
+        console.log("Received Status Update:", status, data);
+
+        // 1. Searching / Matching (Keep Pulse)
+        if (status === 'BOOKING_CREATED' || status === 'PROVIDER_MATCHING') {
+            // No state change needed if already in SEARCHING
+            // But if we want to be explicit:
+            // send('START_MATCHING'); 
+            return;
+        }
+
+        // 2. Provider Found / Assigned
+        if (status === 'PROVIDER_ACCEPTED' || status === 'CONFIRMED' || status === 'ACCEPTED') {
             send('PROVIDER_FOUND', {
                 provider: {
                     providerId: data.provider_id || 'mock-id',
-                    name: 'Provider',
+                    name: 'Provider', // Ideally fetch full details
                     rating: 4.8,
                     location: { lat: center.lat + 0.001, lng: center.lng + 0.001 },
                     isOnline: true,
                     services: []
                 }
             });
-        } else if (status === 'EN_ROUTE') {
+        }
+
+        // 3. Request Lifecycle
+        else if (status === 'PROVIDER_EN_ROUTE' || status === 'EN_ROUTE') {
             send('PROVIDER_EN_ROUTE');
-        } else if (status === 'IN_PROGRESS') {
+        } else if (status === 'SERVICE_IN_PROGRESS' || status === 'IN_PROGRESS') {
             send('START_JOB');
-        } else if (status === 'COMPLETED') {
+        } else if (status === 'SERVICE_COMPLETED' || status === 'COMPLETED') {
             send('COMPLETE_JOB');
         } else if (status === 'PAYMENT_PENDING') {
-            // Sometimes COMPLETED triggers payment pending automatically in backend
-            // But our flow might need manual transition
+            // In new flow, COMPLETE_JOB transitions to PAYMENT_PENDING in state machine automatically
+            // But if we receive it directly:
+            // send('GENERATE_INVOICE');
+        } else if (status === 'PAYMENT_SUCCESS') {
+            send('PAYMENT_SUCCESS');
+        }
+    };
+
+    const handleCompleteJob = async () => {
+        // DEV ONLY: Client simulating Provider
+        if (!context.bookingId || !context.provider?.providerId) {
+            toast.error("Missing booking or provider ID");
+            return;
+        }
+        try {
+            await liveBookingService.completeBooking(context.bookingId, context.provider.providerId);
+            toast.success("Job Completed (Dev)");
+        } catch (e) {
+            console.error(e);
+            toast.error("Failed to complete job");
         }
     };
 
     const handleProcessPayment = async () => {
-        toast.loading("Processing Payment...");
-        await new Promise(r => setTimeout(r, 1500));
-        toast.dismiss();
-        toast.success("Payment Successful!");
-        send('PAYMENT_SUCCESS');
+        if (!context.bookingId) return;
 
-        // Auto redirect to home after 2s
-        setTimeout(() => {
-            router.push('/bookings');
-        }, 2500);
+        toast.loading("Processing Payment...");
+        try {
+            // Mock Payment Processing
+            await liveBookingService.processPayment(context.bookingId, context.price || 499, paymentMethod);
+
+            toast.dismiss();
+            toast.success("Payment Successful!");
+            // State update will be triggered by Realtime Subscription
+        } catch (e) {
+            console.error(e);
+            toast.dismiss();
+            toast.error("Payment failed. Please try again.");
+        }
     };
 
     // Cleanup channel on unmount
@@ -258,6 +275,7 @@ export default function LiveBookingHub({ serviceCategory, initialServiceItem }: 
                                         className="w-full mt-1 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-lokals-green"
                                         value={bookingTime}
                                         onChange={(e) => setBookingTime(e.target.value)}
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -395,11 +413,11 @@ export default function LiveBookingHub({ serviceCategory, initialServiceItem }: 
                     <Marker position={center} />
 
                     {/* Provider Location (if assigned) */}
-                    {isAssigned && context.provider && (
+                    {isAssigned && (context.provider || providerLocation) && (
                         <Marker
-                            position={{
-                                lat: (context.provider as any).location.lat,
-                                lng: (context.provider as any).location.lng
+                            position={providerLocation || {
+                                lat: (context.provider as any)?.location?.lat || 0,
+                                lng: (context.provider as any)?.location?.lng || 0
                             }}
                             icon={{ url: 'https://cdn-icons-png.flaticon.com/512/2936/2936886.png', scaledSize: { width: 40, height: 40 } as any }}
                         />
@@ -506,7 +524,7 @@ export default function LiveBookingHub({ serviceCategory, initialServiceItem }: 
                                     Job in Progress
                                 </div>
                                 <button
-                                    onClick={() => send('COMPLETE_JOB')}
+                                    onClick={handleCompleteJob}
                                     className="w-full border-2 border-dashed border-gray-300 py-3 rounded-xl font-bold text-gray-400 hover:border-gray-900 hover:text-gray-900 transition-colors"
                                 >
                                     End Job (Dev)

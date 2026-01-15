@@ -10,51 +10,63 @@ export const BookingFlow = {
                 break;
 
             case "DRAFT":
-                // Screen 1: Selection -> Confirmation
-                if (event === "CONFIRM_DETAILS") return "ESTIMATING";
-                if (event === "SUBMIT_ESTIMATE") return "ESTIMATING"; // Legacy compat
-                if (event === "SUBMIT_LIVE") return "SEARCHING"; // Skip estimate
-                break;
-
-            case "ESTIMATING":
-                // Screen 2: Pre-Booking -> Requesting
-                if (event === "ACCEPT_ESTIMATE") return "REQUESTING";
+                if (event === "SUBMIT_LIVE") return "SEARCHING";
                 if (event === "CANCEL") return "IDLE";
                 break;
 
-            case "REQUESTING":
-                if (event === "SUCCESS") return "SEARCHING";
-                if (event === "FAIL") return "FAILED";
-                break;
-
             case "SEARCHING":
-                // Screen 2: Pulse -> Found
-                if (event === "PROVIDER_FOUND") return "CONFIRMED";
-                if (event === "TIMEOUT") return "FAILED";
-                if (event === "CANCEL") return "CANCELLED";
+                // Pre-Booking / Map Discovery
+                if (event === "CREATE_BOOKING") return "BOOKING_CREATED";
+                if (event === "CANCEL") return "IDLE";
+                if (event === "SUBMIT_LIVE") return "BOOKING_CREATED"; // Handle duplicate/direct transition
                 break;
 
-            case "CONFIRMED":
-                if (event === "PROVIDER_EN_ROUTE") return "EN_ROUTE";
-                if (event === "CANCEL") return "CANCELLED";
+            case "BOOKING_CREATED":
+                // System confirms record created
+                if (event === "START_MATCHING") return "PROVIDER_MATCHING";
+                if (event === "CANCEL") return "CLOSED";
                 break;
 
-            case "EN_ROUTE":
-                if (event === "START_JOB") return "IN_PROGRESS";
-                if (event === "CANCEL") return "CANCELLED";
+            case "PROVIDER_MATCHING":
+                // Broadcasting to providers
+                if (event === "PROVIDER_ACCEPTED") return "PROVIDER_ACCEPTED";
+                if (event === "TIMEOUT") return "CLOSED"; // Or retry
+                if (event === "CANCEL") return "CLOSED";
                 break;
 
-            case "IN_PROGRESS":
-                if (event === "COMPLETE_JOB") return "PAYMENT_PENDING";
+            case "PROVIDER_ACCEPTED":
+                // Provider assigned
+                if (event === "PROVIDER_EN_ROUTE") return "PROVIDER_EN_ROUTE";
+                if (event === "CANCEL") return "CLOSED"; // With penalty maybe
+                break;
+
+            case "PROVIDER_EN_ROUTE":
+                if (event === "START_JOB") return "SERVICE_IN_PROGRESS";
+                if (event === "CANCEL") return "CLOSED";
+                break;
+
+            case "SERVICE_IN_PROGRESS":
+                if (event === "COMPLETE_JOB") return "SERVICE_COMPLETED";
+                break;
+
+            case "SERVICE_COMPLETED":
+                // Work done, waiting for payment gen
+                if (event === "GENERATE_INVOICE") return "PAYMENT_PENDING";
+                // Auto transition often
+                if (event === "SKIP_INVOICE") return "PAYMENT_PENDING";
                 break;
 
             case "PAYMENT_PENDING":
-                if (event === "PAYMENT_SUCCESS") return "COMPLETED";
+                if (event === "PAYMENT_SUCCESS") return "PAYMENT_SUCCESS";
                 break;
 
-            case "COMPLETED":
-                // Screen 3: Feedback
-                if (event === "SUBMIT_FEEDBACK") return "IDLE";
+            case "PAYMENT_SUCCESS":
+                // Feedback loop
+                if (event === "CLOSE") return "CLOSED";
+                break;
+
+            case "CLOSED":
+                // Final terminal state
                 break;
         }
         return state;

@@ -424,8 +424,10 @@ export const bookingService = {
       .insert({
         serviceId: service.id,
         user_id: clientId,
-        status: 'REQUESTED',
+        status: 'BOOKING_CREATED', // Strict State
         requirements: requirements,
+        price_locked: (requirements as any).price_locked || 0,
+        otp_start_job: Math.floor(1000 + Math.random() * 9000).toString(),
       })
       .select()
       .single();

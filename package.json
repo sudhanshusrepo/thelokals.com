@@ -48,6 +48,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.9.0",
+    "@eslint/js": "^9.15.0",
     "@opennextjs/cloudflare": "^1.14.7",
     "@playwright/test": "^1.44.0",
     "@testing-library/jest-dom": "^6.4.5",
@@ -60,7 +61,6 @@
     "eslint-plugin-react": "^7.34.1",
     "eslint-plugin-react-hooks": "^4.6.2",
     "globals": "^15.15.0",
-    "@eslint/js": "^9.15.0",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "supabase": "^1.169.0",
@@ -72,9 +72,11 @@
     "wrangler": "^4.54.0"
   },
   "dependencies": {
+    "@faker-js/faker": "^10.2.0",
     "@react-google-maps/api": "^2.20.8",
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.2.3",
+    "pg": "^8.17.0",
     "react-loading-skeleton": "^3.5.0",
     "react-router-dom": "^6.28.0",
     "swr": "^2.3.8"

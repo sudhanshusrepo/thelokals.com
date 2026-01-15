@@ -37,9 +37,11 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ service, onClick }) =>
                     src={getServiceImageUrl(service.name)}
                     alt={service.name}
                     fill
-                    className="object-cover p-4"
+                    className="object-cover p-4 hover:scale-105 transition-transform duration-500"
                     sizes="(max-width: 768px) 50vw, 33vw"
                     category="service"
+                    placeholder="blur"
+                    blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
                 />
 
                 {/* Best Match Badge (Provider Blind) */}

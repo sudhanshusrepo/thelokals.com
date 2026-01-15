@@ -79,13 +79,11 @@ export const liveBookingService = {
    * @throws {Error} If the insert fails.
    */
   async createBookingRequests(bookingId: string, providerIds: string[]) {
-    const requests = providerIds.map(providerId => ({
-      booking_id: bookingId,
-      provider_id: providerId,
-      status: 'PENDING'
-    }));
-
-    const { error } = await supabase.from('booking_requests').insert(requests);
+    // strict remote procedure call for atomic/bulk insertion
+    const { error } = await supabase.rpc('create_booking_requests', {
+      p_booking_id: bookingId,
+      p_provider_ids: providerIds
+    });
 
     if (error) {
       logger.error('Error creating booking requests', { error, bookingId, providerIds });
@@ -149,7 +147,11 @@ export const liveBookingService = {
    * @param {(payload: RealtimePostgresChangesPayload<{ [key: string]: any; }>) => void} callback - The function to call with the update payload.
    * @returns {RealtimeChannel} The Supabase Realtime channel.
    */
-  subscribeToBookingUpdates(bookingId: string, callback: (payload: RealtimePostgresChangesPayload<{ [key: string]: any; }>) => void): RealtimeChannel {
+  subscribeToBookingUpdates(
+    bookingId: string,
+    onStatusUpdate: (payload: RealtimePostgresChangesPayload<{ [key: string]: any; }>) => void,
+    onLocationUpdate?: (payload: any) => void
+  ): RealtimeChannel {
     const channel = supabase
       .channel(`booking-updates:${bookingId}`)
       .on(
@@ -160,7 +162,14 @@ export const liveBookingService = {
           table: 'bookings',
           filter: `id=eq.${bookingId}`,
         },
-        callback
+        onStatusUpdate
+      )
+      .on(
+        'broadcast',
+        { event: 'provider_location' },
+        (payload) => {
+          if (onLocationUpdate) onLocationUpdate(payload.payload);
+        }
       )
       .subscribe();
 
@@ -181,6 +190,57 @@ export const liveBookingService = {
 
     if (error) {
       logger.error('Error rejecting booking', { error, bookingId, providerId });
+      throw error;
+    }
+  },
+
+  /**
+   * Broadcasts provider location to the booking channel.
+   * @param {string} bookingId - The booking ID.
+   * @param {object} location - { lat, lng }
+   */
+  async broadcastProviderLocation(bookingId: string, location: { lat: number; lng: number }) {
+    await supabase.channel(`booking-updates:${bookingId}`).send({
+      type: 'broadcast',
+      event: 'provider_location',
+      payload: location
+    });
+  },
+
+  /**
+   * Completes a booking (Provider Side).
+   * @param {string} bookingId - The ID of the booking.
+   * @param {string} providerId - The ID of the provider.
+   * @returns {Promise<void>}
+   */
+  async completeBooking(bookingId: string, providerId: string): Promise<void> {
+    const { error } = await supabase.rpc('complete_booking', {
+      p_booking_id: bookingId,
+      p_provider_id: providerId
+    });
+
+    if (error) {
+      logger.error('Error completing booking', { error, bookingId, providerId });
+      throw error;
+    }
+  },
+
+  /**
+   * Processes a payment (Client Side - Mock).
+   * @param {string} bookingId - The ID of the booking.
+   * @param {number} amount - The amount to pay.
+   * @param {string} method - 'CARD', 'UPI', or 'CASH'.
+   * @returns {Promise<void>}
+   */
+  async processPayment(bookingId: string, amount: number, method: string): Promise<void> {
+    const { error } = await supabase.rpc('process_payment', {
+      p_booking_id: bookingId,
+      p_amount: amount,
+      p_method: method
+    });
+
+    if (error) {
+      logger.error('Error processing payment', { error, bookingId });
       throw error;
     }
   },

@@ -1,14 +1,23 @@
 export type BookingState =
     | "IDLE"
-    | "DRAFT"
-    | "ESTIMATING"
-    | "REQUESTING"
-    | "SEARCHING" // Live request broadcasting
-    | "CONFIRMED"
-    | "EN_ROUTE"
-    | "IN_PROGRESS"
-    | "PAYMENT_PENDING" // Added
-    | "COMPLETED"
+    | "DRAFT"            // UI: Input details
+    | "ESTIMATING"       // UI: Legacy/Scheduled
+    | "REQUESTING"       // UI: Creating booking record
+    | "SEARCHING"        // UI: Pulse / Finding Providers
+    | "BOOKING_CREATED"  // DB: Record exists
+    | "PROVIDER_MATCHING"// DB/Sys: Broadcasting
+    | "PROVIDER_ACCEPTED"// DB: Assigned
+    | "PROVIDER_EN_ROUTE"// DB: On way
+    | "SERVICE_IN_PROGRESS" // DB: Working
+    | "SERVICE_COMPLETED"   // DB: Done
+    | "PAYMENT_PENDING"
+    | "PAYMENT_SUCCESS"
+    | "CLOSED"
+    // Compat / Legacy aliases (to be phased out or mapped)
+    | "CONFIRMED"        // -> PROVIDER_ACCEPTED
+    | "EN_ROUTE"         // -> PROVIDER_EN_ROUTE
+    | "IN_PROGRESS"      // -> SERVICE_IN_PROGRESS
+    | "COMPLETED"        // -> SERVICE_COMPLETED
     | "CANCELLED"
     | "FAILED";
 
