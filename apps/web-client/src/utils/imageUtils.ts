@@ -6,6 +6,13 @@ const SUPABASE_STORAGE_URL = `https://${SUPABASE_PROJECT_REF}.supabase.co/storag
 export function getServiceImageUrl(serviceName: string): string {
     if (!serviceName) return `${SUPABASE_STORAGE_URL}/thumbnails/service-def.png`;
 
+    // Services that have PNG assets
+    const PNG_SERVICES = new Set([
+        'appliance-repair',
+        'bike-rental', 'bike-repair', 'bike-wash',
+        'car-rental', 'car-washing'
+    ]);
+
     // Slugify: lowercase, remove special chars, replace spaces with hyphens
     const slug = serviceName
         .toLowerCase()
@@ -13,9 +20,8 @@ export function getServiceImageUrl(serviceName: string): string {
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-+|-+$/g, '');
 
-    // Map common variations as needed, primarily just ensuring clean slug
-    // We uploaded files matching these slugs
-    return `${SUPABASE_STORAGE_URL}/thumbnails/${slug}.png`;
+    const ext = PNG_SERVICES.has(slug) ? '.png' : '.svg';
+    return `${SUPABASE_STORAGE_URL}/thumbnails/${slug}${ext}`;
 }
 
 export function getServiceHeaderUrl(serviceName: string): string {
