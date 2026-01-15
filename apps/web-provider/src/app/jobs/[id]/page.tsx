@@ -92,7 +92,7 @@ export default function JobDetailsPage() {
     const location = requirements.location || { lat: 12.9716, lng: 77.5946 };
 
     return (
-        <div className="min-h-screen bg-gray-50 pb-24">
+        <div className="min-h-[100dvh] bg-gray-50 pb-24">
             {/* Header */}
             <div className="bg-white p-4 shadow-sm flex items-center gap-4 sticky top-0 z-10">
                 <button onClick={() => router.back()}><ArrowLeft /></button>
