@@ -40,6 +40,7 @@ export function ServiceImage({
             alt={alt || 'Service Image'}
             className={`${className} ${hasError ? 'opacity-80 grayscale' : ''}`}
             onError={handleError}
+            unoptimized={typeof imgSrc === 'string' && imgSrc.startsWith('/')}
         />
     );
 }
