@@ -75,7 +75,7 @@ export default function LiveBookingHub({ serviceCategory, initialServiceItem }: 
             }
 
             // Extract IDs
-            const providerIds = providers.map(p => p.provider_id);
+            const providerIds = providers.map(p => p.id);
 
             // 2. Create Live Booking
             const booking = await liveBookingService.createLiveBooking({
