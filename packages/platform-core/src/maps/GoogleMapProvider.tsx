@@ -1,3 +1,5 @@
+'use client';
+
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { MAP_STYLES_LOKALS } from './mapStyles';
 
