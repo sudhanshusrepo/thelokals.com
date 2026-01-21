@@ -2,6 +2,8 @@
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
+import { useRouter } from 'next/navigation';
+import { createClient } from '../utils/supabase/client';
 import { AuthProvider as CoreAuthProvider, useAuth as useCoreAuth, supabase, logger, OTPConfirmation, OTPService, WorkerProfile, providerService } from "@thelocals/platform-core";
 
 interface ProviderAuthContextType {
@@ -42,8 +44,17 @@ function ProviderAuthContent({ children }: { children: ReactNode }) {
         return OTPService.sendOTP(phone);
     };
 
+    const router = useRouter();
+    const supabaseClient = createClient();
+
     const verifyOtp = async (confirmationResult: OTPConfirmation, token: string) => {
-        const { user: confirmedUser } = await confirmationResult.confirm(token);
+        const { user: confirmedUser, session } = await confirmationResult.confirm(token);
+
+        if (session) {
+            await supabaseClient.auth.setSession(session);
+            router.refresh();
+        }
+
         if (confirmedUser) {
             // Profile refresh is handled by Core
         }
