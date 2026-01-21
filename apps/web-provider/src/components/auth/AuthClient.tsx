@@ -60,25 +60,25 @@ export default function AuthClient() {
     };
 
     return (
-        <div className="min-h-screen bg-brand-gradient flex flex-col items-center justify-center p-4">
-            <div className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div className="min-h-screen bg-white flex flex-col items-center justify-center p-4">
+            <div className="w-full max-w-md bg-brand-gradient rounded-2xl shadow-xl overflow-hidden border border-neutral-100">
                 <div className="px-8 pt-8 pb-6 text-center">
-                    <div className="w-16 h-16 bg-primary-100 text-primary-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <div className="w-16 h-16 bg-white/50 backdrop-blur-sm text-neutral-900 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
                         <ShieldCheck size={32} />
                     </div>
-                    <h2 className="text-2xl font-bold text-gray-900">Provider Partner</h2>
-                    <p className="text-gray-500 mt-1">Login to manage your jobs</p>
+                    <h2 className="text-2xl font-bold text-neutral-900">Provider Partner</h2>
+                    <p className="text-neutral-800 mt-1 font-medium">Login to manage your jobs</p>
                 </div>
 
                 <div className="px-8 pb-8">
                     {!isOtpSent ? (
                         <form className="space-y-4" onSubmit={handleSendOtp}>
                             <div>
-                                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                                <label htmlFor="phone" className="block text-sm font-bold text-neutral-800 mb-1">
                                     Phone Number
                                 </label>
                                 <div className="flex gap-2">
-                                    <div className="w-16 px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-lg text-center font-medium text-gray-700 flex items-center justify-center">
+                                    <div className="w-16 px-3 py-2.5 bg-white/90 border border-white/50 rounded-lg text-center font-bold text-neutral-900 flex items-center justify-center shadow-sm">
                                         +91
                                     </div>
                                     <input
@@ -86,7 +86,7 @@ export default function AuthClient() {
                                         type="tel"
                                         required
                                         autoFocus
-                                        className="block flex-1 px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary transition-colors"
+                                        className="block flex-1 px-3 py-2.5 bg-white/90 border border-white/50 rounded-lg focus:ring-neutral-900 focus:border-neutral-900 transition-colors shadow-sm font-medium placeholder:text-neutral-400"
                                         placeholder="98765 43210"
                                         value={phone}
                                         onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
@@ -97,7 +97,7 @@ export default function AuthClient() {
                             <button
                                 type="submit"
                                 disabled={loading || phone.length < 10}
-                                className="w-full py-3 px-4 bg-primary hover:bg-primary-700 text-white font-semibold rounded-lg shadow-lg shadow-primary/30 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                                className="w-full py-3 px-4 bg-neutral-900 hover:bg-neutral-800 text-white font-bold rounded-lg shadow-lg shadow-neutral-900/20 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                             >
                                 {loading ? <Loader2 className="animate-spin" size={20} /> : (
                                     <>
@@ -109,11 +109,11 @@ export default function AuthClient() {
                     ) : (
                         <form className="space-y-4" onSubmit={handleVerifyOtp}>
                             <div>
-                                <label htmlFor="otp" className="block text-sm font-medium text-gray-700 mb-1">
+                                <label htmlFor="otp" className="block text-sm font-bold text-neutral-800 mb-1">
                                     Enter OTP
                                 </label>
                                 <div className="text-center mb-4">
-                                    <p className="text-sm text-gray-500">Sent to +91 {phone}</p>
+                                    <p className="text-sm text-neutral-800 font-medium">Sent to +91 {phone}</p>
                                 </div>
                                 <input
                                     id="otp"
@@ -121,7 +121,7 @@ export default function AuthClient() {
                                     required
                                     autoFocus
                                     maxLength={6}
-                                    className="block w-full px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary transition-colors text-center text-lg tracking-widest"
+                                    className="block w-full px-3 py-2.5 bg-white/90 border border-white/50 rounded-lg focus:ring-neutral-900 focus:border-neutral-900 transition-colors text-center text-lg tracking-widest font-bold shadow-sm"
                                     placeholder="000000"
                                     value={otp}
                                     onChange={(e) => setOtp(e.target.value)}
@@ -130,7 +130,7 @@ export default function AuthClient() {
                                     <button
                                         type="button"
                                         onClick={() => setIsOtpSent(false)}
-                                        className="text-xs text-primary hover:text-primary-700 font-medium"
+                                        className="text-xs text-neutral-900 hover:text-neutral-700 font-bold underline"
                                     >
                                         Change Phone Number
                                     </button>
@@ -140,7 +140,7 @@ export default function AuthClient() {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full py-3 px-4 bg-primary hover:bg-primary-700 text-white font-semibold rounded-lg shadow-lg shadow-primary/30 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                                className="w-full py-3 px-4 bg-neutral-900 hover:bg-neutral-800 text-white font-bold rounded-lg shadow-lg shadow-neutral-900/20 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                             >
                                 {loading ? <Loader2 className="animate-spin" size={20} /> : 'Verify & Login'}
                             </button>
@@ -148,8 +148,8 @@ export default function AuthClient() {
                     )}
                 </div>
 
-                <div className="bg-gray-50 px-8 py-4 border-t border-gray-100 text-center">
-                    <p className="text-xs text-gray-500">
+                <div className="bg-white/30 backdrop-blur-md px-8 py-4 border-t border-white/20 text-center">
+                    <p className="text-xs text-neutral-800 font-medium">
                         {CONFIG.IS_DEV ? 'Development Mode' : 'Secure Login'}
                     </p>
                 </div>

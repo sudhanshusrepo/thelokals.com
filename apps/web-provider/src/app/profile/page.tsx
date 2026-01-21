@@ -115,7 +115,7 @@ export default function ProfilePage() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                 <div>
                     <h1 className="text-2xl font-bold text-neutral-900">Profile & Settings</h1>
-                    <p className="text-neutral-500">Manage your public profile and preferences.</p>
+                    <p className="text-neutral-600">Manage your public profile and preferences.</p>
                 </div>
             </div>
 
@@ -137,7 +137,7 @@ export default function ProfilePage() {
                                 className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors border-l-4
                                     ${activeTab === tab.id
                                         ? 'border-brand-yellow bg-neutral-50 text-neutral-900'
-                                        : 'border-transparent text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900'
+                                        : 'border-transparent text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900'
                                     }`}
                             >
                                 <tab.icon size={18} />
@@ -164,31 +164,31 @@ export default function ProfilePage() {
                                     </div>
                                     <div>
                                         <div className="flex items-center gap-2">
-                                            <h3 className="font-bold text-lg">{formData.name || 'Your Name'}</h3>
+                                            <h3 className="font-bold text-lg text-neutral-900">{formData.name || 'Your Name'}</h3>
                                             {(profile as any)?.isVerified || (profile as any)?.is_verified ? (
                                                 <BadgeCheck size={20} className="text-blue-500" fill="currentColor" color="white" />
                                             ) : (
-                                                <div className="bg-neutral-100 text-neutral-500 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase">
+                                                <div className="bg-neutral-100 text-neutral-600 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase">
                                                     Unverified
                                                 </div>
                                             )}
                                         </div>
-                                        <p className="text-neutral-500 text-sm">{formData.category || 'Service Provider'}</p>
+                                        <p className="text-neutral-600 text-sm">{formData.category || 'Service Provider'}</p>
                                     </div>
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <label className="text-sm font-medium text-neutral-700">Full Name</label>
+                                        <label className="text-sm font-medium text-neutral-800">Full Name</label>
                                         <input
                                             type="text"
                                             value={formData.name}
                                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                            className="w-full p-3 rounded-lg border border-neutral-200 focus:outline-none focus:border-neutral-900 transition-colors"
+                                            className="w-full p-3 rounded-lg border border-neutral-200 focus:outline-none focus:border-neutral-900 transition-colors text-neutral-900"
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-sm font-medium text-neutral-700">Phone Number</label>
+                                        <label className="text-sm font-medium text-neutral-800">Phone Number</label>
                                         <input
                                             type="text"
                                             value={formData.phone}
@@ -197,22 +197,22 @@ export default function ProfilePage() {
                                         />
                                     </div>
                                     <div className="col-span-1 md:col-span-2 space-y-2">
-                                        <label className="text-sm font-medium text-neutral-700">Bio / Description</label>
+                                        <label className="text-sm font-medium text-neutral-800">Bio / Description</label>
                                         <textarea
                                             rows={4}
                                             value={formData.description}
                                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                            className="w-full p-3 rounded-lg border border-neutral-200 focus:outline-none focus:border-neutral-900 transition-colors"
+                                            className="w-full p-3 rounded-lg border border-neutral-200 focus:outline-none focus:border-neutral-900 transition-colors text-neutral-900"
                                             placeholder="Tell customers about your experience..."
                                         />
                                     </div>
                                     <div className="col-span-1 md:col-span-2 space-y-2">
-                                        <label className="text-sm font-medium text-neutral-700">Profile Image URL (Temporary)</label>
+                                        <label className="text-sm font-medium text-neutral-800">Profile Image URL (Temporary)</label>
                                         <input
                                             type="text"
                                             value={formData.imageUrl}
                                             onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                                            className="w-full p-3 rounded-lg border border-neutral-200 focus:outline-none focus:border-neutral-900 transition-colors"
+                                            className="w-full p-3 rounded-lg border border-neutral-200 focus:outline-none focus:border-neutral-900 transition-colors text-neutral-900"
                                             placeholder="https://..."
                                         />
                                     </div>
@@ -224,21 +224,21 @@ export default function ProfilePage() {
                             <div className="space-y-6">
                                 <div className="p-4 bg-brand-bg rounded-lg border border-brand-green/20">
                                     <h3 className="font-bold text-brand-text mb-1">Primary Category</h3>
-                                    <p className="text-sm text-neutral-600">You are registered as a <span className="font-bold">{formData.category}</span>.</p>
+                                    <p className="text-sm text-neutral-700">You are registered as a <span className="font-bold">{formData.category}</span>.</p>
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium text-neutral-700">Base Price (Starting from)</label>
+                                    <label className="text-sm font-medium text-neutral-800">Base Price (Starting from)</label>
                                     <div className="relative">
                                         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500">₹</span>
                                         <input
                                             type="number"
                                             value={formData.price}
                                             onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
-                                            className="w-full p-3 pl-8 rounded-lg border border-neutral-200 focus:outline-none focus:border-neutral-900 transition-colors"
+                                            className="w-full p-3 pl-8 rounded-lg border border-neutral-200 focus:outline-none focus:border-neutral-900 transition-colors text-neutral-900"
                                         />
                                     </div>
-                                    <p className="text-xs text-neutral-400">This price is shown to customers before booking.</p>
+                                    <p className="text-xs text-neutral-500">This price is shown to customers before booking.</p>
                                 </div>
                             </div>
                         )}
@@ -251,7 +251,7 @@ export default function ProfilePage() {
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <label className="text-sm font-medium text-neutral-700">UPI ID / VPA</label>
+                                        <label className="text-sm font-medium text-neutral-800">UPI ID / VPA</label>
                                         <div className="relative">
                                             <Wallet className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" size={18} />
                                             <input
@@ -262,12 +262,12 @@ export default function ProfilePage() {
                                                     ...formData,
                                                     bankDetails: { ...formData.bankDetails, upi_id: e.target.value }
                                                 })}
-                                                className="w-full p-3 pl-10 rounded-lg border border-neutral-200 focus:outline-none focus:border-brand-green transition-colors"
+                                                className="w-full p-3 pl-10 rounded-lg border border-neutral-200 focus:outline-none focus:border-brand-green transition-colors text-neutral-900"
                                             />
                                         </div>
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-sm font-medium text-neutral-700">Account Holder Name</label>
+                                        <label className="text-sm font-medium text-neutral-800">Account Holder Name</label>
                                         <input
                                             type="text"
                                             placeholder="As per bank records"
@@ -276,11 +276,11 @@ export default function ProfilePage() {
                                                 ...formData,
                                                 bankDetails: { ...formData.bankDetails, account_holder_name: e.target.value }
                                             })}
-                                            className="w-full p-3 rounded-lg border border-neutral-200 focus:outline-none focus:border-brand-green transition-colors"
+                                            className="w-full p-3 rounded-lg border border-neutral-200 focus:outline-none focus:border-brand-green transition-colors text-neutral-900"
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-sm font-medium text-neutral-700">Account Number</label>
+                                        <label className="text-sm font-medium text-neutral-800">Account Number</label>
                                         <input
                                             type="text"
                                             placeholder="0000000000"
@@ -289,11 +289,11 @@ export default function ProfilePage() {
                                                 ...formData,
                                                 bankDetails: { ...formData.bankDetails, account_number: e.target.value }
                                             })}
-                                            className="w-full p-3 rounded-lg border border-neutral-200 focus:outline-none focus:border-brand-green transition-colors"
+                                            className="w-full p-3 rounded-lg border border-neutral-200 focus:outline-none focus:border-brand-green transition-colors text-neutral-900"
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-sm font-medium text-neutral-700">IFSC Code</label>
+                                        <label className="text-sm font-medium text-neutral-800">IFSC Code</label>
                                         <input
                                             type="text"
                                             placeholder="ABCD0123456"
@@ -302,7 +302,7 @@ export default function ProfilePage() {
                                                 ...formData,
                                                 bankDetails: { ...formData.bankDetails, ifsc_code: e.target.value }
                                             })}
-                                            className="w-full p-3 rounded-lg border border-neutral-200 focus:outline-none focus:border-brand-green transition-colors"
+                                            className="w-full p-3 rounded-lg border border-neutral-200 focus:outline-none focus:border-brand-green transition-colors text-neutral-900"
                                         />
                                     </div>
                                 </div>
