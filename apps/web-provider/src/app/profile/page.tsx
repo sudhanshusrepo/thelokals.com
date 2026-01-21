@@ -65,6 +65,7 @@ export default function ProfilePage() {
     const handleSave = async () => {
         if (!user?.id) return;
         setLoading(true);
+        console.log('Starting profile save...');
         try {
             // Validate Form Data
             const validationData = {
@@ -75,25 +76,36 @@ export default function ProfilePage() {
                 bankDetails: formData.bankDetails
             };
 
+            console.log('Validating data:', validationData);
             ProfileSchema.parse(validationData);
+            console.log('Validation passed.');
 
-            await providerService.updateProfile(user.id, {
+            const updates = {
                 name: formData.name,
                 description: formData.description,
                 price: Number(formData.price),
                 imageUrl: formData.imageUrl,
                 documents: formData.documents,
                 bank_details: formData.bankDetails
-            });
+            };
+            console.log('Sending updates to DB:', updates);
+
+            await providerService.updateProfile(user.id, updates);
+            console.log('DB Update successful. Refreshing profile...');
+
             await refreshProfile();
+            console.log('Profile refreshed.');
+
             toast.success("Profile Updated!");
         } catch (error: any) {
+            console.error('Profile update error:', error);
             if (error instanceof z.ZodError) {
                 toast.error(error.errors[0].message);
             } else {
-                toast.error("Failed to update profile");
+                toast.error("Failed to update profile: " + (error.message || "Unknown error"));
             }
         } finally {
+            console.log('Finishing save operation');
             setLoading(false);
         }
     };

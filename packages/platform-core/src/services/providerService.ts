@@ -160,7 +160,10 @@ export const providerService = {
     async updateAvailability(providerId: string, status: 'AVAILABLE' | 'OFFLINE'): Promise<void> {
         const { error } = await supabase
             .from('providers')
-            .update({ is_active: status === 'AVAILABLE' })
+            .update({
+                is_active: status === 'AVAILABLE',
+                status: status === 'AVAILABLE' ? 'AVAILABLE' : 'OFFLINE'
+            })
             .eq('id', providerId);
 
         if (error) {

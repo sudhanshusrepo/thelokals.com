@@ -22,13 +22,17 @@ export const StatusToggle = ({ className }: StatusToggleProps) => {
     const toggleStatus = async () => {
         if (!user?.id || loading) return;
 
+        console.log('Toggling status from:', isActive, 'to', !isActive);
         setLoading(true);
         const newStatus = !isActive;
         const statusString = newStatus ? 'AVAILABLE' : 'OFFLINE';
 
         try {
+            console.log('Sending update to DB:', statusString);
             await providerService.updateAvailability(user.id, statusString);
+            console.log('DB Update successful. Refreshing profile...');
             await refreshProfile(); // Refresh context to update UI globally
+            console.log('Profile Refreshed');
             toast.success(newStatus ? "You are now ONLINE" : "You are now OFFLINE");
         } catch (error) {
             console.error('Failed to update status:', error);

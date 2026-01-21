@@ -48,7 +48,7 @@ export const Sidebar = ({ isOpen = false, onClose }: SidebarProps) => {
 
                 <nav className="flex-1 p-4 space-y-6 overflow-y-auto">
                     <div className="space-y-1">
-                        <SidebarItem href="/" icon={LayoutDashboard} label="Dashboard" />
+                        <SidebarItem href="/dashboard" icon={LayoutDashboard} label="Dashboard" />
                         <SidebarItem href="/jobs" icon={Briefcase} label="Jobs" />
                         <SidebarItem href="/earnings" icon={Wallet} label="Earnings" />
                     </div>

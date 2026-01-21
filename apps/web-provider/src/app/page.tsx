@@ -11,7 +11,7 @@ export default function LandingPage() {
 
     React.useEffect(() => {
         if (!loading && user) {
-            router.push('/jobs');
+            router.push('/dashboard');
         }
     }, [user, loading, router]);
 
