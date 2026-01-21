@@ -4,10 +4,10 @@ import { useAuth } from '../../contexts/AuthContext';
 import { ProviderLayout } from '../../components/layout/ProviderLayout';
 import { useEffect, useState } from 'react';
 import { providerService, Booking, DbBookingRequest } from "@thelocals/platform-core";
-import { JobCard } from '../../components/v2/JobCard';
+import { JobCard } from '../../components/JobCard';
 import { toast } from 'react-hot-toast';
-import { Loader2, Bell, Briefcase, CheckCircle } from 'lucide-react';
-import { JobDetailSheet } from '../../components/v2/JobDetailSheet';
+import { Loader2, Bell, Briefcase, CheckCircle, Calendar } from 'lucide-react';
+import { JobDetailSheet } from '../../components/JobDetailSheet';
 
 import { useJobsData } from '../../hooks/useJobsData';
 import { EmptyState } from '../../components/ui/EmptyState';
@@ -108,6 +108,14 @@ export default function JobsPage() {
                         <div className={`w-3 h-3 rounded-full ${isOnline ? 'bg-green-500 animate-pulse' : 'bg-neutral-400'}`} />
                         {statusLoading ? 'Updating...' : (isOnline ? 'Online' : 'Offline')}
                     </button>
+
+                    <a
+                        href="/calendar"
+                        className="flex items-center gap-2 px-4 py-2 bg-neutral-100 text-neutral-600 hover:bg-neutral-200 border border-neutral-200 rounded-full font-bold transition-all shadow-sm"
+                    >
+                        <Calendar size={16} />
+                        <span className="hidden md:inline">Calendar</span>
+                    </a>
 
                     {/* Tabs */}
                     <div className="flex bg-white p-1 rounded-xl shadow-sm border border-neutral-100 overflow-x-auto no-scrollbar">

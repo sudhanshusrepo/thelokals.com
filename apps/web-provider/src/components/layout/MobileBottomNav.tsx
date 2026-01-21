@@ -28,7 +28,7 @@ export const MobileBottomNav = () => {
     const pathname = usePathname();
 
     const tabs = [
-        { href: '/', icon: LayoutDashboard, label: 'Home' },
+        { href: '/', icon: LayoutDashboard, label: 'Dashboard' },
         { href: '/jobs', icon: Briefcase, label: 'Jobs' },
         { href: '/earnings', icon: Wallet, label: 'Earnings' },
         { href: '/profile', icon: User, label: 'Profile' },

@@ -5,13 +5,13 @@ import { useAuth } from '../../contexts/AuthContext';
 import { ProviderLayout } from '../../components/layout/ProviderLayout';
 import { useEffect, useState } from 'react';
 import { providerService } from "@thelocals/platform-core";
-import { HeroCard } from '../../components/v2/HeroCard';
-import { TransactionList } from '../../components/v2/TransactionList';
+import { HeroCard } from '../../components/HeroCard';
+import { TransactionList } from '../../components/TransactionList';
 import { Loader2, TrendingUp, CreditCard, Clock } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import dynamic from 'next/dynamic';
 
-const EarningsChart = dynamic(() => import('../../components/v2/EarningsChart').then(mod => mod.EarningsChart), {
+const EarningsChart = dynamic(() => import('../../components/EarningsChart').then(mod => mod.EarningsChart), {
     loading: () => <div className="h-[300px] w-full bg-neutral-50 animate-pulse rounded-card" />,
     ssr: false
 });

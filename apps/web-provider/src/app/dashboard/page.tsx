@@ -4,15 +4,15 @@ import { useAuth } from '../../contexts/AuthContext';
 import { ProviderLayout } from '../../components/layout/ProviderLayout';
 import { useDashboardData } from '../../hooks/useDashboardData';
 import Link from 'next/link';
-import { HeroCard } from '../../components/v2/HeroCard';
-import { QuickStats } from '../../components/v2/QuickStats';
-import { JobCard } from '../../components/v2/JobCard';
+import { HeroCard } from '../../components/HeroCard';
+import { QuickStats } from '../../components/QuickStats';
+import { JobCard } from '../../components/JobCard';
 import { Skeleton } from '../../components/ui/Skeleton';
-import { IdentityBanner } from '../../components/v2/IdentityBanner';
+import { IdentityBanner } from '../../components/IdentityBanner';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { Briefcase } from 'lucide-react';
 import { useState } from 'react';
-import { JobDetailSheet } from '../../components/v2/JobDetailSheet';
+import { JobDetailSheet } from '../../components/JobDetailSheet';
 import { Booking } from "@thelocals/platform-core";
 
 export default function Dashboard() {

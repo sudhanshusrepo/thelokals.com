@@ -3,10 +3,8 @@
 import {
     LayoutDashboard,
     Briefcase,
-    Calendar,
     Wallet,
     User,
-    MessageSquare,
     LogOut
 } from 'lucide-react';
 import { SidebarItem } from './SidebarItem';
@@ -30,8 +28,7 @@ export const Sidebar = () => {
             <nav className="flex-1 p-4 space-y-6 overflow-y-auto">
                 <div className="space-y-1">
                     <SidebarItem href="/" icon={LayoutDashboard} label="Dashboard" />
-                    <SidebarItem href="/jobs" icon={Briefcase} label="My Jobs" />
-                    <SidebarItem href="/calendar" icon={Calendar} label="Calendar" />
+                    <SidebarItem href="/jobs" icon={Briefcase} label="Jobs" />
                     <SidebarItem href="/earnings" icon={Wallet} label="Earnings" />
                 </div>
 
@@ -39,7 +36,6 @@ export const Sidebar = () => {
                     <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-3 px-4">Account</p>
                     <div className="space-y-1">
                         <SidebarItem href="/profile" icon={User} label="Profile" />
-                        <SidebarItem href="/support" icon={MessageSquare} label="Support" />
                     </div>
                 </div>
             </nav>

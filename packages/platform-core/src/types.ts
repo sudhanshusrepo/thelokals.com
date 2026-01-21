@@ -77,6 +77,17 @@ export interface WorkerProfile {
   full_name?: string; // DB field
   phone?: string; // DB field
   created_at: string; // DB field
+  documents?: {
+    aadhaar_front?: string;
+    aadhaar_back?: string;
+    pan_card?: string;
+  };
+  bank_details?: {
+    upi_id?: string;
+    account_number?: string;
+    ifsc_code?: string;
+    account_holder_name?: string;
+  };
 }
 
 export type AvailabilitySchedule = Record<string, { start: string; end: string }[]>;

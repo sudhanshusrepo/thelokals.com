@@ -6,12 +6,15 @@ import { ProviderLayout } from '../../components/layout/ProviderLayout';
 import { useState, useEffect } from 'react';
 import { providerService, WorkerCategory } from "@thelocals/platform-core";
 import { toast } from 'react-hot-toast';
-import { User, Briefcase, Settings, Camera, Save, Loader2, ShieldCheck, BadgeCheck, Wallet, FileText } from 'lucide-react';
+import { User, Briefcase, Settings, Camera, Save, Loader2, ShieldCheck, BadgeCheck, Wallet, FileText, Phone } from 'lucide-react';
+import { FileUpload } from '../../components/ui/FileUpload';
+import { ProfileSchema } from '../../utils/validation/profileSchema';
+import { z } from 'zod';
 
 export default function ProfilePage() {
     const { user, profile, refreshProfile } = useAuth();
     const [loading, setLoading] = useState(false);
-    const [activeTab, setActiveTab] = useState<'profile' | 'services' | 'settings' | 'bank' | 'documents'>('profile');
+    const [activeTab, setActiveTab] = useState<'profile' | 'services' | 'settings' | 'bank' | 'documents' | 'support'>('profile');
 
     // Form State
     const [formData, setFormData] = useState({
@@ -20,8 +23,20 @@ export default function ProfilePage() {
         phone: '',
         imageUrl: '',
         price: 0,
-        category: ''
+        category: '',
+        documents: {
+            aadhaar_front: '',
+            aadhaar_back: '',
+            pan_card: ''
+        },
+        bankDetails: {
+            upi_id: '',
+            account_number: '',
+            ifsc_code: '',
+            account_holder_name: ''
+        }
     });
+
 
     useEffect(() => {
         if (profile) {
@@ -31,7 +46,18 @@ export default function ProfilePage() {
                 phone: (profile.phone || user?.phone) || '',
                 imageUrl: profile.imageUrl || '',
                 price: profile.price || 0,
-                category: profile.category || ''
+                category: profile.category || '',
+                documents: {
+                    aadhaar_front: profile.documents?.aadhaar_front || '',
+                    aadhaar_back: profile.documents?.aadhaar_back || '',
+                    pan_card: profile.documents?.pan_card || ''
+                },
+                bankDetails: {
+                    upi_id: profile.bank_details?.upi_id || '',
+                    account_number: profile.bank_details?.account_number || '',
+                    ifsc_code: profile.bank_details?.ifsc_code || '',
+                    account_holder_name: profile.bank_details?.account_holder_name || ''
+                }
             });
         }
     }, [profile, user]);
@@ -40,16 +66,33 @@ export default function ProfilePage() {
         if (!user?.id) return;
         setLoading(true);
         try {
+            // Validate Form Data
+            const validationData = {
+                name: formData.name,
+                description: formData.description,
+                price: Number(formData.price),
+                imageUrl: formData.imageUrl,
+                bankDetails: formData.bankDetails
+            };
+
+            ProfileSchema.parse(validationData);
+
             await providerService.updateProfile(user.id, {
                 name: formData.name,
                 description: formData.description,
                 price: Number(formData.price),
-                imageUrl: formData.imageUrl
+                imageUrl: formData.imageUrl,
+                documents: formData.documents,
+                bank_details: formData.bankDetails
             });
             await refreshProfile();
             toast.success("Profile Updated!");
-        } catch (error) {
-            toast.error("Failed to update profile");
+        } catch (error: any) {
+            if (error instanceof z.ZodError) {
+                toast.error(error.errors[0].message);
+            } else {
+                toast.error("Failed to update profile");
+            }
         } finally {
             setLoading(false);
         }
@@ -74,6 +117,7 @@ export default function ProfilePage() {
                             { id: 'bank', label: 'Bank Details', icon: Wallet },
                             { id: 'documents', label: 'Documents', icon: FileText },
                             { id: 'settings', label: 'App Settings', icon: Settings },
+                            { id: 'support', label: 'Help & Support', icon: Phone }, // Added Support Tab
                         ].map((tab) => (
                             <button
                                 key={tab.id}
@@ -187,12 +231,12 @@ export default function ProfilePage() {
                             </div>
                         )}
 
-                        {activeTab === 'bank' && (
-                            <div className="space-y-6">
-                                <h3 className="font-bold text-neutral-900">Payout Details</h3>
-                                <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
-                                    Payments are processed every Friday. Ensure your UPI ID is correct.
-                                </div>
+                        <div className="space-y-6">
+                            <h3 className="font-bold text-neutral-900">Payout Details</h3>
+                            <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
+                                Payments are processed every Friday. Ensure your UPI ID is correct.
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <label className="text-sm font-medium text-neutral-700">UPI ID / VPA</label>
                                     <div className="relative">
@@ -200,27 +244,56 @@ export default function ProfilePage() {
                                         <input
                                             type="text"
                                             placeholder="username@upi"
+                                            value={formData.bankDetails.upi_id}
+                                            onChange={(e) => setFormData({
+                                                ...formData,
+                                                bankDetails: { ...formData.bankDetails, upi_id: e.target.value }
+                                            })}
                                             className="w-full p-3 pl-10 rounded-lg border border-neutral-200 focus:outline-none focus:border-brand-green transition-colors"
                                         />
                                     </div>
-                                    <p className="text-xs text-neutral-400">Example: 9876543210@paytm</p>
                                 </div>
-
-                                <div className="pt-4 border-t border-neutral-100">
-                                    <h4 className="font-bold text-neutral-900 mb-2">Linked Methods</h4>
-                                    <div className="flex items-center justify-between p-3 border border-neutral-200 rounded-lg bg-neutral-50 mb-2 opacity-50">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 bg-white border border-neutral-200 rounded flex items-center justify-center">🏦</div>
-                                            <div className="text-sm">
-                                                <p className="font-bold text-neutral-700">Bank Transfer</p>
-                                                <p className="text-xs text-neutral-500">Currently Disabled</p>
-                                            </div>
-                                        </div>
-                                        <span className="text-xs font-bold text-neutral-400">COMING SOON</span>
-                                    </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-neutral-700">Account Holder Name</label>
+                                    <input
+                                        type="text"
+                                        placeholder="As per bank records"
+                                        value={formData.bankDetails.account_holder_name}
+                                        onChange={(e) => setFormData({
+                                            ...formData,
+                                            bankDetails: { ...formData.bankDetails, account_holder_name: e.target.value }
+                                        })}
+                                        className="w-full p-3 rounded-lg border border-neutral-200 focus:outline-none focus:border-brand-green transition-colors"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-neutral-700">Account Number</label>
+                                    <input
+                                        type="text"
+                                        placeholder="0000000000"
+                                        value={formData.bankDetails.account_number}
+                                        onChange={(e) => setFormData({
+                                            ...formData,
+                                            bankDetails: { ...formData.bankDetails, account_number: e.target.value }
+                                        })}
+                                        className="w-full p-3 rounded-lg border border-neutral-200 focus:outline-none focus:border-brand-green transition-colors"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-neutral-700">IFSC Code</label>
+                                    <input
+                                        type="text"
+                                        placeholder="ABCD0123456"
+                                        value={formData.bankDetails.ifsc_code}
+                                        onChange={(e) => setFormData({
+                                            ...formData,
+                                            bankDetails: { ...formData.bankDetails, ifsc_code: e.target.value }
+                                        })}
+                                        className="w-full p-3 rounded-lg border border-neutral-200 focus:outline-none focus:border-brand-green transition-colors"
+                                    />
                                 </div>
                             </div>
-                        )}
+                        </div>
 
                         {activeTab === 'documents' && (
                             <div className="space-y-6">
@@ -228,22 +301,35 @@ export default function ProfilePage() {
                                 <p className="text-sm text-neutral-500">Upload documents to increase your trust score.</p>
 
                                 <div className="space-y-4">
-                                    {['Aadhaar Card (Front)', 'Aadhaar Card (Back)', 'PAN Card'].map(doc => (
-                                        <div key={doc} className="flex items-center justify-between p-4 border border-neutral-200 rounded-lg bg-white">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 bg-neutral-100 rounded flex items-center justify-center text-neutral-400">
-                                                    <FileText size={20} />
-                                                </div>
-                                                <div>
-                                                    <p className="font-medium text-neutral-900">{doc}</p>
-                                                    <p className="text-xs text-neutral-400">Not Uploaded</p>
-                                                </div>
-                                            </div>
-                                            <button className="text-sm font-bold text-brand-green hover:underline">
-                                                Upload
-                                            </button>
-                                        </div>
-                                    ))}
+                                    <div className="space-y-4">
+                                        <FileUpload
+                                            label="Aadhaar Card (Front)"
+                                            path={`documents/${user?.id}/aadhaar_front`}
+                                            currentUrl={formData.documents.aadhaar_front}
+                                            onUploadComplete={(url) => setFormData({
+                                                ...formData,
+                                                documents: { ...formData.documents, aadhaar_front: url }
+                                            })}
+                                        />
+                                        <FileUpload
+                                            label="Aadhaar Card (Back)"
+                                            path={`documents/${user?.id}/aadhaar_back`}
+                                            currentUrl={formData.documents.aadhaar_back}
+                                            onUploadComplete={(url) => setFormData({
+                                                ...formData,
+                                                documents: { ...formData.documents, aadhaar_back: url }
+                                            })}
+                                        />
+                                        <FileUpload
+                                            label="PAN Card"
+                                            path={`documents/${user?.id}/pan_card`}
+                                            currentUrl={formData.documents.pan_card}
+                                            onUploadComplete={(url) => setFormData({
+                                                ...formData,
+                                                documents: { ...formData.documents, pan_card: url }
+                                            })}
+                                        />
+                                    </div>
                                 </div>
 
                                 <div className="p-4 bg-brand-bg rounded-lg flex items-start gap-3 mt-4">
@@ -294,6 +380,38 @@ export default function ProfilePage() {
                                         <div className="w-11 h-6 bg-neutral-200 rounded-full relative cursor-pointer">
                                             <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow-sm" />
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'support' && (
+                            <div className="space-y-6">
+                                <h3 className="font-bold text-neutral-900">Help & Support</h3>
+                                <div className="space-y-4">
+                                    <div className="p-4 bg-white border border-neutral-200 rounded-xl flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-600">
+                                                <Phone size={20} />
+                                            </div>
+                                            <div>
+                                                <p className="font-medium text-neutral-900">Call Support</p>
+                                                <p className="text-sm text-neutral-500">Available 9 AM - 6 PM</p>
+                                            </div>
+                                        </div>
+                                        <button className="px-4 py-2 bg-neutral-900 text-white text-sm font-bold rounded-lg">Call Now</button>
+                                    </div>
+                                    <div className="p-4 bg-white border border-neutral-200 rounded-xl flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+                                                <FileText size={20} />
+                                            </div>
+                                            <div>
+                                                <p className="font-medium text-neutral-900">FAQs & Guides</p>
+                                                <p className="text-sm text-neutral-500">Read our help articles</p>
+                                            </div>
+                                        </div>
+                                        <button className="px-4 py-2 border border-neutral-200 text-neutral-900 text-sm font-bold rounded-lg">View Docs</button>
                                     </div>
                                 </div>
                             </div>
