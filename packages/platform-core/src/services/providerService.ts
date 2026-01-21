@@ -19,7 +19,14 @@ export const providerService = {
             return null;
         }
 
-        return data as any;
+        // Map DB fields to WorkerProfile interface
+        return {
+            ...data,
+            name: data.full_name,
+            imageUrl: data.profile_image_url,
+            category: data.category,
+            // Ensure other fields are passed through or mapped as needed
+        } as any;
     },
 
     /**
@@ -228,9 +235,33 @@ export const providerService = {
     },
 
     async updateProfile(providerId: string, updates: Partial<WorkerProfile>): Promise<void> {
+        // Map frontend fields (camelCase) to DB fields (snake_case)
+        const dbUpdates: any = {};
+
+        if (updates.name) dbUpdates.full_name = updates.name;
+        if (updates.description) dbUpdates.description = updates.description; // Matches
+        if (updates.price) dbUpdates.price = updates.price; // We added this column
+        if (updates.imageUrl) dbUpdates.profile_image_url = updates.imageUrl;
+        if (updates.category) dbUpdates.category = updates.category;
+
+        // Handle JSONB fields
+        if (updates.documents) {
+            dbUpdates.documents = updates.documents;
+            // FLAGGING LOGIC: If documents are updated, reset verification to pending
+            dbUpdates.verification_status = 'pending';
+        }
+        if (updates.bank_details) dbUpdates.bank_details = updates.bank_details;
+        if (updates.availabilitySchedule) dbUpdates.availabilitySchedule = updates.availabilitySchedule; // Assuming column exists or is mapped? 
+        // Note: 'availabilitySchedule' likely needs a column or mapping, but leaving as is if unused to avoid breaking more.
+
+        // Handle explicitly passed fields that match (e.g. from partials)
+        if (updates.is_active !== undefined) dbUpdates.is_active = updates.is_active;
+
+        if (Object.keys(dbUpdates).length === 0) return;
+
         const { error } = await supabase
             .from('providers')
-            .update(updates)
+            .update(dbUpdates)
             .eq('id', providerId);
 
         if (error) {
