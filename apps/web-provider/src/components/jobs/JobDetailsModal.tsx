@@ -1,6 +1,6 @@
 'use client';
 
-import { Booking, DbBookingRequest } from "@thelocals/platform-core";
+import { Booking, DbBookingRequest, BookingStatus } from "@thelocals/platform-core";
 import { X, MapPin, Calendar, Clock, DollarSign, CheckCircle2, User, FileText } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -11,7 +11,7 @@ interface JobDetailsModalProps {
     isRequest?: boolean;
     onAccept?: (id: string) => void;
     onReject?: (id: string) => void;
-    onStatusChange?: (id: string, status: any) => void;
+    onStatusChange?: (id: string, status: BookingStatus) => void;
 }
 
 export const JobDetailsModal = ({ isOpen, onClose, booking, isRequest, onAccept, onReject, onStatusChange }: JobDetailsModalProps) => {
@@ -65,11 +65,11 @@ export const JobDetailsModal = ({ isOpen, onClose, booking, isRequest, onAccept,
                                     </h3>
                                     <div className="bg-neutral-50 p-4 rounded-xl border border-neutral-100/50">
                                         <p className="text-neutral-900 font-medium">
-                                            {(booking.address as any)?.formatted || 'Address details protected'}
+                                            {(booking.address as { formatted?: string })?.formatted || 'Address details protected'}
                                         </p>
-                                        {(booking.address as any)?.city && (
+                                        {(booking.address as { city?: string })?.city && (
                                             <p className="text-neutral-500 text-sm mt-1">
-                                                {(booking.address as any)?.city}, {(booking.address as any)?.state}
+                                                {(booking.address as { city?: string })?.city}, {(booking.address as { state?: string })?.state}
                                             </p>
                                         )}
                                     </div>

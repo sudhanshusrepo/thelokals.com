@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, MapPin, Navigation, Phone, CheckCircle, Clock } from 'lucide-react';
-import { liveBookingService, bookingService, PricingUtils, GoogleMapProvider, Marker, MAP_STYLES_LOKALS } from '@thelocals/platform-core';
+import { liveBookingService, bookingService, PricingUtils, GoogleMapProvider, Marker, MAP_STYLES_LOKALS, Booking } from '@thelocals/platform-core';
 import { toast } from 'react-hot-toast';
 
 export default function JobDetailsPage() {
@@ -11,7 +11,7 @@ export default function JobDetailsPage() {
     const router = useRouter();
     const bookingId = params.id as string;
 
-    const [booking, setBooking] = useState<any>(null);
+    const [booking, setBooking] = useState<Booking | null>(null);
     const [loading, setLoading] = useState(true);
     const [isTracking, setIsTracking] = useState(false);
 
@@ -37,7 +37,6 @@ export default function JobDetailsPage() {
     useEffect(() => {
         let watchId: number;
         if (isTracking && bookingId) {
-            console.log("🛰️ Starting GPS Broadcast...");
             watchId = navigator.geolocation.watchPosition(
                 (pos) => {
                     const { latitude, longitude } = pos.coords;
@@ -53,10 +52,11 @@ export default function JobDetailsPage() {
     }, [isTracking, bookingId]);
 
     const handleStartMoving = async () => {
+        if (!booking) return;
         try {
             await liveBookingService.updateBookingStatus(bookingId, 'EN_ROUTE');
             setIsTracking(true);
-            setBooking((prev: any) => ({ ...prev, status: 'EN_ROUTE' }));
+            setBooking((prev) => prev ? ({ ...prev, status: 'EN_ROUTE' }) : null);
             toast.success("Client notified: You are on the way!");
         } catch (e) {
             toast.error("Failed to update status");
@@ -64,10 +64,11 @@ export default function JobDetailsPage() {
     };
 
     const handleStartJob = async () => {
+        if (!booking) return;
         try {
             await liveBookingService.updateBookingStatus(bookingId, 'IN_PROGRESS');
             setIsTracking(false); // Stop GPS
-            setBooking((prev: any) => ({ ...prev, status: 'IN_PROGRESS' }));
+            setBooking((prev) => prev ? ({ ...prev, status: 'IN_PROGRESS' }) : null);
             toast.success("Job Started");
         } catch (e) {
             toast.error("Failed to start job");
@@ -75,10 +76,11 @@ export default function JobDetailsPage() {
     };
 
     const handleCompleteJob = async () => {
+        if (!booking || !booking.provider_id) return;
         try {
             const providerId = booking.provider_id;
             await liveBookingService.completeBooking(bookingId, providerId);
-            setBooking((prev: any) => ({ ...prev, status: 'COMPLETED' }));
+            setBooking((prev) => prev ? ({ ...prev, status: 'COMPLETED' }) : null);
             toast.success("Job Completed! Waiting for payment.");
         } catch (e) {
             toast.error("Failed to complete job");
@@ -88,7 +90,7 @@ export default function JobDetailsPage() {
     if (loading) return <div className="p-6 text-center">Loading...</div>;
     if (!booking) return <div className="p-6 text-center">Job not found</div>;
 
-    const requirements = booking.requirements || {};
+    const requirements = (booking.requirements as any) || {};
     const location = requirements.location || { lat: 12.9716, lng: 77.5946 };
 
     return (

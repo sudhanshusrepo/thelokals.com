@@ -12,12 +12,11 @@ export function GlobalSubscriptionWrapper({ children }: { children: React.ReactN
     useEffect(() => {
         if (!user) return;
 
-        console.log("📡 Initializing Provider Subscription for:", user.id);
+        if (!user) return;
 
         const channel = liveBookingService.subscribeToProviderRequests(
             user.id,
             (payload) => {
-                console.log("🔔 New Booking Request!", payload);
                 // Show Persistent Toast
                 toast((t) => (
                     <div onClick={() => {

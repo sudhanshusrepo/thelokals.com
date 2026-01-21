@@ -3,18 +3,18 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, Clock, ArrowRight, X } from 'lucide-react';
-import { liveBookingService, PricingUtils } from '@thelocals/platform-core';
+import { liveBookingService, PricingUtils, DbBookingRequest } from '@thelocals/platform-core';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 
 interface IncomingRequestProps {
-    request: any; // Ideally typed from DB
+    request: DbBookingRequest;
     onDismiss: () => void;
 }
 
 export function IncomingRequestCard({ request, onDismiss }: IncomingRequestProps) {
     const router = useRouter();
-    const requirements = request.requirements || {};
+    const requirements = (request as any).requirements || {};
     const price = requirements.price_locked || 0;
 
     const handleAccept = async () => {

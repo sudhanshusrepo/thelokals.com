@@ -18,7 +18,7 @@ interface ProviderAuthContextType {
 
 const ProviderAuthContext = createContext<ProviderAuthContextType | undefined>(undefined);
 
-const fetchProviderProfile = async (user: any): Promise<WorkerProfile | null> => {
+const fetchProviderProfile = async (user: User): Promise<WorkerProfile | null> => {
     try {
         if (!user?.id) return null;
         return await providerService.getProfile(user.id);
@@ -50,7 +50,6 @@ function ProviderAuthContent({ children }: { children: ReactNode }) {
     };
 
     const setProfile = (newProfile: WorkerProfile | null) => {
-        console.warn('setProfile called - prefer refreshing from DB');
         refreshProfile();
     };
 
