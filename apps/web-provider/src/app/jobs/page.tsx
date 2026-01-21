@@ -8,6 +8,7 @@ import { JobCard } from '../../components/JobCard';
 import { toast } from 'react-hot-toast';
 import { Loader2, Bell, Briefcase, CheckCircle, Calendar } from 'lucide-react';
 import { JobDetailSheet } from '../../components/JobDetailSheet';
+import { StatusToggle } from '../../components/StatusToggle';
 
 import { useJobsData } from '../../hooks/useJobsData';
 import { EmptyState } from '../../components/ui/EmptyState';

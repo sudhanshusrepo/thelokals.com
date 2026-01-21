@@ -14,6 +14,7 @@ import { Briefcase } from 'lucide-react';
 import { useState } from 'react';
 import { JobDetailSheet } from '../../components/JobDetailSheet';
 import { Booking } from "@thelocals/platform-core";
+import { StatusToggle } from '../../components/StatusToggle';
 
 export default function Dashboard() {
     const { profile, user } = useAuth();
@@ -45,9 +46,7 @@ export default function Dashboard() {
                     <p className="text-neutral-500 text-sm">Let's make today productive.</p>
                 </div>
                 <div className="hidden md:block">
-                    <span className="bg-brand-green/10 text-brand-green text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
-                        Online
-                    </span>
+                    <StatusToggle />
                 </div>
             </div>
 

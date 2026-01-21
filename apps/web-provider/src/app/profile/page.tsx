@@ -231,69 +231,71 @@ export default function ProfilePage() {
                             </div>
                         )}
 
-                        <div className="space-y-6">
-                            <h3 className="font-bold text-neutral-900">Payout Details</h3>
-                            <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
-                                Payments are processed every Friday. Ensure your UPI ID is correct.
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium text-neutral-700">UPI ID / VPA</label>
-                                    <div className="relative">
-                                        <Wallet className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" size={18} />
+                        {activeTab === 'bank' && (
+                            <div className="space-y-6">
+                                <h3 className="font-bold text-neutral-900">Payout Details</h3>
+                                <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
+                                    Payments are processed every Friday. Ensure your UPI ID is correct.
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-neutral-700">UPI ID / VPA</label>
+                                        <div className="relative">
+                                            <Wallet className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" size={18} />
+                                            <input
+                                                type="text"
+                                                placeholder="username@upi"
+                                                value={formData.bankDetails.upi_id}
+                                                onChange={(e) => setFormData({
+                                                    ...formData,
+                                                    bankDetails: { ...formData.bankDetails, upi_id: e.target.value }
+                                                })}
+                                                className="w-full p-3 pl-10 rounded-lg border border-neutral-200 focus:outline-none focus:border-brand-green transition-colors"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-neutral-700">Account Holder Name</label>
                                         <input
                                             type="text"
-                                            placeholder="username@upi"
-                                            value={formData.bankDetails.upi_id}
+                                            placeholder="As per bank records"
+                                            value={formData.bankDetails.account_holder_name}
                                             onChange={(e) => setFormData({
                                                 ...formData,
-                                                bankDetails: { ...formData.bankDetails, upi_id: e.target.value }
+                                                bankDetails: { ...formData.bankDetails, account_holder_name: e.target.value }
                                             })}
-                                            className="w-full p-3 pl-10 rounded-lg border border-neutral-200 focus:outline-none focus:border-brand-green transition-colors"
+                                            className="w-full p-3 rounded-lg border border-neutral-200 focus:outline-none focus:border-brand-green transition-colors"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-neutral-700">Account Number</label>
+                                        <input
+                                            type="text"
+                                            placeholder="0000000000"
+                                            value={formData.bankDetails.account_number}
+                                            onChange={(e) => setFormData({
+                                                ...formData,
+                                                bankDetails: { ...formData.bankDetails, account_number: e.target.value }
+                                            })}
+                                            className="w-full p-3 rounded-lg border border-neutral-200 focus:outline-none focus:border-brand-green transition-colors"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-neutral-700">IFSC Code</label>
+                                        <input
+                                            type="text"
+                                            placeholder="ABCD0123456"
+                                            value={formData.bankDetails.ifsc_code}
+                                            onChange={(e) => setFormData({
+                                                ...formData,
+                                                bankDetails: { ...formData.bankDetails, ifsc_code: e.target.value }
+                                            })}
+                                            className="w-full p-3 rounded-lg border border-neutral-200 focus:outline-none focus:border-brand-green transition-colors"
                                         />
                                     </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium text-neutral-700">Account Holder Name</label>
-                                    <input
-                                        type="text"
-                                        placeholder="As per bank records"
-                                        value={formData.bankDetails.account_holder_name}
-                                        onChange={(e) => setFormData({
-                                            ...formData,
-                                            bankDetails: { ...formData.bankDetails, account_holder_name: e.target.value }
-                                        })}
-                                        className="w-full p-3 rounded-lg border border-neutral-200 focus:outline-none focus:border-brand-green transition-colors"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium text-neutral-700">Account Number</label>
-                                    <input
-                                        type="text"
-                                        placeholder="0000000000"
-                                        value={formData.bankDetails.account_number}
-                                        onChange={(e) => setFormData({
-                                            ...formData,
-                                            bankDetails: { ...formData.bankDetails, account_number: e.target.value }
-                                        })}
-                                        className="w-full p-3 rounded-lg border border-neutral-200 focus:outline-none focus:border-brand-green transition-colors"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium text-neutral-700">IFSC Code</label>
-                                    <input
-                                        type="text"
-                                        placeholder="ABCD0123456"
-                                        value={formData.bankDetails.ifsc_code}
-                                        onChange={(e) => setFormData({
-                                            ...formData,
-                                            bankDetails: { ...formData.bankDetails, ifsc_code: e.target.value }
-                                        })}
-                                        className="w-full p-3 rounded-lg border border-neutral-200 focus:outline-none focus:border-brand-green transition-colors"
-                                    />
-                                </div>
                             </div>
-                        </div>
+                        )}
 
                         {activeTab === 'documents' && (
                             <div className="space-y-6">
