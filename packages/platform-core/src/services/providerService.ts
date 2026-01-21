@@ -165,13 +165,16 @@ export const providerService = {
      * Toggle availability
      */
     async updateAvailability(providerId: string, status: 'AVAILABLE' | 'OFFLINE'): Promise<void> {
+        // Delegate to updateProfile which now handles upsert/row creation
         const { error } = await supabase
             .from('providers')
-            .update({
+            .upsert({
+                id: providerId,
                 is_active: status === 'AVAILABLE',
-                status: status === 'AVAILABLE' ? 'AVAILABLE' : 'OFFLINE'
+                status: status === 'AVAILABLE' ? 'AVAILABLE' : 'OFFLINE',
+                updated_at: new Date().toISOString()
             })
-            .eq('id', providerId);
+            .select();
 
         if (error) {
             console.error('Error updating availability:', error);
@@ -251,18 +254,22 @@ export const providerService = {
             dbUpdates.verification_status = 'pending';
         }
         if (updates.bank_details) dbUpdates.bank_details = updates.bank_details;
-        if (updates.availabilitySchedule) dbUpdates.availabilitySchedule = updates.availabilitySchedule; // Assuming column exists or is mapped? 
-        // Note: 'availabilitySchedule' likely needs a column or mapping, but leaving as is if unused to avoid breaking more.
+        if (updates.availabilitySchedule) dbUpdates.availabilitySchedule = updates.availabilitySchedule;
 
         // Handle explicitly passed fields that match (e.g. from partials)
         if (updates.is_active !== undefined) dbUpdates.is_active = updates.is_active;
+        if (updates.status !== undefined) dbUpdates.status = updates.status;
 
         if (Object.keys(dbUpdates).length === 0) return;
 
+        // Use upsert to handle missing rows (e.g. if registration didn't create it)
+        dbUpdates.id = providerId;
+        dbUpdates.updated_at = new Date().toISOString();
+
         const { error } = await supabase
             .from('providers')
-            .update(dbUpdates)
-            .eq('id', providerId);
+            .upsert(dbUpdates)
+            .select();
 
         if (error) {
             console.error('Error updating profile:', error);

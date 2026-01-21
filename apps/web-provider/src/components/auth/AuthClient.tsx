@@ -78,7 +78,7 @@ export default function AuthClient() {
                                     Phone Number
                                 </label>
                                 <div className="flex gap-2">
-                                    <div className="w-16 px-3 py-2.5 bg-white/90 border border-white/50 rounded-lg text-center font-bold text-neutral-900 flex items-center justify-center shadow-sm">
+                                    <div className="w-16 px-3 py-2.5 bg-white border border-neutral-200 rounded-lg text-center font-bold text-neutral-900 flex items-center justify-center shadow-sm">
                                         +91
                                     </div>
                                     <input
@@ -86,7 +86,7 @@ export default function AuthClient() {
                                         type="tel"
                                         required
                                         autoFocus
-                                        className="block flex-1 px-3 py-2.5 bg-white/90 border border-white/50 rounded-lg focus:ring-neutral-900 focus:border-neutral-900 transition-colors shadow-sm font-medium placeholder:text-neutral-400"
+                                        className="block flex-1 px-3 py-2.5 bg-white border border-neutral-200 rounded-lg focus:ring-primary focus:border-primary transition-colors shadow-sm font-bold text-neutral-900 placeholder:text-neutral-400"
                                         placeholder="98765 43210"
                                         value={phone}
                                         onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
@@ -97,7 +97,7 @@ export default function AuthClient() {
                             <button
                                 type="submit"
                                 disabled={loading || phone.length < 10}
-                                className="w-full py-3 px-4 bg-neutral-900 hover:bg-neutral-800 text-white font-bold rounded-lg shadow-lg shadow-neutral-900/20 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                                className="w-full py-3 px-4 bg-primary hover:bg-primary-600 text-white font-bold rounded-lg shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                             >
                                 {loading ? <Loader2 className="animate-spin" size={20} /> : (
                                     <>
@@ -121,7 +121,7 @@ export default function AuthClient() {
                                     required
                                     autoFocus
                                     maxLength={6}
-                                    className="block w-full px-3 py-2.5 bg-white/90 border border-white/50 rounded-lg focus:ring-neutral-900 focus:border-neutral-900 transition-colors text-center text-lg tracking-widest font-bold shadow-sm"
+                                    className="block w-full px-3 py-2.5 bg-white border border-neutral-200 rounded-lg focus:ring-primary focus:border-primary transition-colors text-center text-lg tracking-widest font-bold text-neutral-900 shadow-sm"
                                     placeholder="000000"
                                     value={otp}
                                     onChange={(e) => setOtp(e.target.value)}
@@ -140,7 +140,7 @@ export default function AuthClient() {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full py-3 px-4 bg-neutral-900 hover:bg-neutral-800 text-white font-bold rounded-lg shadow-lg shadow-neutral-900/20 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                                className="w-full py-3 px-4 bg-primary hover:bg-primary-600 text-white font-bold rounded-lg shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                             >
                                 {loading ? <Loader2 className="animate-spin" size={20} /> : 'Verify & Login'}
                             </button>
