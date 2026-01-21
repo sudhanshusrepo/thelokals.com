@@ -73,13 +73,11 @@ export default function LandingPage() {
                             <Wallet size={32} />
                         </div>
                         <h3 className="text-xl font-bold text-neutral-900 mb-4">Performance-Based Earnings</h3>
-                        <p className="text-neutral-600 text-sm">
+                        <p className="text-neutral-600 text-sm mb-4">
                             Fair commission rates based on your service quality.
                         </p>
-                        <div className="mt-4 text-left text-xs text-neutral-500 space-y-1 bg-neutral-50 p-3 rounded-lg">
-                            <div className="flex justify-between"><span>⭐ 4.5+</span> <span className="font-bold text-green-600">12%</span></div>
-                            <div className="flex justify-between"><span>⭐ 4.0-4.4</span> <span className="font-bold text-neutral-700">15%</span></div>
-                            <div className="flex justify-between"><span>⭐ 3.0-3.9</span> <span className="font-bold text-orange-600">20%</span></div>
+                        <div className="bg-green-50 text-green-800 px-4 py-2 rounded-lg font-bold inline-block">
+                            Commission starting from 12%
                         </div>
                     </div>
                     <div className="bg-white p-8 rounded-2xl shadow-sm border border-neutral-200 text-center">

@@ -8,14 +8,33 @@ const inter = Inter({ subsets: ["latin"], display: 'swap' });
 
 export const metadata: Metadata = {
     title: {
-        template: '%s | The Locals Provider',
-        default: 'The Locals - Provider Portal',
+        template: '%s | The Locals Partner',
+        default: 'The Locals Partner - Grow Your Service Business',
     },
-    description: "Manage your service requests, track earnings, and update availability.",
+    description: "Join The Locals (Lokals) as a service provider. Connect with customers in your area for electrical, plumbing, cleaning, and more. Earn money on your terms with performance-based commissions.",
+    keywords: ["locals", "lokals", "thelokals", "service provider", "home services", "technician jobs", "earn money", "local services", "plumber jobs", "electrician jobs"],
+    openGraph: {
+        title: 'The Locals Partner - Grow Your Service Business',
+        description: 'Manage your service requests, track earnings, and update availability. Join the fastest growing local service network.',
+        url: 'https://provider.thelokals.com', // Assuming URL, check if known
+        siteName: 'The Locals',
+        locale: 'en_IN',
+        type: 'website',
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: 'The Locals Partner - Grow Your Service Business',
+        description: 'Join The Locals (Lokals) as a service provider and grow your business today.',
+    },
     appleWebApp: {
         capable: true,
         statusBarStyle: 'default',
         title: 'Lokals Pro',
+    },
+    icons: {
+        icon: '/favicon.svg',
+        shortcut: '/favicon.svg',
+        apple: '/favicon.svg',
     },
 };
 
