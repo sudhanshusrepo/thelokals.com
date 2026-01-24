@@ -73,6 +73,7 @@ export default function ProfilePage() {
                 description: formData.description,
                 price: Number(formData.price),
                 imageUrl: formData.imageUrl,
+                category: formData.category,
                 bankDetails: formData.bankDetails
             };
 
@@ -85,6 +86,7 @@ export default function ProfilePage() {
                 description: formData.description,
                 price: Number(formData.price),
                 imageUrl: formData.imageUrl,
+                category: formData.category as any,
                 documents: formData.documents,
                 bank_details: formData.bankDetails
             };

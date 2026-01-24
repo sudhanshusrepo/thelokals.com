@@ -6,6 +6,7 @@ export const ProfileSchema = z.object({
     description: z.string().optional(),
     price: z.number().min(0, "Price must be positive"),
     imageUrl: z.string().url("Invalid Image URL").optional().or(z.literal('')),
+    category: z.string().min(1, "Service Category is required"),
     bankDetails: z.object({
         upi_id: z.string().optional(),
         account_number: z.string().optional(),
