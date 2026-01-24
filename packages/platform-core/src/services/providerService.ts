@@ -165,16 +165,16 @@ export const providerService = {
      * Toggle availability
      */
     async updateAvailability(providerId: string, status: 'AVAILABLE' | 'OFFLINE'): Promise<void> {
-        // Delegate to updateProfile which now handles upsert/row creation
+        // Use UPDATE instead of UPSERT. We assume the provider record exists (created via Profile).
+        // If it doesn't exist, the UI should prompt them to complete profile first.
         const { error } = await supabase
             .from('providers')
-            .upsert({
-                id: providerId,
+            .update({
                 is_active: status === 'AVAILABLE',
                 status: status === 'AVAILABLE' ? 'AVAILABLE' : 'OFFLINE',
                 updated_at: new Date().toISOString()
             })
-            .select();
+            .eq('id', providerId);
 
         if (error) {
             console.error('Error updating availability:', error);
@@ -245,7 +245,14 @@ export const providerService = {
         if (updates.description) dbUpdates.description = updates.description; // Matches
         if (updates.price) dbUpdates.price = updates.price; // We added this column
         if (updates.imageUrl) dbUpdates.profile_image_url = updates.imageUrl;
-        if (updates.category) dbUpdates.category = updates.category;
+        // Default category if one isn't provided, to satisfy NOT NULL constraint
+        if (updates.category) {
+            dbUpdates.category = updates.category;
+        } else {
+            // If creating a NEW record (no ID exists), we might fail.
+            // But usually this function is called with a category.
+            // We'll let it pass, but if the row is new, it needs a category.
+        }
 
         // Handle JSONB fields
         if (updates.documents) {

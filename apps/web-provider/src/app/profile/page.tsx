@@ -223,8 +223,29 @@ export default function ProfilePage() {
                         {activeTab === 'services' && (
                             <div className="space-y-6">
                                 <div className="p-4 bg-brand-bg rounded-lg border border-brand-green/20">
-                                    <h3 className="font-bold text-brand-text mb-1">Primary Category</h3>
-                                    <p className="text-sm text-neutral-700">You are registered as a <span className="font-bold">{formData.category}</span>.</p>
+                                    <h3 className="font-bold text-brand-text mb-1">Service Category</h3>
+                                    <p className="text-sm text-neutral-700 pb-3">Select the primary service you offer.</p>
+
+                                    <div className="relative">
+                                        <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" size={18} />
+                                        <select
+                                            value={formData.category}
+                                            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                            className="w-full p-3 pl-10 rounded-lg border border-neutral-200 focus:outline-none focus:border-brand-green transition-colors text-neutral-900 bg-white appearance-none"
+                                        >
+                                            <option value="" disabled>Select a Category</option>
+                                            {[
+                                                "Plumber", "Carpenter", "Painter", "Appliance Repair", "Locksmith",
+                                                "Pest Control", "Gardener", "Maid Service", "Laundry Service",
+                                                "Packers & Movers", "Car Washing", "Mechanic", "Driver", "Bike Repair",
+                                                "Roadside Assistance", "AC Service", "Rides (Bike & Cab)", "Home Cleaning",
+                                                "Electrician", "Salon & Grooming", "Bike Wash", "Car Rental",
+                                                "Bike Rental", "Yoga & Fitness"
+                                            ].map(cat => (
+                                                <option key={cat} value={cat}>{cat}</option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 </div>
 
                                 <div className="space-y-2">
