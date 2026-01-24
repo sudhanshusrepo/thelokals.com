@@ -6,7 +6,7 @@ import { useDashboardData } from '../../hooks/useDashboardData';
 import Link from 'next/link';
 import { HeroCard } from '../../components/HeroCard';
 import { QuickStats } from '../../components/QuickStats';
-import { JobCard } from '../../components/JobCard';
+import { JobCard } from '../../components/jobs/JobCard';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { IdentityBanner } from '../../components/IdentityBanner';
 import { EmptyState } from '../../components/ui/EmptyState';
@@ -104,7 +104,7 @@ export default function Dashboard() {
                                 {recentJobs.map((job) => (
                                     <JobCard
                                         key={job.id}
-                                        job={job}
+                                        booking={job}
                                         onClick={() => handleJobClick(job)}
                                     />
                                 ))}
@@ -120,7 +120,7 @@ export default function Dashboard() {
                 job={selectedJob}
                 onUpdate={() => {
                     mutateActive && mutateActive();
-                    window.location.reload(); // Simple refresh for dashboard stats
+                    // window.location.reload(); // Removed to prevent full page refresh
                 }}
             />
         </ProviderLayout>

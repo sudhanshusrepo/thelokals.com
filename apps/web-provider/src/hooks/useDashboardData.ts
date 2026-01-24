@@ -1,5 +1,5 @@
 
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
 import { providerService } from "@thelocals/platform-core";
 
 export function useDashboardData(userId: string | undefined) {
@@ -16,10 +16,8 @@ export function useDashboardData(userId: string | undefined) {
     const mutateActive = async () => {
         // Revalidate both keys
         if (userId) {
-            import('swr').then(({ mutate }) => {
-                mutate(['active-jobs', userId]);
-                mutate(['dashboard-stats', userId]);
-            });
+            mutate(['active-jobs', userId]);
+            mutate(['dashboard-stats', userId]);
         }
     };
 
