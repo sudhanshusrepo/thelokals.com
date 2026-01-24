@@ -12,10 +12,15 @@ export const providerService = {
             .from('providers')
             .select('*')
             .eq('id', userId)
-            .single();
+            .eq('id', userId)
+            .maybeSingle();
 
         if (error) {
             console.error('Error fetching provider profile:', error);
+            return null;
+        }
+
+        if (!data) {
             return null;
         }
 
@@ -97,7 +102,8 @@ export const providerService = {
             .from('bookings')
             .select(`
         *,
-        user:user_id (*)
+        *,
+        user:customers (*)
       `)
             .eq('provider_id', providerId)
             .order('created_at', { ascending: false });
@@ -123,7 +129,7 @@ export const providerService = {
             .select(`
          *,
          id:request_id,
-         bookings:booking_id (*, user:user_id(*))
+         bookings:booking_id (*, user:customers(*))
        `)
             .eq('provider_id', providerId)
             .eq('status', 'PENDING')
