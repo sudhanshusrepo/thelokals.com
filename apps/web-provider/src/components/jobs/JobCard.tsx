@@ -8,10 +8,11 @@ interface JobCardProps {
     booking: Booking;
     isRequest?: boolean;
     onAccept?: (id: string) => void;
+    onReject?: (id: string) => void;
     onClick?: () => void;
 }
 
-export const JobCard = ({ booking, isRequest, onAccept, onClick }: JobCardProps) => {
+export const JobCard = ({ booking, isRequest, onAccept, onReject, onClick }: JobCardProps) => {
     return (
         <div
             onClick={onClick}
@@ -62,15 +63,28 @@ export const JobCard = ({ booking, isRequest, onAccept, onClick }: JobCardProps)
 
             <div className="flex flex-col justify-center gap-2 min-w-[150px] pl-2 border-t md:border-t-0 md:border-l border-neutral-100 pt-4 md:pt-0 md:pl-6">
                 {isRequest ? (
-                    <button
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onAccept?.(booking.id);
-                        }}
-                        className="w-full py-2 bg-primary text-white rounded-lg hover:bg-primary-hover font-medium transition-colors flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
-                    >
-                        <CheckCircle2 size={16} /> Accept
-                    </button>
+                    <>
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onAccept?.(booking.id);
+                            }}
+                            className="w-full py-2 bg-primary text-white rounded-lg hover:bg-primary-hover font-medium transition-colors flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
+                        >
+                            <CheckCircle2 size={16} /> Accept
+                        </button>
+                        {onReject && (
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onReject?.(booking.id);
+                                }}
+                                className="w-full py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 font-medium transition-colors flex items-center justify-center gap-2 mt-2"
+                            >
+                                <span className="text-sm">Reject</span>
+                            </button>
+                        )}
+                    </>
                 ) : (
                     <div className="text-center text-sm text-neutral-400 italic">
                         Click to view details

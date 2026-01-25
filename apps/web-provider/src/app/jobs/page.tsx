@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { ProviderLayout } from '../../components/layout/ProviderLayout';
 import { useEffect, useState } from 'react';
 import { providerService, Booking, DbBookingRequest } from "@thelocals/platform-core";
-import { JobCard } from '../../components/JobCard';
+import { JobCard } from '../../components/jobs/JobCard';
 import { toast } from 'react-hot-toast';
 import { Loader2, Bell, Briefcase, CheckCircle, Calendar } from 'lucide-react';
 import { JobDetailSheet } from '../../components/JobDetailSheet';
@@ -198,7 +198,7 @@ export default function JobsPage() {
                                 (currentData as DbBookingRequest[]).map((req) => (
                                     <JobCard
                                         key={req.id}
-                                        job={req.bookings as any}
+                                        booking={req.bookings as any}
                                         isRequest={true}
                                         onAccept={() => handleAccept(req.id)}
                                         onReject={() => handleReject(req.id)}
@@ -209,7 +209,7 @@ export default function JobsPage() {
                                 (currentData as Booking[]).map((booking) => (
                                     <JobCard
                                         key={booking.id}
-                                        job={booking}
+                                        booking={booking}
                                         onClick={() => handleJobClick(booking)}
                                     />
                                 ))
