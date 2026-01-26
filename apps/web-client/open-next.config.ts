@@ -3,8 +3,14 @@ import type { OpenNextConfig } from '@opennextjs/cloudflare';
 
 const config: OpenNextConfig = {
     default: {
-        // Enable incremental static regeneration (ISR) caching
-        // You can configure other settings here as needed
+        override: {
+            wrapper: "cloudflare-node",
+            converter: "edge",
+            proxyExternalRequest: "fetch",
+            incrementalCache: "dummy",
+            tagCache: "dummy",
+            queue: "dummy",
+        },
     },
 };
 
