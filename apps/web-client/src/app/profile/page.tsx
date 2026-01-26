@@ -1,81 +1,59 @@
 'use client';
 
 import React from 'react';
-import { AuthGuard } from '../../components/auth/AuthGuard';
-import { useAuth } from '../../contexts/AuthContext';
-import { LogOut, Settings, CreditCard, Shield, MapPin, ChevronRight, User as UserIcon } from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth';
+import { LogOut, Settings, MapPin, CreditCard, Shield, ChevronRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { Surface, Section } from '../../components/ui/Wrappers';
 
 export default function ProfilePage() {
     const { user, signOut } = useAuth();
     const router = useRouter();
 
-    const handleSignOut = async () => {
-        await signOut();
-        router.push('/');
-    };
+    if (!user) {
+        router.push('/login');
+        return null;
+    }
 
     return (
-        <AuthGuard>
-            <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-green-50 to-blue-50 pb-24 px-4 pt-4">
-                <div className="max-w-md mx-auto">
-                    <header className="flex items-center justify-between mb-6">
-                        <h1 className="text-2xl font-bold text-gray-900">My Profile</h1>
-                    </header>
+        <div className="min-h-screen bg-gray-50 pb-24 p-4">
+            <h1 className="text-2xl font-bold text-gray-900 mb-6">My Profile</h1>
 
-                    {/* User Info */}
-                    <Surface elevated className="flex items-center gap-4 mb-6 animate-fadeIn">
-                        <div className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-lokals-orange rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg">
-                            {user?.email?.[0]?.toUpperCase() || 'U'}
-                        </div>
-                        <div>
-                            <h2 className="text-xl font-bold text-gray-900">{user?.user_metadata?.name || 'User'}</h2>
-                            <p className="text-gray-500 font-medium">{user?.phone || user?.email}</p>
-                        </div>
-                    </Surface>
-
-                    {/* Menu */}
-                    <Section>
-                        <Surface elevated className="space-y-1 !p-2">
-                            {[
-                                { icon: Settings, label: 'Settings', color: 'bg-gray-100 text-gray-600' },
-                                { icon: MapPin, label: 'Addresses', color: 'bg-blue-50 text-blue-600' },
-                                { icon: CreditCard, label: 'Payments', color: 'bg-green-50 text-green-600' },
-                                { icon: Shield, label: 'Privacy', color: 'bg-purple-50 text-purple-600' }
-                            ].map((item, idx) => (
-                                <div
-                                    key={idx}
-                                    onClick={() => {
-                                        if (item.label === 'Payments') router.push('/wallet');
-                                        if (item.label === 'Help') router.push('/help'); // Assuming Help item exists or will exist
-                                        // Other items are placeholders
-                                    }}
-                                    className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl cursor-pointer transition-colors group"
-                                >
-                                    <div className="flex items-center gap-4">
-                                        <div className={`w-10 h-10 ${item.color} rounded-full flex items-center justify-center`}>
-                                            <item.icon size={20} />
-                                        </div>
-                                        <span className="font-semibold text-gray-700 group-hover:text-gray-900">{item.label}</span>
-                                    </div>
-                                    <ChevronRight className="text-gray-300 group-hover:text-gray-500" size={20} />
-                                </div>
-                            ))}
-                        </Surface>
-                    </Section>
-
-                    <Section>
-                        <button
-                            onClick={handleSignOut}
-                            className="w-full bg-white border-2 border-red-50 text-red-500 font-bold py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-red-50 hover:border-red-100 transition-all shadow-sm active:scale-95"
-                        >
-                            <LogOut size={20} />
-                            Sign Out
-                        </button>
-                    </Section>
+            {/* User Info */}
+            <div className="bg-white p-6 rounded-2xl border border-gray-100 mb-6 flex items-center gap-4">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-lokals-yellow to-lokals-green flex items-center justify-center text-white text-2xl font-bold">
+                    {user.phone ? user.phone[3] : 'U'}
+                </div>
+                <div>
+                    <h2 className="text-xl font-bold text-gray-900">User</h2>
+                    <p className="text-gray-500">{user.phone}</p>
                 </div>
             </div>
-        </AuthGuard>
+
+            {/* Menu */}
+            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden mb-6">
+                {[
+                    { icon: Settings, label: 'Settings', color: 'text-gray-600' },
+                    { icon: MapPin, label: 'Saved Addresses', color: 'text-blue-600' },
+                    { icon: CreditCard, label: 'Payment Methods', color: 'text-green-600' },
+                    { icon: Shield, label: 'Privacy & Safety', color: 'text-purple-600' },
+                ].map((item, i) => (
+                    <button key={i} className="w-full flex items-center justify-between p-4 hover:bg-gray-50 border-b border-gray-50 last:border-0 text-left">
+                        <div className="flex items-center gap-4">
+                            <item.icon className={item.color} size={20} />
+                            <span className="font-medium text-gray-700">{item.label}</span>
+                        </div>
+                        <ChevronRight className="text-gray-300" size={18} />
+                    </button>
+                ))}
+            </div>
+
+            <button
+                onClick={signOut}
+                className="w-full bg-white border border-red-100 text-red-500 font-bold py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-red-50"
+            >
+                <LogOut size={20} />
+                Sign Out
+            </button>
+        </div>
     );
 }

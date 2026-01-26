@@ -1,21 +1,38 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-:root {
-    --background: #ffffff;
-    --foreground: #171717;
+@theme {
+  /* Colors */
+  --color-lokals-green: #8AE98D;
+  --color-lokals-yellow: #F7C846;
+  --color-lokals-red: #FC574E;
+  
+  --color-bg-primary: #F0F0F0;
+  --color-bg-surface: #FFFFFF;
+  
+  --color-text-primary: #0E121A;
+  --color-text-secondary: rgba(14, 18, 26, 0.87);
+  --color-text-tertiary: rgba(14, 18, 26, 0.74);
+  --color-text-disabled: rgba(14, 18, 26, 0.60);
+
+  /* Shadows */
+  --shadow-card: 0 8px 32px rgba(14, 18, 26, 0.08);
+  --shadow-hero-glow: 0 0 0 1px rgba(247, 200, 70, 0.2) inset;
+  --shadow-floating: 0 12px 40px rgba(252, 87, 78, 0.15);
+  
+  /* Radius */
+  --radius-hero: 24px;
+  --radius-card: 16px;
+  --radius-pill: 20px;
 }
 
-@media (prefers-color-scheme: dark) {
-    :root {
-        --background: #0a0a0a;
-        --foreground: #ededed;
-    }
+:root {
+  --background: var(--color-bg-primary);
+  --foreground: var(--color-text-primary);
 }
 
 body {
-    color: var(--foreground);
-    background: var(--background);
-    font-family: Arial, Helvetica, sans-serif;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Poppins', sans-serif;
+  -webkit-font-smoothing: antialiased;
 }

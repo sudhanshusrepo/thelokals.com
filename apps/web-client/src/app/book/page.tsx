@@ -1,121 +1,38 @@
 'use client';
 
-import React, { useEffect, useState, Suspense } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { bookingService, ServiceCategory } from '@thelocals/platform-core';
-import ServiceSelection from '../../components/booking/ServiceSelection';
-// Dynamic import to avoid SSR issues with map
+import React, { Suspense } from 'react';
 import dynamic from 'next/dynamic';
-import { BookingErrorBoundary } from '../../components/booking/BookingErrorBoundary';
+import { useSearchParams } from 'next/navigation';
+import { adminService } from '@thelocals/platform-core/services/adminService';
+import { ServiceCategory } from '@thelocals/platform-core';
 
-const LiveBookingHub = dynamic(() => import('../../components/booking/LiveBookingHub'), { ssr: false });
-const PostBookingScreen = dynamic(() => import('../../components/booking/PostBookingScreen'), { ssr: false });
+// Dynamic import for Map heavy component
+const LiveBookingHub = dynamic(() => import('../../components/booking/LiveBookingHub'), {
+    ssr: false,
+    loading: () => <div className="h-screen flex items-center justify-center">Loading Booking Hub...</div>
+});
 
-function BookingFlowContent() {
+function BookingContent() {
     const searchParams = useSearchParams();
     const categoryId = searchParams.get('category_id');
+    const [category, setCategory] = React.useState<ServiceCategory | null>(null);
 
-    const [view, setView] = useState<'SELECTION' | 'FLOW'>('SELECTION');
-    const [category, setCategory] = useState<ServiceCategory | null>(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        if (!categoryId) {
-            setLoading(false);
-            return;
+    React.useEffect(() => {
+        if (categoryId) {
+            adminService.getServiceCategory(categoryId).then(setCategory);
         }
-
-        const loadCategory = async () => {
-            const data = await bookingService.getServiceCategory(categoryId);
-            setCategory(data as ServiceCategory);
-            setLoading(false);
-        };
-        loadCategory();
     }, [categoryId]);
 
-    const router = useRouter();
+    if (!categoryId) return <div>Please select a service first.</div>;
+    if (!category) return <div className="h-screen flex items-center justify-center">Loading Service...</div>;
 
-    useEffect(() => {
-        if (!categoryId) {
-            // Redirect to Home to select a service
-            router.replace('/');
-        }
-    }, [categoryId, router]);
-
-    const [selectedItem, setSelectedItem] = useState<any | null>(null);
-
-    // ... (keep useEffects)
-
-    const variants = {
-        enter: { opacity: 0, x: 20 },
-        center: { opacity: 1, x: 0 },
-        exit: { opacity: 0, x: -20 }
-    };
-
-    if (loading) {
-        return (
-            <div className="flex bg-white h-screen items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
-            </div>
-        );
-    }
-
-    return (
-        <BookingErrorBoundary>
-            <main className="min-h-screen bg-gray-50 overflow-hidden relative">
-                <AnimatePresence mode="wait">
-                    {view === 'SELECTION' && category && (
-                        <motion.div
-                            key="selection"
-                            variants={variants}
-                            initial="enter"
-                            animate="center"
-                            exit="exit"
-                            transition={{ duration: 0.3 }}
-                            className="w-full"
-                        >
-                            <ServiceSelection
-                                category={category}
-                                onContinue={(item) => {
-                                    setSelectedItem(item);
-                                    setView('FLOW');
-                                }}
-                            />
-                        </motion.div>
-                    )}
-
-                    {view === 'FLOW' && category && selectedItem && (
-                        <motion.div
-                            key="flow"
-                            variants={variants}
-                            initial="enter"
-                            animate="center"
-                            exit="exit"
-                            transition={{ duration: 0.3 }}
-                            className="w-full"
-                        >
-                            {/* Pass context to initialize the machine properly */}
-                            <LiveBookingHub
-                                serviceCategory={category}
-                                initialServiceItem={selectedItem}
-                            />
-                            {/* PostBookingScreen is likely internal to LiveBookingHub flow or separate? 
-                                Keeping it here as per original, but state usage might need check. 
-                            */}
-                            <PostBookingScreen />
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-            </main>
-        </BookingErrorBoundary>
-    );
+    return <LiveBookingHub serviceCategory={category} />;
 }
 
-export default function BookingFlowV2() {
+export default function BookingPage() {
     return (
         <Suspense fallback={<div>Loading...</div>}>
-            <BookingFlowContent />
+            <BookingContent />
         </Suspense>
     );
 }

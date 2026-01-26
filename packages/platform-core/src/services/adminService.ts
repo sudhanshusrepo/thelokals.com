@@ -575,6 +575,28 @@ export const adminService = {
     },
 
     /**
+     * Get single service category by ID
+     */
+    async getServiceCategory(id: string): Promise<import('../types').ServiceCategory | null> {
+        const { data, error } = await supabase
+            .from('service_categories')
+            .select('*, service_pricing(base_price, currency)')
+            .eq('id', id)
+            .single();
+
+        if (error) {
+            console.error(`Failed to fetch service category ${id}:`, error);
+            return null;
+        }
+
+        return {
+            ...data,
+            base_price: data.service_pricing?.[0]?.base_price || data.base_price || 0,
+            currency: data.service_pricing?.[0]?.currency || 'INR'
+        };
+    },
+
+    /**
      * Create or update a service category
      */
     async upsertServiceCategory(category: Partial<import('../types').ServiceCategory>): Promise<void> {

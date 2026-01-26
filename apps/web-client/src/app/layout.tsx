@@ -1,86 +1,47 @@
-import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import { AuthProvider } from "../contexts/AuthContext";
-import { BookingProvider } from "../contexts/BookingContext";
-import { LocationProvider } from "../contexts/LocationContext";
-import { BottomNav } from "../components/navigation/BottomNav";
+import type { Metadata } from "next";
+import { Poppins } from "next/font/google";
 import { Toaster } from "react-hot-toast";
-import dynamic from 'next/dynamic';
-import Script from 'next/script';
+import "./globals.css";
 
-import { AIChatWrapper } from "../components/chat/AIChatWrapper";
-
-const inter = Inter({ subsets: ["latin"], display: 'swap' });
+const poppins = Poppins({
+  weight: ['400', '500', '600', '700'],
+  subsets: ['latin'],
+  variable: '--font-poppins',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
-    title: {
-        template: '%s | Lokals - Trusted Home Services',
-        default: 'Lokals - Book Home Services Instantly',
-    },
-    description: 'Book trusted local professionals for AC repair, cleaning, appliance servcing, and more. Verified pros, upfront pricing, and satisfaction guaranteed.',
-    keywords: ['home services', 'ac repair', 'cleaning', 'electrician', 'plumber', 'gurugram', 'ncr'],
-    metadataBase: new URL('https://thelokals.com'),
-    openGraph: {
-        title: 'Lokals - Trusted Home Services',
-        description: 'Book trusted local professionals instantly.',
-        url: 'https://thelokals.com',
-        siteName: 'Lokals',
-        images: [
-            {
-                url: '/og-image.jpg', // Placeholder
-                width: 1200,
-                height: 630,
-            },
-        ],
-        type: 'website',
-    },
-    twitter: {
-        card: 'summary_large_image',
-        title: 'Lokals - Trusted Home Services',
-        description: 'Book trusted local professionals instantly.',
-    },
-    appleWebApp: {
-        capable: true,
-        statusBarStyle: 'default',
-        title: 'Lokals',
-    },
+  title: "The Lokals - Instant Home Services",
+  description: "Book trusted professionals instantly in Mumbai, Delhi, and Bangalore.",
 };
 
-export const viewport: Viewport = {
-    themeColor: "#ffffff",
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-};
+import { AuthProvider } from "../contexts/AuthContext";
+import { Header } from "../components/layout/Header";
+import { Footer } from "../components/layout/Footer";
 
 export default function RootLayout({
-    children,
+  children,
 }: Readonly<{
-    children: React.ReactNode;
+  children: React.ReactNode;
 }>) {
-    return (
-        <html lang="en">
-            <body className={inter.className}>
-                <AuthProvider>
-                    <BookingProvider>
-                        <LocationProvider>
-                            <main className="min-h-screen relative pb-16 md:pb-0 font-sans antialiased">
-                                {children}
-                            </main>
-                            <AIChatWrapper />
-                            <BottomNav />
-                            <Toaster position="top-center" />
-                        </LocationProvider>
-                    </BookingProvider>
-                </AuthProvider>
-                <Script
-                    id="google-maps"
-                    strategy="afterInteractive"
-                    src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY || ''}&libraries=places,geometry`}
-                />
-            </body>
-        </html>
-    );
+  return (
+    <html lang="en" className={poppins.variable}>
+      <body className="font-sans antialiased bg-bg-primary text-text-primary min-h-screen flex flex-col">
+        <AuthProvider>
+          <Header />
+          <main className="flex-1">
+            {children}
+          </main>
+          <Footer />
+          <Toaster position="bottom-center" toastOptions={{
+            style: {
+              background: '#333',
+              color: '#fff',
+              borderRadius: '12px',
+            }
+          }} />
+        </AuthProvider>
+      </body>
+    </html>
+  );
 }

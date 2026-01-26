@@ -1,64 +1,29 @@
 'use client';
 
+import React from 'react';
+import { useAuth } from '../../hooks/useAuth';
 import { useRouter } from 'next/navigation';
-import { AuthGuard } from '../../components/auth/AuthGuard';
-import { useMyBookings } from '../../hooks/useMyBookings';
-import { StatusCard } from '../../components/v2/StatusCard';
-import { Surface } from '../../components/ui/Wrappers';
-import { Booking } from '@thelocals/platform-core';
 
 export default function BookingsPage() {
+    const { user } = useAuth();
     const router = useRouter();
-    const { bookings, loading } = useMyBookings();
+
+    if (!user) return <div className="p-8 text-center">Please login to view bookings.</div>;
 
     return (
-        <AuthGuard>
-            <div className="min-h-screen bg-neutral-50 pb-24">
-                {/* Header */}
-                <header className="bg-white border-b border-neutral-200 px-6 py-4 sticky top-0 z-30 shadow-sm">
-                    <h1 className="text-xl font-bold text-neutral-900">My Bookings</h1>
-                </header>
+        <div className="min-h-screen bg-gray-50 pb-24 p-4">
+            <h1 className="text-2xl font-bold text-gray-900 mb-6">My Bookings</h1>
 
-                {/* Content */}
-                <main className="p-4 max-w-md mx-auto space-y-4">
-                    {loading ? (
-                        [1, 2, 3].map(i => (
-                            <Surface key={i} className="h-32 animate-pulse bg-gray-200" onClick={() => { }}>
-                                <div />
-                            </Surface>
-                        ))
-                    ) : bookings.length > 0 ? (
-                        bookings.map(booking => (
-                            <Surface key={booking.id} elevated className="!p-0 overflow-hidden" onClick={() => { }}>
-                                <StatusCard
-                                    booking={{
-                                        id: booking.id,
-                                        serviceName: (booking as any).serviceName || (booking as any).service_categories?.name || 'Service',
-                                        status: booking.status === 'PENDING' ? 'assigned' : (booking.status.toLowerCase() as any),
-                                        date: new Date(booking.scheduled_date || booking.created_at).toLocaleDateString(),
-                                        time: new Date(booking.scheduled_date || booking.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                                        imageUrl: '/services/ac.jpg',
-                                        address: (booking as any).address?.formatted || (booking as any).address,
-                                        providerName: booking.worker?.name || (booking as any).providers?.full_name
-                                    }}
-                                    onClick={() => router.push(`/bookings/${booking.id}`)}
-                                />
-                            </Surface>
-                        ))
-                    ) : (
-                        <div className="text-center py-12 text-gray-400">
-                            <div className="text-4xl mb-4">📅</div>
-                            <p>No bookings found.</p>
-                            <button
-                                onClick={() => router.push('/')}
-                                className="mt-4 text-lokals-green font-bold hover:underline"
-                            >
-                                Book a Service
-                            </button>
-                        </div>
-                    )}
-                </main>
+            <div className="space-y-4">
+                {/* Empty State Mock */}
+                <div className="text-center py-12">
+                    <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-4 flex items-center justify-center text-3xl">📅</div>
+                    <p className="text-gray-500 mb-4">No bookings yet.</p>
+                    <button onClick={() => router.push('/')} className="text-lokals-green font-bold hover:underline">Book a Service</button>
+                </div>
+
+                {/* TODO: Add list when backend is connected */}
             </div>
-        </AuthGuard>
+        </div>
     );
 }
