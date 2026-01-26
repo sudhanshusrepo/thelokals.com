@@ -356,6 +356,7 @@ export interface ServiceCategory {
   base_price?: number;
   currency?: string;
   is_enabled?: boolean;
+  is_active?: boolean;
   sort_order?: number;
 }
 
