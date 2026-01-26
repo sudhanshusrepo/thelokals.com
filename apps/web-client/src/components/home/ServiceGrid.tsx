@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ServiceCategory } from '@thelocals/platform-core';
+import { ServiceCategory } from '../../services/publicService'; // Use the local definition
+// import { ServiceCategory } from '@thelocals/platform-core';
 import { Star } from 'lucide-react';
 import { getServiceImage } from '../../lib/images';
 import Link from 'next/link';
@@ -23,7 +24,7 @@ export function ServiceGrid({ categories }: ServiceGridProps) {
     }
 
     return (
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-3 gap-3 md:gap-4">
             {categories.map((cat, idx) => (
                 <Link href={`/services/${cat.id}`} key={cat.id}>
                     <motion.div

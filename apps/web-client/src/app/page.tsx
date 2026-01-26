@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { adminService } from '@thelocals/platform-core/services/adminService';
-import { ServiceCategory } from '@thelocals/platform-core';
+import { publicService, ServiceCategory } from '../services/publicService';
+// import { ServiceCategory } from '@thelocals/platform-core';
 import { HeroSection } from '../components/home/HeroSection';
 import { ServiceGrid } from '../components/home/ServiceGrid';
 import { QuickActions } from '../components/home/QuickActions';
@@ -14,7 +14,7 @@ export default function HomePage() {
   useEffect(() => {
     const load = async () => {
       try {
-        const data = await adminService.getServiceCategories();
+        const data = await publicService.getServiceCategories();
         setCategories(data);
       } catch (e) {
         console.error(e);
@@ -35,12 +35,26 @@ export default function HomePage() {
         <div className="px-4 md:px-0">
           <QuickActions categories={categories} />
 
-          <div className="mb-8">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl md:text-2xl font-bold text-text-primary">Recommended for you</h2>
-              <button className="text-sm font-bold text-lokals-green hover:underline">See All</button>
+          <div className="mb-12">
+            {/* Services Section */}
+            <div className="mb-10">
+              <div className="flex justify-between items-center mb-4 md:mb-6">
+                <h2 className="text-lg md:text-2xl font-bold text-text-primary">Home Services</h2>
+                <button className="text-sm font-bold text-lokals-green hover:underline">See All</button>
+              </div>
+              {/* Filter and show only SERVICES */}
+              <ServiceGrid categories={categories.filter(c => c.type !== 'RENTAL' && !c.name.toLowerCase().includes('rental'))} />
             </div>
-            <ServiceGrid categories={categories} />
+
+            {/* Rentals Section */}
+            <div className="mb-8">
+              <div className="flex justify-between items-center mb-4 md:mb-6">
+                <h2 className="text-lg md:text-2xl font-bold text-text-primary">Rentals</h2>
+                <button className="text-sm font-bold text-lokals-green hover:underline">See All</button>
+              </div>
+              {/* Filter and show only RENTALS */}
+              <ServiceGrid categories={categories.filter(c => c.type === 'RENTAL' || c.name.toLowerCase().includes('rental'))} />
+            </div>
           </div>
 
           <div className="mb-12">

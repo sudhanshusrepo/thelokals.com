@@ -1,0 +1,87 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - link "lokals" [ref=e5] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e6]:
+        - button [ref=e7]:
+          - img [ref=e8]
+        - link [ref=e11] [cursor=pointer]:
+          - /url: /login
+          - img [ref=e13]
+        - button [ref=e16]:
+          - img [ref=e17]
+    - button "Select Location" [ref=e21]:
+      - img [ref=e22]
+      - text: Select Location
+      - img [ref=e25]
+  - main [ref=e27]:
+    - generic [ref=e29]:
+      - generic [ref=e30]:
+        - img "Hero" [ref=e32]
+        - generic [ref=e34]:
+          - generic [ref=e35]: Instant Booking
+          - heading "Expert Help, Arriving Instantly." [level=1] [ref=e36]:
+            - text: Expert Help,
+            - text: Arriving Instantly.
+          - paragraph [ref=e37]: From cleaning to repairs, get trusted professionals at your doorstep in minutes.
+          - button "Explore Services" [ref=e38]:
+            - text: Explore Services
+            - img [ref=e39]
+      - generic [ref=e41]:
+        - generic [ref=e43]:
+          - generic [ref=e45]:
+            - heading "Home Services" [level=2] [ref=e46]
+            - button "See All" [ref=e47]
+          - generic [ref=e55]:
+            - heading "Rentals" [level=2] [ref=e56]
+            - button "See All" [ref=e57]
+        - generic [ref=e65]:
+          - generic [ref=e66]:
+            - heading "Need a vehicle?" [level=3] [ref=e67]
+            - paragraph [ref=e68]: Rent cars & bikes instantly.
+            - button "Browse Rentals" [ref=e69]
+          - generic [ref=e70]: 🚗
+  - contentinfo [ref=e71]:
+    - generic [ref=e72]:
+      - generic [ref=e73]:
+        - generic [ref=e74]:
+          - heading "Company" [level=3] [ref=e75]
+          - list [ref=e76]:
+            - listitem [ref=e77]:
+              - link "About Us" [ref=e78] [cursor=pointer]:
+                - /url: /about
+            - listitem [ref=e79]:
+              - link "Terms" [ref=e80] [cursor=pointer]:
+                - /url: /terms
+            - listitem [ref=e81]:
+              - link "Privacy" [ref=e82] [cursor=pointer]:
+                - /url: /privacy
+        - generic [ref=e83]:
+          - heading "Partner" [level=3] [ref=e84]
+          - list [ref=e85]:
+            - listitem [ref=e86]:
+              - link "Register as Pro" [ref=e87] [cursor=pointer]:
+                - /url: https://www.thelocals.co.in
+      - generic [ref=e88]:
+        - paragraph [ref=e89]: © 2026 The Lokals. All rights reserved.
+        - paragraph [ref=e90]:
+          - text: Made with
+          - img [ref=e91]
+          - text: in India
+  - generic [ref=e97] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e98]:
+      - img [ref=e99]
+    - generic [ref=e102]:
+      - button "Open issues overlay" [ref=e103]:
+        - generic [ref=e104]:
+          - generic [ref=e105]: "0"
+          - generic [ref=e106]: "1"
+        - generic [ref=e107]: Issue
+      - button "Collapse issues badge" [ref=e108]:
+        - img [ref=e109]
+  - alert [ref=e111]
+```

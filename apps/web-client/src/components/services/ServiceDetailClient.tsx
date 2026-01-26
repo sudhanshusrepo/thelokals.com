@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { ServiceCategory } from '@thelocals/platform-core';
+import { ServiceCategory } from '../../services/publicService'; // Use the local definition
+// import { ServiceCategory } from '@thelocals/platform-core';
 import { ArrowLeft, Star, Clock, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { getServiceImage } from '../../lib/images';
