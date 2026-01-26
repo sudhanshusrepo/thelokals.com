@@ -50,10 +50,12 @@ function ProviderAuthContent({ children }: { children: ReactNode }) {
     const verifyOtp = async (confirmationResult: OTPConfirmation, token: string) => {
         const { user: confirmedUser, session } = await confirmationResult.confirm(token);
 
-        if (session) {
-            await supabaseClient.auth.setSession(session);
-            router.refresh();
+        if (!session) {
+            throw new Error('Verification failed: No session created');
         }
+
+        await supabaseClient.auth.setSession(session);
+        // Let the client handle navigation
 
         if (confirmedUser) {
             // Profile refresh is handled by Core

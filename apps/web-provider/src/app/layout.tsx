@@ -32,9 +32,9 @@ export const metadata: Metadata = {
         title: 'Lokals Pro',
     },
     icons: {
-        icon: '/favicon.svg',
-        shortcut: '/favicon.svg',
-        apple: '/favicon.svg',
+        icon: '/favicon.png',
+        shortcut: '/favicon.png',
+        apple: '/apple-icon.png',
     },
 };
 

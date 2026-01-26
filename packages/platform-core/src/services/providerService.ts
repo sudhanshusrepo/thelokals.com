@@ -122,6 +122,26 @@ export const providerService = {
         return data as any;
     },
 
+    /**
+     * Get single job details
+     */
+    async getJobDetails(bookingId: string): Promise<Booking | null> {
+        const { data, error } = await supabase
+            .from('bookings')
+            .select(`
+                *,
+                user:customers (*)
+            `)
+            .eq('id', bookingId)
+            .single();
+
+        if (error) {
+            console.error('Error fetching job details:', error);
+            return null;
+        }
+        return data as any;
+    },
+
     async getRequests(providerId: string): Promise<DbBookingRequest[]> {
         // Uses bookingService's underlying query but types it for Provider use
         const { data, error } = await supabase

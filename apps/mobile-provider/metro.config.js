@@ -3,7 +3,7 @@ const path = require('path');
 
 // Find the project and workspace directories
 const projectRoot = __dirname;
-const workspaceRoot = path.resolve(projectRoot, '../../..');
+const workspaceRoot = path.resolve(projectRoot, '../..');
 
 const config = getDefaultConfig(projectRoot);
 
@@ -20,4 +20,7 @@ config.resolver.nodeModulesPaths = [
 //    at the project root or monorepo root to avoid duplicates.
 config.resolver.disableHierarchicalLookup = true;
 
-module.exports = config;
+const { withNativeWind } = require('nativewind/metro');
+
+// Wrap the config with withNativeWind
+module.exports = withNativeWind(config, { input: './global.css' });

@@ -8,9 +8,9 @@ export * from './types';
 export * from './services/supabase';
 export * from './services/bookingService';
 export * from './services/providerService';
-// export * from './services/workerService'; // Keeping types separate if needed, assuming providerService covers it? No, explicit export is better.
 export * from './services/workerService';
 export * from './services/customerService';
+export * from './schemas/profileSchema';
 export * from './services/paymentService';
 export * from './services/authBridge';
 export * from './services/geoService';
