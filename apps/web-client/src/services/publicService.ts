@@ -49,6 +49,7 @@ export const publicService = {
             const { data, error } = await supabase
                 .from('service_categories')
                 .select('*, service_pricing(base_price, currency)')
+                .eq('is_active', true)
                 .order('name');
 
             if (error || !data || data.length === 0) {

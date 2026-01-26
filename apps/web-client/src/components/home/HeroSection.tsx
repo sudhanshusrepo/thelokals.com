@@ -4,6 +4,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
+import { Button } from '@thelocals/ui-web';
 
 export function HeroSection() {
     return (
@@ -33,9 +34,12 @@ export function HeroSection() {
                     <p className="text-white/80 mb-6 md:mb-8 max-w-sm text-sm md:text-base">
                         From cleaning to repairs, get trusted professionals at your doorstep in minutes.
                     </p>
-                    <button className="px-5 py-2.5 md:px-6 md:py-3 bg-lokals-green text-black font-bold rounded-xl flex items-center gap-2 hover:bg-green-400 transition-colors active:scale-95 text-xs md:text-base w-fit">
+                    <Button
+                        variant="lokalsPrimary"
+                        className="rounded-xl gap-2 active:scale-95 w-fit h-auto py-2.5 px-5 md:py-3 md:px-6 text-xs md:text-base"
+                    >
                         Explore Services <ArrowRight size={16} className="md:w-[18px] md:h-[18px]" />
-                    </button>
+                    </Button>
                 </motion.div>
             </div>
         </section>

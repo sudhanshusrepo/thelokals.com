@@ -610,7 +610,8 @@ export const adminService = {
             name: category.name,
             type: category.type || 'SERVICE', // Default to SERVICE
             description: category.description,
-            image_url: category.image_url || undefined
+            image_url: category.image_url || undefined,
+            is_active: category.is_active
         };
 
         if (category.id) {
