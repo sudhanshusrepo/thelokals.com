@@ -13,6 +13,20 @@ interface ServiceDetailClientProps {
 export function ServiceDetailClient({ service }: ServiceDetailClientProps) {
     const router = useRouter();
 
+    if (!service) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-white">
+                <div className="text-center">
+                    <h2 className="text-xl font-bold text-gray-900 mb-2">Service Not Found</h2>
+                    <p className="text-gray-500 mb-4">The service you are looking for does not exist.</p>
+                    <button onClick={() => router.push('/')} className="px-6 py-2 bg-lokals-green text-black font-bold rounded-lg">
+                        Go Home
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     const handleBook = () => {
         router.push(`/book?category_id=${service.id}`);
     };

@@ -578,16 +578,21 @@ export const adminService = {
      * Get single service category by ID
      */
     async getServiceCategory(id: string): Promise<import('../types').ServiceCategory | null> {
+        if (!id) return null;
+
         const { data, error } = await supabase
             .from('service_categories')
             .select('*, service_pricing(base_price, currency)')
             .eq('id', id)
-            .single();
+            .maybeSingle();
 
         if (error) {
             console.error(`Failed to fetch service category ${id}:`, error);
+            // Don't crash, just return null so UI can handle 404
             return null;
         }
+
+        if (!data) return null;
 
         return {
             ...data,
