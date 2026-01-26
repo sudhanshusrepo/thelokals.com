@@ -3,16 +3,19 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
+import Image from 'next/image';
 
 export function HeroSection() {
     return (
         <section className="relative h-auto md:h-[320px] w-full overflow-hidden rounded-b-3xl md:rounded-3xl bg-black aspect-[4/3] md:aspect-auto">
             {/* Background Image Placeholder */}
             <div className="absolute inset-0 bg-gradient-to-r from-black/90 to-transparent z-10" />
-            <img
+            <Image
                 src="https://images.unsplash.com/photo-1581578731117-104f2a8d275d?q=80&w=1920&auto=format&fit=crop"
                 alt="Hero"
-                className="absolute inset-0 w-full h-full object-cover opacity-60"
+                fill
+                className="object-cover opacity-60"
+                priority
             />
 
             <div className="absolute inset-0 z-20 flex flex-col justify-center px-6 md:px-12 max-w-2xl">

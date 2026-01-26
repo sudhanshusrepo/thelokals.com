@@ -6,6 +6,7 @@ import { ServiceCategory } from '../../services/publicService'; // Use the local
 import { ArrowLeft, Star, Clock, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { getServiceImage } from '../../lib/images';
+import Image from 'next/image';
 
 interface ServiceDetailClientProps {
     service: ServiceCategory;
@@ -36,10 +37,13 @@ export function ServiceDetailClient({ service }: ServiceDetailClientProps) {
         <div className="min-h-screen bg-white pb-24">
             {/* Hero Header */}
             <div className="relative h-[300px] w-full">
-                <img
+                <Image
                     src={getServiceImage(service.name)}
                     alt={service.name}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
+                    priority
+                    sizes="100vw"
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-transparent" />
 

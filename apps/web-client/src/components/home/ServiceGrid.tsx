@@ -7,6 +7,7 @@ import { ServiceCategory } from '../../services/publicService'; // Use the local
 import { Star } from 'lucide-react';
 import { getServiceImage } from '../../lib/images';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface ServiceGridProps {
     categories: ServiceCategory[];
@@ -35,10 +36,12 @@ export function ServiceGrid({ categories }: ServiceGridProps) {
                     >
                         {/* Image */}
                         <div className="absolute inset-0 bg-gray-200">
-                            <img
+                            <Image
                                 src={getServiceImage(cat.name)}
                                 alt={cat.name}
-                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                fill
+                                className="object-cover group-hover:scale-110 transition-transform duration-500"
+                                sizes="(max-width: 768px) 33vw, 20vw"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
                         </div>
