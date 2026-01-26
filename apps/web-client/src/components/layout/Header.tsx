@@ -3,8 +3,10 @@
 import React from 'react';
 import { Search, MapPin, ChevronDown, User, ShoppingBag } from 'lucide-react';
 import Link from 'next/link';
+import { useAuth } from '../../hooks/useAuth';
 
 export function Header() {
+    const { user } = useAuth();
     return (
         <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm transition-all">
             <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between gap-4">
@@ -44,12 +46,21 @@ export function Header() {
                         <Search size={22} />
                     </button>
 
-                    <Link href="/login" className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-lg transition-colors">
-                        <div className="w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full text-gray-600">
-                            <User size={18} />
-                        </div>
-                        <span className="hidden md:block font-medium text-sm text-gray-700">Login</span>
-                    </Link>
+                    {user ? (
+                        <Link href="/profile" className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-lg transition-colors">
+                            <div className="w-8 h-8 flex items-center justify-center bg-lokals-yellow/20 rounded-full text-lokals-yellow font-bold">
+                                {user.email?.[0].toUpperCase() || <User size={18} />}
+                            </div>
+                            <span className="hidden md:block font-medium text-sm text-gray-700">Profile</span>
+                        </Link>
+                    ) : (
+                        <Link href="/login" className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-lg transition-colors">
+                            <div className="w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full text-gray-600">
+                                <User size={18} />
+                            </div>
+                            <span className="hidden md:block font-medium text-sm text-gray-700">Login</span>
+                        </Link>
+                    )}
 
                     <button className="p-2 hover:bg-gray-50 rounded-lg relative transition-colors">
                         <ShoppingBag size={22} className="text-gray-700" />
