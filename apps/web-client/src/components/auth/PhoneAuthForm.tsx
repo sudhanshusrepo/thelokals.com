@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '../../lib/supabase';
 import toast from 'react-hot-toast';
 import { Loader2, ArrowRight } from 'lucide-react';
+import { Button, Input } from '@thelocals/ui-web';
 
 export function PhoneAuthForm() {
     const router = useRouter();
@@ -74,24 +75,24 @@ export function PhoneAuthForm() {
                             <div className="bg-gray-50 border border-gray-200 rounded-xl px-3 py-3 font-medium text-gray-600 flex items-center justify-center select-none">
                                 +91
                             </div>
-                            <input
+                            <Input
                                 type="tel"
                                 value={phone}
                                 onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                                className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 font-medium text-gray-900 focus:outline-none focus:border-lokals-green focus:bg-white transition-colors placeholder:text-gray-300"
+                                className="flex-1 bg-gray-50 border-gray-200 rounded-xl px-4 py-3 font-medium text-gray-900 focus:border-lokals-green focus:bg-white placeholder:text-gray-300 h-12"
                                 placeholder="99999 99999"
                                 autoFocus
                             />
                         </div>
                     </div>
 
-                    <button
+                    <Button
                         type="submit"
                         disabled={loading || phone.length < 10}
-                        className="w-full bg-black text-white rounded-xl py-4 font-bold flex items-center justify-center gap-2 hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
+                        className="w-full bg-black text-white rounded-xl py-6 font-bold hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98] h-12"
                     >
                         {loading ? <Loader2 className="animate-spin" /> : <>Continue <ArrowRight size={18} /></>}
-                    </button>
+                    </Button>
 
                     <p className="text-xs text-center text-gray-400 mt-4">
                         By continuing you agree to our Terms & Privacy Policy.
@@ -106,24 +107,25 @@ export function PhoneAuthForm() {
 
                     <div>
                         <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">One Time Password</label>
-                        <input
+                        <Input
                             type="text"
                             value={otp}
                             onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 font-bold text-center text-2xl tracking-[0.5em] text-gray-900 focus:outline-none focus:border-lokals-green focus:bg-white transition-colors placeholder:text-gray-300"
+                            className="w-full bg-gray-50 border-gray-200 rounded-xl px-4 py-3 font-bold text-center text-2xl tracking-[0.5em] text-gray-900 focus:border-lokals-green focus:bg-white placeholder:text-gray-300 h-14"
                             placeholder="000000"
                             autoFocus
                             maxLength={6}
                         />
                     </div>
 
-                    <button
+                    <Button
                         type="submit"
                         disabled={loading || otp.length !== 6}
-                        className="w-full bg-lokals-green text-black rounded-xl py-4 font-bold flex items-center justify-center gap-2 hover:bg-green-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg active:scale-[0.98]"
+                        variant="lokalsPrimary"
+                        className="w-full rounded-xl py-6 font-bold hover:bg-green-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg active:scale-[0.98] h-12"
                     >
                         {loading ? <Loader2 className="animate-spin" /> : 'Verify & Login'}
-                    </button>
+                    </Button>
                 </form>
             )}
         </div>

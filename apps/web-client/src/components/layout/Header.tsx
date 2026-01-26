@@ -4,6 +4,7 @@ import React from 'react';
 import { Search, MapPin, ChevronDown, User, ShoppingBag } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '../../hooks/useAuth';
+import { Button, Input } from '@thelocals/ui-web';
 
 export function Header() {
     const { user } = useAuth();
@@ -29,10 +30,10 @@ export function Header() {
                 {/* Search Bar (Zepto Style) */}
                 <div className="flex-1 max-w-2xl px-4 hidden md:block">
                     <div className="relative group">
-                        <input
+                        <Input
                             type="text"
                             placeholder="Search for 'ac repair', 'cleaning'..."
-                            className="w-full pl-11 pr-4 py-2.5 bg-gray-100 border border-transparent rounded-xl text-sm focus:outline-none focus:bg-white focus:border-lokals-green focus:ring-4 focus:ring-green-50 transition-all font-medium placeholder:text-gray-400"
+                            className="bg-gray-100 border-transparent rounded-xl text-sm pl-11 focus:bg-white focus:border-lokals-green focus:ring-4 focus:ring-green-50"
                         />
                         <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-lokals-green transition-colors" />
                     </div>
