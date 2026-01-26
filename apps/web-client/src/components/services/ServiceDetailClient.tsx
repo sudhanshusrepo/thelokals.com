@@ -4,6 +4,7 @@ import React from 'react';
 import { ServiceCategory } from '@thelocals/platform-core';
 import { ArrowLeft, Star, Clock, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { getServiceImage } from '../../lib/images';
 
 interface ServiceDetailClientProps {
     service: ServiceCategory;
@@ -21,7 +22,7 @@ export function ServiceDetailClient({ service }: ServiceDetailClientProps) {
             {/* Hero Header */}
             <div className="relative h-[300px] w-full">
                 <img
-                    src={`https://source.unsplash.com/random/800x600?${service.name}`}
+                    src={getServiceImage(service.name)}
                     alt={service.name}
                     className="w-full h-full object-cover"
                 />

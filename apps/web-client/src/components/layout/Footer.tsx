@@ -20,7 +20,7 @@ export function Footer() {
                     <div>
                         <h3 className="font-bold text-gray-900 mb-4">Partner</h3>
                         <ul className="space-y-2 text-sm text-gray-500">
-                            <li><Link href="/partner" className="hover:text-lokals-green">Register as Pro</Link></li>
+                            <li><a href="https://www.thelocals.co.in" target="_blank" rel="noopener noreferrer" className="hover:text-lokals-green">Register as Pro</a></li>
                         </ul>
                     </div>
                 </div>

@@ -4,6 +4,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { ServiceCategory } from '@thelocals/platform-core';
 import { Star } from 'lucide-react';
+import { getServiceImage } from '../../lib/images';
 import Link from 'next/link';
 
 interface ServiceGridProps {
@@ -34,7 +35,7 @@ export function ServiceGrid({ categories }: ServiceGridProps) {
                         {/* Image */}
                         <div className="absolute inset-0 bg-gray-200">
                             <img
-                                src={`https://source.unsplash.com/random/400x600?${cat.name}`}
+                                src={getServiceImage(cat.name)}
                                 alt={cat.name}
                                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                             />
