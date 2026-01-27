@@ -1,0 +1,7 @@
+name = "thelokals-edge-api"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+[vars]
+SUPABASE_URL = "https://gdnltvvxiychrsdzenia.supabase.co"
+SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdkbmx0dnZ4aXljaHJzZHplbmlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MjM2NzIsImV4cCI6MjA3OTM5OTY3Mn0.LKYscrC9N4320dv0KimqqS83WKHJXQgN5Hyinw2Rua8"

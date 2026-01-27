@@ -70,4 +70,9 @@ export const CONFIG = {
         (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_ENABLE_OTP_BYPASS === 'true') ||
         (typeof process !== 'undefined' && process.env?.VITE_ENABLE_OTP_BYPASS === 'true') ||
         safeEnv('EXPO_PUBLIC_ENABLE_OTP_BYPASS') === 'true',
+
+    EDGE_API_URL:
+        (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_EDGE_API_URL) ||
+        (typeof process !== 'undefined' && process.env?.VITE_EDGE_API_URL) ||
+        safeEnv('EXPO_PUBLIC_EDGE_API_URL') || '',
 };

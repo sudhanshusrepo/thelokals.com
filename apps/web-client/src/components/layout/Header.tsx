@@ -50,7 +50,7 @@ export function Header() {
                     {user ? (
                         <Link href="/profile" className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-lg transition-colors">
                             <div className="w-8 h-8 flex items-center justify-center bg-lokals-yellow/20 rounded-full text-lokals-yellow font-bold">
-                                {user.email?.[0].toUpperCase() || <User size={18} />}
+                                {user?.email && user.email[0] ? user.email[0].toUpperCase() : <User size={18} />}
                             </div>
                             <span className="hidden md:block font-medium text-sm text-gray-700">Profile</span>
                         </Link>

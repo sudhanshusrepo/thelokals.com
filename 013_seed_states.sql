@@ -1,0 +1,32 @@
+-- 013_seed_states.sql
+BEGIN;
+INSERT INTO public.states (id, name, code) VALUES
+('d641498c-c314-42d6-b68e-27d9e0c0213a', 'ANDHRA PRADESH', 'AP'),
+('f6d2e935-d5ba-46d2-9677-7d115caa8345', 'ARUNACHAL PRADESH', 'AR'),
+('1d35697b-5c16-40f2-96ab-fcc0bcca87a1', 'ASSAM', 'AS'),
+('54e3b98c-0482-4444-a726-413462a7bdaa', 'BIHAR', 'BR'),
+('96009314-e18e-4289-b2fe-c6a37b6cdc7f', 'CHHATTISGARH', 'CG'),
+('6498e4d5-5af2-48ef-9e56-ef0fd855fa50', 'DELHI', 'DL'),
+('5195e637-dd58-4d82-a26d-5a18cdfc678a', 'GOA', 'GA'),
+('e5d3ebd2-6415-4e85-bb73-ecbe2022db01', 'GUJARAT', 'GJ'),
+('965f6068-031e-4cc3-b320-07a3d5b5aa19', 'HARYANA', 'HR'),
+('42663b78-5d31-4102-85a2-cfec4c90ee6a', 'HIMACHAL PRADESH', 'HP'),
+('4fc891a1-298d-494c-af46-407d51d80937', 'JAMMU AND KASHMIR', 'JK'),
+('be6ccc46-e93b-4b4a-b668-0d454d37d620', 'JHARKHAND', 'JH'),
+('eb34cbed-3231-4293-b785-80db33085fdf', 'KARNATAKA', 'KA'),
+('780bacef-434b-4e2a-85c7-26850f042392', 'KERALA', 'KL'),
+('e86989ea-b45f-468a-a52d-5f7fc73cbf26', 'MADHYA PRADESH', 'MP'),
+('64e42e0c-34ce-4c0b-a331-836c9e509447', 'MAHARASHTRA', 'MH'),
+('addf50b2-126d-4d82-8d07-4101b69e85d6', 'MEGHALAYA', 'ML'),
+('a9ec7e55-e3c7-4fa5-9dc5-24dc9d798bb0', 'NORTH 1', 'NO'),
+('261660c6-f909-45b1-a62a-44637d4f3a47', 'ODISHA', 'OD'),
+('854c4a6c-9a7e-4b5b-ae11-fe4412f8eece', 'PUNJAB', 'PB'),
+('affc6bc0-1d9f-4f09-89c2-42f44fb5a599', 'RAJASTHAN', 'RJ'),
+('fe64b529-3471-4439-8f52-8e7b70b9a938', 'TAMIL NADU', 'TN'),
+('5084747b-2e90-4da3-8bc1-c8e54d6ac1ef', 'TELANGANA', 'TG'),
+('00ab50e6-b7eb-4061-893a-b8c9b0e1cff0', 'TRIPURA', 'TR'),
+('2543a1f6-3889-42fa-8b12-a9278632cd43', 'UTTAR PRADESH', 'UP'),
+('0eccb689-c586-4dd1-8ea3-02f32757929f', 'UTTARAKHAND', 'UK'),
+('801eeceb-7efc-4c2b-93f0-bdfe269b065d', 'WEST BENGAL', 'WB')
+ON CONFLICT (code) DO NOTHING;
+COMMIT;
