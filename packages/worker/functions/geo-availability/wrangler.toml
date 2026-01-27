@@ -4,7 +4,7 @@ main = "index.js"
 compatability_date = "2024-01-01"
 
 [vars]
-SUPABASE_URL = "https://gdnltvvxiychrsdzenia.supabase.co"
+SUPABASE_URL = "your-supabase-url"
 # SUPABASE_SERVICE_ROLE_KEY will be set via secrets in production
 
 [[kv_namespaces]]
