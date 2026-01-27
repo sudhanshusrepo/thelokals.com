@@ -1,13 +1,12 @@
 
 name = "geo-availability"
 main = "index.js"
-compatability_date = "2024-01-01"
+compatibility_date = "2024-01-01"
 
 [vars]
-SUPABASE_URL = "your-supabase-url"
+SUPABASE_URL = "https://gdnltvvxiychrsdzenia.supabase.co"
 # SUPABASE_SERVICE_ROLE_KEY will be set via secrets in production
 
 [[kv_namespaces]]
 binding = "KV"
-id = "<KV_NAMESPACE_ID>"
-preview_id = "<KV_PREVIEW_ID>"
+id = "2503890d95864c4a97c56b554716fead"

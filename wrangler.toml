@@ -7,6 +7,6 @@ pages_build_output_dir = "dist"
 # Update these values to match your Supabase project settings.
 # For secrets, use 'wrangler pages secret put' or the Dashboard (if they don't get overwritten).
 [vars]
-NEXT_PUBLIC_SUPABASE_URL = "your-supabase-url"
-NEXT_PUBLIC_SUPABASE_ANON_KEY = "your-anon-key"
+NEXT_PUBLIC_SUPABASE_URL = "https://placeholder.supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY = "placeholder-key"
 NODE_VERSION = "20"
