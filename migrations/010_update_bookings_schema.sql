@@ -2,7 +2,7 @@
 -- Add missing columns to bookings table for Live Booking and AI Booking support
 
 ALTER TABLE bookings
-ADD COLUMN IF NOT EXISTS booking_type VARCHAR(50) DEFAULT 'SCHEDULED', -- 'LIVE', 'AI_ENHANCED', 'SCHEDULED'
+ADD COLUMN IF NOT EXISTS booking_type VARCHAR(50) DEFAULT 'LIVE', -- 'LIVE', 'AI_ENHANCED', 'SCHEDULED'
 ADD COLUMN IF NOT EXISTS service_category_id UUID, -- References service_categories(id) logically
 ADD COLUMN IF NOT EXISTS service_item_id UUID,     -- References service_items(id) logically
 ADD COLUMN IF NOT EXISTS requirements JSONB DEFAULT '{}'::jsonb,

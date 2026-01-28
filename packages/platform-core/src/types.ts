@@ -128,7 +128,7 @@ export interface Booking {
   provider_id?: string;
   service_category: string;
   service_category_id?: string; // New field
-  booking_type: BookingType;
+  booking_type: BookingType; // Defaults to 'LIVE'
   delivery_mode?: 'LOCAL' | 'ONLINE'; // New field
   status: BookingStatus;
   requirements?: Record<string, unknown>;
