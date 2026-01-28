@@ -6,7 +6,7 @@ import { Map, Marker } from '@vis.gl/react-google-maps';
 import { ArrowLeft, MapPin, Clock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '@thelocals/platform-core';
 
 interface LiveBookingHubProps {
     serviceCategory: ServiceCategory;

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '@thelocals/platform-core';
 import { LogOut, Settings, MapPin, CreditCard, Shield, ChevronRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 

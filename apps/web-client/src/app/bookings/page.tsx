@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '@thelocals/platform-core';
 import { useRouter } from 'next/navigation';
 
 export default function BookingsPage() {
