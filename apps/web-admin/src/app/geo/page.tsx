@@ -16,7 +16,7 @@ export default function GeoPage() {
     const onSelectPincode = (value: string, node: any) => {
         // AntD TreeSelect onSelect provides (value, node object)
         // We need to parse or ensure node has the data we need
-        console.log('Selected:', value, node);
+
         setSelectedNode({
             value: node.value,
             title: node.title,

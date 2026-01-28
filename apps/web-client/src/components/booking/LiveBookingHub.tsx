@@ -74,7 +74,7 @@ export default function LiveBookingHub({ serviceCategory }: LiveBookingHubProps)
             // but here we just leave it for the flow lifetime.
 
         } catch (error: any) {
-            console.error(error);
+
             toast.error(error.message || "Failed to start booking");
             setStep('DRAFT');
         }
@@ -85,7 +85,6 @@ export default function LiveBookingHub({ serviceCategory }: LiveBookingHubProps)
             <SearchingRadar
                 serviceName={serviceCategory.name}
                 onCancel={() => {
-                    // Implement cancellation
                     setStep('DRAFT');
                 }}
             />

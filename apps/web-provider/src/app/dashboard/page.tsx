@@ -56,13 +56,10 @@ export default function Dashboard() {
     useEffect(() => {
         if (!user?.id) return;
 
-        console.log("Subscribing to requests for provider:", user.id);
         const channel = liveBookingService.subscribeToProviderRequests(user.id, (payload) => {
-            console.log("New Request Received:", payload);
             if (payload.eventType === 'INSERT') {
-                // Fetch full details (optional, or rely on payload if rich enough. 
-                // Payload is usually just the record. Ideally we fetch the booking details.)
-                // For speed, let's just use what we have and maybe fetch extra async
+                // Fetch full details
+
                 const req = payload.new as DbBookingRequest;
 
                 // Quick fetch to get booking details to show in modal

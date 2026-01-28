@@ -83,7 +83,7 @@ export function Header() {
 
                         <Link href="/cart" className="p-2 hover:bg-gray-50 rounded-lg relative transition-colors block">
                             <ShoppingBag size={22} className="text-gray-700" />
-                            {/* <span className="absolute top-1 right-1 w-2 h-2 bg-lokals-red rounded-full ring-1 ring-white"></span> */}
+
                         </Link>
                     </div>
 
@@ -120,12 +120,8 @@ export function Header() {
                         <LocationSelector
                             location={location}
                             onChange={(newLoc) => {
-                                // In a real app we'd save this to context/storage
-                                // For now, we rely on the component's internal state or reload
-                                // But since useUserLocation is SWR-like, we might need to force update or just reload
                                 setIsLocationModalOpen(false);
-                                // reload to re-fetch location or just let it be if we had a global context setter
-                                // Assuming reload for "Select Location" on landing page is acceptable for this sprint MVP
+                                window.location.reload();
                             }}
                             showMap={true}
                         />

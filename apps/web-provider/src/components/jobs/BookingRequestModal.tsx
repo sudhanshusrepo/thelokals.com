@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { X, MapPin, Clock, ArrowRight } from 'lucide-react';
-import { Dialog, DialogContent } from '../ui/dialog'; // Assuming we have or create a Dialog equivalent, or use simple fixed div for now
+
 import { LiveBooking, liveBookingService } from '@thelocals/platform-core';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
@@ -40,7 +40,7 @@ export function BookingRequestModal({ request, onClose, onAccepted }: BookingReq
             onAccepted();
             router.push(`/jobs/${request.booking_id}`);
         } catch (error: any) {
-            console.error(error);
+
             toast.error("Failed to accept job. It may have been taken.");
             onClose();
         } finally {

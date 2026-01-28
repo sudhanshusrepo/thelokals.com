@@ -27,7 +27,7 @@ export default function JobDetailsPage() {
             if (error) throw error;
             setBooking(data);
         } catch (error) {
-            console.error(error);
+
             toast.error("Failed to load job details");
         } finally {
             setLoading(false);
@@ -43,7 +43,7 @@ export default function JobDetailsPage() {
                     const { latitude, longitude } = pos.coords;
                     liveBookingService.broadcastProviderLocation(bookingId, { lat: latitude, lng: longitude });
                 },
-                (err) => console.error(err),
+                (err) => { },
                 { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
             );
         }
@@ -194,4 +194,4 @@ export default function JobDetailsPage() {
     );
 }
 
-// Need to ensure updateBookingStatus and getBookingById exist in service/index
+
