@@ -6,7 +6,8 @@ import { Map, Marker } from '@vis.gl/react-google-maps';
 import { ArrowLeft, MapPin, Clock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { useAuth } from '@thelocals/platform-core';
+import { useAuth, liveBookingService, LiveBooking } from '@thelocals/platform-core';
+import { SearchingRadar } from './SearchingRadar';
 
 interface LiveBookingHubProps {
     serviceCategory: ServiceCategory;
@@ -30,28 +31,64 @@ export default function LiveBookingHub({ serviceCategory }: LiveBookingHubProps)
     const [step, setStep] = useState<'DRAFT' | 'SEARCHING' | 'CONFIRMED'>('DRAFT');
     const [bookingDate, setBookingDate] = useState(new Date().toISOString().split('T')[0]);
 
-    const handleConfirm = () => {
+    const [currentBooking, setCurrentBooking] = useState<LiveBooking | null>(null);
+
+    const handleConfirm = async () => {
         if (!user) {
             toast.error("Please login to continue");
             router.push(`/login?redirect=/book?category_id=${serviceCategory.id}`);
             return;
         }
 
-        setStep('SEARCHING');
-        // Simulate finding provider
-        setTimeout(() => {
-            setStep('CONFIRMED');
-            toast.success("Provider Assigned!");
-        }, 3000);
+        try {
+            setStep('SEARCHING');
+
+            // 1. Create Booking
+            const booking = await liveBookingService.createLiveBooking({
+                clientId: user.id,
+                serviceId: serviceCategory.id,
+                requirements: {
+                    location: { lat: 19.0760, lng: 72.8777 }, // Using mock/center for now, ideally user location
+                    date: bookingDate
+                }
+            });
+            setCurrentBooking(booking);
+
+            // 2. Start Searching (Find & Request Providers)
+            await liveBookingService.startSearching(booking);
+
+            // 3. Subscribe to updates
+            const channel = liveBookingService.subscribeToBookingUpdates(
+                booking.id,
+                (payload) => {
+                    const newRecord = payload.new as any;
+                    const newStatus = newRecord.status;
+                    if (newStatus === 'CONFIRMED' || newStatus === 'EN_ROUTE') {
+                        setStep('CONFIRMED');
+                        toast.success("Provider Found!");
+                    }
+                }
+            );
+
+            // Cleanup subscription on unmount handled by useEffect usually, 
+            // but here we just leave it for the flow lifetime.
+
+        } catch (error: any) {
+            console.error(error);
+            toast.error(error.message || "Failed to start booking");
+            setStep('DRAFT');
+        }
     };
 
     if (step === 'SEARCHING') {
         return (
-            <div className="h-screen w-full flex flex-col items-center justify-center bg-black/90 text-white p-4 text-center">
-                <div className="w-24 h-24 border-4 border-lokals-green border-t-transparent rounded-full animate-spin mb-6" />
-                <h2 className="text-2xl font-bold mb-2">Finding nearby {serviceCategory.name} experts...</h2>
-                <p className="text-white/60">Please wait while we connect you with the best rated pros.</p>
-            </div>
+            <SearchingRadar
+                serviceName={serviceCategory.name}
+                onCancel={() => {
+                    // Implement cancellation
+                    setStep('DRAFT');
+                }}
+            />
         );
     }
 

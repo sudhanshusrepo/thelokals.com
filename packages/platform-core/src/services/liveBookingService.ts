@@ -92,6 +92,22 @@ export const liveBookingService = {
   },
 
   /**
+   * Orchestrates the search: Finds providers and sends requests.
+   */
+  async startSearching(booking: LiveBooking): Promise<void> {
+    // 1. Find Nearby
+    const providers = await this.findNearbyProviders(booking);
+    if (!providers || providers.length === 0) {
+       throw new Error("No nearby providers found");
+    }
+
+    const providerIds = providers.map(p => p.provider_id);
+
+    // 2. Create Requests
+    await this.createBookingRequests(booking.id, providerIds);
+  },
+
+  /**
    * Sends notifications to a list of providers.
    * This is a placeholder for the actual FCM implementation.
    * @param {string[]} providerIds - A list of provider IDs to send notifications to.
