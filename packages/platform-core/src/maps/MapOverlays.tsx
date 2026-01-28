@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useGoogleMap } from './GoogleMapProvider';
+import { useGoogleMap, Marker as GoogleMapMarker } from '@react-google-maps/api';
 
 // Compatible Interfaces
 interface MarkerProps {

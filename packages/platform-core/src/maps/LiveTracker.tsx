@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useGoogleMap } from './GoogleMapProvider';
+import { useGoogleMap } from '@react-google-maps/api';
 
 interface LiveTrackerProps {
     from: google.maps.LatLngLiteral;

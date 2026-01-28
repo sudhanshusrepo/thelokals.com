@@ -14,6 +14,7 @@ export * from './schemas/profileSchema';
 export * from './services/paymentService';
 export * from './services/authBridge';
 export * from './services/geoService';
+export * from './services/serviceAvailability';
 export * from './services/geminiService';
 export * from './services/adminService';
 export * from './services/liveBookingService';
@@ -46,7 +47,10 @@ export { ErrorFallback } from './components/ErrorFallback';
 export { logger } from './services/logger';
 
 // Maps (Phase 11)
-export * from './maps/LocationHooks';
+export * from './maps/types/map';
+export * from './maps/useUserLocation';
+export * from './maps/LocationSelector';
+export * from './maps/LocationPermissionModal';
 export * from './maps/GoogleMapProvider';
 export * from './maps/ProviderCircle';
 export * from './maps/LiveTracker';

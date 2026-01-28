@@ -18,6 +18,7 @@ export const metadata: Metadata = {
 import { AuthProvider } from "../contexts/AuthContext";
 import { Header } from "../components/layout/Header";
 import { Footer } from "../components/layout/Footer";
+import { GoogleMapProvider } from "@thelocals/platform-core";
 
 export default function RootLayout({
   children,
@@ -28,18 +29,20 @@ export default function RootLayout({
     <html lang="en" className={poppins.variable}>
       <body className="font-sans antialiased bg-bg-primary text-text-primary min-h-screen flex flex-col">
         <AuthProvider>
-          <Header />
-          <main className="flex-1">
-            {children}
-          </main>
-          <Footer />
-          <Toaster position="bottom-center" toastOptions={{
-            style: {
-              background: '#333',
-              color: '#fff',
-              borderRadius: '12px',
-            }
-          }} />
+          <GoogleMapProvider>
+            <Header />
+            <main className="flex-1">
+              {children}
+            </main>
+            <Footer />
+            <Toaster position="bottom-center" toastOptions={{
+              style: {
+                background: '#333',
+                color: '#fff',
+                borderRadius: '12px',
+              }
+            }} />
+          </GoogleMapProvider>
         </AuthProvider>
       </body>
     </html>

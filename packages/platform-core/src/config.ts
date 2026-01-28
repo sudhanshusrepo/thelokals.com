@@ -53,6 +53,7 @@ export const CONFIG = {
 
 
     GOOGLE_MAPS_KEY:
+        (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_GOOGLE_MAPS_KEY) ||
         (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY) ||
         (typeof process !== 'undefined' && process.env?.VITE_GOOGLE_MAPS_API_KEY) ||
         safeEnv('EXPO_PUBLIC_GOOGLE_MAPS_API_KEY') || '',

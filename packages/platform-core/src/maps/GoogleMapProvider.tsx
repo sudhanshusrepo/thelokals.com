@@ -1,88 +1,31 @@
+
 'use client';
 
-import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
-import { MAP_STYLES_LOKALS } from './mapStyles';
+import React, { ReactNode } from 'react';
+import { useJsApiLoader, useGoogleMap } from '@react-google-maps/api';
 
-const GoogleMapContext = createContext<google.maps.Map | null>(null);
+export { useGoogleMap };
 
-export const useGoogleMap = () => useContext(GoogleMapContext);
+const GOOGLE_MAPS_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY || '';
+const LIBRARIES: ('places' | 'geometry')[] = ['places', 'geometry'];
 
-const containerStyleDefault = { width: '100%', height: '100%' };
-const centerDefault = { lat: 19.0760, lng: 72.8777 }; // Mumbai
-
-interface MapProviderProps {
-    center?: google.maps.LatLngLiteral;
-    zoom?: number;
-    children?: React.ReactNode;
-    className?: string;
-    style?: React.CSSProperties;
-    onClick?: (e: google.maps.MapMouseEvent) => void;
-    onLoad?: (map: google.maps.Map) => void;
-    options?: google.maps.MapOptions;
+interface GoogleMapProviderProps {
+    children: ReactNode;
 }
 
-export const GoogleMapProvider: React.FC<MapProviderProps> = ({
-    center = centerDefault,
-    zoom = 13,
-    children,
-    className,
-    style,
-    onClick,
-    onLoad,
-    options
-}) => {
-    const mapRef = useRef<HTMLDivElement>(null);
-    const [map, setMap] = useState<google.maps.Map | null>(null);
+export function GoogleMapProvider({ children }: GoogleMapProviderProps) {
+    const { isLoaded, loadError } = useJsApiLoader({
+        id: 'google-map-script',
+        googleMapsApiKey: GOOGLE_MAPS_KEY,
+        libraries: LIBRARIES
+    });
 
-    // Initialize Map
-    useEffect(() => {
-        if (!mapRef.current) return;
-        if (typeof google === 'undefined') return;
+    if (loadError) {
+        return <div>Map cannot be loaded right now, sorry.</div>;
+    }
 
-        if (!map) {
-            const mapInstance = new google.maps.Map(mapRef.current, {
-                center,
-                zoom,
-                styles: MAP_STYLES_LOKALS,
-                disableDefaultUI: true,
-                gestureHandling: 'greedy',
-                ...options
-            });
-
-            setMap(mapInstance);
-            if (onLoad) onLoad(mapInstance);
-
-            if (onClick) {
-                mapInstance.addListener("click", onClick);
-            }
-        }
-    }, [mapRef, map, onLoad, onClick, options]);
-
-    // Update Props
-    useEffect(() => {
-        if (map && center) {
-            map.panTo(center);
-        }
-    }, [center, map]);
-
-    useEffect(() => {
-        if (map && zoom) {
-            map.setZoom(zoom);
-        }
-    }, [zoom, map]);
-
-    return (
-        <GoogleMapContext.Provider value={map}>
-            <div
-                ref={mapRef}
-                style={style || containerStyleDefault}
-                className={className}
-            >
-                {/* Map is rendered in this div */}
-            </div>
-            {/* Children rendered within context but outside map div DOM (React Portal style or just Context access) */}
-            {map && children}
-        </GoogleMapContext.Provider>
-    );
-};
-
+    // We don't block rendering on isLoaded because child components (LocationSelector) use useJsApiLoader internally/redundantly safely 
+    // OR we can block if we want to ensure maps is ready globally.
+    // For now, we render children as they might be doing other things (loading skeleton)
+    return <>{children}</>;
+}

@@ -15,6 +15,27 @@ import { useState } from 'react';
 import { JobDetailSheet } from '../../components/JobDetailSheet';
 import { Booking } from "@thelocals/platform-core";
 import { StatusToggle } from '../../components/StatusToggle';
+import { useUserLocation } from '@thelocals/platform-core';
+import { useGeoFilteredServices } from '@thelocals/platform-core/src/services/serviceAvailability';
+
+function DashboardLocationBanner() {
+    const { location } = useUserLocation();
+    const enabledServicesQuery = useGeoFilteredServices(location);
+    const activeCount = enabledServicesQuery.filter((q: any) => q.data?.is_enabled).length;
+
+    if (!location) return null;
+
+    return (
+        <div className="mb-6 p-4 bg-gradient-to-r from-teal-500 to-blue-500 rounded-lg text-white shadow-md">
+            <h2 className="text-lg font-bold flex items-center gap-2">
+                📍 Your Location: {location?.address || 'Detecting...'}
+            </h2>
+            <p className="text-sm opacity-90 mt-1">
+                Pincode <b>{location?.pincode}</b> — {activeCount} services active in this area.
+            </p>
+        </div>
+    );
+}
 
 export default function Dashboard() {
     const { profile, user } = useAuth();
@@ -49,6 +70,9 @@ export default function Dashboard() {
                     <StatusToggle />
                 </div>
             </div>
+
+            {/* Location Banner (New Sprint 11) */}
+            <DashboardLocationBanner />
 
             {loading ? (
                 <div className="space-y-6">
