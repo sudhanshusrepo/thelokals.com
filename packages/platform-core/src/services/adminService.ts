@@ -1,4 +1,13 @@
 import { supabase } from './supabase';
+
+const SERVICE_NAME_TO_CODE: Record<string, string> = {
+    'Plumbing': 'PLUMBING',
+    'Home Cleaning': 'CLEANING',
+    'Electrician': 'ELECTRICIAN',
+    'Painting': 'PAINTING',
+    'Driving': 'DRIVER',
+    'Cooking': 'COOK'
+};
 import { AdminRole, AdminUser, ServiceAvailability, ActiveSession, AdminAuditLog } from '../types';
 
 // Removed local AdminUser/AdminRole/ServiceAvailability definitions to use shared types
@@ -738,34 +747,117 @@ export const adminService = {
         if (error) throw new Error(`Failed to save service pricing: ${error.message}`);
     },
 
-    // ============ Service Locations (City-Based Availability) ============
+    // ============ Geo Helpers ============
+
+    async getCityId(cityName: string): Promise<string | null> {
+        const { data } = await supabase.from('cities').select('id').ilike('name', cityName).maybeSingle();
+        return data?.id || null;
+    },
+
+    async getServiceIdByCode(code: string): Promise<string | null> {
+        const { data } = await supabase.from('services').select('id').eq('code', code).maybeSingle();
+        return data?.id || null;
+    },
+
+    // ============ Service Locations (Bridge to Service Availability) ============
 
     /**
      * Get service locations filtered by city
      */
     async getServiceLocations(city?: string): Promise<import('../types').ServiceLocation[]> {
-        let query = supabase
-            .from('services_locations')
-            .select('*');
+        if (!city) return [];
 
-        if (city) {
-            query = query.eq('city', city);
+        try {
+            // 1. Get City ID
+            const cityId = await this.getCityId(city);
+            if (!cityId) return [];
+
+            // 2. Get All Service Categories (Legacy Source of Truth for UI)
+            const categories = await this.getServiceCategories();
+
+            // 3. Get Availability Rules for this City
+            const { data: rules } = await supabase
+                .from('service_availability')
+                .select('*, services(code)')
+                .eq('scope_type', 'CITY')
+                .eq('scope_id', cityId);
+
+            // 4. Map Rules back to Legacy ServiceLocation format for UI
+            const locations: import('../types').ServiceLocation[] = [];
+
+            for (const cat of categories) {
+                const code = SERVICE_NAME_TO_CODE[cat.name];
+                if (!code) continue; // Skip unmapped services
+
+                // Find rule matching this service code
+                const rule = rules?.find((r: any) => r.services?.code === code);
+                
+                if (rule) {
+                    locations.push({
+                        id: rule.id,
+                        service_category_id: cat.id, // Bridge ID
+                        city: city,
+                        is_active: rule.is_enabled,
+                        created_at: rule.created_at,
+                        updated_at: rule.created_at
+                    });
+                }
+            }
+
+            return locations;
+        } catch (error) {
+            console.error('Error fetching service locations:', error);
+            return [];
         }
-
-        const { data, error } = await query;
-        if (error) throw new Error(`Failed to fetch service locations: ${error.message}`);
-        return data || [];
     },
 
     /**
      * Upsert a service location configuration
      */
     async upsertServiceLocation(location: Partial<import('../types').ServiceLocation>): Promise<void> {
-        const { error } = await supabase
-            .from('services_locations')
-            .upsert(location, { onConflict: 'service_category_id, location_name' });
+        // This is a complex bridge operation
+        // 1. We receive service_category_id + city + is_active
+        // 2. We need to find the Service CODE from Category
+        // 3. We need to find Service ID from CODE
+        // 4. We need to find City ID from Name
+        // 5. We need to UPSERT into service_availability
 
-        if (error) throw new Error(`Failed to save service location: ${error.message}`);
+        if (!location.service_category_id || !location.city) {
+            throw new Error("Missing required fields for location update");
+        }
+
+        try {
+            // 1. Get Category Name to find Code
+            const category = await this.getServiceCategory(location.service_category_id);
+            if (!category) throw new Error("Category not found");
+
+            const code = SERVICE_NAME_TO_CODE[category.name];
+            if (!code) throw new Error(`Service '${category.name}' is not mapped to a system code.`);
+
+            // 2. Get Service ID (New System)
+            const serviceId = await this.getServiceIdByCode(code);
+            if (!serviceId) throw new Error(`System service not found for code ${code}`);
+
+            // 3. Get City ID
+            const cityId = await this.getCityId(location.city);
+            if (!cityId) throw new Error(`City '${location.city}' not found in database.`);
+
+            // 4. Upsert Availability
+            const { error } = await supabase
+                .from('service_availability')
+                .upsert({
+                    service_id: serviceId,
+                    scope_type: 'CITY',
+                    scope_id: cityId,
+                    is_enabled: location.is_active,
+                    priority: 2 // CITY Priority
+                }, { onConflict: 'service_id, scope_type, scope_id' });
+
+            if (error) throw error;
+
+        } catch (error: any) {
+            throw new Error(`Failed to update service availability: ${error.message}`);
+        }
     },
 
     // ============ Booking Management ============
