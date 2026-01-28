@@ -58,3 +58,4 @@ export * from './maps/MapOverlays';
 export * from './maps/MapSkeleton';
 export * from './maps/MapError';
 export * from './maps/mapStyles';
+export * from './maps/LocationHooks';

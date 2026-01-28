@@ -16,7 +16,7 @@ import { JobDetailSheet } from '../../components/JobDetailSheet';
 import { Booking } from "@thelocals/platform-core";
 import { StatusToggle } from '../../components/StatusToggle';
 import { useUserLocation } from '@thelocals/platform-core';
-import { useGeoFilteredServices } from '@thelocals/platform-core/src/services/serviceAvailability';
+import { useGeoFilteredServices } from '@thelocals/platform-core';
 
 function DashboardLocationBanner() {
     const { location } = useUserLocation();

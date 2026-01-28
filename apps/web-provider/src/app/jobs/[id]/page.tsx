@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, MapPin, Navigation, Phone, CheckCircle, Clock } from 'lucide-react';
 import { liveBookingService, bookingService, PricingUtils, GoogleMapProvider, Marker, MAP_STYLES_LOKALS, Booking } from '@thelocals/platform-core';
+import { GoogleMap } from '@react-google-maps/api';
 import { toast } from 'react-hot-toast';
 
 export default function JobDetailsPage() {
@@ -106,13 +107,15 @@ export default function JobDetailsPage() {
 
             {/* Map Preview */}
             <div className="h-48 w-full bg-gray-200 relative">
-                <GoogleMapProvider
-                    center={{ lat: location.lat, lng: location.lng }}
-                    zoom={15}
-                    className="h-full w-full"
-                    options={{ disableDefaultUI: true, styles: MAP_STYLES_LOKALS }}
-                >
-                    <Marker position={{ lat: location.lat, lng: location.lng }} />
+                <GoogleMapProvider>
+                    <GoogleMap
+                        mapContainerStyle={{ height: '100%', width: '100%' }}
+                        center={{ lat: location.lat, lng: location.lng }}
+                        zoom={15}
+                        options={{ disableDefaultUI: true, styles: MAP_STYLES_LOKALS }}
+                    >
+                        <Marker position={{ lat: location.lat, lng: location.lng }} />
+                    </GoogleMap>
                 </GoogleMapProvider>
             </div>
 
