@@ -11,12 +11,13 @@ import { Skeleton } from '../../components/ui/Skeleton';
 import { IdentityBanner } from '../../components/IdentityBanner';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { Briefcase } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { JobDetailSheet } from '../../components/JobDetailSheet';
 import { Booking } from "@thelocals/platform-core";
 import { StatusToggle } from '../../components/StatusToggle';
 import { useUserLocation } from '@thelocals/platform-core';
-import { useGeoFilteredServices } from '@thelocals/platform-core';
+import { useGeoFilteredServices, liveBookingService, DbBookingRequest } from '@thelocals/platform-core';
+import { BookingRequestModal } from '../../components/jobs/BookingRequestModal';
 
 function DashboardLocationBanner() {
     const { location } = useUserLocation();
@@ -43,10 +44,41 @@ export default function Dashboard() {
     const [selectedJob, setSelectedJob] = useState<Booking | null>(null);
     const [isSheetOpen, setIsSheetOpen] = useState(false);
 
+    // Live Request State
+    const [incomingRequest, setIncomingRequest] = useState<DbBookingRequest | null>(null);
+
     const handleJobClick = (job: Booking) => {
         setSelectedJob(job);
         setIsSheetOpen(true);
     };
+
+    // Listen for new requests
+    useEffect(() => {
+        if (!user?.id) return;
+
+        console.log("Subscribing to requests for provider:", user.id);
+        const channel = liveBookingService.subscribeToProviderRequests(user.id, (payload) => {
+            console.log("New Request Received:", payload);
+            if (payload.eventType === 'INSERT') {
+                // Fetch full details (optional, or rely on payload if rich enough. 
+                // Payload is usually just the record. Ideally we fetch the booking details.)
+                // For speed, let's just use what we have and maybe fetch extra async
+                const req = payload.new as DbBookingRequest;
+
+                // Quick fetch to get booking details to show in modal
+                liveBookingService.getBookingById(req.booking_id).then(({ data }) => {
+                    if (data) {
+                        setIncomingRequest({ ...req, bookings: data } as any);
+                    }
+                });
+            }
+        });
+
+        return () => {
+            liveBookingService.unsubscribeFromChannel(channel);
+        };
+    }, [user?.id]);
+
 
     if (error) {
         // Simple error state for now, toast handled by service if applicable or we can useEffect to toast here.
@@ -147,6 +179,18 @@ export default function Dashboard() {
                     // window.location.reload(); // Removed to prevent full page refresh
                 }}
             />
+
+            {/* Incoming Request Modal */}
+            {incomingRequest && (
+                <BookingRequestModal
+                    request={incomingRequest}
+                    onClose={() => setIncomingRequest(null)}
+                    onAccepted={() => {
+                        setIncomingRequest(null);
+                        mutateActive(); // Refresh execution list
+                    }}
+                />
+            )}
         </ProviderLayout>
     );
 }
