@@ -17,6 +17,7 @@ export const metadata: Metadata = {
 
 import { Header } from "../components/layout/Header";
 import { Footer } from "../components/layout/Footer";
+import { BottomNav } from "../components/layout/BottomNav";
 import { AppProviders } from "./providers";
 
 export default function RootLayout({
@@ -29,10 +30,13 @@ export default function RootLayout({
       <body className="font-sans antialiased bg-bg-primary text-text-primary min-h-screen flex flex-col">
         <AppProviders>
           <Header />
-          <main className="flex-1">
+          <main className="flex-1 pb-16 md:pb-0">
             {children}
           </main>
-          <Footer />
+          <BottomNav />
+          <div className="hidden md:block">
+            <Footer />
+          </div>
           <Toaster position="bottom-center" toastOptions={{
             style: {
               background: '#333',
