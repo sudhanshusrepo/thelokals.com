@@ -6,5 +6,3 @@ pages_build_output_dir = "dist"
 # Environment Variables (Non-Secret)
 # Update these values to match your Supabase project settings.
 # For secrets, use 'wrangler pages secret put' or the Dashboard (if they don't get overwritten).
-[vars]
-NODE_VERSION = "20"
