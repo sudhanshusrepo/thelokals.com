@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ServiceCategory } from '@thelocals/platform-core';
-import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
+import { ServiceCategory, GoogleMapProvider } from '@thelocals/platform-core';
+import { Map, Marker } from '@vis.gl/react-google-maps';
 import { ArrowLeft, MapPin, Clock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
@@ -74,16 +74,17 @@ export default function LiveBookingHub({ serviceCategory }: LiveBookingHubProps)
         <div className="h-screen flex flex-col bg-gray-50">
             {/* Map Header */}
             <div className="h-1/3 w-full relative">
-                <LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY || ''}>
-                    <GoogleMap
-                        mapContainerStyle={mapContainerStyle}
-                        center={center}
-                        zoom={15}
-                        options={{ disableDefaultUI: true }}
+                <GoogleMapProvider>
+                    <Map
+                        defaultCenter={center}
+                        defaultZoom={15}
+                        gestureHandling={'greedy'}
+                        disableDefaultUI={true}
+                        style={{ width: '100%', height: '100%' }}
                     >
                         <Marker position={center} />
-                    </GoogleMap>
-                </LoadScript>
+                    </Map>
+                </GoogleMapProvider>
 
                 <button
                     onClick={() => router.back()}

@@ -15,10 +15,9 @@ export const metadata: Metadata = {
   description: "Book trusted professionals instantly in Mumbai, Delhi, and Bangalore.",
 };
 
-import { AuthProvider } from "../contexts/AuthContext";
 import { Header } from "../components/layout/Header";
 import { Footer } from "../components/layout/Footer";
-import { GoogleMapProvider } from "@thelocals/platform-core";
+import { AppProviders } from "./providers";
 
 export default function RootLayout({
   children,
@@ -28,22 +27,20 @@ export default function RootLayout({
   return (
     <html lang="en" className={poppins.variable}>
       <body className="font-sans antialiased bg-bg-primary text-text-primary min-h-screen flex flex-col">
-        <AuthProvider>
-          <GoogleMapProvider>
-            <Header />
-            <main className="flex-1">
-              {children}
-            </main>
-            <Footer />
-            <Toaster position="bottom-center" toastOptions={{
-              style: {
-                background: '#333',
-                color: '#fff',
-                borderRadius: '12px',
-              }
-            }} />
-          </GoogleMapProvider>
-        </AuthProvider>
+        <AppProviders>
+          <Header />
+          <main className="flex-1">
+            {children}
+          </main>
+          <Footer />
+          <Toaster position="bottom-center" toastOptions={{
+            style: {
+              background: '#333',
+              color: '#fff',
+              borderRadius: '12px',
+            }
+          }} />
+        </AppProviders>
       </body>
     </html>
   );

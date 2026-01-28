@@ -1,31 +1,26 @@
-
 'use client';
 
 import React, { ReactNode } from 'react';
-import { useJsApiLoader, useGoogleMap } from '@react-google-maps/api';
+import { APIProvider, useMap } from '@vis.gl/react-google-maps';
 
-export { useGoogleMap };
+export { useMap as useGoogleMap }; // Aliasing for backward compat if needed, but better to update calls
 
 const GOOGLE_MAPS_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY || '';
-const LIBRARIES: ('places' | 'geometry')[] = ['places', 'geometry'];
 
 interface GoogleMapProviderProps {
     children: ReactNode;
+    // adding optional props to allow overrides if needed
+    apiKey?: string;
 }
 
-export function GoogleMapProvider({ children }: GoogleMapProviderProps) {
-    const { isLoaded, loadError } = useJsApiLoader({
-        id: 'google-map-script',
-        googleMapsApiKey: GOOGLE_MAPS_KEY,
-        libraries: LIBRARIES
-    });
-
-    if (loadError) {
-        return <div>Map cannot be loaded right now, sorry.</div>;
+export function GoogleMapProvider({ children, apiKey }: GoogleMapProviderProps) {
+    if (!GOOGLE_MAPS_KEY && !apiKey) {
+        return <>{children}</>; // Fallback if no key, or handle error
     }
 
-    // We don't block rendering on isLoaded because child components (LocationSelector) use useJsApiLoader internally/redundantly safely 
-    // OR we can block if we want to ensure maps is ready globally.
-    // For now, we render children as they might be doing other things (loading skeleton)
-    return <>{children}</>;
+    return (
+        <APIProvider apiKey={apiKey || GOOGLE_MAPS_KEY} libraries={['places', 'geometry']}>
+            {children}
+        </APIProvider>
+    );
 }

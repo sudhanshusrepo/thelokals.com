@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Search, MapPin, ChevronDown, User, ShoppingBag, X } from 'lucide-react';
 import Link from 'next/link';
 import { Button, Input } from '@thelocals/ui-web';
-import { useUserLocation, LocationPermissionModal, LocationSelector } from '@thelocals/platform-core';
+import { useUserLocation, LocationPermissionModal, LocationSelector, useAuth } from '@thelocals/platform-core';
 
 export function Header() {
     const { user } = useAuth();

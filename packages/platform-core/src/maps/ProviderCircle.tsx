@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useCallback, useRef } from 'react';
-import { Circle, Marker } from '@react-google-maps/api';
+import React, { useEffect, useRef, useState } from 'react';
+import { useMap, useMapsLibrary, Marker as GoogleMarker } from '@vis.gl/react-google-maps';
 
 interface ProviderCircleProps {
     center: google.maps.LatLngLiteral;
@@ -20,41 +20,62 @@ export const ProviderCircle: React.FC<ProviderCircleProps> = ({
     fillColor = "#22CC88", // Lokals Green
     strokeColor = "#119966"
 }) => {
-    const circleRef = useRef<google.maps.Circle | null>(null);
+    const map = useMap();
+    const mapsLib = useMapsLibrary('maps');
+    const [circle, setCircle] = useState<google.maps.Circle | null>(null);
 
-    const onLoad = useCallback((circle: google.maps.Circle) => {
-        circleRef.current = circle;
-    }, []);
+    // Create circle
+    useEffect(() => {
+        if (!map || !mapsLib) return;
 
-    const onRadiusChanged = useCallback(() => {
-        if (circleRef.current && onRadiusChange) {
-            const newRadius = circleRef.current.getRadius();
-            const newRadiusKm = Math.round((newRadius / 1000) * 10) / 10; // Keep 1 decimal
+        const c = new mapsLib.Circle({
+            map,
+            center,
+            radius: radiusKm * 1000,
+            editable,
+            draggable: false,
+            fillColor,
+            fillOpacity: 0.2,
+            strokeColor,
+            strokeOpacity: 0.8,
+            strokeWeight: 2,
+        });
+
+        setCircle(c);
+
+        return () => {
+            c.setMap(null);
+        };
+    }, [map, mapsLib]);
+
+    // Update props
+    useEffect(() => {
+        if (!circle) return;
+        circle.setCenter(center);
+        circle.setRadius(radiusKm * 1000);
+        circle.setEditable(editable);
+        circle.setOptions({
+            fillColor,
+            strokeColor
+        });
+    }, [circle, center, radiusKm, editable, fillColor, strokeColor]);
+
+    // Events
+    useEffect(() => {
+        if (!circle || !onRadiusChange) return;
+
+        const listener = circle.addListener('radius_changed', () => {
+            const newRadius = circle.getRadius();
+            const newRadiusKm = Math.round((newRadius / 1000) * 10) / 10;
             onRadiusChange(newRadiusKm);
-        }
-    }, [onRadiusChange]);
+        });
 
-    // If center changes, logic to update circle center if needed?
-    // Google Maps Circle prop `center` handles this automatically.
+        return () => {
+            google.maps.event.removeListener(listener);
+        };
+    }, [circle, onRadiusChange]);
 
     return (
-        <>
-            <Marker position={center} title="Your Location" />
-            <Circle
-                center={center}
-                radius={radiusKm * 1000} // Convert to meters
-                onLoad={onLoad}
-                editable={editable}
-                draggable={false} // Only radius editable preferably
-                options={{
-                    fillColor: fillColor,
-                    fillOpacity: 0.2,
-                    strokeColor: strokeColor,
-                    strokeOpacity: 0.8,
-                    strokeWeight: 2,
-                }}
-                onRadiusChanged={onRadiusChanged}
-            />
-        </>
+        <GoogleMarker position={center} title="Your Location" />
     );
 };

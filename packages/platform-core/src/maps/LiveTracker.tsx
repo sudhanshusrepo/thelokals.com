@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useGoogleMap } from '@react-google-maps/api';
+import { useMap, useMapsLibrary } from '@vis.gl/react-google-maps';
 
 interface LiveTrackerProps {
     from: google.maps.LatLngLiteral;
@@ -10,7 +10,8 @@ interface LiveTrackerProps {
 }
 
 export const LiveTracker: React.FC<LiveTrackerProps> = ({ from, to, showEta }) => {
-    const map = useGoogleMap();
+    const map = useMap();
+    const routesLib = useMapsLibrary('routes');
     const [directionsRenderer, setDirectionsRenderer] = useState<google.maps.DirectionsRenderer | null>(null);
     const [eta, setEta] = useState<string | null>(null);
 

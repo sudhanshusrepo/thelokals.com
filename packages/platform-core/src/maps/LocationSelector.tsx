@@ -1,9 +1,8 @@
-
 'use client';
 
 import React, { useRef, useState } from 'react';
 import { UserLocation } from './types/map';
-import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
+import { Map, Marker, useMap, useMapsLibrary } from '@vis.gl/react-google-maps';
 
 const GOOGLE_MAPS_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY || '';
 
@@ -22,27 +21,32 @@ function extractPincode(addressComponents: any[]): string {
 
 export function LocationSelector({ location, onChange, showMap }: LocationSelectorProps) {
     const [searchValue, setSearchValue] = useState(location?.address || '');
-    const { isLoaded } = useJsApiLoader({
-        id: 'google-map-script',
-        googleMapsApiKey: GOOGLE_MAPS_KEY
-    });
+    // APIProvider in parent handles loading. We can use useMap to see if map is ready but simplified here.
 
-    const onMapClick = async (e: google.maps.MapMouseEvent) => {
-        if (!e.latLng) return;
+    // We need 'geocoding' service. useMapsLibrary can fetch it.
+    const geocodingLib = useMapsLibrary('geocoding');
+    const [geocoder, setGeocoder] = useState<google.maps.Geocoder | null>(null);
 
-        const newLat = e.latLng.lat();
-        const newLng = e.latLng.lng();
+    React.useEffect(() => {
+        if (geocodingLib) {
+            setGeocoder(new geocodingLib.Geocoder());
+        }
+    }, [geocodingLib]);
+
+    const onMapClick = async (e: any) => {
+        // e.detail.latLng in new lib? or check event structure.
+        // Vis.gl map onClick event has 'detail' with latLng.
+        if (!e.detail.latLng || !geocoder) return;
+
+        const newLat = e.detail.latLng.lat;
+        const newLng = e.detail.latLng.lng;
 
         try {
-            // Reverse geocode
-            const geoRes = await fetch(
-                `https://maps.googleapis.com/maps/api/geocode/json?latlng=${newLat},${newLng}&key=${GOOGLE_MAPS_KEY}`
-            );
-            const geoData = await geoRes.json();
+            const result = await geocoder.geocode({ location: { lat: newLat, lng: newLng } });
 
-            if (geoData.results && geoData.results[0]) {
-                const pincode = extractPincode(geoData.results[0]?.address_components);
-                const address = geoData.results[0]?.formatted_address;
+            if (result.results && result.results[0]) {
+                const pincode = extractPincode(result.results[0]?.address_components);
+                const address = result.results[0]?.formatted_address;
                 setSearchValue(address);
                 onChange({ lat: newLat, lng: newLng, pincode, address, accuracy: 0 });
             }
@@ -53,7 +57,6 @@ export function LocationSelector({ location, onChange, showMap }: LocationSelect
 
     const handleAddressSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchValue(e.target.value);
-        // Implementation of Places Autocomplete would go here typically
     };
 
     return (
@@ -63,24 +66,20 @@ export function LocationSelector({ location, onChange, showMap }: LocationSelect
                     <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                 </svg>
                 <h3 className="font-medium text-gray-700">Service Location</h3>
-                {/* <button className="text-sm text-blue-600 hover:underline" onClick={() => refetchLocation()}>Detect My Location</button> */}
             </div>
 
-            {showMap && isLoaded && location && (
-                <div className="mb-4 overflow-hidden rounded-lg">
-                    <GoogleMap
-                        mapContainerStyle={{ height: '300px', width: '100%' }}
-                        center={{ lat: location.lat, lng: location.lng }}
-                        zoom={15}
+            {showMap && location && (
+                <div className="mb-4 overflow-hidden rounded-lg h-[300px]">
+                    <Map
+                        defaultCenter={{ lat: location.lat, lng: location.lng }}
+                        defaultZoom={15}
+                        gestureHandling={'greedy'}
+                        disableDefaultUI={true}
                         onClick={onMapClick}
-                        options={{
-                            streetViewControl: false,
-                            mapTypeControl: false,
-                            fullscreenControl: false,
-                        }}
+                        style={{ width: '100%', height: '100%' }}
                     >
                         <Marker position={{ lat: location.lat, lng: location.lng }} draggable={true} onDragEnd={onMapClick} />
-                    </GoogleMap>
+                    </Map>
                 </div>
             )}
 

@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { GoogleMapProvider, ProviderCircle, useCurrentPosition } from '@thelocals/platform-core';
-import { GoogleMap } from '@react-google-maps/api';
+import { Map } from '@vis.gl/react-google-maps';
 
 interface ServiceAreaEditorProps {
     center?: { lat: number; lng: number };
@@ -24,14 +24,12 @@ export const ServiceAreaEditor: React.FC<ServiceAreaEditorProps> = ({
         <div className={`relative rounded-xl overflow-hidden shadow-sm border border-neutral-100 ${className}`}>
             <GoogleMapProvider>
                 <div className="h-full w-full">
-                    <GoogleMap
-                        mapContainerStyle={{ height: '100%', width: '100%' }}
-                        center={mapCenter}
-                        zoom={12}
-                        options={{
-                            disableDefaultUI: true,
-                            zoomControl: true,
-                        }}
+                    <Map
+                        defaultCenter={mapCenter}
+                        defaultZoom={12}
+                        gestureHandling={'greedy'}
+                        disableDefaultUI={true}
+                        style={{ width: '100%', height: '100%' }}
                     >
                         <ProviderCircle
                             center={mapCenter}
@@ -39,7 +37,7 @@ export const ServiceAreaEditor: React.FC<ServiceAreaEditorProps> = ({
                             editable={true}
                             onRadiusChange={onRadiusChange}
                         />
-                    </GoogleMap>
+                    </Map>
                 </div>
             </GoogleMapProvider>
 
