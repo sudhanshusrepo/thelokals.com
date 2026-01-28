@@ -26,7 +26,7 @@ CREATE POLICY "Clients can view requests for their bookings" ON booking_requests
         EXISTS (
             SELECT 1 FROM bookings b 
             WHERE b.id = booking_requests.booking_id 
-            AND b.client_id = auth.uid()
+            AND b.user_id = auth.uid()
         )
     );
 
