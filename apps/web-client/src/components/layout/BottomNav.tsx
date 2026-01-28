@@ -4,9 +4,11 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, Calendar, ShoppingCart, User } from 'lucide-react';
+import { useAuth } from '@thelocals/platform-core';
 
 export const BottomNav = () => {
     const pathname = usePathname();
+    const { user, loading } = useAuth();
 
     const navItems = [
         {
@@ -30,6 +32,12 @@ export const BottomNav = () => {
             icon: User
         }
     ];
+
+    // Hide while loading auth state to prevent flash
+    if (loading) return null;
+
+    // Strict requirement: Only for logged in users
+    if (!user) return null;
 
     // Hide bottom nav on specific paths if needed (e.g. login)
     if (pathname === '/login') return null;
