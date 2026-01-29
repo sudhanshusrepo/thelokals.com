@@ -63,6 +63,20 @@ try {
         throw new Error(`.open-next folder not found at ${openNextPath}. OpenNext build may have failed.`);
     }
 
+    // Step 2.5: Patch node-environment.js to remove file-system dependent console patching
+    // This fixes the "Error 1101" / "Writer" error on Cloudflare Pages
+    console.log('Patching Next.js node-environment.js...');
+    const nodeEnvPath = path.join(openNextPath, 'server-functions', 'default', 'node_modules', 'next', 'dist', 'server', 'node-environment.js');
+    if (fs.existsSync(nodeEnvPath)) {
+        let content = fs.readFileSync(nodeEnvPath, 'utf8');
+        // Comment out require("./node-environment-extensions/console-file");
+        content = content.replace('require("./node-environment-extensions/console-file");', '// require("./node-environment-extensions/console-file");');
+        fs.writeFileSync(nodeEnvPath, content);
+        console.log('✅ Patched node-environment.js');
+    } else {
+        console.warn('⚠️ Could not find node-environment.js to patch. This might cause runtime errors.');
+    }
+
     // Step 3: Organize artifacts in 'dist' for Cloudflare Pages
     console.log('\n📦 Organizing artifacts in root dist directory...');
     const rootDistPath = path.join(rootPath, 'dist');
