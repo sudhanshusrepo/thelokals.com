@@ -58,7 +58,7 @@ try {
     // Since we are in appPath, we might need to reference the binary from root node_modules if npx resolution fails, 
     // but standard npx should work if hoisted or looked up.
     // However, safest is to use the direct path or simply npx.
-    execSync('npx opennextjs-cloudflare', {
+    execSync('npx opennextjs-cloudflare build', {
         stdio: 'inherit',
         env: { ...process.env }
     });
