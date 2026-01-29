@@ -2,6 +2,7 @@ const path = require('path');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    output: 'standalone', // For Cloudflare Workers
     transpilePackages: ['@thelocals/platform-core', '@thelocals/platform-config'],
     outputFileTracingRoot: path.join(__dirname, '../../'),
     images: {

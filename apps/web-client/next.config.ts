@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: 'standalone', // For Cloudflare Workers
   transpilePackages: ['@thelocals/platform-core', '@thelocals/flows'],
   images: {
     unoptimized: true,
