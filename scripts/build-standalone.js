@@ -51,22 +51,22 @@ try {
     console.log(`📁 Static files: ${appPath}/.next/static`);
     console.log(`📁 Public files: ${appPath}/public`);
 
-    // Step 3: Move .next to root for Cloudflare Pages (since Root Dir is locked to repo root)
-    console.log('\n📦 Moving build artifacts to root .next directory...');
-    const rootNextPath = path.join(rootPath, '.next');
+    // Step 3: Move .next to root 'dist' for Cloudflare Pages (matching hardcoded default)
+    console.log('\n📦 Moving build artifacts to root dist directory...');
+    const rootDistPath = path.join(rootPath, 'dist');
     const appNextPath = path.join(appPath, '.next');
 
-    // Clean existing root .next
-    if (fs.existsSync(rootNextPath)) {
-        fs.rmSync(rootNextPath, { recursive: true, force: true });
+    // Clean existing root dist
+    if (fs.existsSync(rootDistPath)) {
+        fs.rmSync(rootDistPath, { recursive: true, force: true });
     }
 
-    // Move app .next to root .next
+    // Move app .next to root dist
     // Using cpSync and rmSync for cross-platform compatibility (renameSync can fail across devices/partitions)
-    fs.cpSync(appNextPath, rootNextPath, { recursive: true });
+    fs.cpSync(appNextPath, rootDistPath, { recursive: true });
 
-    console.log(`\n✅ Artifacts moved to ${rootNextPath}`);
-    console.log(`Cloudflare Pages should now detect the build output at the root.`);
+    console.log(`\n✅ Artifacts moved to ${rootDistPath}`);
+    console.log(`Cloudflare Pages should now detect the build output at the root 'dist' folder.`);
 } catch (error) {
     console.error(`\n❌ Build failed for ${appName}`);
     console.error(error.message);
