@@ -84,7 +84,7 @@ try {
     // platform: 'node' because we use nodejs_compat
     // external: 'cloudflare:*' to avoid bundling internal modules if any (though nodejs_compat uses node:* mostly)
     // format: 'esm' for Cloudflare Workers
-    const esbuildCommand = `npx esbuild "${workerEntryPath}" --bundle --outfile="${workerOutputPath}" --format=esm --platform=node --target=esnext --external:cloudflare:* --external:workerd:*`;
+    const esbuildCommand = `npx esbuild "${workerEntryPath}" --bundle --outfile="${workerOutputPath}" --format=esm --platform=node --target=esnext --external:cloudflare:* --external:workerd:* --loader:.wasm=file --loader:.bin=file`;
 
     console.log(`Running: ${esbuildCommand}`);
     try {
