@@ -2,7 +2,7 @@
 
 /**
  * Build script for standalone Next.js apps for Cloudflare Workers
- * This builds the app with all dependencies bundled
+ * This builds the app with all dependencies bundled and uses OpenNext adapter
  */
 
 const { execSync } = require('child_process');
@@ -26,7 +26,7 @@ if (!fs.existsSync(appPath)) {
     process.exit(1);
 }
 
-console.log(`Building ${appName} in standalone mode...`);
+console.log(`Building ${appName} for Cloudflare Pages (OpenNext)...`);
 console.log(`App path: ${appPath}`);
 
 try {
@@ -38,35 +38,55 @@ try {
         env: { ...process.env }
     });
 
-    // Step 2: Change to app directory and run Next.js build in standalone mode
-    console.log(`\n🏗️  Building Next.js app in standalone mode: ${appName}...`);
+    // Step 2: Change to app directory and run OpenNext build
+    console.log(`\n🏗️  Running OpenNext build for: ${appName}...`);
     process.chdir(appPath);
+
+    // Install or ensure opennextjs-cloudflare is available (it's in root devDependencies, so npx should find it if we are in monorepo context)
+    // We strictly use npx opennextjs-cloudflare to build
+    // Note: OpenNext usually runs 'next build' internally or requires it pre-run. 
+    // To be safe and ensure type checking, we run standard build first, creating .next, then OpenNext adapts it.
+
+    console.log('Running Next.js build first...');
     execSync('npm run build', {
         stdio: 'inherit',
         env: { ...process.env }
     });
 
-    console.log(`\n✅ Successfully built ${appName} in standalone mode`);
-    console.log(`\n📁 Standalone output: ${appPath}/.next/standalone`);
-    console.log(`📁 Static files: ${appPath}/.next/static`);
-    console.log(`📁 Public files: ${appPath}/public`);
+    console.log('Running OpenNext adapter...');
+    // We assume opennextjs-cloudflare is available in the path via npx from root
+    // Since we are in appPath, we might need to reference the binary from root node_modules if npx resolution fails, 
+    // but standard npx should work if hoisted or looked up.
+    // However, safest is to use the direct path or simply npx.
+    execSync('npx opennextjs-cloudflare', {
+        stdio: 'inherit',
+        env: { ...process.env }
+    });
 
-    // Step 3: Move .next to root 'dist' for Cloudflare Pages (matching hardcoded default)
-    console.log('\n📦 Moving build artifacts to root dist directory...');
+    console.log(`\n✅ Successfully built ${appName} with OpenNext`);
+
+    // Check for .open-next output
+    const openNextPath = path.join(appPath, '.open-next');
+    if (!fs.existsSync(openNextPath)) {
+        throw new Error(`.open-next folder not found at ${openNextPath}. OpenNext build may have failed.`);
+    }
+
+    // Step 3: Move .open-next to root 'dist' for Cloudflare Pages (matching hardcoded default)
+    console.log('\n📦 Moving OpenNext artifacts to root dist directory...');
     const rootDistPath = path.join(rootPath, 'dist');
-    const appNextPath = path.join(appPath, '.next');
 
     // Clean existing root dist
     if (fs.existsSync(rootDistPath)) {
         fs.rmSync(rootDistPath, { recursive: true, force: true });
     }
 
-    // Move app .next to root dist
-    // Using cpSync and rmSync for cross-platform compatibility (renameSync can fail across devices/partitions)
-    fs.cpSync(appNextPath, rootDistPath, { recursive: true });
+    // Move app .open-next to root dist
+    // fs.cpSync requires Node 16.7+. We usually have 18+.
+    fs.cpSync(openNextPath, rootDistPath, { recursive: true });
 
     console.log(`\n✅ Artifacts moved to ${rootDistPath}`);
-    console.log(`Cloudflare Pages should now detect the build output at the root 'dist' folder.`);
+    console.log(`Cloudflare Pages should now detect 'dist' containing the Worker and Assets.`);
+
 } catch (error) {
     console.error(`\n❌ Build failed for ${appName}`);
     console.error(error.message);
