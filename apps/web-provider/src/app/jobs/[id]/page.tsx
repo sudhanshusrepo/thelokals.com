@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, MapPin, Navigation, Phone, CheckCircle, Clock } from 'lucide-react';
-import { liveBookingService, bookingService, PricingUtils, GoogleMapProvider, Marker, MAP_STYLES_LOKALS, Booking } from '@thelocals/platform-core';
+import { liveBookingService, bookingService, PricingUtils, GoogleMapProvider, Marker, MAP_STYLES_LOKALS, Booking, useAuth, useAcceptBooking } from '@thelocals/platform-core';
 import { Map } from '@vis.gl/react-google-maps';
 import { toast } from 'react-hot-toast';
 

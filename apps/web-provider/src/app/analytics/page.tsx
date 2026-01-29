@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useAuth, analyticsService, type ProviderAnalytics, type ProviderEarnings, type CategoryPerformance } from '@thelokals/platform-core';
+import { useAuth, analyticsService, type ProviderAnalytics, type ProviderEarnings, type CategoryPerformance } from '@thelocals/platform-core';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
@@ -140,8 +140,8 @@ export default function AnalyticsPage() {
                                             key={p}
                                             onClick={() => setPeriod(p)}
                                             className={`px-3 py-1 text-sm rounded ${period === p
-                                                    ? 'bg-blue-500 text-white'
-                                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                                ? 'bg-blue-500 text-white'
+                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                                 }`}
                                         >
                                             {p.charAt(0).toUpperCase() + p.slice(1)}

@@ -4,7 +4,7 @@ import React, { ReactNode } from 'react';
 import { APIProvider, useMap } from '@vis.gl/react-google-maps';
 
 export { useMap as useGoogleMap }; // Aliasing for backward compat
-export { Map, Marker, AdvancedMarker, Pin } from '@vis.gl/react-google-maps';
+export { Map, Marker as GoogleMarker, AdvancedMarker, Pin } from '@vis.gl/react-google-maps';
 
 const GOOGLE_MAPS_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY || '';
 
