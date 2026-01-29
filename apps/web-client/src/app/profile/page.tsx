@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useAuth } from '@thelocals/platform-core';
 import { LogOut, Settings, MapPin, CreditCard, Shield, ChevronRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -9,8 +9,14 @@ export default function ProfilePage() {
     const { user, signOut } = useAuth();
     const router = useRouter();
 
+    // Handle redirect on client-side only to avoid SSR issues
+    useEffect(() => {
+        if (!user) {
+            router.push('/login');
+        }
+    }, [user, router]);
+
     if (!user) {
-        router.push('/login');
         return null;
     }
 
