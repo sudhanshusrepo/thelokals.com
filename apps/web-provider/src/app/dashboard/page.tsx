@@ -86,6 +86,9 @@ export default function Dashboard() {
     // Coalesce boolean just in case
     const isVerified = (profile as any)?.is_verified || (profile as any)?.isVerified;
 
+    // Check for active locking jobs
+    const hasActiveJob = recentJobs.some(j => ['CONFIRMED', 'EN_ROUTE', 'IN_PROGRESS'].includes(j.status));
+
     return (
         <ProviderLayout>
             <div className="flex justify-between items-center mb-6">
@@ -96,7 +99,10 @@ export default function Dashboard() {
                     <p className="text-neutral-500 text-sm">Let's make today productive.</p>
                 </div>
                 <div className="hidden md:block">
-                    <StatusToggle />
+                    <StatusToggle
+                        disabled={hasActiveJob}
+                        disabledReason="Complete your active job first"
+                    />
                 </div>
             </div>
 

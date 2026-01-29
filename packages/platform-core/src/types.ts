@@ -245,6 +245,12 @@ export interface NearbyProviderResponse {
   is_verified: boolean;
 }
 
+export interface AcceptBookingResponse {
+  success: boolean;
+  message?: string;
+  booking_id?: string;
+}
+
 export type AdminRole = 'SUPER_ADMIN' | 'OPS_ADMIN' | 'SUPPORT_ADMIN' | 'FINANCE_ADMIN' | 'READ_ONLY';
 
 export interface AdminUser {

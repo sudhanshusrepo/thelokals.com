@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { LiveBooking, NearbyProviderResponse } from '../types';
+import { LiveBooking, NearbyProviderResponse, AcceptBookingResponse } from '../types';
 import { logger } from './logger';
 import { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 
@@ -16,11 +16,16 @@ export const liveBookingService = {
    * @returns {Promise<NearbyProviderResponse[]>} A list of nearby providers.
    */
   async findNearbyProviders(booking: LiveBooking): Promise<NearbyProviderResponse[]> {
+    const loc = (booking.requirements as any)?.location;
+    if (!loc?.lat || !loc?.lng) {
+      logger.warn('Booking requirements missing location', { bookingId: booking.id });
+      return [];
+    }
     const { data, error } = await supabase.rpc('find_nearby_providers', {
-      lat: (booking.requirements as any)?.location?.lat,
-      lng: (booking.requirements as any)?.location?.lng,
-      service_id: booking.serviceId,
-      max_distance: GEOGRAPHY_PROXIMITY_THRESHOLD
+      p_lat: loc.lat,
+      p_lng: loc.lng,
+      p_service_id: booking.serviceId,
+      p_max_distance: GEOGRAPHY_PROXIMITY_THRESHOLD
     });
 
     if (error) {
@@ -45,7 +50,9 @@ export const liveBookingService = {
         booking_type: 'LIVE',
         status: 'PENDING', // Initial status in DB
         requirements: bookingData.requirements,
-        location: `POINT(${requirements?.location?.lng} ${requirements?.location?.lat})`,
+        location: (requirements?.location?.lat && requirements?.location?.lng)
+          ? `POINT(${requirements.location.lng} ${requirements.location.lat})`
+          : null,
         service_item_id: requirements?.option?.id,
       })
       .select()
@@ -70,6 +77,43 @@ export const liveBookingService = {
       startedAt: data.started_at,
       completedAt: data.completed_at
     } as LiveBooking;
+  },
+
+  /**
+   * Orchestrates the entire booking creation + fan-out process.
+   * 1. Create Booking (Pending)
+   * 2. Find Nearby Providers
+   * 3. Send Requests (Fan-out)
+   */
+  async createAndBroadcastBooking(bookingData: Partial<LiveBooking>): Promise<LiveBooking> {
+    // 1. Create the booking record
+    const booking = await this.createLiveBooking(bookingData);
+
+    try {
+      // 2. Find nearby providers
+      const providers = await this.findNearbyProviders(booking);
+
+      if (!providers || providers.length === 0) {
+        logger.warn('No providers found for booking', { bookingId: booking.id });
+        // Optionally update booking status to NO_PROVIDERS_FOUND
+        return booking;
+      }
+
+      // 3. Create Booking Requests (Fan-out)
+      const providerIds = providers.map(p => p.provider_id);
+      await this.createBookingRequests(booking.id, providerIds);
+
+      logger.info('Broadcasting booking to providers', {
+        bookingId: booking.id,
+        count: providerIds.length
+      });
+
+    } catch (error) {
+      logger.error('Error during broadcast (Fan-out)', error);
+      // We don't fail the booking creation itself, but we might want to alert the user
+    }
+
+    return booking;
   },
 
   /**
@@ -98,7 +142,7 @@ export const liveBookingService = {
     // 1. Find Nearby
     const providers = await this.findNearbyProviders(booking);
     if (!providers || providers.length === 0) {
-       throw new Error("No nearby providers found");
+      throw new Error("No nearby providers found");
     }
 
     const providerIds = providers.map(p => p.provider_id);
@@ -126,7 +170,7 @@ export const liveBookingService = {
    * @returns {Promise<LiveBooking>} The updated booking.
    * @throws {Error} If the RPC call fails.
    */
-  async acceptBooking(bookingId: string, providerId: string): Promise<LiveBooking> {
+  async acceptBooking(bookingId: string, providerId: string): Promise<AcceptBookingResponse> {
     const { data, error } = await supabase.rpc('accept_live_booking', {
       p_request_id: bookingId, // Note: Schema expects p_request_id, but here it might be bookingId. Let's verify usage.
       p_provider_id: providerId
@@ -137,7 +181,8 @@ export const liveBookingService = {
       throw error;
     }
 
-    return data as LiveBooking;
+    // RPC returns JSONB { success: boolean, message: string, booking_id?: string }
+    return data as AcceptBookingResponse;
   },
 
   /**
@@ -145,15 +190,19 @@ export const liveBookingService = {
    * @param {string} bookingId - The ID of the booking to cancel.
    * @returns {Promise<void>}
    */
-  async cancelBooking(bookingId: string): Promise<void> {
-    const { error } = await supabase
-      .from('bookings')
-      .update({ status: 'CANCELLED' })
-      .eq('id', bookingId);
+  async cancelBooking(bookingId: string, reason: string = 'Client cancelled'): Promise<void> {
+    const { data, error } = await supabase.rpc('cancel_booking', {
+      p_booking_id: bookingId,
+      p_reason: reason
+    });
 
     if (error) {
       logger.error('Error canceling booking', { error, bookingId });
       throw error;
+    }
+
+    if (data && !data.success) {
+      throw new Error(data.message || 'Failed to cancel booking');
     }
   },
 
@@ -248,6 +297,13 @@ export const liveBookingService = {
    * @param {string} method - 'CARD', 'UPI', or 'CASH'.
    * @returns {Promise<void>}
    */
+  /**
+   * Processes a payment (Client Side - Mock).
+   * @param {string} bookingId - The ID of the booking.
+   * @param {number} amount - The amount to pay.
+   * @param {string} method - 'CARD', 'UPI', or 'CASH'.
+   * @returns {Promise<void>}
+   */
   async processPayment(bookingId: string, amount: number, method: string): Promise<void> {
     const { error } = await supabase.rpc('process_payment', {
       p_booking_id: bookingId,
@@ -258,6 +314,30 @@ export const liveBookingService = {
     if (error) {
       logger.error('Error processing payment', { error, bookingId });
       throw error;
+    }
+  },
+
+  /**
+   * Submits a review for a booking.
+   * @param {string} bookingId - The ID of the booking.
+   * @param {number} rating - 1-5 rating.
+   * @param {string} comment - Optional review comment.
+   */
+  async submitReview(bookingId: string, rating: number, comment: string): Promise<void> {
+    const { data, error } = await supabase.rpc('submit_review', {
+      p_booking_id: bookingId,
+      p_rating: rating,
+      p_comment: comment
+    });
+
+    if (error) {
+      logger.error('Error submitting review', { error, bookingId });
+      throw error;
+    }
+
+    // Check application level success
+    if (data && !data.success) {
+      throw new Error(data.message || 'Failed to submit review');
     }
   },
 

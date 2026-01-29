@@ -51,6 +51,7 @@
     "@eslint/js": "^9.15.0",
     "@opennextjs/cloudflare": "^1.14.7",
     "@playwright/test": "^1.44.0",
+    "@supabase/supabase-js": "^2.93.2",
     "@testing-library/jest-dom": "^6.4.5",
     "@testing-library/react": "^15.0.0",
     "@types/jest": "^29.5.12",

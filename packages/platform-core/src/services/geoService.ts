@@ -66,7 +66,7 @@ export const geoService = {
 
         // 2. Fallback to Direct RPC (Stateful / DB Direct)
         const { data, error } = await supabase.rpc('find_nearby_providers', {
-            p_service_id: '00000000-0000-0000-0000-000000000000', // Matches verified RPC signature
+            p_service_id: serviceCategory,  // Passed correctly now
             p_lat: lat,
             p_lng: lng,
             p_max_distance: radiusKm * 1000
@@ -104,7 +104,7 @@ export const geoService = {
                 const url = new URL(`${CONFIG.EDGE_API_URL}/availability/check`);
                 url.searchParams.append('service', serviceCode);
                 url.searchParams.append('pincode', pincode);
-                
+
                 const response = await fetch(url.toString());
                 if (response.ok) {
                     const data = await response.json();
@@ -126,7 +126,7 @@ export const geoService = {
             // Default to true or false? PRD says global enabled is default, assuming RPC handles it.
             // If RPC fails entirely, safe default might be true or false depending on business risk.
             // Returning true to not block service unless explicitly disabled.
-            return true; 
+            return true;
         }
 
         return data && data.length > 0 ? data[0].is_enabled : true;

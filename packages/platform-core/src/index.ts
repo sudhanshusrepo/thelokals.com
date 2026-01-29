@@ -22,13 +22,15 @@ export * from './services/liveBookingService';
 export * from './services/otp';
 export * from './services/matchingService';
 export * from './services/notificationService';
+export * from './services/analyticsService';
 export * from './services/dynamicPricingService';
 export * from './services/aiClassificationService';
 export * from './services/voiceInputService';
 export * from './databaseTypes';
-export * from './utils/headerUtils';
 export * from './utils/pricingUtils';
+export * from './utils/headerUtils';
 export * from './utils/featureFlags';
+export * from './utils/mapUtils';
 export * from './components/auth';
 
 // Theme system
@@ -43,6 +45,9 @@ export * from './components/layout/BottomNav';
 export * from './components/layout/AppLayout';
 export * from './components/ui/Button';
 export { useTheme as useThemeHook } from './hooks/useTheme';
+export { useProviderHeartbeat } from './hooks/useProviderHeartbeat';
+export { useAcceptBooking } from './hooks/useAcceptBooking';
+export { useLiveTracking } from './hooks/useLiveTracking';
 
 export { ErrorFallback } from './components/ErrorFallback';
 export { logger } from './services/logger';
@@ -52,6 +57,7 @@ export * from './maps/types/map';
 export * from './maps/useUserLocation';
 export * from './maps/LocationSelector';
 export * from './maps/LocationPermissionModal';
+export * from './maps/ClientTrackingMap';
 export * from './maps/GoogleMapProvider';
 export * from './maps/ProviderCircle';
 export * from './maps/LiveTracker';

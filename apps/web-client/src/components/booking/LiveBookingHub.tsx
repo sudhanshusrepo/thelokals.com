@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ServiceCategory, GoogleMapProvider } from '@thelocals/platform-core';
+import { ServiceCategory, GoogleMapProvider, ClientTrackingMap } from '@thelocals/platform-core';
 import { Map, Marker } from '@vis.gl/react-google-maps';
 import { ArrowLeft, MapPin, Clock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { useAuth, liveBookingService, LiveBooking } from '@thelocals/platform-core';
+import { useAuth, liveBookingService, LiveBooking, useUserLocation } from '@thelocals/platform-core';
 import { SearchingRadar } from './SearchingRadar';
 
 interface LiveBookingHubProps {
@@ -26,6 +26,7 @@ const center = {
 export default function LiveBookingHub({ serviceCategory }: LiveBookingHubProps) {
     const router = useRouter();
     const { user } = useAuth();
+    const { location: userLocation, isLoading: isLocLoading } = useUserLocation();
 
     // State
     const [step, setStep] = useState<'DRAFT' | 'SEARCHING' | 'CONFIRMED'>('DRAFT');
@@ -40,43 +41,74 @@ export default function LiveBookingHub({ serviceCategory }: LiveBookingHubProps)
             return;
         }
 
+        if (!userLocation) {
+            toast.error("Locating you...");
+            return;
+        }
+
         try {
             setStep('SEARCHING');
 
-            // 1. Create Booking
-            const booking = await liveBookingService.createLiveBooking({
+            // 1. Create & Broadcast Booking (Atomic Fan-out)
+            const booking = await liveBookingService.createAndBroadcastBooking({
                 clientId: user.id,
                 serviceId: serviceCategory.id,
                 requirements: {
-                    location: { lat: 19.0760, lng: 72.8777 }, // Using mock/center for now, ideally user location
-                    date: bookingDate
+                    location: { lat: userLocation.lat, lng: userLocation.lng },
+                    date: bookingDate,
+                    address: userLocation.address
                 }
             });
             setCurrentBooking(booking);
 
-            // 2. Start Searching (Find & Request Providers)
-            await liveBookingService.startSearching(booking);
-
-            // 3. Subscribe to updates
+            // 2. Subscribe to updates
             const channel = liveBookingService.subscribeToBookingUpdates(
                 booking.id,
                 (payload) => {
                     const newRecord = payload.new as any;
+                    // Update local booking state with new data from DB
+                    setCurrentBooking((prev) => prev ? { ...prev, ...newRecord } : newRecord);
+
                     const newStatus = newRecord.status;
-                    if (newStatus === 'CONFIRMED' || newStatus === 'EN_ROUTE') {
+                    if (newStatus === 'CONFIRMED' || newStatus === 'EN_ROUTE' || newStatus === 'IN_PROGRESS' || newStatus === 'COMPLETED') {
                         setStep('CONFIRMED');
-                        toast.success("Provider Found!");
+                    }
+                    if (newRecord.payment_status === 'PAID') {
+                        toast.success("Payment Confirmed");
                     }
                 }
             );
 
-            // Cleanup subscription on unmount handled by useEffect usually, 
-            // but here we just leave it for the flow lifetime.
-
         } catch (error: any) {
-
             toast.error(error.message || "Failed to start booking");
             setStep('DRAFT');
+        }
+    };
+
+    const handleCancel = async () => {
+        if (!currentBooking) return;
+        const confirmCancel = window.confirm("Are you sure you want to cancel this booking?");
+        if (!confirmCancel) return;
+
+        try {
+            await liveBookingService.cancelBooking(currentBooking.id);
+            toast.success("Booking Cancelled");
+            setStep('DRAFT');
+            setCurrentBooking(null);
+            router.refresh();
+        } catch (error: any) {
+            toast.error(error.message || "Failed to cancel");
+        }
+    };
+
+    const handleReview = async (rating: number) => {
+        if (!currentBooking) return;
+        try {
+            await liveBookingService.submitReview(currentBooking.id, rating, "Great service!");
+            toast.success("Review Submitted!");
+            router.push('/bookings');
+        } catch (error: any) {
+            toast.error("Failed to submit review");
         }
     };
 
@@ -84,24 +116,128 @@ export default function LiveBookingHub({ serviceCategory }: LiveBookingHubProps)
         return (
             <SearchingRadar
                 serviceName={serviceCategory.name}
-                onCancel={() => {
-                    setStep('DRAFT');
-                }}
+                onCancel={handleCancel}
             />
         );
     }
 
-    if (step === 'CONFIRMED') {
+    if (step === 'CONFIRMED' && currentBooking) {
         return (
-            <div className="h-screen w-full flex flex-col items-center justify-center bg-green-50 text-gray-900 p-4 text-center">
-                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center text-4xl mb-6">
-                    🎉
+            <div className="h-screen w-full flex flex-col bg-gray-50">
+                {/* Live Tracking Map */}
+                <div className="flex-1 relative">
+                    <GoogleMapProvider>
+                        <Map
+                            defaultCenter={userLocation ? { lat: userLocation.lat, lng: userLocation.lng } : center}
+                            defaultZoom={15}
+                            disableDefaultUI={true}
+                            style={{ width: '100%', height: '100%' }}
+                        >
+                            <ClientTrackingMap bookingId={currentBooking.id} />
+                            {userLocation && <Marker position={{ lat: userLocation.lat, lng: userLocation.lng }} />}
+                        </Map>
+                    </GoogleMapProvider>
                 </div>
-                <h2 className="text-2xl font-bold mb-2">Booking Confirmed!</h2>
-                <p className="text-gray-600 mb-8">Provider is on the way.</p>
-                <button onClick={() => router.push('/bookings')} className="bg-black text-white px-8 py-3 rounded-xl font-bold">
-                    View Booking
-                </button>
+
+                {/* Bottom Sheet Info */}
+                {/* Bottom Sheet Info / State Machine */}
+                <div className="bg-white p-6 rounded-t-3xl shadow-2xl -mt-6 relative z-10 transition-all duration-300">
+
+                    {/* 1. EN_ROUTE / IN_PROGRESS */}
+                    {currentBooking.status !== 'COMPLETED' && currentBooking.status !== 'CANCELLED' && (
+                        <>
+                            <div className="flex items-center gap-4 mb-6">
+                                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-2xl">
+                                    👷
+                                </div>
+                                <div>
+                                    <h2 className="text-xl font-bold">
+                                        {currentBooking.status === 'IN_PROGRESS' ? 'Job In Progress' : 'Provider En Route'}
+                                    </h2>
+                                    <p className="text-gray-500 text-sm">
+                                        {currentBooking.status === 'IN_PROGRESS' ? 'Work has started' : 'Arriving in ~10 mins'}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="flex gap-4">
+                                <button onClick={handleCancel} className="flex-1 bg-red-50 text-red-600 px-8 py-4 rounded-xl font-bold">
+                                    Cancel
+                                </button>
+                                <button onClick={() => router.push('/bookings')} className="flex-1 bg-black text-white px-8 py-4 rounded-xl font-bold">
+                                    Details
+                                </button>
+                            </div>
+                        </>
+                    )}
+
+                    {/* 2. PAYMENT (Completed but not Paid) */}
+                    {currentBooking.status === 'COMPLETED' && currentBooking.payment_status !== 'PAID' && (
+                        <div className="text-center">
+                            <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-2xl mx-auto mb-4">
+                                ✅
+                            </div>
+                            <h2 className="text-xl font-bold mb-2">Job Completed!</h2>
+                            <p className="text-gray-500 mb-6">Please clear the payment to proceed.</p>
+
+                            <div className="bg-gray-50 p-4 rounded-xl mb-6 text-left">
+                                <div className="flex justify-between mb-2">
+                                    <span>Base Price</span>
+                                    <span className="font-bold">₹{serviceCategory.base_price || 499}</span>
+                                </div>
+                                <div className="flex justify-between text-green-600 text-sm">
+                                    <span>Discount (New User)</span>
+                                    <span>-₹50</span>
+                                </div>
+                                <div className="h-px bg-gray-200 my-2"></div>
+                                <div className="flex justify-between text-lg font-bold">
+                                    <span>Total</span>
+                                    <span>₹{(serviceCategory.base_price || 499) - 50}</span>
+                                </div>
+                            </div>
+
+                            <button
+                                onClick={async () => {
+                                    try {
+                                        const amount = (serviceCategory.base_price || 499) - 50;
+                                        await liveBookingService.processPayment(currentBooking.id, amount, 'UPI');
+                                        toast.success("Payment Successful!");
+                                        // The realtime subscription will update local state to PAID
+                                    } catch (e) {
+                                        toast.error("Payment Failed");
+                                    }
+                                }}
+                                className="w-full bg-black text-white px-8 py-4 rounded-xl font-bold animate-pulse"
+                            >
+                                Pay Now (UPI)
+                            </button>
+                        </div>
+                    )}
+
+                    {/* 3. REVIEW (Paid but not Reviewed) */}
+                    {currentBooking.status === 'COMPLETED' && currentBooking.payment_status === 'PAID' && (
+                        <div className="text-center">
+                            <div className="w-16 h-16 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center text-2xl mx-auto mb-4">
+                                ⭐
+                            </div>
+                            <h2 className="text-xl font-bold mb-2">Rate your Experience</h2>
+                            <p className="text-gray-500 mb-6">How was the service provided?</p>
+
+                            <div className="flex justify-center gap-2 mb-8">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                    <button
+                                        key={star}
+                                        onClick={() => handleReview(star)}
+                                        className="text-4xl hover:scale-110 transition-transform"
+                                    >
+                                        ⭐
+                                    </button>
+                                ))}
+                            </div>
+                            <p className="text-xs text-gray-400">Click a star to submit</p>
+                        </div>
+                    )}
+                </div>
             </div>
         );
     }

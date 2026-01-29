@@ -9,9 +9,11 @@ import { Loader2 } from 'lucide-react';
 
 interface StatusToggleProps {
     className?: string;
+    disabled?: boolean;
+    disabledReason?: string;
 }
 
-export const StatusToggle = ({ className }: StatusToggleProps) => {
+export const StatusToggle = ({ className, disabled, disabledReason }: StatusToggleProps) => {
     const { user, profile, refreshProfile } = useAuth();
     const [loading, setLoading] = useState(false);
 
@@ -20,6 +22,10 @@ export const StatusToggle = ({ className }: StatusToggleProps) => {
     const isActive = (profile as any)?.is_active || (profile as any)?.isActive || false;
 
     const toggleStatus = async () => {
+        if (disabled) {
+            toast.error(disabledReason || "Cannot change status right now");
+            return;
+        }
         if (!user?.id || loading) return;
 
         setLoading(true);
@@ -42,13 +48,14 @@ export const StatusToggle = ({ className }: StatusToggleProps) => {
     return (
         <button
             onClick={toggleStatus}
-            disabled={loading}
+            disabled={loading} // Keep loading separately, disabled handled in onClick
             className={`
                 flex items-center gap-2 px-4 py-2 rounded-full font-bold text-sm transition-all
                 ${isActive
                     ? 'bg-brand-green text-white hover:bg-green-700 shadow-md'
                     : 'bg-neutral-100 text-neutral-500 hover:bg-neutral-200'
                 }
+                ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
                 ${className}
             `}
         >
