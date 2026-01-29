@@ -39,7 +39,14 @@ try {
         env: { ...process.env }
     });
 
-    console.log(`✅ Successfully built ${appName}`);
+    // Run @cloudflare/next-on-pages to convert Next.js build for Cloudflare
+    console.log('Running: npx @cloudflare/next-on-pages');
+    execSync('npx @cloudflare/next-on-pages', {
+        stdio: 'inherit',
+        env: { ...process.env }
+    });
+
+    console.log(`✅ Successfully built ${appName} for Cloudflare Pages`);
 } catch (error) {
     console.error(`❌ Build failed for ${appName}`);
     console.error(error.message);

@@ -1,7 +1,7 @@
 name = "thelokals-app"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
-pages_build_output_dir = "apps/web-client/.next"
+pages_build_output_dir = "apps/web-client/.vercel/output/static"
 
 # Environment Variables (Non-Secret)
 # Update these values to match your Supabase project settings.
