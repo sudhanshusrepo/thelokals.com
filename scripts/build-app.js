@@ -20,6 +20,7 @@ if (!appName) {
 }
 
 const appPath = path.join(__dirname, '..', 'apps', appName);
+const rootPath = path.join(__dirname, '..');
 
 if (!fs.existsSync(appPath)) {
     console.error(`Error: App "${appName}" not found at ${appPath}`);
@@ -30,25 +31,32 @@ console.log(`Building ${appName}...`);
 console.log(`App path: ${appPath}`);
 
 try {
-    // Change to app directory and run build
-    process.chdir(appPath);
+    // Step 1: Build workspace dependencies first (from root)
+    console.log('\n📦 Building workspace dependencies...');
+    process.chdir(rootPath);
+    execSync('npm run build --workspace=@thelocals/platform-core --if-present', {
+        stdio: 'inherit',
+        env: { ...process.env }
+    });
 
-    console.log('Running: npm run build');
+    // Step 2: Change to app directory and run Next.js build
+    console.log(`\n🏗️  Building Next.js app: ${appName}...`);
+    process.chdir(appPath);
     execSync('npm run build', {
         stdio: 'inherit',
         env: { ...process.env }
     });
 
-    // Run @cloudflare/next-on-pages to convert Next.js build for Cloudflare
-    console.log('Running: npx @cloudflare/next-on-pages');
-    execSync('npx @cloudflare/next-on-pages', {
+    // Step 3: Run @cloudflare/next-on-pages to convert for Cloudflare Workers
+    console.log('\n⚡ Converting to Cloudflare Pages format...');
+    execSync('npx --yes @cloudflare/next-on-pages@1', {
         stdio: 'inherit',
         env: { ...process.env }
     });
 
-    console.log(`✅ Successfully built ${appName} for Cloudflare Pages`);
+    console.log(`\n✅ Successfully built ${appName} for Cloudflare Pages`);
 } catch (error) {
-    console.error(`❌ Build failed for ${appName}`);
+    console.error(`\n❌ Build failed for ${appName}`);
     console.error(error.message);
     process.exit(1);
 }
