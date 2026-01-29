@@ -42,11 +42,6 @@ try {
     console.log(`\n🏗️  Running OpenNext build for: ${appName}...`);
     process.chdir(appPath);
 
-    // Install or ensure opennextjs-cloudflare is available (it's in root devDependencies, so npx should find it if we are in monorepo context)
-    // We strictly use npx opennextjs-cloudflare to build
-    // Note: OpenNext usually runs 'next build' internally or requires it pre-run. 
-    // To be safe and ensure type checking, we run standard build first, creating .next, then OpenNext adapts it.
-
     console.log('Running Next.js build first...');
     execSync('npm run build', {
         stdio: 'inherit',
@@ -54,10 +49,6 @@ try {
     });
 
     console.log('Running OpenNext adapter...');
-    // We assume opennextjs-cloudflare is available in the path via npx from root
-    // Since we are in appPath, we might need to reference the binary from root node_modules if npx resolution fails, 
-    // but standard npx should work if hoisted or looked up.
-    // However, safest is to use the direct path or simply npx.
     execSync('npx opennextjs-cloudflare build', {
         stdio: 'inherit',
         env: { ...process.env }
@@ -71,21 +62,43 @@ try {
         throw new Error(`.open-next folder not found at ${openNextPath}. OpenNext build may have failed.`);
     }
 
-    // Step 3: Move .open-next to root 'dist' for Cloudflare Pages (matching hardcoded default)
-    console.log('\n📦 Moving OpenNext artifacts to root dist directory...');
+    // Step 3: Organize artifacts in 'dist' for Cloudflare Pages
+    // Cloudflare Pages expects index.html at root of dist, and _worker.js at root of dist.
+    // OpenNext produces .open-next/assets/* and .open-next/worker.js
+
+    console.log('\n📦 Structuring artifacts in root dist directory...');
     const rootDistPath = path.join(rootPath, 'dist');
 
     // Clean existing root dist
     if (fs.existsSync(rootDistPath)) {
         fs.rmSync(rootDistPath, { recursive: true, force: true });
     }
+    fs.mkdirSync(rootDistPath, { recursive: true });
 
-    // Move app .open-next to root dist
-    // fs.cpSync requires Node 16.7+. We usually have 18+.
-    fs.cpSync(openNextPath, rootDistPath, { recursive: true });
+    // 1. Copy assets to flat dist
+    const assetsPath = path.join(openNextPath, 'assets');
+    if (fs.existsSync(assetsPath)) {
+        console.log(`Copying assets from ${assetsPath} to ${rootDistPath}...`);
+        fs.cpSync(assetsPath, rootDistPath, { recursive: true });
+    } else {
+        console.warn(`Warning: No assets folder found at ${assetsPath}`);
+    }
 
-    console.log(`\n✅ Artifacts moved to ${rootDistPath}`);
-    console.log(`Cloudflare Pages should now detect 'dist' containing the Worker and Assets.`);
+    // 2. Copy worker.js to _worker.js in dist
+    const workerPath = path.join(openNextPath, 'worker.js');
+    const destWorkerPath = path.join(rootDistPath, '_worker.js');
+
+    if (fs.existsSync(workerPath)) {
+        console.log(`Copying worker from ${workerPath} to ${destWorkerPath}...`);
+        fs.copyFileSync(workerPath, destWorkerPath);
+    } else {
+        throw new Error(`worker.js not found at ${workerPath}`);
+    }
+
+    console.log(`\n✅ Artifacts prepared in ${rootDistPath}`);
+    console.log(`- Static assets are at root`);
+    console.log(`- _worker.js is at root`);
+    console.log(`Cloudflare Pages should now detect and serve the site correctly.`);
 
 } catch (error) {
     console.error(`\n❌ Build failed for ${appName}`);
