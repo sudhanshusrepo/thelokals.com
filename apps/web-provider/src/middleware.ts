@@ -2,6 +2,29 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
+    // 0. Check for required environment variables to prevent Error 1101 crashes
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+        console.error('⛔ Critical: Missing Supabase environment variables in middleware');
+        return new NextResponse(
+            `<html>
+                <head><title>Configuration Error</title></head>
+                <body style="font-family: system-ui, sans-serif; padding: 2rem; max-width: 600px; margin: 0 auto;">
+                    <h1>Application Configuration Error</h1>
+                    <p>The application cannot start because critical environment variables are missing.</p>
+                    <p><strong>Action Required:</strong> Please configure <code>NEXT_PUBLIC_SUPABASE_URL</code> and <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> in your Cloudflare Pages project settings (Settings > Environment variables).</p>
+                    <hr/>
+                    <small>Error: MISSING_SUPABASE_SECRETS</small>
+                </body>
+            </html>`,
+            {
+                status: 500,
+                headers: {
+                    'content-type': 'text/html',
+                },
+            }
+        )
+    }
+
     let response = NextResponse.next({
         request: {
             headers: request.headers,
