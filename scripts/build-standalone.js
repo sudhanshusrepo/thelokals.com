@@ -88,6 +88,15 @@ try {
     // Create dist folder
     fs.mkdirSync(rootDistPath, { recursive: true });
 
+    // Check for required environment variables causing runtime crashes
+    const requiredEnvVars = ['NEXT_PUBLIC_SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_ANON_KEY'];
+    const missingEnvVars = requiredEnvVars.filter(key => !process.env[key]);
+    if (missingEnvVars.length > 0) {
+        console.warn('⚠️  WARNING: Missing environment variables preventing proper build:');
+        console.warn(missingEnvVars.join(', '));
+        console.warn('The application may crash at runtime (Error 1101) if these are not available.');
+    }
+
     // A. Bundling Worker
     // We use esbuild to bundle the split worker into a single _worker.js
     console.log('Bundling worker using esbuild...');
@@ -95,10 +104,10 @@ try {
     const workerOutputPath = path.join(rootDistPath, '_worker.js');
 
     // Construct esbuild command
-    // platform: 'node' because we use nodejs_compat
-    // external: 'cloudflare:*' to avoid bundling internal modules if any (though nodejs_compat uses node:* mostly)
-    // format: 'esm' for Cloudflare Workers
-    const esbuildCommand = `npx esbuild "${workerEntryPath}" --bundle --outfile="${workerOutputPath}" --format=esm --platform=node --target=esnext --external:cloudflare:* --external:workerd:* --loader:.wasm=file --loader:.bin=file`;
+    // Use 'neutral' platform for Cloudflare Workers to avoid Node.js built-ins being assumed available without polyfills
+    // Add 'worker', 'workerd', 'browser' conditions to pick up the correct exports
+    // Externalize all Node.js built-ins because we are using nodejs_compat which provides these at runtime
+    const esbuildCommand = `npx esbuild "${workerEntryPath}" --bundle --outfile="${workerOutputPath}" --format=esm --platform=neutral --main-fields=module,main --conditions=workerd,worker,browser --target=esnext --external:cloudflare:* --external:workerd:* --external:node:* --external:assert --external:async_hooks --external:buffer --external:child_process --external:cluster --external:console --external:constants --external:crypto --external:dgram --external:diagnostics_channel --external:dns --external:domain --external:events --external:fs --external:http --external:http2 --external:https --external:inspector --external:module --external:net --external:os --external:path --external:perf_hooks --external:process --external:punycode --external:querystring --external:readline --external:repl --external:stream --external:string_decoder --external:sys --external:timers --external:tls --external:trace_events --external:tty --external:url --external:util --external:v8 --external:vm --external:wasi --external:worker_threads --external:zlib --loader:.wasm=file --loader:.bin=file`;
 
     console.log(`Running: ${esbuildCommand}`);
     try {
